@@ -1,7 +1,9 @@
 
 @extends('layout.main')
-
-@section('title') Surface - Dashboard @endsection
+<head>
+@section('title') Surface  @endsection
+<link rel="shortcut icon" href="{{{asset('assets/images/ccc.jpg') }}}" />
+</head>
 
 
 @section('body')
