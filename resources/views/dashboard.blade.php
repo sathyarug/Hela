@@ -2,6 +2,7 @@
 @extends('layout.main')
 
 @section('title') Surface - Dashboard @endsection
+@section('m_dashboard') class = 'active' @endsection
 
 
 @section('body')
@@ -28,7 +29,7 @@
 						</ul>
 
 						<ul class="breadcrumb-elements">
-							<li><a href="#"><i class="icon-comment-discussion position-left"></i> Support</a></li>
+							<li><a href="#"><i class="icon-comment-discussion position-left"></i> Dashboard</a></li>
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="icon-gear position-left"></i>
