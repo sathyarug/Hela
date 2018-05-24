@@ -24,7 +24,6 @@
 
 	@include('layout.top_menu')
 
-
 	<!-- Page container -->
 	<div class="page-container">
 
