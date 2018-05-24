@@ -20,7 +20,6 @@
 				</li>
 
                                 
-				
 			</ul>
 
 			<p class="navbar-text"><span class="label bg-success">Online</span></p>
