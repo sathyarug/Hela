@@ -241,7 +241,7 @@ a.badge,
 }
 .category-content {
   position: relative;
-  padding: 20px;
+  padding: 10px;
 }
 .navigation {
   margin: 0;
@@ -301,6 +301,7 @@ a.badge,
 .navigation li > .has-ul {
   position: relative;
   padding-right: 36px;
+
 }
 .navigation li > .has-ul:after {
   content: "\e9c7";
@@ -337,8 +338,8 @@ a.badge,
   background-color: #eeeeee;
 }
 .navigation > li > a {
-  padding: 12px 20px;
-  min-height: 44px;
+  padding: 2px 20px;
+  min-height: 18px;
   font-weight: 500;
 }
 .navigation > li > a .label,
@@ -370,9 +371,9 @@ a.badge,
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .navigation > li ul li a {
-  padding: 10px 20px;
+  padding: 2px 20px;
   padding-left: 51px;
-  min-height: 40px;
+  min-height: 18px;
 }
 .navigation > li ul .navigation-header {
   padding-left: 51px;
@@ -399,7 +400,7 @@ a.badge,
 }
 .navigation .navigation-header {
   min-height: 30px;
-  padding: 10px 20px;
+  padding: 2px 20px;
   border-bottom: 0;
   text-transform: uppercase;
   font-size: 11px;
@@ -3966,8 +3967,8 @@ select.selectpicker {
  * ---------------------------------------------------------------------------- */
 .validation-error-label,
 .validation-valid-label {
-  margin-top: 7px;
-  margin-bottom: 7px;
+  margin-top: 2px;
+  margin-bottom: 2px;
   display: block;
   color: #F44336;
   position: relative;
