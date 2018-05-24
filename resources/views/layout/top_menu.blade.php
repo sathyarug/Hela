@@ -13,6 +13,11 @@
 		<div class="navbar-collapse collapse" id="navbar-mobile">
 			<ul class="nav navbar-nav">
 				<li><a class="sidebar-control sidebar-main-toggle hidden-xs"><i class="icon-paragraph-justify3"></i></a></li>
+				<li>
+					<a class="sidebar-control sidebar-main-hide hidden-xs" data-popup="tooltip" title="Hide main" data-placement="bottom" data-container="body">
+						<i class="icon-lan3"></i>
+					</a>
+				</li>
 
 				
 			</ul>
