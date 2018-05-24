@@ -97,83 +97,88 @@
 															<input type="text" class="form-control input-xxs" >
 														</div>
 													</fieldset>
-												</div>
--->
-
+												</div>-->
 
 
 												<div class="col-md-12">
 
 
-												<div class="text-right">
-													<button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class="icon-plus3"></i></b> New</button>
-												</div> 
-												
-
-												<table class="table datatable-basic">
-													<thead>
-														<tr>
-															<th>Source Code</th>
-															<th>Source Name</th>
-															<th>Status</th>
-															<th class="text-center">Actions</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr>
-															<td>Marth</td>
-															<td><a href="#">Enright</a></td>												
-															<td><span class="label label-success">Active</span></td>
-															<td class="text-center">
-																<ul class="icons-list">
-																	<li class="dropdown">
-																		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-																			<i class="icon-menu9"></i>
-																		</a>
-
-																		<ul class="dropdown-menu dropdown-menu-right">
-																			<li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
-																			<li><a href="#"><i class="icon-bin"></i> Delete</a></li>
-																		</ul>
-																	</li>
-																</ul>
-															</td>
-														</tr>
-														<tr>
-															<td>Jackelyn</td>
-															<td>Weible</td>
-															<td><span class="label label-default">Inactive</span></td>
-															<td class="text-center">
-																<ul class="icons-list">
-																	<li class="dropdown">
-																		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-																			<i class="icon-menu9"></i>
-																		</a>
-
-																		<ul class="dropdown-menu dropdown-menu-right">
-																			<li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
-																			<li><a href="#"><i class="icon-bin"></i> Delete</a></li>
-																		</ul>
-																	</li>
-																</ul>
-															</td>
-														</tr>
-														
-
-													</tbody></table>
-
-												
+													<div class="text-right">
+														<button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"  data-toggle="modal" data-target="#modal_mini"><b><i class="icon-plus3"></i></b>Add New</button>
+													</div> 
 
 
 
-											</div>
+													<table class="table datatable-basic">
+														<thead>
+															<tr>
+																<th>First Name</th>
+																<th>Last Name</th>
+																<th>Job Title</th>
+																<th>DOB</th>
+																<th>Status</th>
+																<th class="text-center">Actions</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>Marth</td>
+																<td>Enright</td>
+																<td>Traffic Court Referee</td>
+																<td>22 Jun 1972</td>
+																<td><span class="label label-success">Active</span></td>
+																<td class="text-center">
+																	<ul class="icons-list">
+																		<li class="dropdown">
+																			<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																				<i class="icon-menu9"></i>
+																			</a>
+
+																			<ul class="dropdown-menu dropdown-menu-right">
+																				<li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+																				<li><a href="#"><i class="icon-bin"></i> Inactive</a></li>
+																			</ul>
+																		</li>
+																	</ul>
+																</td>
+															</tr>
+															<tr>
+																<td>Jackelyn</td>
+																<td>Weible</td>
+																<td>Airline Transport Pilot</td>
+																<td>3 Oct 1981</td>
+																<td><span class="label label-default">Inactive</span></td>
+																<td class="text-center">
+																	<ul class="icons-list">
+																		<li class="dropdown">
+																			<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																				<i class="icon-menu9"></i>
+																			</a>
+
+																			<ul class="dropdown-menu dropdown-menu-right">
+																				<li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+																				<li><a href="#"><i class="icon-bin"></i> Inactive</a></li>
+																			</ul>
+																		</li>
+																	</ul>
+																</td>
+															</tr>
+
+
+														</tbody></table>
 
 
 
 
-											</div>
 
-											<div class="tab-pane" id="highlighted-justified-tab2">
+													</div>
+
+
+
+
+												</div>
+
+												<div class="tab-pane" id="highlighted-justified-tab2">
 												<!-- <div class=" col-md-12">
 													<fieldset class="content-group">
 
@@ -214,25 +219,6 @@
 							</div>
 						</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 						<!-- /basic layout -->
 
 					</div>
@@ -245,6 +231,40 @@
 				</div>
 				<!-- /latest posts -->
 
+				<!-- Mini modal -->
+				<div id="modal_mini" class="modal fade">
+					<div class="modal-dialog modal-xs">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+								<h5 class="modal-title">Add Main Sourse</h5>
+							</div>
+
+							<div class="modal-body">
+								<div class=" col-md-12">
+									<form class="form-horizontal form-validate-jquery" action="#">
+									<fieldset class="content-group">
+
+
+											<label>Main Sourse Name <span class="text-danger">*</span> :</label>
+											
+											<input type="text" name="basic" class="form-control input-xxs" required="required" placeholder="Text input validation">
+										
+									</fieldset>
+							
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>								
+								<button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs"><b><i class="icon-floppy-disk"></i></b> Save</button>
+							</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!-- /mini modal -->
+
 
 				@endsection
 
@@ -253,16 +273,17 @@
 
 				@section('javascripy') 
 
-				<!-- Select with search -->
-				<script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/tables/datatables/datatables.min.js"></script>
+				<script type="text/javascript" src="assets/js/pages/datatables_basic.js"></script>
+
+				<script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+				<script type="text/javascript" src="assets/js/pages/form_validation.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/forms/selects/bootstrap_multiselect.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/forms/inputs/touchspin.min.js"></script>
 				<script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
-				<script type="text/javascript" src="assets/js/pages/form_select2.js"></script>
-				<!-- /Select with search -->
-
-				<!-- Content loading -->
-				<script type="text/javascript" src="assets/js/plugins/loaders/progressbar.min.js"></script>
-				<script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
-				<!-- /Content loading -->
-
+				<script type="text/javascript" src="assets/js/plugins/forms/styling/switch.min.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
+				<script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
 
 				@endsection
