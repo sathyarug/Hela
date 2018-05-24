@@ -18,7 +18,6 @@
 	<!-- /global stylesheets -->
 	@yield('load_css')
 	
-
 </head>
 
 <!-- <body  class="navbar-top"> -->
