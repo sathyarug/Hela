@@ -20,7 +20,8 @@
     </head>
 
     <!-- <body  class="navbar-top"> -->
-    <body  class="sidebar-xs">
+    <body  class="sidebar-xs navbar-top">
+        
 
         @include('layout.top_menu')
 
