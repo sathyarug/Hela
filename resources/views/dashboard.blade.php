@@ -1,9 +1,15 @@
 
 @extends('layout.main')
+<<<<<<< HEAD
 <head>
 @section('title') Surface  @endsection
 <link rel="shortcut icon" href="{{{asset('assets/images/ccc.jpg') }}}" />
 </head>
+=======
+
+@section('title') Surface - Dashboard @endsection
+@section('m_dashboard') class = 'active' @endsection
+>>>>>>> aebef2397c356d441736bc665eff2f07cca7a003
 
 
 @section('body')
@@ -30,7 +36,7 @@
 						</ul>
 
 						<ul class="breadcrumb-elements">
-							<li><a href="#"><i class="icon-comment-discussion position-left"></i> Support</a></li>
+							<li><a href="#"><i class="icon-comment-discussion position-left"></i> Dashboard</a></li>
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="icon-gear position-left"></i>

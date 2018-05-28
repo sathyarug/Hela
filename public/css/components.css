@@ -3967,8 +3967,8 @@ select.selectpicker {
  * ---------------------------------------------------------------------------- */
 .validation-error-label,
 .validation-valid-label {
-  margin-top: 2px;
-  margin-bottom: 2px;
+  margin-top: 7px;
+  margin-bottom: 7px;
   display: block;
   color: #F44336;
   position: relative;
