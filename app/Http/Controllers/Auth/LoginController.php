@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use App\usr_login;
+use Illuminate\Http\Request;
+use Cookie;
+
 
 //use Html;
 
@@ -47,16 +49,14 @@ class LoginController extends Controller
     public function showLogin()
     {
         // show the form
-//        return View::make('dashboard');
         return view('login');
-//        print_r('Shanila Dilshan');
     }
 
-    public function doLogin()
+    public function doLogin(Request $request)
     {
         // validate the info, create rules for the inputs
         $rules = array(
-            'email'    => 'required|email', // make sure the email is an actual email
+      //   'user-name'    => 'required|email', // make sure the email is an actual email
             'password' => 'required|alphaNum|min:3' // password can only be alphanumeric and has to be greater than 3 characters
         );
 
@@ -72,30 +72,36 @@ class LoginController extends Controller
 
             // create our user data for the authentication
             $userdata = array(
-                'user_name' 	=> Input::get('email'),
+                'user_name' 	=> Input::get('user-name'),
                 'password' 	=> Input::get('password')
             );
-//            $users = User::all();
-//            $password = 'JohnDoe';
-//            $hashedPassword = Hash::make($password);
-//            echo $hashedPassword;exit;
-          dd(Auth::attempt($userdata));
-            // attempt to do the login
-            if (Auth::attempt($userdata)) {
 
-                // validation successful!
-                // redirect them to the secure section or whatever
-                // return Redirect::to('secure');
-                // for now we'll just echo success (even though echoing in a controller is bad)
-                echo 'SUCCESS!';
+            $remember = (Input::has('remember')) ? true : false;
+
+            // attempt to do the login
+            if (Auth::attempt($userdata,$remember)) {
+                if($remember){
+                    Cookie::queue("user-name", Input::get('user-name'), 3600);
+                    Cookie::queue("password", Input::get('password'), 3600);
+                }else{
+                    Cookie::queue(Cookie::forget('user-name'));
+                    Cookie::queue(Cookie::forget('password'));
+                }
+                return Redirect::to('/home');
 
             } else {
-                echo 'error!';
                 // validation not successful, send back to form
+                $request->session()->flash('loginError', trans('auth.failed'));
                 return Redirect::to('/');
 
             }
 
         }
     }
+
+    public function logout(Request $request) {
+        Auth::logout();
+        return redirect('/');
+    }
+
 }
