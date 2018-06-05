@@ -103,7 +103,7 @@
                                 <div class="col-md-1">&nbsp;</div>
                                 <div class="col-md-6">&nbsp;{{Form::text('del_address',"",array('class'=>'form-control'))}}</div>
                                 <div class="col-md-2">&nbsp;</div> -->
-                                <!-- Test -->
+                                <!-- Test 1 -->
                             </div>
                         </div>
                     </div>
