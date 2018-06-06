@@ -40,7 +40,13 @@
                         <a href="#"><i class="icon-stack2"></i> <span>Administrator</span></a></a>
                         <ul>
 
-
+                            <li>
+                                <a href="#">User Managment</a>
+                                <ul>
+                                    <li @yield('m_register')><a href="register">Register</a></li>
+                                </ul>
+                            </li>
+                            
                             <li>
                                 <a href="#">Sample</a>
                                 <ul>
