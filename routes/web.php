@@ -28,3 +28,9 @@ Route::get('/recover', function () {
 Route::get('/home', function () {
     return view('dashboard');
 });
+
+Route::get('register', function () {
+    return view('user.register');
+});
+
+Route::post('register', array('uses'=>'UserController@store'));
