@@ -44,7 +44,13 @@ Route::get('add_location', function () {
 });
 
 
+Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
 
+Route::post('currency.save','CurrencyController@save');
+
+Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
+
+Route::get('currency.get','CurrencyController@get_currency');
 
 
 
