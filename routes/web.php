@@ -28,3 +28,7 @@ Route::get('/recover', function () {
 Route::get('/home', function () {
     return view('dashboard');
 });
+//Load country page
+Route::get('/create_country','CountryController@index');
+//save country
+Route::post('/insertCountry','CountryController@insertCountry');
