@@ -76,7 +76,7 @@
                     </div>
                     <div class="col-md-7">
                         <div class="text-right">
-                            <button class="btn bg-teal-400 btn-labeled btn-primary btn-xs" id="btn-new"><b><i class="icon-plus3"></i></b> New</button>
+                            <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs" id="btn-new"><b><i class="icon-plus3"></i></b> New</button>
                             <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save"><b><i class="icon-floppy-disk"></i></b> Save</button>
                         </div> 
                     </div>
@@ -102,7 +102,7 @@
                                 </div>-->
 
 
-                                <div class="col-md-6">
+                                <div class="col-md-7">
 
 
                                  

@@ -19,7 +19,7 @@ class BaseValidator extends Model
         if ($v->fails()) {
             // set errors and return false
             $this->errors = $v->errors();
-            $this->$errors_str = implode(",",$v->messages()->all());
+            $this->errors_str = implode(",",$v->messages()->all());
             return false;
         }
         // validation pass

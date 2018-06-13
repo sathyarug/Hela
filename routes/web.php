@@ -43,7 +43,7 @@ Route::get('add_location', function () {
     return view('add_location/add_location');
 });
 
-
+//currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
 
 Route::post('currency.save','CurrencyController@save');
@@ -51,6 +51,15 @@ Route::post('currency.save','CurrencyController@save');
 Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 
 Route::get('currency.get','CurrencyController@get_currency');
+
+//payment term routes
+Route::get('payment-term.new','PaymentTermController@new_payment_term');
+
+Route::post('payment-term.save','PaymentTermController@save');
+
+Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
+
+Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
 
 

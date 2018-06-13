@@ -16,30 +16,38 @@ function app_serialize_form_to_json(_form_selector){
 
 /**
  * 
- * @param {string or object} _config
  * @param {string} _type
+ * @param {string or object} _data
+ * @param {function} _action
  * @returns {void}
  */
-function app_alert(_config,_type){
-    var options = {
-        title: "Success",
-        text: "",
-        confirmButtonColor: "#66BB6A",
-        type: "success"
-    };
-    var data_type = typeof _config;
-    if(data_type === 'string'){
-        if(_type === 'error'){
-            options['title'] = 'Error';
-            options['type'] = 'error';
-            options['confirmButtonColor'] = '#EF5350';
-        }
-        options['text'] = _config;
-    }
-    else{
-        $.extend( options, _config );
-    }    
-    swal(options);
+function app_alert(_type,_data,_action){
+    var options = {};    
+    
+    switch (_type){
+        case 'success':
+          options = { title: "Success", text: _data, confirmButtonColor: "#66BB6A", type: "success" };
+          break;
+        case 'error': 
+          options = { title: "Error", text: _data, confirmButtonColor: "#EF5350", type: "error" };
+          break;
+        case 'info': 
+          options = { title: "For your information", text: _data, confirmButtonColor: "#2196F3", type: "info" };
+          break;
+        case 'warning':
+          options = {title: "Are you sure?",
+            text: _data,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#FF7043",
+            confirmButtonText: " Yes "
+          };
+          break;
+        case 'custom':
+          options = _data;  
+          break;  
+    } 
+    swal(options,_action);  
 }
 
 

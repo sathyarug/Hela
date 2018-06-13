@@ -10,19 +10,7 @@ use App\Currency;
 class CurrencyController extends Controller
 {
     public function new_currency(/*Request $request*/){
-        /*$currency = new Currency();
-        $currency->currency_id = 0;
-        $currency->currency_code = "USD";
-        $currency->currency_description = "us dollers";
-       // $currency->created_by = 1;
-       // $currency->updated_by = 1;
-        $result = $currency->saveOrFail();
-        
-        $currenc_list = Currency::all();
-        
-        $currency = Currency::find(2);
-        $currency->delete();
-        print_r($currency);*/
+       
         
       /*  $data = array(
             'currency_code' => 'CUR',
@@ -54,13 +42,10 @@ class CurrencyController extends Controller
         $currency = new Currency();       
         if ($currency->validate($request->all()))   
         {
-            if($request->cur_id > 0){
-                $currency = Currency::find($request->cur_id);
+            if($request->currency_id > 0){
+                $currency = Currency::find($request->currency_id);
             }     
-            $currency->fill($request->all());
-            //$currency->currency_id = $request->currency_id;
-            //$currency->currency_code = $request->currency_code;
-           // $currency->currency_description = $request->currency_description;
+            $currency->fill($request->all());           
             $currency->created_by = 1;            
             $result = $currency->saveOrFail();
             echo json_encode(array('status' => 'success' , 'message' => 'Currency details saved successfully.'));

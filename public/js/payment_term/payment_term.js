@@ -1,6 +1,6 @@
 (function(){
     
-    var CUR_ID = 0;
+    var PAYMENT_ID = 0;
     var X_CSRF_TOKEN = '';
     var TABLE = null;
     
@@ -9,47 +9,46 @@
        X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');      
     
         
-        var validator = app_form_validator('#currency-form',{
+        var validator = app_form_validator('#payment_form',{
             submitHandler: function() { 
                 try{
-                    save_currency();
-                    $("#currency-form :input").val('');
+                    save_payment_term();
+                    $("#payment_form :input").val('');
                     validator.resetForm();
                 }catch(e){return false;}
                 return false; 
             },
             rules: {
-                currency_code: {
+                payment_code: {
                     required : true                
                 },
-                currency_description: {
+                payment_description: {
                     required : true
                 }         
             },
             messages: {
                 custom: {
                     required: "This is a custom error message",
-                },
-                agree: "Please accept our policy"
+                }             
             }
         });
         
         
         
-        var dataSet = get_currency_list();
+        var dataSet = get_payment_term_list();
         
-        TABLE = $('#tbl').DataTable({
+        TABLE = $('#tbl_payment_term').DataTable({
             //autoWidth: false,
              columns: [
-                 { data: "currency_id",
+                 { data: "payment_term_id",
                 render : function(data){
                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
 </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
                     return str;
                 }
                 },
-            { data: "currency_code" },
-            { data: "currency_description" },
+            { data: "payment_code" },
+            { data: "payment_description" },
             
         ],
             columnDefs: [{ 
@@ -58,24 +57,24 @@
             targets: [ 0 ]
         }],
      data: dataSet,
-        dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
+        dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"pi>',
         });
         
         
-      $('#tbl').on('click','i',function(){
+      $('#tbl_payment_term').on('click','i',function(){
           var ele = $(this);
           if(ele.attr('data-action') === 'EDIT'){
-              cur_edit(ele.attr('data-id'));
+              payment_term_edit(ele.attr('data-id'));
           }
           else if(ele.attr('data-action') === 'DELETE'){
               
           }
       });
       
-      $('#btn-new').click(function(){          
-          $("#currency-form :input").val('');
+      $('#btn_new').click(function(){          
+          $("#payment_form :input").val('');
           validator.resetForm();
-          $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> Save');
+          $('#btn_save').html('<b><i class="icon-floppy-disk"></i></b> Save');
       });
         
         
@@ -85,13 +84,13 @@
     
     
     
-    function save_currency(){
-        var data = app_serialize_form_to_json('#currency-form');
+    function save_payment_term(){
+        var data = app_serialize_form_to_json('#payment_form');
         data['_token'] = X_CSRF_TOKEN;
         //var cur_code = $('#cur-code').val();
         //var cur_description = $('#cur-description').val();
         $.ajax({
-            url : 'currency.save',
+            url : 'payment-term.save',
             async : false,
             type : 'post',
             data : data,
@@ -113,10 +112,10 @@
     }
     
     
-function get_currency_list(){
+function get_payment_term_list(){
     var data = [];
     $.ajax({
-        url : 'currency.get_currency_list',
+        url : 'payment-term.get_payment_term_list',
         async : false,
         type : 'get',
         data : {},//{'cur_code' : cur_code,'cur_description' : cur_description},
@@ -135,8 +134,8 @@ function get_currency_list(){
     
 function reload_table()
 {
-	var dataset = get_currency_list();
-	  var tbl = $('#tbl').dataTable();
+	var dataset = get_payment_term_list();
+	  var tbl = $('#tbl_payment_term').dataTable();
 	  tbl.fnClearTable();
 	  tbl.fnDraw();
 	  if(dataset != null && dataset.length != 0)
@@ -145,20 +144,20 @@ function reload_table()
 }
 
 
-function cur_edit(_id){    
+function payment_term_edit(_id){    
     
-    app_alert('warning','Do you want to edit selected currency?',function(isConfirm){
+    app_alert('warning','Do you want to edit selected payment term?',function(isConfirm){
         if (isConfirm) { // yes button
             $.ajax({
-                url : 'currency.get',
+                url : 'payment-term.get',
                 type : 'get',
-                data : {'cur_id' : _id},
+                data : {'payment_term_id' : _id},
                 success : function(res){
                     var data = JSON.parse(res);
-                    $('#cur-id').val(data['currency_id']);
-                    $('#cur-code').val(data['currency_code']);
-                    $('#cur-description').val(data['currency_description']);
-                    $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> Update');
+                    $('#payment_id').val(data['payment_term_id']);
+                    $('#payment_code').val(data['payment_code']);
+                    $('#payment_description').val(data['payment_description']);
+                    $('#btn_save').html('<b><i class="icon-floppy-disk"></i></b> Update');
                 }
             });
         }           
