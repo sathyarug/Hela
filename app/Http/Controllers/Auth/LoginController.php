@@ -78,6 +78,7 @@ class LoginController extends Controller
 
             $remember = (Input::has('remember')) ? true : false;
 
+
             // attempt to do the login
             if (Auth::attempt($userdata,$remember)) {
                 if($remember){
@@ -87,6 +88,8 @@ class LoginController extends Controller
                     Cookie::queue(Cookie::forget('user-name'));
                     Cookie::queue(Cookie::forget('password'));
                 }
+
+
                 return Redirect::to('/home');
 
             } else {
