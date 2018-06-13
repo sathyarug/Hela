@@ -11,37 +11,32 @@
 |
 */
 
-/*Route::get('/', function () {
-    return view('welcome');
-});*/
+Route::get('/', 'Auth\LoginController@showLogin');
 
-Route::get('/', function () {
+// route to process the form
+Route::post('login', array('uses' => 'Auth\LoginController@doLogin'));
+
+Route::get('logout', 'Auth\LoginController@logout');
+Route::get('reset', 'Auth\ForgotPasswordController@reset');
+//Route::get('home', 'Auth\LoginController@home');
+
+
+Route::get('/recover', function () {
+    return view('recover');
+});
+
+Route::get('/home', function () {
     return view('dashboard');
 });
 
-
-Route::get('icon', function () {
-    return view('icon_page');
+Route::get('register', function () {
+    return view('user.register');
 });
 
 
-Route::get('dashboard', function () {
-    return view('dashboard');
-});
+Route::post('register', array('uses'=>'UserController@store'));
 
 
-Route::get('alert', function () {
-    return view('alert');
-});
-
-
-Route::get('costing', function () {
-    return view('costing');
-});
-
-Route::get('add_location', function () {
-    return view('add_location/add_location');
-});
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
@@ -60,6 +55,7 @@ Route::post('payment-term.save','PaymentTermController@save');
 Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
+
 
 
 

@@ -1,8 +1,12 @@
 
 @extends('layout.main')
 
+@section('title') Surface  @endsection
+
+
 @section('title') Surface - Dashboard @endsection
 @section('m_dashboard') class = 'active' @endsection
+
 
 
 @section('body')
