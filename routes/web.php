@@ -41,6 +41,7 @@ Route::post('register', array('uses'=>'UserController@store'));
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
 
+
 Route::post('currency.save','CurrencyController@save');
 
 Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
