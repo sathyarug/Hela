@@ -9,6 +9,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Cookie;
+use Session;
+//use App\User;
+use App\UsrProfile;
 
 
 //use Html;
@@ -78,9 +81,11 @@ class LoginController extends Controller
 
             $remember = (Input::has('remember')) ? true : false;
 
-
+//            dump(Flight::find(60666));
             // attempt to do the login
             if (Auth::attempt($userdata,$remember)) {
+                $userAuth = Auth::User();
+
                 if($remember){
                     Cookie::queue("user-name", Input::get('user-name'), 3600);
                     Cookie::queue("password", Input::get('password'), 3600);
@@ -89,6 +94,8 @@ class LoginController extends Controller
                     Cookie::queue(Cookie::forget('password'));
                 }
 
+                $user = UsrProfile::find($userAuth->user_id);
+                $request->session()->put('user', $user);
 
                 return Redirect::to('/home');
 
