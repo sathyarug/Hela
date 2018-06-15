@@ -16959,7 +16959,7 @@ thead .htCollapseButton:after {
   margin-left: 0;
 }
 .dataTables_length select {
-  height: 36px;
+  height: 30px;
   padding: 7px 12px;
   font-size: 13px;
   line-height: 1.5384616;
@@ -17009,7 +17009,7 @@ thead .htCollapseButton:after {
 .dataTables_filter input {
   outline: 0;
   width: 200px;
-  height: 36px;
+  height: 30px;
   padding: 7px 12px;
   padding-right: 36px;
   font-size: 13px;

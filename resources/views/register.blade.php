@@ -168,7 +168,7 @@
 
                                                 <legend class="text-bold">User Login</legend>
 
-                                                <div class="form-group col-md-4">
+                                               {{-- <div class="form-group col-md-4">
                                                     {{ Form::label('user-name', 'User Name', array('class' => 'control-label text-semibold')) }}
                                                     {{ Form::text('user-name','', array('class' => 'form-control input-xxs'))  }}
                                                 </div>
@@ -176,7 +176,7 @@
                                                 <div class="form-group col-md-4">
                                                     {{ Form::label('password', 'Password', array('class' => 'control-label text-semibold')) }}
                                                     {{ Form::password('password',  array('class' => 'form-control input-xxs'))  }}
-                                                </div>
+                                                </div>--}}
 
                                                 <br clear="all">
 

@@ -27,7 +27,7 @@
                     <li><a href="#"><i class="icon-statistics"></i> Analytics</a></li>
                     <li><a href="#"><i class="icon-accessibility"></i> Accessibility</a></li>
                     <li class="divider"></li>
-                    <li><a href="#"><i class="icon-gear"></i> All settings</a></li>
+                    <li><a href="#"><i class="icon-gear"></i> All settings </a></li>
                 </ul>
             </li>
         </ul>
