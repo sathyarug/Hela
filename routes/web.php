@@ -11,14 +11,18 @@
 |
 */
 
+//login
 Route::get('/', 'Auth\LoginController@showLogin');
 
-// route to process the form
 Route::post('login', array('uses' => 'Auth\LoginController@doLogin'));
 
 Route::get('logout', 'Auth\LoginController@logout');
+
 Route::get('reset', 'Auth\ForgotPasswordController@reset');
-//Route::get('home', 'Auth\LoginController@home');
+
+Route::get('select-location', 'Auth\LoginController@selectLocation');
+
+Route::POST('loginWithLoc', 'Auth\LoginController@loginWithLoc');
 
 
 Route::get('/recover', function () {
@@ -57,7 +61,7 @@ Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payme
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
-//test
+
 
 
 

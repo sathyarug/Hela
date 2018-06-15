@@ -10,8 +10,9 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Cookie;
 use Session;
-//use App\User;
+use App\UsrLocMap;
 use App\UsrProfile;
+use App\OrgLocation;
 
 
 //use Html;
@@ -45,7 +46,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except('logout');
+//        $this->middleware('guest')->except('logout');
     }
 
 
@@ -81,7 +82,6 @@ class LoginController extends Controller
 
             $remember = (Input::has('remember')) ? true : false;
 
-//            dump(Flight::find(60666));
             // attempt to do the login
             if (Auth::attempt($userdata,$remember)) {
                 $userAuth = Auth::User();
@@ -95,9 +95,16 @@ class LoginController extends Controller
                 }
 
                 $user = UsrProfile::find($userAuth->user_id);
+                $userLoc = UsrLocMap::where('user_id',$userAuth->user_id)->count();
                 $request->session()->put('user', $user);
+                if($userLoc>1 ){
+                   // $userLoc = UsrLocMap::where('user_id',$userAuth->user_id)->get();
+                    return Redirect::to('/select-location');
 
-                return Redirect::to('/home');
+                }else{
+                    return Redirect::to('/home');
+                }
+
 
             } else {
                 // validation not successful, send back to form
@@ -109,8 +116,27 @@ class LoginController extends Controller
         }
     }
 
+    public function selectLocation(Request $request) {
+
+        $user = $request->session()->get('user');
+        $userLoc = UsrLocMap::where('user_id',$user->user_id)->get();
+        $locationMain=array();
+        foreach ($userLoc AS $loc ){
+            $location = OrgLocation::find($loc->loc_code);
+            $locationMain[$loc->loc_code]=$location->loc_name;
+        }
+        return view('selectLocation', ['loc' =>$locationMain]);
+    }
+
+    public function loginWithLoc(Request $request) {
+        $request->session()->get('user')->loc_code=10;
+        return Redirect::to('/home');
+    }
+
+
     public function logout(Request $request) {
         Auth::logout();
+        $request->session()->flush();
         return redirect('/');
     }
 
