@@ -28,7 +28,13 @@ Route::get('/recover', function () {
 Route::get('/home', function () {
     return view('dashboard');
 });
-//Load country page
-Route::get('/create_country','CountryController@index');
-//save country
-Route::post('/insertCountry','CountryController@insertCountry');
+// Country module
+Route::get('create_country','CountryController@index');
+Route::get('get_all_country','CountryController@show');
+Route::delete('delete_country/{country_id}','CountryController@delete');
+Route::get('edit_country/{country_id}','CountryController@edit');
+Route::post('update_country/{country_id}','CountryController@update');
+Route::post('insertCountry','CountryController@insertCountry');
+
+//GRN mocule
+Route::get('grn_details','GrnController@grnDetails');

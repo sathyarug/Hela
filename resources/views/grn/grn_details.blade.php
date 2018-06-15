@@ -1,9 +1,9 @@
 @extends('layout.main')
 
-@section('title') Country @endsection
+@section('title') GRN Details @endsection
 
 @section('load_css') <link href="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/theme-default.min.css"
-rel="stylesheet" type="text/css" /> @endsection
+                           rel="stylesheet" type="text/css" /> @endsection
 
 
 @section('m_costing') class = 'active' @endsection
@@ -43,7 +43,7 @@ rel="stylesheet" type="text/css" /> @endsection
         <div class="panel panel-flat">
             <div class="panel-heading">
 
-                <h5 class="panel-title">Country</h5>
+                <h5 class="panel-title">GRN Details</h5>
                 <div class="heading-elements">
                     <ul class="icons-list">
                         <li><a data-action="collapse"></a></li>
@@ -60,17 +60,58 @@ rel="stylesheet" type="text/css" /> @endsection
                         </div>
                         {!! Form::open(array('url' => 'insertCountry','method','post','id'=>'country-form')) !!}
                         <input type="hidden" id="country_id" name="country_id">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <fieldset class="content-group">
+                                <label>Origin <span class="text-danger">*</span> :</label>
+                                {!!Form::select('size', ['S' => 'Small','L' => 'Large'], 'S',['class'=>'form-control input-xxs','style'=>'']) !!}
+                            </fieldset>
+                        </div>
+                        <div class="col-md-4">
+                            <fieldset class="content-group">
+                                <label>Supplier<span class="text-danger">*</span> :</label>
+                                {!!Form::select('size', ['S' => 'Small','L' => 'Large'], 'S',['class'=>'form-control input-xxs','style'=>'']) !!}
+                            </fieldset>
+                        </div>
+                        <div class="col-md-2">
+                            <fieldset class="content-group">
+                                {!!Form::checkbox('name', 'value',['class'=>'form-control input-xxs'])!!}
+                            </fieldset>
+                        </div>
+                        <div class="col-md-2">
+                            <fieldset class="content-group">
+                                <label>PO Date From <span class="text-danger">*</span> :</label>
+                                {!!Form::text('country_description',null,['class'=>'form-control input-xxs','id'=>'country_description','placeholder'=>'Enter Country description','data-validation'=>'length','data-validation-length'=>'min1'])!!}
+                            </fieldset>
+                        </div>
+                        <div class="col-md-2">
+                            <fieldset class="content-group">
+                                <label>To <span class="text-danger">*</span> :</label>
+                                {!!Form::text('country_description',null,['class'=>'form-control input-xxs','id'=>'country_description','placeholder'=>'Enter Country description','data-validation'=>'length','data-validation-length'=>'min1'])!!}
+                            </fieldset>
+                        </div>
+
+                    </div>
+
+                    {!! Form::close() !!}
+                </div>
+                <div class="row" >
+                    <div class="col-md-12">
+                        <div class="alert alert-danger" style="display: none">
+                            error
+                        </div>
+                        {!! Form::open(array('url' => 'insertCountry','method','post','id'=>'country-form')) !!}
+                        <input type="hidden" id="country_id" name="country_id">
+                        <div class="col-md-6">
                             <fieldset class="content-group">
                                 <label>Country Code <span class="text-danger">*</span> :</label>
                                 {!!Form::text('country_code',null,['class'=>'form-control input-xxs','id'=>'country_code','placeholder'=>'Enter Country code','data-validation'=>'length','data-validation-length'=>'min1'])!!}
                             </fieldset>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <fieldset class="content-group">
                                 <label>Country Description <span class="text-danger">*</span> :</label>
                                 {!!Form::text('country_description',null,['class'=>'form-control input-xxs','id'=>'country_description','placeholder'=>'Enter Country description','data-validation'=>'length','data-validation-length'=>'min1'])!!}
-                            <input type="hidden" name="id" value="" id="country_id"/>
+                                <input type="hidden" name="id" value="" id="country_id"/>
                             </fieldset>
                         </div>
 
@@ -79,7 +120,7 @@ rel="stylesheet" type="text/css" /> @endsection
                         <div class="text-right">
                             <button class="btn bg-teal-400 btn-labeled btn-primary btn-xs" id="btn-new"><b><i class="icon-plus3"></i></b> New</button>
                             <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" 
-                            id="btn-save"><b><i class="icon-floppy-disk"></i></b> Save</button>
+                                    id="btn-save"><b><i class="icon-floppy-disk"></i></b> Save</button>
                             <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs"
                                     id="btn-update" style="display: none"><b><i class="icon-floppy-disk"></i></b> Update</button>
                         </div> 
@@ -121,38 +162,38 @@ rel="stylesheet" type="text/css" /> @endsection
                     </div>
                 </div>      
             </div>  </div>
-        </div>            
-    </div>
+    </div>            
+</div>
 
 
 
-    @endsection
+@endsection
 
 
 
 
-    @section('javascripy') 
+@section('javascripy') 
 
 
-    <!-- Select with search -->
-    <script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
+<!-- Select with search -->
+<script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
 
 
-    <!-- Theme JS files -->
-    <script type="text/javascript" src="assets/js/plugins/tables/datatables/datatables.min.js"></script>
+<!-- Theme JS files -->
+<script type="text/javascript" src="assets/js/plugins/tables/datatables/datatables.min.js"></script>
 
 
-    <!-- /theme JS files -->
+<!-- /theme JS files -->
 
 
-    <script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
-    <script type="text/javascript" src="js/country.js"></script>
-   <script type="text/javascript" src="js/application.js"></script>
-    <!-- /Select with search -->
-    <!-- <script type="text/javascript">
-        $(document).ready(function(){
-             getAll();
-        });
-    </script> -->
-    @endsection
+<script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
+<script type="text/javascript" src="js/country.js"></script>
+<script type="text/javascript" src="js/application.js"></script>
+<!-- /Select with search -->
+<!-- <script type="text/javascript">
+    $(document).ready(function(){
+         getAll();
+    });
+</script> -->
+@endsection
