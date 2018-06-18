@@ -14,13 +14,7 @@ function app_serialize_form_to_json(_form_selector){
         return o;
     }
 
-/**
- * 
-<<<<<<< HEAD
- * @param {string or object} _config
- * @param {string} _type
- * @returns {void}
- */
+
 function app_alert(_config,_type){
     var options = {
         title: "Success",
@@ -40,13 +34,7 @@ function app_alert(_config,_type){
     else{
         $.extend( options, _config );
     }    
-    swal(options);
-=======
- * @param {string} _type
- * @param {string or object} _data
- * @param {function} _action
- * @returns {void}
- */
+}
 function app_alert(_type,_data,_action){
     var options = {};    
     
@@ -74,7 +62,7 @@ function app_alert(_type,_data,_action){
           break;  
     } 
     swal(options,_action);  
->>>>>>> 356bc1268e6a6f9bc414e33a9cb1762a20da613c
+
 }
 
 
