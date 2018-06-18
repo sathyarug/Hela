@@ -16,6 +16,32 @@ function app_serialize_form_to_json(_form_selector){
 
 /**
  * 
+<<<<<<< HEAD
+ * @param {string or object} _config
+ * @param {string} _type
+ * @returns {void}
+ */
+function app_alert(_config,_type){
+    var options = {
+        title: "Success",
+        text: "",
+        confirmButtonColor: "#66BB6A",
+        type: "success"
+    };
+    var data_type = typeof _config;
+    if(data_type === 'string'){
+        if(_type === 'error'){
+            options['title'] = 'Error';
+            options['type'] = 'error';
+            options['confirmButtonColor'] = '#EF5350';
+        }
+        options['text'] = _config;
+    }
+    else{
+        $.extend( options, _config );
+    }    
+    swal(options);
+=======
  * @param {string} _type
  * @param {string or object} _data
  * @param {function} _action
@@ -48,6 +74,7 @@ function app_alert(_type,_data,_action){
           break;  
     } 
     swal(options,_action);  
+>>>>>>> 356bc1268e6a6f9bc414e33a9cb1762a20da613c
 }
 
 

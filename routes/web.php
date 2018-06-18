@@ -11,14 +11,18 @@
 |
 */
 
+//login
 Route::get('/', 'Auth\LoginController@showLogin');
 
-// route to process the form
 Route::post('login', array('uses' => 'Auth\LoginController@doLogin'));
 
 Route::get('logout', 'Auth\LoginController@logout');
+
 Route::get('reset', 'Auth\ForgotPasswordController@reset');
-//Route::get('home', 'Auth\LoginController@home');
+
+Route::get('select-location', 'Auth\LoginController@selectLocation');
+
+Route::POST('loginWithLoc', 'Auth\LoginController@loginWithLoc');
 
 
 Route::get('/recover', function () {
@@ -28,6 +32,18 @@ Route::get('/recover', function () {
 Route::get('/home', function () {
     return view('dashboard');
 });
+
+// Country module
+Route::get('create_country','CountryController@index');
+Route::get('get_all_country','CountryController@show');
+Route::delete('delete_country/{country_id}','CountryController@delete');
+Route::get('edit_country/{country_id}','CountryController@edit');
+Route::post('update_country/{country_id}','CountryController@update');
+Route::post('insertCountry','CountryController@insertCountry');
+
+//GRN module
+Route::get('grn_details','GrnController@grnDetails');
+
 
 Route::get('register', function () {
     return view('user.register');
@@ -54,10 +70,5 @@ Route::post('payment-term.save','PaymentTermController@save');
 Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
-
-//test
-
-
-
 
 
