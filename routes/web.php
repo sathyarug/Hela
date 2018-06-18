@@ -33,9 +33,7 @@ Route::get('register', function () {
     return view('user.register');
 });
 
-
-Route::post('register', array('uses'=>'UserController@store'));
-
+Route::post('register', ['uses' =>'UserController@store']);
 
 
 //currency routes

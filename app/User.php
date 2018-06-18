@@ -28,13 +28,25 @@ class User extends Authenticatable
         'joined_date'
     ];
 
-    private function getJoinedDateValue() {
-        return date('d/m/y', strtotime($this->attributes['joined_date']));
+    private function setJoinedDateValue() {
+        return date('Y-m-d', strtotime($this->attributes['joined_date']));
     }
 
-    private function setJoinedDateValue($value) {
-        $this->attributes['joined_date'] = date('Y-m-d', strtotime($this->attributes['joined_date']));
+    /*private function getJoinedDateValue() {
+        return $this->attributes['dob']->format('m/d/Y');
+        return date('Y-m-d', strtotime($this->attributes['joined_date']));
+    }*/
+
+    private function setDateOfBirthValue($value) {
+        //echo 'test'; exit;
+        $this->attributes['date_of_birth'] = date('Y-m-d', strtotime($this->attributes['date_of_birth']));
     }
+
+    private function getDateOfBirthAttribute() {
+           return $this->attributes['date_of_birth']->format('Y-m-d');
+           return date('Y-m-d', strtotime($this->attributes['date_of_birth']));
+       }
+
 
 
     //protected $except = ['_token'];
