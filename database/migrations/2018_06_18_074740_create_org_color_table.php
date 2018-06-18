@@ -16,8 +16,8 @@ class CreateOrgColorTable extends Migration {
 		{
 			$table->integer('color_id', true);
 			$table->integer('division_id');
-			$table->string('color_code', 10)->index('loc_code');
-			$table->string('color_name', 200)->index('company_code');
+			$table->string('color_code', 10);
+			$table->string('color_name', 200);
 			$table->dateTime('created_date')->nullable();
 			$table->integer('created_by')->nullable();
 			$table->dateTime('updated_date')->nullable();
