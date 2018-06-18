@@ -1,3 +1,5 @@
+
+
 var SOURCE_HID = 0;
 var X_CSRF_TOKEN = '';
 var TABLE = null;
@@ -43,7 +45,7 @@ $(document).ready(function(){
 
       },
       messages: {
-         source_code:{
+       source_code:{
           remote: jQuery.validator.format('')
       },
 
@@ -84,74 +86,80 @@ $(document).ready(function(){
     });
     
 
+
+
+
+
     function save_source(){
 
-     var data = app_serialize_form_to_json('#source_form');
-     data['_token'] = X_CSRF_TOKEN;
+       var data = app_serialize_form_to_json('#source_form');
+       data['_token'] = X_CSRF_TOKEN;
 
-     $.ajax({
-       url:"Mainsource.postdata",
-       async : false,
-       type:"post",
-       data:data,
-       data_type:"json",
-       success:function(res)
-       {
-
-        if(res.message == true)
-        {
-
-         app_alert('Source details saved successfully.');
-         reload_table();
-
-         $('#source_form')[0].reset();
-         $('#show_source').modal('toggle');
-         validator.resetForm();
-
-     }else{
-
-     }	
-
- }})
-
-
- }
+       $.ajax({
+         url:"Mainsource.postdata",
+         async : false,
+         type:"post",
+         data:data,
+         data_type:"json",
+         success:function(res)
+         {
+            var json_res = JSON.parse(res); 
+            //alert(json_res['message']) ;
+            if(json_res['status'] === 'success')
+            {
+                    app_alert('success',json_res['message']);
+                    reload_table();
+                    $('#source_form')[0].reset();
+                    $('#show_source').modal('toggle');
+                    validator.resetForm();
+                                   
+            }
+            else
+            {
+                app_alert('error',json_res['message']);
+            }      
 
 
+       }})
 
 
- var dataSet = get_source_list();
+   }
 
- TABLE = $('#source_tbl').DataTable({
+
+
+
+   var dataSet = get_source_list();
+
+   TABLE = $('#source_tbl').DataTable({
     autoWidth: false,
     columns: [
     { data: "source_id",
     render : function(data){
-     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
-     </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
-     return str;
- }
+       var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
+       </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
+       return str;
+   }
 },
 { data: "source_code" },
 { data: "source_name" },
 
 {
     'data' : function(_data){
-       if (_data['status'] == '1'){
-           return '<td><span class="label label-success">Active</span></td>';
-       }else{
-           return '<td><span class="label label-default">Inactive</span></td>';   
-       }
-   }
+     if (_data['status'] == '1'){
+         return '<td><span class="label label-success">Active</span></td>';
+     }else{
+         return '<td><span class="label label-default">Inactive</span></td>';   
+     }
+ }
 },
 
 
 
 ],
 columnDefs: [{ 
-   orderable: false,
-   width: '100px',
-   targets: [ 0 ]
+ orderable: false,
+ width: '100px',
+ targets: [ 0 ]
 }],
 data: dataSet,
 dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
@@ -159,15 +167,15 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 
 
 
- function get_source_list(){
-     var data = [];
-     $.ajax({
-      url : "Mainsource.loaddata",
-      async : false,
-      type : 'get',
-      data : {},
-      success : function(res){
-       data = JSON.parse(res);
+   function get_source_list(){
+       var data = [];
+       $.ajax({
+          url : "Mainsource.loaddata",
+          async : false,
+          type : 'get',
+          data : {},
+          success : function(res){
+             data = JSON.parse(res);
           //  alert(res);
 
       },
@@ -175,24 +183,24 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 
       }
   });
-     return data;
- }
+       return data;
+   }
 
 
 
- function reload_table()
- {
-     var dataset = get_source_list();
-     var tbl = $('#source_tbl').dataTable();
-     tbl.fnClearTable();
-     tbl.fnDraw();
-     if(dataset != null && dataset.length != 0)
-      tbl.fnAddData(dataset);
+   function reload_table()
+   {
+       var dataset = get_source_list();
+       var tbl = $('#source_tbl').dataTable();
+       tbl.fnClearTable();
+       tbl.fnDraw();
+       if(dataset != null && dataset.length != 0)
+          tbl.fnAddData(dataset);
 
-}
+  }
 
 
-$('#source_tbl').on('click','i',function(){
+  $('#source_tbl').on('click','i',function(){
     var ele = $(this);
     if(ele.attr('data-action') === 'EDIT'){
         source_edit(ele.attr('data-id'));
@@ -203,7 +211,7 @@ $('#source_tbl').on('click','i',function(){
 });
 
 
-function source_edit(_id){  
+  function source_edit(_id){  
 
     $('#show_source').modal('show');
     $('#source_form')[0].reset();
@@ -293,19 +301,19 @@ TABLE2 = $('#cluster_tbl').DataTable({
 { data: "group_name" },
 {
     'data' : function(_data){
-       if (_data['status'] == '1'){
-           return '<td><span class="label label-success">Active</span></td>';
-       }else{
-           return '<td><span class="label label-default">Inactive</span></td>';   
-       }
-   }
+     if (_data['status'] == '1'){
+         return '<td><span class="label label-success">Active</span></td>';
+     }else{
+         return '<td><span class="label label-default">Inactive</span></td>';   
+     }
+ }
 },
 
 ],
 columnDefs: [{ 
-   orderable: false,
-   width: '100px',
-   targets: [ 0 ]
+ orderable: false,
+ width: '100px',
+ targets: [ 0 ]
 }],
 data: dataSet2,
 dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
@@ -314,14 +322,14 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 
 
 function get_cluster_list(){
- var data = [];
- $.ajax({
-  url : "Maincluster.loaddata",
-  async : false,
-  type : 'get',
-  data : {},
-  success : function(res){
-   data = JSON.parse(res);
+   var data = [];
+   $.ajax({
+      url : "Maincluster.loaddata",
+      async : false,
+      type : 'get',
+      data : {},
+      success : function(res){
+         data = JSON.parse(res);
          //alert(res);
 
      },
@@ -329,50 +337,50 @@ function get_cluster_list(){
 
      }
  });
- return data;
+   return data;
 }
 
 
 
 function reload_table2()
 {
- var dataSet2 = get_cluster_list();
- var tbl = $('#cluster_tbl').dataTable();
- tbl.fnClearTable();
- tbl.fnDraw();
- if(dataSet2 != null && dataSet2.length != 0)
-  tbl.fnAddData(dataSet2);
+   var dataSet2 = get_cluster_list();
+   var tbl = $('#cluster_tbl').dataTable();
+   tbl.fnClearTable();
+   tbl.fnDraw();
+   if(dataSet2 != null && dataSet2.length != 0)
+      tbl.fnAddData(dataSet2);
 
 }
 
 
 
 
- $('#main_source').select2({
-            
+$('#main_source').select2({
+
     placeholder: 'Select and Search',
-            ajax: {
-                dataType: 'json',
-                url: 'Mainsource.load_list',
-                type:'GET',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        s_source_lists: params.term
-                    }
-                },
-                processResults: function (data) {
-                  return {
-                    results: $.map(data.items,function(val,i){
-
-                        return {id:val, text:val};
-                    })
-                  };
-                },
+    ajax: {
+        dataType: 'json',
+        url: 'Mainsource.load_list',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                s_source_lists: params.term
             }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+
+                return {id:val, text:val};
+            })
+        };
+    },
+}
 
 
-     });
+});
 
 
 
@@ -423,19 +431,19 @@ function reload_table2()
 
 {
     'data' : function(_data){
-       if (_data['status'] == '1'){
-           return '<td><span class="label label-success">Active</span></td>';
-       }else{
-           return '<td><span class="label label-default">Inactive</span></td>';   
-       }
-   }
+     if (_data['status'] == '1'){
+         return '<td><span class="label label-success">Active</span></td>';
+     }else{
+         return '<td><span class="label label-default">Inactive</span></td>';   
+     }
+ }
 },
 
 ],
 columnDefs: [{ 
-   orderable: false,
-   width: '100px',
-   targets: [ 0 ]
+ orderable: false,
+ width: '100px',
+ targets: [ 0 ]
 }],
 data: dataSet3,
 dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
@@ -444,14 +452,14 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 
 
   function get_location_list(){
-     var data = [];
-     $.ajax({
+   var data = [];
+   $.ajax({
       url : "Mainlocation.loaddata",
       async : false,
       type : 'get',
       data : {},
       success : function(res){
-       data = JSON.parse(res);
+         data = JSON.parse(res);
         // alert(res);
 
     },
@@ -459,18 +467,18 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 
     }
 });
-     return data;
- }
+   return data;
+}
 
 
 
- function reload_table3()
- {
-     var dataSet3 = get_location_list();
-     var tbl = $('#location_tbl').dataTable();
-     tbl.fnClearTable();
-     tbl.fnDraw();
-     if(dataSet3 != null && dataSet3.length != 0)
+function reload_table3()
+{
+   var dataSet3 = get_location_list();
+   var tbl = $('#location_tbl').dataTable();
+   tbl.fnClearTable();
+   tbl.fnDraw();
+   if(dataSet3 != null && dataSet3.length != 0)
       tbl.fnAddData(dataSet3);
 
 }
