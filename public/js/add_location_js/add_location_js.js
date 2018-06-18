@@ -86,10 +86,6 @@ $(document).ready(function(){
     });
     
 
-
-
-
-
     function save_source(){
 
      var data = app_serialize_form_to_json('#source_form');
