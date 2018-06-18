@@ -164,6 +164,6 @@
 
 <script type="text/javascript" src="assets/js/pages/datatables_basic.js"></script>
 <!-- /theme JS files -->
-<!-- Select with search -->
+<!-- /Select with search -->
 
 @endsection
