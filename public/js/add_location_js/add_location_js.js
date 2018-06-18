@@ -1,5 +1,3 @@
-
-
 var SOURCE_HID = 0;
 var X_CSRF_TOKEN = '';
 var TABLE = null;
