@@ -9,8 +9,6 @@ use App\Http\Controllers\Controller;
 class MainSourceController extends Controller
 {
 
-
-
   public function postdata(Request $request)
   {
     $main_source = new Main_Source();       
