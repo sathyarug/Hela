@@ -52,11 +52,8 @@ Route::get('register', function () {
 
 Route::post('register', array('uses'=>'UserController@store'));
 
-
-
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
-
 
 Route::post('currency.save','CurrencyController@save');
 
@@ -74,3 +71,24 @@ Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payme
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
 
+// add location
+
+Route::get('add_location', function () { return view('add_location/add_location'); });
+
+Route::post('Mainsource.postdata','MainSourceController@postdata');
+
+Route::get('Mainsource.loaddata','MainSourceController@loaddata');
+
+Route::get('Mainsource.check_code','MainSourceController@check_code');
+
+Route::get('Mainsource.edit','MainSourceController@edit');
+
+Route::get('Mainsource.delete','MainSourceController@delete');
+
+Route::get('Mainsource.load_list','MainSourceController@select_Source_list');
+
+Route::get('Maincluster.loaddata','MainClusterController@loaddata');
+
+Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
+
+// close add location
