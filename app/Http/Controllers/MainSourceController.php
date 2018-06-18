@@ -24,16 +24,13 @@ class MainSourceController extends Controller
             $main_source->created_by = 1;  
             $result = $main_source->saveOrFail();
            // echo json_encode(array('Saved'));
-            if($result)
-              {
-                  return response()->json(["message"=>$result]);
-              }
+           echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
         }
         else
         {            
             // failure, get errors
             $errors = $main_source->errors();
-            print_r($errors);
+            echo json_encode(array('status' => 'error' , 'message' => $errors));
         }        
 
 
