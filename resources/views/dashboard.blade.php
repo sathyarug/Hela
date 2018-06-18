@@ -1,8 +1,15 @@
 
 @extends('layout.main')
+<<<<<<< HEAD
+<head>
+@section('title') Surface  @endsection
+<link rel="shortcut icon" href="{{{asset('assets/images/ccc.jpg') }}}" />
+</head>
+=======
 
 @section('title') Surface - Dashboard @endsection
 @section('m_dashboard') class = 'active' @endsection
+>>>>>>> aebef2397c356d441736bc665eff2f07cca7a003
 
 
 @section('body')
