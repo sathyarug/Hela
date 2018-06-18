@@ -73,4 +73,3 @@ Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payme
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
-
