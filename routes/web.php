@@ -92,3 +92,5 @@ Route::get('Maincluster.loaddata','MainClusterController@loaddata');
 Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
 
 // close add location
+Route::resource('admin/permission', 'Admin\\PermissionController');
+Route::resource('admin/role', 'Admin\\RoleController');
