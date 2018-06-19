@@ -18,6 +18,7 @@ class UsrProfile extends Model
         'created_at',
         'updated_at',
         'joined_date',
+        'resign_date',
         'date_of_birth'
     ];
 
@@ -29,17 +30,9 @@ class UsrProfile extends Model
         $this->attributes['joined_date'] = date('Y-m-d', strtotime($value));
     }
 
+    public function setResignDateAttribute($value){
+        $this->attributes['resign_date'] = date('Y-m-d', strtotime($value));
+    }
 
 
-
-    //protected $except = ['_token'];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    /*protected $hidden = [
-        'password', 'remember_token',
-    ];*/
 }
