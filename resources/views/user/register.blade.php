@@ -5,6 +5,8 @@
 @section('m_icon') class = 'active' @endsection
 
 @section('body')
+
+
     <!-- Page header -->
 
     <div class="page-header page-header-default ">
@@ -262,5 +264,22 @@
     <!-- /Content loading -->
 
 
+    <script>
+
+        $(function() {
+            $('.pickadate-accessibility').pickadate({
+                // Escape any “rule” characters with an exclamation mark (!).
+                format: 'yyyy/mm/dd',
+                formatSubmit: 'yyyy/mm/dd',
+                hiddenPrefix: 'prefix__',
+                hiddenSuffix: '__suffix'
+            })
+        });
+
+
+    </script>
+
 @endsection
+
+
 

@@ -17,8 +17,18 @@ class UsrProfile extends Model
     protected $dates = [
         'created_at',
         'updated_at',
-        'joined_date'
+        'joined_date',
+        'date_of_birth'
     ];
+
+    public function setDateOfBirthAttribute($value){
+        $this->attributes['date_of_birth'] = date('Y-m-d', strtotime($value));
+    }
+
+    public function setJoinedDateAttribute($value){
+        $this->attributes['joined_date'] = date('Y-m-d', strtotime($value));
+    }
+
 
 
 
