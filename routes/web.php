@@ -11,14 +11,18 @@
 |
 */
 
+//login
 Route::get('/', 'Auth\LoginController@showLogin');
 
-// route to process the form
 Route::post('login', array('uses' => 'Auth\LoginController@doLogin'));
 
 Route::get('logout', 'Auth\LoginController@logout');
+
 Route::get('reset', 'Auth\ForgotPasswordController@reset');
-//Route::get('home', 'Auth\LoginController@home');
+
+Route::get('select-location', 'Auth\LoginController@selectLocation');
+
+Route::POST('loginWithLoc', 'Auth\LoginController@loginWithLoc');
 
 
 Route::get('/recover', function () {
@@ -29,14 +33,24 @@ Route::get('/home', function () {
     return view('dashboard');
 });
 
+// Country module
+Route::get('create_country','CountryController@index');
+Route::get('get_all_country','CountryController@show');
+Route::delete('delete_country/{country_id}','CountryController@delete');
+Route::get('edit_country/{country_id}','CountryController@edit');
+Route::post('update_country/{country_id}','CountryController@update');
+Route::post('insertCountry','CountryController@insertCountry');
+
+//GRN module
+Route::get('grn_details','GrnController@grnDetails');
+
+
 Route::get('register', function () {
     return view('user.register');
 });
 
 
 Route::post('register', array('uses'=>'UserController@store'));
-
-
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
@@ -65,4 +79,24 @@ Route::get('cost-center.get_list','Org\CostCenterController@get_list');
 
 Route::get('cost-center.get','Org\CostCenterController@get');
 
+// add location
 
+Route::get('add_location', function () { return view('add_location/add_location'); });
+
+Route::post('Mainsource.postdata','MainSourceController@postdata');
+
+Route::get('Mainsource.loaddata','MainSourceController@loaddata');
+
+Route::get('Mainsource.check_code','MainSourceController@check_code');
+
+Route::get('Mainsource.edit','MainSourceController@edit');
+
+Route::get('Mainsource.delete','MainSourceController@delete');
+
+Route::get('Mainsource.load_list','MainSourceController@select_Source_list');
+
+Route::get('Maincluster.loaddata','MainClusterController@loaddata');
+
+Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
+
+// close add location
