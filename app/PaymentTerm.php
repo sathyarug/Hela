@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentTerm extends BaseValidator
+class CostCenter extends BaseValidator
 {
     protected $table = 'fin_payment_term';
     protected $primaryKey = 'payment_term_id';

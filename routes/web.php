@@ -49,12 +49,11 @@ Route::get('register', function () {
     return view('user.register');
 });
 
-Route::post('register', ['uses' =>'UserController@store']);
 
+Route::post('register', array('uses'=>'UserController@store'));
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
-
 
 Route::post('currency.save','CurrencyController@save');
 
@@ -71,4 +70,41 @@ Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payme
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
+//cost center routes
+Route::get('cost-center.new','Org\CostCenterController@new');
 
+Route::post('cost-center.save','Org\CostCenterController@save');
+
+Route::get('cost-center.get_list','Org\CostCenterController@get_list');
+
+Route::get('cost-center.get','Org\CostCenterController@get');
+
+// add location
+
+Route::get('add_location', function () { return view('add_location/add_location'); });
+
+Route::post('Mainsource.postdata','MainSourceController@postdata');
+
+Route::get('Mainsource.loaddata','MainSourceController@loaddata');
+
+Route::get('Mainsource.check_code','MainSourceController@check_code');
+
+Route::get('Mainsource.edit','MainSourceController@edit');
+
+Route::get('Mainsource.delete','MainSourceController@delete');
+
+Route::get('Mainsource.load_list','MainSourceController@select_Source_list');
+
+Route::get('Maincluster.loaddata','MainClusterController@loaddata');
+
+Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
+
+// close add location
+
+
+// supplier
+Route::get('supplier', 'SupplierController@showLogin');
+
+
+Route::resource('admin/permission', 'Admin\\PermissionController');
+Route::resource('admin/role', 'Admin\\RoleController');
