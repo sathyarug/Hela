@@ -39,7 +39,7 @@ Route::post('register', array('uses'=>'UserController@store'));
 
 
 //currency routes
-Route::get('currency.new',['uses' => 'CurrencyController@new_currency2']);
+Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
 
 Route::post('currency.save','CurrencyController@save');
 
@@ -56,7 +56,13 @@ Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payme
 
 Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
+//cost center routes
+Route::get('cost-center.new','Org\CostCenterController@new');
 
+Route::post('cost-center.save','Org\CostCenterController@save');
 
+Route::get('cost-center.get_list','Org\CostCenterController@get_list');
+
+Route::get('cost-center.get','Org\CostCenterController@get');
 
 
