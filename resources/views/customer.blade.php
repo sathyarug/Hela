@@ -164,6 +164,10 @@
 
 <script type="text/javascript" src="assets/js/pages/datatables_basic.js"></script>
 <!-- /theme JS files -->
-<!-- #Select with search -->
+<!-- ###Select with search -->
+
+
+<!-- Test Merge 1 -->
+<!-- Test Merge 2 -->
 
 @endsection
