@@ -106,3 +106,5 @@ Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
 Route::get('supplier', 'SupplierController@showLogin');
 
 
+Route::resource('admin/permission', 'Admin\\PermissionController');
+Route::resource('admin/role', 'Admin\\RoleController');

@@ -6,7 +6,7 @@
         <div class="sidebar-user">
             <div class="category-content">
                 <div class="media">
-                    <a href="#" class="media-left"><img src="assets/images/placeholder.jpg" class="img-circle img-sm" alt=""></a>
+                    <a href="#" class="media-left"><img src="{{ URL::asset('assets/images/placeholder.jpg') }}" class="img-circle img-sm" alt=""></a>
                     <div class="media-body">
                         <span class="media-heading text-semibold">Victoria Baker</span>
                         <div class="text-size-mini text-muted">
@@ -56,7 +56,7 @@
                                 <a href="#">Company</a>
                                 <ul>
 
-                                    <li @yield('m_add_location')><a href="add_location">Location</a></li>
+                                    <li @yield('m_add_location')><a href="{{url('/add_location')}}">Location</a></li>
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Main Cluster</a></li> -->
