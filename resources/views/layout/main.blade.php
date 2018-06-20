@@ -62,6 +62,7 @@
         <script type="text/javascript" src="{{ URL::asset('assets/js/pages/layout_fixed_custom.js') }}"></script>
         <!-- /theme JS files -->       
         @yield('javascripy')
+        {{--test--}}
 
     </body>
 </html>
