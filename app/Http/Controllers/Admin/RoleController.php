@@ -71,9 +71,8 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::findOrFail($id);
-        
-
-        return view('admin.role.show', compact('role'));
+        $permissions = $role->permissions->pluck('name');
+        return view('admin.role.show', compact('role','permissions'));
     }
 
     /**
