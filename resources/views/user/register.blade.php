@@ -2,13 +2,14 @@
 @extends('layout.main')
 
 @section('title') Register User @endsection
-@section('m_register') class = 'active' @endsection
+@section('m_icon') class = 'active' @endsection
 
 @section('body')
+
+
     <!-- Page header -->
 
     <div class="page-header page-header-default ">
-
 
         <div class="breadcrumb-line">
             <ul class="breadcrumb">
@@ -57,183 +58,173 @@
                     </div>
                 </div>
 
-            <div class="panel-body">
-                <div class="tabbable">
-                    <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
-                        <li class="active"><a href="#highlighted-justified-tab1" data-toggle="tab">User Information</a></li>
-                        <li><a href="#highlighted-justified-tab3" data-toggle="tab">User Permation</a></li>
+                <div class="panel-body">
+                    <div class="tabbable">
+                        <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
+                            <li class="active"><a href="#highlighted-justified-tab1" data-toggle="tab">User Information</a></li>
+                            <li><a href="#highlighted-justified-tab3" data-toggle="tab">User Permation</a></li>
 
-                    </ul>
-
-                    <p>
-                        
-                    </p>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="highlighted-justified-tab1">
-                            {{ Form::open() }}
-                            
-                                    <div class="col-md-12">
-                                        <div class="panel-body">
-                                            <div class="row">
-                                                <legend class="text-bold">Personal Details</legend>
-
-                                                <div class="form-group  col-md-4">
-                                                    {{ Form::label('first_name', 'First Name', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('first_name','', array('class' => 'form-control input-xxs'))  }}
-                                                    
-                                                    <?php //print_r($errors) ?>
-                                                    @if( $errors->has('first_name'))
-                                                        <label class="validation-error-label">{{ $errors->first('first_name',':message') }}</label>
-                                                    @endif
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('last_name', 'Last Name', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('last_name','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    <div>&nbsp;</div>
-                                                </div>
-                                                <br clear="all">
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('dob', 'Date of Birth', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('dob','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('nic', 'NIC No', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('nic','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('gender', 'Gender', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('gender', array('M' => 'Male', 'F' => 'Female'), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <br clear="all">
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('civil-status', 'Civil Status', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('civil-status', array('MARRIED' => 'Married', 'UNMARRIED' => 'Un Married'), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('contact-no', 'Contact Number', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('contact-no','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-                                                <br clear="all">
-
-
-                                                <legend class="text-bold">Official Details</legend>
-
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('email', 'Email', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('email', '', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('emp-no', 'Employee Number', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('emp-no', '', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('doj', 'Date of Joined', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('doj','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('department', 'Department', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('department', array('' => ''), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('designation', 'Designation', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('designation', array('' => ''), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('resign-date', 'Resign Date', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('resign-date','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-                                                <br clear="all">
-
-
-                                                <legend class="text-bold">Report Levels</legend>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('immediate', 'Immediate Report', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('immediate', array('' => ''), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('alternative', 'Alternative Report', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::select('alternative', array('' => ''), null, array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-                                                <br clear="all">
-
-                                                <legend class="text-bold">User Login</legend>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('user-name', 'User Name', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::text('user-name','', array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                    {{ Form::label('password', 'Password', array('class' => 'control-label text-semibold')) }}
-                                                    {{ Form::password('password',  array('class' => 'form-control input-xxs'))  }}
-                                                </div>
-
-                                                <br clear="all">
-
-                                                <div class="text-right">
-                                                    <button type="reset" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class="icon-plus3"></i></b> New</button>
-                                                    <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs"><b><i class="icon-floppy-disk"></i></b> Save</button>
-                                                </div>
+                        </ul>
 
 
 
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="highlighted-justified-tab1">
 
+                                <form action="{{ url('register') }}" method="POST" id="signup-form">
+                                    {{ csrf_field() }}
+                                <div class="col-md-12">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <legend class="text-bold">Personal Details</legend>
 
-
-
-
-
-
-
-
-
-
-
-
+                                            <div class="form-group  col-md-4">
+                                                {{ Form::label('first_name', 'First Name', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('first_name','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('last_name', 'Last Name', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('last_name','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                <div>&nbsp;</div>
+                                            </div>
+                                            <br clear="all">
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('date_of_birth', 'Date of Birth', array('class' => 'control-label text-semibold pickadate-year')) }}
+                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs pickadate-accessibility'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('nic', 'NIC No', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('nic','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('gender', 'Gender', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('gender', array('M' => 'Male', 'F' => 'Female'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <br clear="all">
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('civil-status', 'Civil Status', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('civil-status', array('MARRIED' => 'Married', 'UNMARRIED' => 'Un Married'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('contact-no', 'Contact Number', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('contact-no','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+                                            <br clear="all">
+
+
+                                            <legend class="text-bold">Official Details</legend>
+
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('email', 'Email', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('email', '', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('emp-no', 'Employee Number', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('emp-no', '', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('joined_date', 'Date of Joined', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('joined_date','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('loc_id', 'Location', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('loc_id', array('2' => 'Merchandising'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('dept_id', 'Department', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('dept_id', array('1' => 'Merchanding'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('cost_center_id', 'Cost Center', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('cost_center_id', array('1' => 'Kelaniya'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('designation', 'Designation', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('designation', array('1' => 'Merchandiser'), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('resign-date', 'Resign Date', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('resign-date','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+                                            <br clear="all">
+
+
+                                            <legend class="text-bold">Report Levels</legend>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('immediate', 'Immediate Report', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('immediate', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('alternative', 'Alternative Report', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('alternative', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                            </div>
+                                            <br clear="all">
+
+                                            <legend class="text-bold">User Login</legend>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('user-name', 'User Name', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('user-name','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('password', 'Password', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::password('password',  array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <br clear="all">
+
+                                            <div class="text-right">
+                                                <button type="reset" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class="icon-plus3"></i></b> New</button>
+                                                <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs"><b><i class="icon-floppy-disk"></i></b> Save</button>
+                                            </div>
+
                                         </div>
                                     </div>
-                                {{ Form::close() }}
-                                <!-- /basic layout -->
+                                </div>
+                                </form>
+                            <!-- /basic layout -->
 
-                        </div>
-                        <div class="tab-pane" id="highlighted-justified-tab2">
+                            </div>
+                            <div class="tab-pane" id="highlighted-justified-tab2">
 
-                        </div>
+                            </div>
 
-                        <div class="tab-pane" id="highlighted-justified-tab3">
-                            DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg whatever.
-                        </div>
+                            <div class="tab-pane" id="highlighted-justified-tab3">
+                                DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg whatever.
+                            </div>
 
-                        <div class="tab-pane" id="highlighted-justified-tab4">
-                            Aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthet.
+                            <div class="tab-pane" id="highlighted-justified-tab4">
+                                Aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthet.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Basic layout-->
+                <!-- Basic layout-->
 
+
+            </div>
 
         </div>
-
-            </div>
 
 
 
@@ -273,5 +264,22 @@
     <!-- /Content loading -->
 
 
+    <script>
+
+        $(function() {
+            $('.pickadate-accessibility').pickadate({
+                // Escape any “rule” characters with an exclamation mark (!).
+                format: 'yyyy/mm/dd',
+                formatSubmit: 'yyyy/mm/dd',
+                hiddenPrefix: 'prefix__',
+                hiddenSuffix: '__suffix'
+            })
+        });
+
+
+    </script>
+
 @endsection
+
+
 

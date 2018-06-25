@@ -16,10 +16,11 @@ class RoleController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+   // public function index(Request $request)
+     public function index()
     {
-        $keyword = $request->get('search');
-        $perPage = 25;
+        /*$keyword = $request->get('search');
+        $perPage = '';
 
         if (!empty($keyword)) {
             $role = Role::where('name', 'LIKE', "%$keyword%")
@@ -27,8 +28,10 @@ class RoleController extends Controller
         } else {
             $role = Role::latest()->paginate($perPage);
         }
-
         return view('admin.role.index', compact('role'));
+        */
+        return view('admin.role.index');
+       
     }
 
     /**
@@ -71,9 +74,8 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::findOrFail($id);
-        
-
-        return view('admin.role.show', compact('role'));
+        $permissions = $role->permissions->pluck('name');
+        return view('admin.role.show', compact('role','permissions'));
     }
 
     /**
@@ -124,5 +126,10 @@ class RoleController extends Controller
         Role::destroy($id);
 
         return redirect('admin/role')->with('flash_message', 'Role deleted!');
+    }
+    
+    public function getList() {
+        $role = Role::all()->toBase();
+        echo json_encode($role);
     }
 }

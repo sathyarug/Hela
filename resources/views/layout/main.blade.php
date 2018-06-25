@@ -14,6 +14,7 @@
         <link href="{{ URL::asset('assets/css/core.css') }}" rel="stylesheet" type="text/css">
         <link href="{{ URL::asset('assets/css/components.css') }}" rel="stylesheet" type="text/css">
         <link href="{{ URL::asset('assets/css/colors.css') }}" rel="stylesheet" type="text/css">
+        <link href="{{ URL::asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css">
         <!-- /global stylesheets -->
         @yield('load_css')
 
@@ -61,6 +62,7 @@
         <script type="text/javascript" src="{{ URL::asset('assets/js/pages/layout_fixed_custom.js') }}"></script>
         <!-- /theme JS files -->       
         @yield('javascripy')
+        {{--test--}}
 
     </body>
 </html>

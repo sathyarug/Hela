@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use App\UsrProfile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -61,12 +62,20 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\User
      */
-    protected function create(array $data)
+    protected function store(Request $request)
     {
-        return User::create([
+        print_r($request); exit;
+
+        $user = new UsrProfile;
+        //$user = $request->all();
+        $user->fill($request->all());
+        print_r($user); exit;
+        $user->save();
+        return;
+        /*return UsrProfile::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-        ]);
+        ]);*/
     }
 }

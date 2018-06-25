@@ -33,6 +33,10 @@ Route::get('/home', function () {
     return view('dashboard');
 });
 
+Route::get('/icon', function () {
+    return view('icon_page');
+});
+
 // Country module
 Route::get('create_country','CountryController@index');
 Route::get('get_all_country','CountryController@show');
@@ -107,4 +111,6 @@ Route::get('supplier', 'SupplierController@view');
 
 
 Route::resource('admin/permission', 'Admin\\PermissionController');
+
+Route::get('admin/role/getList', 'Admin\\RoleController@getList');
 Route::resource('admin/role', 'Admin\\RoleController');

@@ -1,0 +1,65 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jun 20, 2018, 9:50:57 AM
+    Author     : sarangam
+*/
+
+.modal-header {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.modal-header .close {
+    top: 35%;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+body {
+    font-size: 11px;
+}
+
+.btn-xs, .btn-group-xs > .btn {
+    font-size: 10px;
+}
+
+.btn-labeled.btn-xs {
+    padding-left: 35px;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    font-size: 12px;
+}
+
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 5px 5px;
+}
+
+.dataTables_filter input {
+    height: 23px; line-height: 23px;
+    padding: 5px 5px;
+    font-size: 11px;
+}
+
+.select2-selection--single {
+    height: 23px; line-height: 17px;
+    padding: 3px 0;
+}
+
+.select2-results__option {
+    padding: 4px 12px;
+}
+
+.select2-search--hide + .select2-results > .select2-results__options {
+    padding-top: 0px;
+}
+.select2-results > .select2-results__options {
+    padding-bottom: 0px;
+}
