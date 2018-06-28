@@ -112,5 +112,5 @@ Route::get('supplier', 'SupplierController@view');
 
 Route::resource('admin/permission', 'Admin\\PermissionController');
 
-Route::get('admin/role/getList', 'Admin\\RoleController@getList');
+Route::post('admin/role/getList', 'Admin\\RoleController@getList');
 Route::resource('admin/role', 'Admin\\RoleController');

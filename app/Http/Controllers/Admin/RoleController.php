@@ -30,7 +30,10 @@ class RoleController extends Controller
         }
         return view('admin.role.index', compact('role'));
         */
-        return view('admin.role.index');
+       // return view('admin.role.index');
+        
+        $permissions = Permission::get()->pluck('name','name');
+        return view('admin.role.index', compact('permissions'));
        
     }
 
@@ -61,7 +64,11 @@ class RoleController extends Controller
         $role = Role::create($requestData);
         $role->givePermissionTo($permissions);
         
-        return redirect('admin/role')->with('flash_message', 'Role added!');
+        
+        //echo json_encode(array('status' => 'error' , 'message' => $errors));
+        echo json_encode(array('status' => 'success' , 'message' => 'Role saved successfully.') );
+        
+       // return redirect('admin/role')->with('flash_message', 'Role added!');
     }
 
     /**
@@ -129,7 +136,8 @@ class RoleController extends Controller
     }
     
     public function getList() {
-        $role = Role::all()->toBase();
-        echo json_encode($role);
+        return datatables()->of(Role::all())->toJson();
+        //$role = Role::all()->toBase();
+        //echo json_encode($role);
     }
 }
