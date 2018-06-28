@@ -71,7 +71,7 @@
                         <div class="tab-content">
                             <div class="tab-pane active" id="highlighted-justified-tab1">
 
-                                <form action="{{ url('register') }}" method="POST" id="signup-form">
+                                <form action="{{ url('register-user') }}" method="POST" id="signup-form">
                                     {{ csrf_field() }}
                                 <div class="col-md-12">
                                     <div class="panel-body">
@@ -99,8 +99,8 @@
                                             </div>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('nic', 'NIC No', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('nic','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::label('nic_no', 'NIC No', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('nic_no','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -110,13 +110,18 @@
 
                                             <br clear="all">
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('civil-status', 'Civil Status', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('civil-status', array('MARRIED' => 'Married', 'UNMARRIED' => 'Un Married'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::label('civil_status', 'Civil Status', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('civil_status', array('MARRIED' => 'Married', 'UNMARRIED' => 'Un Married'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('contact-no', 'Contact Number', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('contact-no','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::label('mobile_no', 'Mobile Number', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('mobile_no','', array('class' => 'form-control input-xxs'))  }}
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                {{ Form::label('extension_no', 'Extention Number', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('extension_no','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
                                             <br clear="all">
 
@@ -130,13 +135,13 @@
                                             </div>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('emp-no', 'Employee Number', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('emp-no', '', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::label('emp_number', 'Employee Number', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('emp_number', '', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('joined_date', 'Date of Joined', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('joined_date','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::text('joined_date','', array('class' => 'form-control input-xxs pickadate'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -155,13 +160,13 @@
                                             </div>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('designation', 'Designation', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('designation', array('1' => 'Merchandiser'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::label('desig_id', 'Designation', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::select('desig_id', array('1' => 'Merchandiser'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('resign-date', 'Resign Date', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('resign-date','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::label('resign_date', 'Resign Date', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('resign_date','', array('class' => 'form-control input-xxs pickadate'))  }}
                                             </div>
                                             <br clear="all">
 
@@ -182,8 +187,8 @@
                                             <legend class="text-bold">User Login</legend>
 
                                             <div class="form-group col-md-4">
-                                                {{ Form::label('user-name', 'User Name', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::text('user-name','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::label('user_name', 'User Name', array('class' => 'control-label text-semibold')) }}
+                                                {{ Form::text('user_name','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">

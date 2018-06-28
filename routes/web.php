@@ -54,7 +54,7 @@ Route::get('register', function () {
 });
 
 
-Route::post('register', array('uses'=>'UserController@store'));
+Route::post('register-user', 'UserController@store');
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);

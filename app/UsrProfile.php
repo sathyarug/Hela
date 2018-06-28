@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UsrProfile extends Model
+class UsrProfile extends BaseValidator
 {
     protected $table = 'usr_profile';
     protected $primaryKey = 'user_id';
@@ -21,6 +21,20 @@ class UsrProfile extends Model
         'resign_date',
         'date_of_birth'
     ];
+
+    protected $rules = array(
+        'loc_id' => 'required',
+        'dept_id' => 'required',
+        'cost_center_id' => 'required',
+        'desig_id' => 'required',
+        'first_name' => 'required',
+        'last_name' => 'required',
+        'emp_number' => 'required',
+        'nic_no' => 'required',
+        'email' => 'required',
+        'gender' => 'required',
+
+    );
 
     public function setDateOfBirthAttribute($value){
         $this->attributes['date_of_birth'] = date('Y-m-d', strtotime($value));
