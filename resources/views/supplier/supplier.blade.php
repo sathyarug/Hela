@@ -1,0 +1,308 @@
+
+@extends('layout.main')
+
+@section('title') Form Details @endsection
+@section('load_css')
+
+@endsection
+
+@section('m_add_location') class = 'active' @endsection
+
+@section('body')
+<!-- Page header -->
+<div class="page-header page-header-default ">
+
+
+    <div class="breadcrumb-line">
+        <ul class="breadcrumb">
+            <li><a href="index.html"><i class="icon-home2 position-left"></i> Home</a></li>
+            <li class="active">@yield('title')</li>
+        </ul>
+
+        <ul class="breadcrumb-elements">
+            <li><a href="#"><i class="icon-comment-discussion position-left"></i> Support</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="icon-gear position-left"></i>
+                    Settings
+                    <span class="caret"></span>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#"><i class="icon-user-lock"></i> Account security</a></li>
+                    <li><a href="#"><i class="icon-statistics"></i> Analytics</a></li>
+                    <li><a href="#"><i class="icon-accessibility"></i> Accessibility</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="icon-gear"></i> All settings</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- /page header -->
+
+
+<!-- Content area -->
+<div class="content">
+
+
+    <div class="col-md-12">
+
+        <!-- Basic layout-->
+
+        <div class="col-md-12">
+            <div class="panel panel-flat">
+                <div class="panel-heading">
+                    <h6 class="panel-title">Supplier</h6>
+
+                    <div class="heading-elements">
+                        <ul class="icons-list">
+                            <li><a data-action="collapse"></a></li>
+                            <li><a data-action="reload"></a></li>
+                            <li><a data-action="close"></a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="tabbable">
+
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="highlighted-justified-tab1">
+
+                                <div class="col-md-12">
+
+                                    <div class="text-right">
+                                        <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"
+                                                id="add_data"><b><i class="icon-plus3"></i></b>Add New</button>
+                                    </div>
+
+
+                                    <table class="table datatable-basic" id="source_tbl">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-center">Action</th>
+                                            <th>Supplier Name</th>
+                                            <th>Supplier Code</th>
+                                            <th>Supplier City</th>
+                                            <th>Supplier Phone</th>
+                                            <th>Supplier Email</th>
+                                            <th>Status</th>
+
+                                            <!-- <th class="text-center">Actions</th> -->
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+
+
+                                    </table>
+
+
+                                </div>
+
+                                <!-- popup -->
+                                <div id="show_source" class="modal fade">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <form class="form-horizontal form-validate-jquery" action="#" id="location_form">
+
+
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h5 class="modal-title">New Supplier</h5>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    {{csrf_field()}}
+                                                    <fieldset class="content-group">
+
+
+                                                        <div class=" col-md-4">
+
+                                                            <label>Supplier Code<span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-code" id="Supplier_code">
+
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Name <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-name" id="supplier_name">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Country <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-country" id="supplier_country">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier City <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-city" id="supplier_city">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Address 1 <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="Supplier-ad1" id="Supplier_ad1">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Address 2 <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="Supplier-ad2" id="Supplier_ad2">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Phone <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="company-city" id="supplier_phone">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Fax <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-fax" id="supplier_fax">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Supplier Email <span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="supplier-email" id="supplier_email">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Payment Mode</label>
+                                                            <input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Payment_Code</label>
+                                                            <input type="text" class="form-control input-xxs" name="payment-code" id="payment_code">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Fax</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="com-fax" id="con_fax">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Email<span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="com-email" id="com_email">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Payment Code</label>
+                                                            <input type="text" class="form-control input-xxs" name="payment-code" id="payment_code">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Payment Mode</label>
+                                                            <input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">
+                                                        </div>
+
+                                                        <div class=" col-md-4">
+                                                            <label>Default Currency<span class="text-danger">*</span>:</label>
+                                                            <select class="select-search input-xxs" name="def-curr" id="def_curr">
+                                                                <option value="">Select One ...</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class=" col-md-4">
+                                                            <label>Finance Month<span class="text-danger">*</span>:</label>
+                                                            <select class="select-search input-xxs" name="fin-month" id="fin_month">
+                                                                <option value="">Select One ...</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class=" col-md-4">
+                                                            <label>Vat Registration Number<span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="vat-regnum" id="vat_regnum">
+                                                        </div>
+                                                        <div class=" col-md-4">
+                                                            <label>Tax Code<span class="text-danger">*</span>:</label>
+                                                            <input type="text" class="form-control input-xxs" name="tax-code" id="tax_code">
+                                                        </div>
+
+
+                                                    </fieldset>
+
+
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-link" data-dismiss="modal" id="">Close</button>
+                                                    <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save-3">
+                                                        <b><i class="icon-floppy-disk"></i></b> Save</button>
+
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="tab-pane" id="highlighted-justified-tab4">
+                                #
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /basic layout -->
+
+
+
+    </div>
+
+
+</div>
+<!-- /latest posts -->
+
+<!-- /mini modal -->
+
+
+@endsection
+
+
+
+
+@section('javascripy') 
+
+
+
+<script type="text/javascript" src="assets/js/plugins/tables/datatables/datatables.min.js"></script>
+
+
+<script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/inputs/touchspin.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/styling/switch.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
+
+<script type="text/javascript" src="js/add_location_js/add_location_js.js"></script>
+<script type="text/javascript" src="js/application.js"></script>
+
+<script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="assets/js/pages/form_select2.js"></script>
+<!-- //Select with search -->
+
+<!-- picker_date -->
+<script type="text/javascript" src="assets/js/plugins/notifications/jgrowl.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/daterangepicker.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/anytime.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.date.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.time.js"></script>
+<script type="text/javascript" src="assets/js/plugins/pickers/pickadate/legacy.js"></script>
+<script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
+<!-- /picker_date -->
+
+<script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+<script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
+
+
+@endsection
