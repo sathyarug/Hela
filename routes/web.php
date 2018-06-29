@@ -38,13 +38,18 @@ Route::get('/icon', function () {
 });
 
 // Country module
-Route::get('create_country','CountryController@index');
+/*Route::get('create_country','CountryController@index');
 Route::get('get_all_country','CountryController@show');
 Route::delete('delete_country/{country_id}','CountryController@delete');
 Route::get('edit_country/{country_id}','CountryController@edit');
 Route::post('update_country/{country_id}','CountryController@update');
-Route::post('insertCountry','CountryController@insertCountry');
-
+Route::post('insertCountry','CountryController@insertCountry');*/
+Route::get('add_country','CountryController@index');
+Route::get('get_all_country','CountryController@loaddata');
+Route::get('check_code','CountryController@checkCode');
+Route::post('save_country','CountryController@saveCountry');
+Route::get('edit','CountryController@edit');
+Route::get('delete','CountryController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
