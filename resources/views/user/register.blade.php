@@ -72,7 +72,7 @@
                             <div class="tab-pane active" id="highlighted-justified-tab1">
 
                                 <form action="{{ url('register-user') }}" method="POST" id="signup-form">
-                                    {{ csrf_field() }}
+
                                 <div class="col-md-12">
                                     <div class="panel-body">
                                         <div class="row">
@@ -206,6 +206,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                    {{ csrf_field() }}
                                 </form>
                             <!-- /basic layout -->
 
