@@ -61,7 +61,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal" id="">Close</button>                                
+                        <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal" id=""><b><i class="icon-cross"></i></b>Close</button>                                 
                         <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save">
                             <b><i class="icon-floppy-disk"></i></b> Save</button>
 
