@@ -6,12 +6,12 @@ var TABLE2 = null;
 var TABLE3 = null;
 $(document).ready(function () {
     X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-    var validator = app_form_validator('#country_form', {
+    var validator = app_form_validator('#division_form', {
 
         submitHandler: function () {
             try {
-                save_source();
-                $("#country_form :input").val('');
+                save_division();
+                $("#division_form :input").val('');
                 validator.resetForm();
             } catch (e) {
                 return false;
@@ -21,32 +21,32 @@ $(document).ready(function () {
 
         rules: {
 
-            country_code: {
+            division_code: {
                 required: true,
                 minlength: 2,
                 remote: {
                     type: "get",
-                    url: "check_code",
+                    url: "check_division_code",
                     data: {
 
                         code: function () {
-                            return $("#country_code").val();
+                            return $("#division_code").val();
                         },
                         idcode: function () {
-                            return $("#country_hid").val();
+                            return $("#division_hid").val();
                         }
                     }
                 }
             },
 
-            country_description: {
+            division_description: {
                 required: true,
                 minlength: 4
             },
 
         },
         messages: {
-            country_code: {
+            division_code: {
                 remote: jQuery.validator.format('')
             },
 
@@ -55,18 +55,18 @@ $(document).ready(function () {
 
 
     $('#add_data').click(function () {
-        $('#show_country').modal('show');
-        $('#country_form')[0].reset();
+        $('#show_division').modal('show');
+        $('#division_form')[0].reset();
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
         //$('#action').val('Add');
 
     });
-    function getAllCountries() {
+    function get_all_division() {
         var data = [];
         $.ajax({
-            url: "get_all_country",
+            url: "get_all_division",
             async: false,
             type: 'GET',
             data: {},
@@ -80,13 +80,13 @@ $(document).ready(function () {
         );
         return data;
     }
-    function save_source() {
+    function save_division() {
 
-        var data = app_serialize_form_to_json('#country_form');
+        var data = app_serialize_form_to_json('#division_form');
         data['_token'] = X_CSRF_TOKEN;
 
         $.ajax({
-            url: "save_country",
+            url: "save_division",
             async: false,
             type: "post",
             data: data,
@@ -99,8 +99,8 @@ $(document).ready(function () {
                 {
                     app_alert('success', json_res['message']);
                     reload_table();
-                    $('#country_form')[0].reset();
-                    $('#show_country').modal('toggle');
+                    $('#division_form')[0].reset();
+                    $('#show_division').modal('toggle');
                     validator.resetForm();
 
                 } else
@@ -113,22 +113,22 @@ $(document).ready(function () {
 
 
     }
-    function source_edit(_id) {
+    function division_edit(_id) {
 
-        $('#show_country').modal('show');
-        $('#country_form')[0].reset();
+        $('#show_division').modal('show');
+        $('#division_form')[0].reset();
         validator.resetForm();
 
         $.ajax({
-            url: 'edit_country',
+            url: 'edit_division',
             type: 'get',
-            data: {'country_id': _id},
+            data: {'division_id': _id},
             success: function (res) {
                 var data = JSON.parse(res);
                 //alert(data);
-                $('#country_hid').val(data['country_id']);
-                $('#country_code').val(data['country_code']);
-                $('#country_description').val(data['country_description']);
+                $('#division_hid').val(data['division_id']);
+                $('#division_code').val(data['division_code']);
+                $('#division_description').val(data['division_description']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
         });
@@ -136,8 +136,8 @@ $(document).ready(function () {
     }
     function reload_table()
     {
-        var dataset = get_source_list();
-        var tbl = $('#source_tbl').dataTable();
+        var dataset = get_division_list();
+        var tbl = $('#division_tbl').dataTable();
         tbl.fnClearTable();
         tbl.fnDraw();
         if (dataset != null && dataset.length != 0)
@@ -145,10 +145,10 @@ $(document).ready(function () {
 
     }
 
-    function get_source_list() {
+    function get_division_list() {
         var data = [];
         $.ajax({
-            url: "get_all_country",
+            url: "get_all_division",
             async: false,
             type: 'get',
             data: {},
@@ -165,20 +165,20 @@ $(document).ready(function () {
     }
 
 
-    $('#source_tbl').on('click', 'i', function () {
+    $('#division_tbl').on('click', 'i', function () {
         var ele = $(this);
         if (ele.attr('data-action') === 'EDIT') {
-            source_edit(ele.attr('data-id'));
+            division_edit(ele.attr('data-id'));
         } else if (ele.attr('data-action') === 'DELETE') {
-            source_delete(ele.attr('data-id'));
+            division_delete(ele.attr('data-id'));
         }
     });
 
-    function source_delete(_id) {
+    function division_delete(_id) {
 
         swal({
             title: "Are you sure?",
-            text: "You will not be able to recover this country file!",
+            text: "You will not be able to recover this division file!",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#EF5350",
@@ -191,14 +191,14 @@ $(document).ready(function () {
                     if (isConfirm) {
 
                         $.ajax({
-                            url: 'delete_country',
+                            url: 'delete_division',
                             type: 'get',
-                            data: {'country_id': _id},
+                            data: {'division_id': _id},
                             success: function (res) {
                                 var data = JSON.parse(res);
                                 swal({
                                     title: "Deleted!",
-                                    text: "Country has been deleted.",
+                                    text: "Division has been deleted.",
                                     confirmButtonColor: "#66BB6A",
                                     type: "success"
                                 });
@@ -220,19 +220,20 @@ $(document).ready(function () {
 
     }
 
-    var dataSet = getAllCountries();
-    TABLE = $('#source_tbl').DataTable({
+    var dataSet = get_all_division();
+    TABLE = $('#division_tbl').DataTable({
         autoWidth: false,
         columns: [
-            {data: "country_id",
+            {data: "division_id",
                 render: function (data) {
                     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
        </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
                     return str;
                 }
             },
-            {data: "country_code"},
-            {data: "country_description"},
+            {data: "division_code"},
+            {data: "division_description"},
+            {data: "customer_code"},
 
             {
                 'data': function (_data) {

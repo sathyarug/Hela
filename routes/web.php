@@ -48,8 +48,24 @@ Route::get('add_country','CountryController@index');
 Route::get('get_all_country','CountryController@loaddata');
 Route::get('check_code','CountryController@checkCode');
 Route::post('save_country','CountryController@saveCountry');
-Route::get('edit','CountryController@edit');
-Route::get('delete','CountryController@delete');
+Route::get('edit_country','CountryController@edit');
+Route::get('delete_country','CountryController@delete');
+
+//Division module
+Route::get('add_division','DivisionController@index');
+Route::get('check_division_code','DivisionController@checkCode');
+Route::get('get_all_division','DivisionController@loadData');
+Route::post('save_division','DivisionController@saveDivision');
+Route::get('edit_division','DivisionController@edit');
+Route::get('delete_division','DivisionController@delete');
+
+//Season module
+Route::get('add_season','SeasonController@index');
+Route::get('check_season_code','SeasonController@checkCode');
+Route::get('get_all_season','SeasonController@loadData');
+Route::post('save_season','SeasonController@saveSeason');
+Route::get('edit_season','SeasonController@edit');
+Route::get('delete_season','SeasonController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
