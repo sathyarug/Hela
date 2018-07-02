@@ -108,6 +108,8 @@ Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
+Route::post('supplier/getList', 'SupplierController@getList');
+Route::post('supplier/save', 'SupplierController@saveSupplier');
 
 
 Route::resource('admin/permission', 'Admin\\PermissionController');
