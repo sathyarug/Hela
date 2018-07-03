@@ -113,75 +113,78 @@
                                                     {{csrf_field()}}
                                                     <fieldset class="content-group">
 
-
+                                                        <div class=" col-md-12">
                                                         <div class=" col-md-4">
 
                                                             <label>Supplier Code<span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('supplier_code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-code" id="Supplier_code">--}}
 
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Supplier Name <span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-name', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('supplier_name', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-name" id="supplier_name">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Supplier Country <span class="text-danger">*</span>:</label>
-                                                            {{ Form::select('supplier-country',array(), null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
+                                                            {{ Form::select('supplier_country_id',$loc, null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
                                                             {{--<select class="select-search input-xxs" name="supplier-country" id="def_curr">--}}
                                                                 {{--<option value="">Select One ...</option>--}}
                                                             {{--</select>--}}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-country" id="supplier_country">--}}
                                                         </div>
-
+                                                        </div>
+                                                        <div class=" col-md-12">
                                                         <div class=" col-md-4">
                                                             <label>Supplier City <span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-city', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('supplier_city', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-city" id="supplier_city">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Supplier Address 1 <span class="text-danger">*</span>:</label>
                                                             {{--<input type="text" class="form-control input-xxs" name="Supplier-ad1" id="Supplier_ad1">--}}
-                                                            {{ Form::text('Supplier-ad1', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('supplier_address1', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Supplier Address 2 :</label>
-                                                            {{ Form::text('Supplier-ad2', null, ['class' => 'form-control input-xxs']) }}
+                                                            {{ Form::text('supplier_address2', null, ['class' => 'form-control input-xxs']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="Supplier-ad2" id="Supplier_ad2">--}}
                                                         </div>
-
+                                                        </div>
+                                                        <div class=" col-md-12">
                                                         <div class=" col-md-4">
                                                             <label>Supplier Phone <span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-phone', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('supplier_phone', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="company-city" id="supplier_phone">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
-                                                            <label>Supplier Fax <span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-fax', null, ['class' => 'form-control input-xxs']) }}
+                                                            <label>Supplier Fax :</label>
+                                                            {{ Form::text('supplier_fax', null, ['class' => 'form-control input-xxs']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-fax" id="supplier_fax">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Supplier Email <span class="text-danger">*</span>:</label>
-                                                            {{ Form::text('supplier-email', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::email('supplier_email', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="supplier-email" id="supplier_email">--}}
                                                         </div>
-
+                                                        </div>
+                                                        <div class=" col-md-12">
                                                         <div class=" col-md-4">
                                                             <label>Payment Mode<span class="text-danger">*</span></label>
-                                                            {{ Form::text('payment-mode', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('payment_mode', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
                                                             <label>Payment Code<span class="text-danger">*</span></label>
-                                                            {{ Form::text('payment-code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::text('payment_code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                                                             {{--<input type="text" class="form-control input-xxs" name="payment-code" id="payment_code">--}}
                                                         </div>
 
@@ -189,7 +192,7 @@
                                                             {{--<label>Fax</span>:</label>--}}
                                                             {{--<input type="text" class="form-control input-xxs" name="com-fax" id="con_fax">--}}
                                                         </div>
-
+                                                        </div>
 
 
                                                         {{--<div class=" col-md-4">--}}
@@ -220,7 +223,8 @@
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-link" data-dismiss="modal" id="">Close</button>
+
+                                                    <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>
                                                     <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save-3">
                                                         <b><i class="icon-floppy-disk"></i></b> Save</button>
 

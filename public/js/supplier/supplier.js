@@ -1,5 +1,5 @@
 var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-var role_tbl;
+var supplier_tbl;
 
 $(function () {
 
@@ -9,7 +9,7 @@ $(function () {
         submitHandler: function () {
             try {
                 save_supplier();
-                $("#frm_supplier :input").val('');
+                // $("#frm_supplier :input").val('');
                 validator.resetForm();
             } catch (e) {
                 console.log(e);
@@ -66,7 +66,7 @@ $(function () {
     // Main Cluster Codes ====================================================================================
 
 
-    role_tbl = $('#supplier_tbl').DataTable({
+    supplier_tbl = $('#supplier_tbl').DataTable({
         autoWidth: false,
         "processing": true,
         "serverSide": true,
@@ -126,9 +126,12 @@ function save_supplier() {
             if (res.status === 'success')
             {
                 app_alert('success', res.message);
-                //reload_table();
-                $('#role_form')[0].reset();
-                $('#show_role').modal('toggle');
+                var tbl = $('#supplier_tbl').dataTable();
+                tbl.fnClearTable();
+                tbl.fnDraw();
+
+                $('#frm_supplier')[0].reset();
+                $('#show_supplier').modal('toggle');
                 validator.resetForm();
 
             } else {
@@ -137,4 +140,12 @@ function save_supplier() {
 
 
         }})
+
+    function reload_table()
+    {
+        // // var dataSet2 = get_cluster_list();
+        // var tbl = $('#cluster_tbl').dataTable();
+        supplier_tbl.fnClearTable();
+        supplier_tbl.fnDraw();
+    }
 }
