@@ -112,5 +112,8 @@ Route::get('supplier', 'SupplierController@view');
 
 Route::resource('admin/permission', 'Admin\\PermissionController');
 
+Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
 Route::post('admin/role/getList', 'Admin\\RoleController@getList');
+Route::post('admin/role/{id}', 'Admin\\RoleController@update');
+Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');

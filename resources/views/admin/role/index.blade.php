@@ -3,6 +3,7 @@
 @section('m_role') class = 'active' @endsection
 @section('body')
 
+
 <!-- Page header -->
 
 <div class="page-header page-header-default ">
@@ -59,7 +60,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="text-right">
-                                <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs" id="add_data"><b><i class="icon-plus3"></i></b>Add New</button>
+                                <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs" onclick="addEditRole(0)"><b><i class="icon-plus3"></i></b>Add New</button>
                             </div> 
 
                             <table class="table datatable-basic" id="role_tbl">
@@ -149,36 +150,22 @@
 <div id="show_role" class="modal fade">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <form class="form-horizontal form-validate-jquery" action="#" id="role_form">
+            <!--<form class="form-horizontal form-validate-jquery" action="#" id="role_form">-->
 
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h5 class="modal-title">Add Role</h5>
-                </div>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Role</h5>
+            </div>
 
-                <div class="modal-body">
-                    {{csrf_field()}}
-                    <input type="hidden" value="0" name="id" id="source_hid" class="form-control input-xxs">
-                    <div class=" col-md-12">
 
-                            <div class="form-group">
-                                <label>Role Name <span class="text-danger">*</span> :</label>
-                                {!! Form::text('name', null, ['class' => 'form-control input-xxs', 'required' => 'required']) !!}
-                            </div>
 
-                            <div class="form-group">
-                                <label>Permissions <span class="text-danger">*</span> :</label>
-                                  {!! Form::select('permissions[]',$permissions, old('permissions')??isset($role)?$role->permissions->pluck('name','name'):null, ['class' => 'form-control input-xxs', 'required' => 'required','multiple','id'=>'permission-field'] ) !!}
-                            </div>
+            <div class="modal-body"> </div>
 
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>                               
-                    <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save" ><b><i class="icon-floppy-disk"></i></b> Save</button>
-                </div>
-            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>                               
+                <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save" ><b><i class="icon-floppy-disk"></i></b> Save</button>
+            </div>
+            <!--</form>-->
         </div>
     </div>
 </div>
