@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Models\Org;
+namespace App\Models\Finance\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
+
 use App\BaseValidator;
 
-class CostCenter extends BaseValidator
+class PaymentTerm extends BaseValidator
 {
-    protected $table = 'org_cost_center';
-    protected $primaryKey = 'cost_center_id';
+    protected $table = 'fin_payment_term';
+    protected $primaryKey = 'payment_term_id';
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
     
-    protected $fillable = ['cost_center_code','loc_id','cost_center_name'];
+    protected $fillable = ['payment_code','payment_description','payment_term_id'];
     
     protected $rules = array(
-        'cost_center_code' => 'required',
-        'cost_center_name'  => 'required'        
+        'payment_code' => 'required',
+        'payment_description'  => 'required'        
     );
     
     public function __construct()

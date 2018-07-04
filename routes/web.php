@@ -61,23 +61,43 @@ Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 
 Route::get('currency.get','CurrencyController@get_currency');
 
+
+Route::get('accounting-rules', function () { return view('finance/accounting/accounting_rules'); });
+
 //payment term routes
-Route::get('payment-term.new','PaymentTermController@new_payment_term');
+//Route::get('payment-term.new','PaymentTermController@new_payment_term');
+Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
 
-Route::post('payment-term.save','PaymentTermController@save');
+Route::post('payment-term.save','Finance\Accounting\PaymentTermController@save');
 
-Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get_payment_term_list','Finance\Accounting\PaymentTermController@get_payment_term_list');
 
-Route::get('payment-term.get','PaymentTermController@get_payment_term');
+Route::get('payment-term.get','Finance\Accounting\PaymentTermController@get_payment_term');
+
+Route::get('payment-term-change-status','Finance\Accounting\PaymentTermController@change_status');
+
+//Payment method
+Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodController@check_perment_method_code');
+
+Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
+
+Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
+
+Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
+
+Route::get('payment-method-change-status','Finance\Accounting\PaymentMethodController@change_status');
 
 //cost center routes
-Route::get('cost-center.new','Org\CostCenterController@new');
+//Route::get('cost-center.new','Finance\Accounting\CostCenterController@new');
+Route::get('cost-center-check-code','Finance\Accounting\CostCenterController@check_cost_center_code');
 
-Route::post('cost-center.save','Org\CostCenterController@save');
+Route::post('cost-center.save','Finance\Accounting\CostCenterController@save');
 
-Route::get('cost-center.get_list','Org\CostCenterController@get_list');
+Route::get('cost-center.get_list','Finance\Accounting\CostCenterController@get_list');
 
-Route::get('cost-center.get','Org\CostCenterController@get');
+Route::get('cost-center.get','Finance\Accounting\CostCenterController@get');
+
+Route::get('cost-center-change-status','Finance\Accounting\CostCenterController@change_status');
 
 // add location
 
