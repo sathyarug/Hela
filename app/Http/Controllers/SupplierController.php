@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\OrgSupplier;
 use App\OrgLocation;
-use App\PaymentMethod;
-use App\PaymentTerm;
+use App\Currency;
+use App\Models\Finance\Accounting\PaymentMethod;
+use App\Models\Finance\Accounting\PaymentTerm;
 
 class SupplierController extends Controller
 {
@@ -16,6 +17,7 @@ class SupplierController extends Controller
         $locs=OrgLocation::all()->toArray();
         $PaymentMethods=PaymentMethod::all()->toArray();
         $PaymentTerms=PaymentTerm::all()->toArray();
+        $CurrencyListAll=Currency::all()->toArray();
 
         $loction=array(''=>'');
         foreach ($locs AS $loc ){
@@ -29,13 +31,17 @@ class SupplierController extends Controller
         foreach ($PaymentTerms AS $PaymentTerm ){
             $terms[$PaymentTerm['payment_term_id']]=$PaymentTerm['payment_code'];
         }
+        $currency=array(''=>'');
+        foreach ($CurrencyListAll AS $CurrencyList ){
+            $currency[$CurrencyList['currency_id']]=$CurrencyList['currency_code'];
+        }
 
 
-        return view('supplier/supplier', ['loc' =>$loction,'method'=>$method,'terms'=>$terms]);
+        return view('supplier/supplier', ['loc' =>$loction,'method'=>$method,'terms'=>$terms,'currency'=>$currency]);
     }
 
     public function getList() {
-        return datatables()->of(OrgSupplier::all())->toJson();
+        return datatables()->of(OrgSupplier::all()->sortByDesc("supplier_id")->sortByDesc("status"))->toJson();
     }
 
     public function saveSupplier(Request $request) {
@@ -44,9 +50,9 @@ class SupplierController extends Controller
         $OrgSupplier = new OrgSupplier();
         if ($OrgSupplier->validate($request->all()))
         {
-//            if($request->source_hid > 0){
-//                $main_source = OrgSupplier::find($request->source_hid);
-//            }
+            if($request->supplier_hid > 0){
+                $OrgSupplier = OrgSupplier::find($request->supplier_hid);
+            }
             $OrgSupplier->fill($request->all());
             $OrgSupplier->status = 1;
             $OrgSupplier->created_by = 1;
@@ -61,5 +67,17 @@ class SupplierController extends Controller
         }
 
 
+    }
+
+    public function loadEditSupplier(Request $request) {
+        $Supplier_id = $request->id;
+        $Supplier = OrgSupplier::find($Supplier_id);
+        echo json_encode($Supplier);
+    }
+
+    public function deleteSupplier(Request $request) {
+        $Supplier_id = $request->id;
+        $source = OrgSupplier::where('supplier_id', $Supplier_id)->update(['status' => 0]);
+        echo json_encode(array('delete'));
     }
 }
