@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Org;
+namespace App\Models\Finance\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;

@@ -1,17 +1,17 @@
 
-var COUNTRY_HID = 0;
+var UOM_HID = 0;
 var X_CSRF_TOKEN = '';
 var TABLE = null;
 var TABLE2 = null;
 var TABLE3 = null;
 $(document).ready(function () {
     X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-    var validator = app_form_validator('#division_form', {
+    var validator = app_form_validator('#uom_form', {
 
         submitHandler: function () {
             try {
-                save_division();
-                $("#division_form :input").val('');
+                save_uom();
+                $("#uom_form :input").val('');
                 validator.resetForm();
             } catch (e) {
                 return false;
@@ -21,32 +21,32 @@ $(document).ready(function () {
 
         rules: {
 
-            division_code: {
+            uom_code: {
                 required: true,
-                minlength: 2,
+                minlength: 1,
                 remote: {
                     type: "get",
-                    url: "check_division_code",
+                    url: "check_uom_code",
                     data: {
 
                         code: function () {
-                            return $("#division_code").val();
+                            return $("#uom_code").val();
                         },
                         idcode: function () {
-                            return $("#division_hid").val();
+                            return $("#uom_hid").val();
                         }
                     }
                 }
             },
 
-            division_description: {
+            uom_description: {
                 required: true,
                 minlength: 4
             },
 
         },
         messages: {
-            division_code: {
+            uom_code: {
                 remote: jQuery.validator.format('')
             },
 
@@ -55,18 +55,18 @@ $(document).ready(function () {
 
 
     $('#add_data').click(function () {
-        $('#show_division').modal('show');
-        $('#division_form')[0].reset();
+        $('#show_uom').modal('show');
+        $('#uom_form')[0].reset();
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
         //$('#action').val('Add');
 
     });
-    function get_all_division() {
+    function get_all_uom() {
         var data = [];
         $.ajax({
-            url: "get_all_division",
+            url: "get_all_uom",
             async: false,
             type: 'GET',
             data: {},
@@ -80,13 +80,13 @@ $(document).ready(function () {
         );
         return data;
     }
-    function save_division() {
+    function save_uom() {
 
-        var data = app_serialize_form_to_json('#division_form');
+        var data = app_serialize_form_to_json('#uom_form');
         data['_token'] = X_CSRF_TOKEN;
 
         $.ajax({
-            url: "save_division",
+            url: "save_uom",
             async: false,
             type: "post",
             data: data,
@@ -99,8 +99,8 @@ $(document).ready(function () {
                 {
                     app_alert('success', json_res['message']);
                     reload_table();
-                    $('#division_form')[0].reset();
-                    $('#show_division').modal('toggle');
+                    $('#uom_form')[0].reset();
+                    $('#show_uom').modal('toggle');
                     validator.resetForm();
 
                 } else
@@ -113,22 +113,25 @@ $(document).ready(function () {
 
 
     }
-    function division_edit(_id) {
+    function uom_edit(_id) {
 
-        $('#show_division').modal('show');
-        $('#division_form')[0].reset();
+        $('#show_uom').modal('show');
+        $('#uom_form')[0].reset();
         validator.resetForm();
 
         $.ajax({
-            url: 'edit_division',
+            url: 'edit_uom',
             type: 'get',
-            data: {'division_id': _id},
+            data: {'uom_id': _id},
             success: function (res) {
                 var data = JSON.parse(res);
                 //alert(data);
-                $('#division_hid').val(data['division_id']);
-                $('#division_code').val(data['division_code']);
-                $('#division_description').val(data['division_description']);
+                $('#uom_hid').val(data['uom_id']);
+                $('#uom_code').val(data['uom_code']);
+                $('#uom_description').val(data['uom_description']);
+                $('#uom_factor').val(data['uom_factor']);
+                $('#uom_base_unit').val(data['uom_base_unit']);
+                $('#unit_type').val(data['unit_type']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
         });
@@ -136,8 +139,8 @@ $(document).ready(function () {
     }
     function reload_table()
     {
-        var dataset = get_division_list();
-        var tbl = $('#division_tbl').dataTable();
+        var dataset = get_uom_list();
+        var tbl = $('#uom_tbl').dataTable();
         tbl.fnClearTable();
         tbl.fnDraw();
         if (dataset != null && dataset.length != 0)
@@ -145,10 +148,10 @@ $(document).ready(function () {
 
     }
 
-    function get_division_list() {
+    function get_uom_list() {
         var data = [];
         $.ajax({
-            url: "get_all_division",
+            url: "get_all_uom",
             async: false,
             type: 'get',
             data: {},
@@ -165,20 +168,20 @@ $(document).ready(function () {
     }
 
 
-    $('#division_tbl').on('click', 'i', function () {
+    $('#uom_tbl').on('click', 'i', function () {
         var ele = $(this);
         if (ele.attr('data-action') === 'EDIT') {
-            division_edit(ele.attr('data-id'));
+            uom_edit(ele.attr('data-id'));
         } else if (ele.attr('data-action') === 'DELETE') {
-            division_delete(ele.attr('data-id'));
+            uom_delete(ele.attr('data-id'));
         }
     });
 
-    function division_delete(_id) {
+    function uom_delete(_id) {
 
         swal({
             title: "Are you sure?",
-            text: "You will not be able to recover this division file!",
+            text: "You will not be able to recover this UOM file!",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#EF5350",
@@ -191,14 +194,14 @@ $(document).ready(function () {
                     if (isConfirm) {
 
                         $.ajax({
-                            url: 'delete_division',
+                            url: 'delete_uom',
                             type: 'get',
-                            data: {'division_id': _id},
+                            data: {'uom_id': _id},
                             success: function (res) {
                                 var data = JSON.parse(res);
                                 swal({
                                     title: "Deleted!",
-                                    text: "Division has been deleted.",
+                                    text: "UOM has been deleted.",
                                     confirmButtonColor: "#66BB6A",
                                     type: "success"
                                 });
@@ -220,19 +223,22 @@ $(document).ready(function () {
 
     }
 
-    var dataSet = get_all_division();
-    TABLE = $('#division_tbl').DataTable({
+    var dataSet = get_all_uom();
+    TABLE = $('#uom_tbl').DataTable({
         autoWidth: false,
         columns: [
-            {data: "division_id",
+            {data: "uom_id",
                 render: function (data) {
                     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
        </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
                     return str;
                 }
             },
-            {data: "division_code"},
-            {data: "division_description"},
+            {data: "uom_code"},
+            {data: "uom_description"},
+            {data: "uom_factor"},
+            {data: "uom_base_unit"},
+            {data: "unit_type"},
 
             {
                 'data': function (_data) {
