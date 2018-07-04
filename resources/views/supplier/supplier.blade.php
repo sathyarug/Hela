@@ -178,7 +178,8 @@
                                                         <div class=" col-md-12">
                                                         <div class=" col-md-4">
                                                             <label>Payment Mode<span class="text-danger">*</span></label>
-                                                            {{ Form::text('payment_mode', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::select('supplier_country_id',$method, null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
+{{--                                                            {{ Form::text('payment_mode', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}--}}
                                                             {{--<input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">--}}
                                                         </div>
 
@@ -189,9 +190,8 @@
                                                         </div>
 
                                                         <div class=" col-md-4">
-                                                            {{--<label>Fax</span>:</label>--}}
-                                                            {{--<input type="text" class="form-control input-xxs" name="com-fax" id="con_fax">--}}
-                                                        </div>
+                                                            <label>Default currency code<span class="text-danger">*</span></label>
+                                                            {{ Form::text('default_currency_code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}                                                        </div>
                                                         </div>
 
 

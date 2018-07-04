@@ -1,10 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models\Finance\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CostCenter extends BaseValidator
+use App\BaseValidator;
+
+class PaymentTerm extends BaseValidator
 {
     protected $table = 'fin_payment_term';
     protected $primaryKey = 'payment_term_id';

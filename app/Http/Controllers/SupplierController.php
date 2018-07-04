@@ -6,19 +6,32 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\OrgSupplier;
 use App\OrgLocation;
+use App\PaymentMethod;
+use App\PaymentTerm;
 
 class SupplierController extends Controller
 {
     public function view()
     {
         $locs=OrgLocation::all()->toArray();
-//        dd($locs);exit;
+        $PaymentMethods=PaymentMethod::all()->toArray();
+        $PaymentTerms=PaymentTerm::all()->toArray();
+
         $loction=array(''=>'');
         foreach ($locs AS $loc ){
             $loction[$loc['loc_id']]=$loc['loc_name'];
         }
+        $method=array(''=>'');
+        foreach ($PaymentMethods AS $PaymentMethod ){
+            $method[$PaymentMethod['payment_method_id']]=$PaymentMethod['payment_method_code'];
+        }
+        $terms=array(''=>'');
+        foreach ($PaymentTerms AS $PaymentTerm ){
+            $terms[$PaymentTerm['payment_term_id']]=$PaymentTerm['payment_code'];
+        }
 
-        return view('supplier/supplier', ['loc' =>$loction]);
+
+        return view('supplier/supplier', ['loc' =>$loction,'method'=>$method,'terms'=>$terms]);
     }
 
     public function getList() {
