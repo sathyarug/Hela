@@ -1,22 +1,23 @@
-<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
-    {!! Form::label('name', 'Name', ['class' => 'col-md-4 control-label']) !!}
-    <div class="col-md-6">
-        {!! Form::text('name', null, ('' == 'required') ? ['class' => 'form-control', 'required' => 'required'] : ['class' => 'form-control']) !!}
-        {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
+<div class="modal-body">
+    
+    <!--<input type="hidden"  name="id" id="role_id" class="form-control">-->
+    <div class=" col-md-12">
+
+        <div class="form-group">
+            <label>Role Name <span class="text-danger">*</span> :</label>
+            {!! Form::text('name', isset($role)?$role->name:'' , 
+            isset($role)?['class' => 'form-control input-xxs', 'disabled' => 'disabled','id'=>'role-name' ]:['class' => 'form-control input-xxs', 'required' => 'required','id'=>'role-name' ]
+            ) !!}
+        </div>
+
+        <div class="form-group">
+            <label>Permissions <span class="text-danger">*</span> :</label>
+            {!! Form::select('permissions[]',$permissions, old('permissions')??isset($role)?$role->permissions->pluck('name','name'):null, ['class' => 'form-control', 'required' => 'required','multiple','id'=>'permission-field'] ) !!}
+        </div>
+
     </div>
 </div>
-
-
-<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
-    {!! Form::label('permissions', 'Permission', ['class' => 'col-md-4 control-label']) !!}
-    <div class="col-md-6">
-        {!! Form::select('permissions[]',$permissions, old('permissions')??isset($role)?$role->permissions->pluck('name','name'):null, ('' == 'required') ? ['class' => 'form-control', 'required' => 'required','multiple'] : ['class' => 'form-control','multiple']) !!}
-        {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
-    </div>
-</div>
-
-<div class="form-group">
-    <div class="col-md-offset-4 col-md-4">
-        {!! Form::submit(isset($submitButtonText) ? $submitButtonText : 'Create', ['class' => 'btn btn-primary']) !!}
-    </div>
+<div class="modal-footer">
+    <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>                               
+    <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save" ><b><i class="icon-floppy-disk"></i></b> Save</button>
 </div>
