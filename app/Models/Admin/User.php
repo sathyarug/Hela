@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models\Admin;
 
+use App\BaseValidator;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;

@@ -69,13 +69,11 @@ Route::get('delete_season','SeasonController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
+//User Management
+Route::get('register', 'Admin\\UserController@register');
+Route::post('register-user', 'Admin\\UserController@store');
+Route::get('validate-empno', 'Admin\\UserController@validateEmpNo');
 
-Route::get('register', function () {
-    return view('user.register');
-});
-
-
-Route::post('register-user', 'UserController@store');
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
