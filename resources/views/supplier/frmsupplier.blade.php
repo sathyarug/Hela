@@ -221,25 +221,25 @@
 
                 </div>
             </div>
-            {{--<div class=" col-md-12">--}}
-                {{--<div class=" col-md-4">--}}
-                    {{--<label>vat reg no<span class="text-danger">*</span></label>--}}
-                    {{--{{ Form::text('vat_reg_no',($Supplier->vat_reg_no) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}--}}
-                    {{--<input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">--}}
-                {{--</div>--}}
+            <div class=" col-md-12">
+                <div class=" col-md-4">
+                    <label>vat reg no<span class="text-danger">*</span></label>
+                    {{ Form::text('vat_reg_no',($Supplier->vat_reg_no) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
 
-                {{--<div class=" col-md-4">--}}
-                    {{--<label>Payment terms<span class="text-danger">*</span></label>--}}
-                    {{--{{ Form::select('payment_code1',$terms, ($Supplier->payment_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}--}}
-                    {{--<input type="text" class="form-control input-xxs" name="payment-code" id="payment_code">--}}
-                {{--</div>--}}
+                </div>
 
-                {{--<div class=" col-md-4">--}}
-                    {{--<label>Default currency code<span class="text-danger">*</span></label>--}}
-                    {{--{{ Form::select('default_currency_code1',$currency, ($Supplier->default_currency_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}--}}
+                <div class=" col-md-4">
+                    <label>Origin<span class="text-danger">*</span></label>
+                    {{ Form::select('payment_code1',$origin, ($Supplier->origin) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
 
-                {{--</div>--}}
-            {{--</div>--}}
+                </div>
+
+                <div class=" col-md-4">
+                    <label>Default currency code<span class="text-danger">*</span></label>
+                    {{ Form::select('default_currency_code1',$currency, ($Supplier->default_currency_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
+
+                </div>
+            </div>
 
 
             {{--<div class=" col-md-4">--}}
