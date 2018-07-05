@@ -77,13 +77,7 @@
                                 </ul>
                             </li>
 
-                            <li>
-                                <a href="#">Finance</a>
-                                <ul>
-                                    <li><a href="{{url('/supplier')}}">supplier</a></li>
-
-                                </ul>
-                            </li>
+                            
                         </ul>
                     </li>
 
@@ -97,6 +91,14 @@
                                 <a href="#">Accounting</a>
                                 <ul>
                                     <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
+
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="#">Finance</a>
+                                <ul>
+                                    <li><a href="{{url('/supplier')}}">supplier</a></li>
 
                                 </ul>
                             </li>
