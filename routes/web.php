@@ -183,7 +183,8 @@ Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@dele
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
-Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
+//Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
+Route::get('supplier/loadAddOrEdit', 'SupplierController@loadAddEditSupplier');
 Route::get('supplier/delete', 'SupplierController@deleteSupplier');
 
 
