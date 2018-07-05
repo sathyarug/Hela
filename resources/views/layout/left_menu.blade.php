@@ -96,7 +96,7 @@
                             </li>
 
                             <li>
-                                <a href="#">Finance</a>
+                                <a href="#">Supplier</a>
                                 <ul>
                                     <li><a href="{{url('/supplier')}}">supplier</a></li>
 
