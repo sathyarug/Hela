@@ -1,7 +1,7 @@
 
 @extends('layout.main')
 
-@section('title') Form Details @endsection
+@section('title') Country Details @endsection
 @section('load_css')
 
 @endsection

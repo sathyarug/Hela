@@ -1,7 +1,7 @@
 
 @extends('layout.main')
 
-@section('title') Form Details @endsection
+@section('title') Season Details @endsection
 @section('load_css')
 
 @endsection
@@ -98,11 +98,11 @@
 
                                 <!-- popup -->
                                 <div id="show_season" class="modal fade">
-                                    <div class="modal-dialog modal-xs">
+                                    <div class="modal-dialog modal-md">
                                         <div class="modal-content">
                                             <form class="form-horizontal form-validate-jquery" action="#" id="season_form">
 
-                                                <div class="modal-header">
+                                                <div class="modal-header bg-teal-300">
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                     <h5 class="modal-title">Add Season</h5>
                                                 </div>
@@ -113,13 +113,14 @@
                                                     <div class=" col-source_hidmd-12">
 
                                                         <fieldset class="content-group">
-
-                                                            <label>Season Code <span class="text-danger">*</span> :</label>
-                                                            <input type="text" name="season_code" id="season_code" class="form-control input-xxs" >
-
-                                                            <label>Season Name<span class="text-danger">*</span> :</label>
-                                                            <input type="text" name="season_name" id="season_name" class="form-control input-xxs" >
-
+                                                            <div class="form-group">
+                                                                <label>Season Code <span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="season_code" id="season_code" class="form-control input-xxs" >
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Season Name<span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="season_name" id="season_name" class="form-control input-xxs" >
+                                                            </div>
                                                         </fieldset>
 
                                                     </div>

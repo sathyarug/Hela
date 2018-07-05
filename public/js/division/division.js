@@ -233,7 +233,6 @@ $(document).ready(function () {
             },
             {data: "division_code"},
             {data: "division_description"},
-            {data: "customer_code"},
 
             {
                 'data': function (_data) {
