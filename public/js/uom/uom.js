@@ -127,7 +127,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#uom_hid').val(data['uom_id']);
-                $('#uom_code').val(data['uom_code']);
+                $('#uom_code').val(data['uom_code']).prop('disabled', true);
                 $('#uom_description').val(data['uom_description']);
                 $('#uom_factor').val(data['uom_factor']);
                 $('#uom_base_unit').val(data['uom_base_unit']);
