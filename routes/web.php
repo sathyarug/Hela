@@ -36,6 +36,14 @@ Route::get('/home', function () {
 Route::get('/icon', function () {
     return view('icon_page');
 });
+Route::get('alert', function () {
+	return view('alert');
+});
+
+
+Route::get('costing', function () {
+	return view('costing');
+});
 
 // Country module
 /*Route::get('create_country','CountryController@index');
