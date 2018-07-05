@@ -6,19 +6,19 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\UnitOfMeasure;
 
-class UomController extends Controller
-{
+class UomController extends Controller {
+
     public function index() {
         return view('uom.uom');
     }
-    
+
     public function loadData() {
-        $uom_list =UnitOfMeasure::all();
+        $uom_list = UnitOfMeasure::all();
         echo json_encode($uom_list);
     }
 
     public function checkCode(Request $request) {
-         $count = UnitOfMeasure::where('uom_code', '=', $request->code)->count();
+        $count = UnitOfMeasure::where('uom_code', '=', $request->code)->count();
 
         if ($request->idcode > 0) {
 
@@ -48,10 +48,16 @@ class UomController extends Controller
         if ($uom->validate($request->all())) {
             if ($request->uom_hid > 0) {
                 $uom = UnitOfMeasure::find($request->uom_hid);
+                $uom->uom_description = $request->uom_description;
+                $uom->uom_factor = $request->uom_factor;
+                $uom->uom_base_unit = $request->uom_base_unit;
+                $uom->unit_type = $request->unit_type;
+            } else {
+                $uom->fill($request->all());
+                $uom->status = 1;
+                $uom->created_by = 1;
             }
-            $uom->fill($request->all());
-            $uom->status = 1;
-            $uom->created_by = 1;
+
             $uom = $uom->saveOrFail();
             // echo json_encode(array('Saved'));
             echo json_encode(array('status' => 'success', 'message' => 'UOM details saved successfully.'));
@@ -62,9 +68,9 @@ class UomController extends Controller
         }
     }
 
-        public function edit(Request $request) {
+    public function edit(Request $request) {
         $uom_id = $request->uom_id;
-        $uom= UnitOfMeasure::find($uom_id);
+        $uom = UnitOfMeasure::find($uom_id);
         echo json_encode($uom);
     }
 
@@ -72,7 +78,8 @@ class UomController extends Controller
         $uom_id = $request->uom_id;
         //$source = Main_Source::find($source_id);
         //$source->delete();
-        $uom= UnitOfMeasure::where('uom_id', $uom_id)->update(['status' => 0]);
+        $uom = UnitOfMeasure::where('uom_id', $uom_id)->update(['status' => 0]);
         echo json_encode(array('delete'));
     }
+
 }

@@ -1,7 +1,7 @@
 
 @extends('layout.main')
 
-@section('title') UOM Details @endsection
+@section('title') Section Details @endsection
 @section('load_css')
 
 @endsection
@@ -53,7 +53,7 @@
         <div class="col-md-12">
             <div class="panel panel-flat">
                 <div class="panel-heading">
-                    <h6 class="panel-title">Add Unit of Measure</h6>
+                    <h6 class="panel-title">Add Section</h6>
 
                     <div class="heading-elements">
                         <ul class="icons-list">
@@ -77,16 +77,13 @@
                                     </div> 
 
 
-                                    <table class="table datatable-basic" id="uom_tbl">
+                                    <table class="table datatable-basic" id="section_tbl">
                                         <thead>
                                             <tr>
                                                 <th class="text-center">Action</th>
-                                                <th>Unit Code</th>
-                                                <th>Description</th>
-                                                <th>Factor</th>
-                                                <th>Base Unit</th>
-                                                <th>Unit Type</th>
-                                                <th>Status</th>  
+                                                <th>Section Code</th>
+                                                <th>Section Name</th>
+                                                <th>Status</th>    
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -100,49 +97,29 @@
                                 </div>
 
                                 <!-- popup -->
-                                <div id="show_uom" class="modal fade">
+                                <div id="show_section" class="modal fade">
                                     <div class="modal-dialog modal-md">
                                         <div class="modal-content">
-                                            <form class="form-horizontal form-validate-jquery" action="#" id="uom_form">
+                                            <form class="form-horizontal form-validate-jquery" action="#" id="section_form">
 
                                                 <div class="modal-header bg-teal-300">
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                    <h5 class="modal-title">Add Unit Of Measure</h5>
+                                                    <h5 class="modal-title">Add Section</h5>
                                                 </div>
 
                                                 <div class="modal-body">
                                                     {{csrf_field()}}
-                                                    <input type="hidden" value="0" name="uom_hid" id="uom_hid" class="form-control input-xxs">
+                                                    <input type="hidden" value="0" name="section_hid" id="section_hid" class="form-control input-xxs">
                                                     <div class=" col-source_hidmd-12">
 
                                                         <fieldset class="content-group">
                                                             <div class="form-group">
-                                                                <label>Unit Code <span class="text-danger">*</span> :</label>
-                                                                <input type="text" name="uom_code" id="uom_code" class="form-control input-xxs" >
+                                                                <label>Section Code <span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="section_code" id="section_code" class="form-control input-xxs" >
                                                             </div>
                                                             <div class="form-group">
-                                                                <label>Description<span class="text-danger">*</span> :</label>
-                                                                <input type="text" name="uom_description" id="uom_description" class="form-control input-xxs" >
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Factor<span class="text-danger">*</span> :</label>
-                                                                <input type="text" name="uom_factor" id="uom_factor" class="form-control input-xxs" >
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Base Unit<span class="text-danger">*</span> :</label>
-                                                                <input type="text" name="uom_base_unit" id="uom_base_unit" class="form-control input-xxs" >
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Unit Type<span class="text-danger">*</span> :</label>
-                                                                <select class="select-search" id="unit_type" name="unit_type">
-                                                                    <option value="Not Used">Not Used</option>
-                                                                    <option value="Weight">Weight</option>
-                                                                    <option value="Volume">Volume</option>
-                                                                    <option value="Length">Length</option>
-                                                                    <option value="Temperature">Temperature</option>
-                                                                    <option value="Discrete">Discrete</option>
-                                                                    <option value="Density">Density</option>
-                                                                </select>
+                                                                <label>Section Name<span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="section_name" id="section_name" class="form-control input-xxs" >
                                                             </div>
                                                         </fieldset>
 
@@ -203,7 +180,7 @@
 <script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
 <script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
 
-<script type="text/javascript" src="js/uom/uom.js"></script>
+<script type="text/javascript" src="js/section/section.js"></script>
 <script type="text/javascript" src="js/application.js"></script>
 
 <script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>

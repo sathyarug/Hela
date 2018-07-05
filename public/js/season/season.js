@@ -127,7 +127,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#season_hid').val(data['season_id']);
-                $('#season_code').val(data['season_code']);
+                $('#season_code').val(data['season_code']).prop('disabled', true);
                 $('#season_name').val(data['season_name']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
