@@ -276,15 +276,15 @@ dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
 $('#stores_tbl').on('click','i',function(){
     var ele = $(this);
     if(ele.attr('data-action') === 'EDIT'){
-        source_edit(ele.attr('data-id'));
+        stores_edit(ele.attr('data-id'));
     }
     else if(ele.attr('data-action') === 'DELETE'){
-        source_delete(ele.attr('data-id'));
+        stores_delete(ele.attr('data-id'));
     }
 });
 
 
-function source_edit(_id){  
+function stores_edit(_id){  
 // mig need to check update
     $('#show_stores').modal('show');
     $('#stores_form')[0].reset();
@@ -315,7 +315,7 @@ function source_edit(_id){
     
 }
 
-function source_delete(_id){ 
+function stores_delete(_id){ 
 
     swal({
         title: "Are you sure?",
