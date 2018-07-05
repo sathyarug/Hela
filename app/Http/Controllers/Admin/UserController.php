@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\Location;
 use App;
-use App\Models\Org\CostCenter;
+use App\Models\Finance\Accounting\CostCenter;
 use App\Models\Admin\UsrProfile;
 use App\Models\Admin\User;
 use App\Models\Admin\UsrDepartment;

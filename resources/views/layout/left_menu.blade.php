@@ -51,6 +51,13 @@
                                 </ul>
                             </li>
 
+                            <li>
+                                <a href="#">Admin</a>
+                                <ul>
+                                    <li @yield('m_icon')><a href="register">User</a></li>
+                                </ul>
+                            </li>
+
 
                             <li>
                                 <a href="#">Company</a>
