@@ -1,35 +1,88 @@
-@extends('layout.main')
+<script>
 
-@section('body')
-    <div class="container">
-        <div class="row">
-            @include('admin.sidebar')
+    $(function () {
 
-            <div class="col-md-9">
-                <div class="card">
-                    <div class="card-header">Create New Role</div>
-                    <div class="card-body">
-                        <a href="{{ url('/admin/role') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
-                        <br />
-                        <br />
+        $('#permission-field').select2();
 
-                        @if ($errors->any())
-                            <ul class="alert alert-danger">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
 
-                        {!! Form::open(['url' => '/admin/role', 'class' => 'form-horizontal', 'files' => true]) !!}
+        var validator = app_form_validator('#role_form', {
 
-                        @include ('admin.role.form')
+            submitHandler: function () {
+                try {
+                    save_role();
+                    $("#role_form :input").val('');
+                    validator.resetForm();
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
+                return false;
+            },
 
-                        {!! Form::close() !!}
+            rules: {
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+                "name": {
+                    required: true,
+                    remote: {
+                        type: "get",
+                        url: "/admin/role/checkName",
+                        data: {
+                            name: function () {
+                                return $("#role-name").val();
+                            },
+                            id: function () {
+                                return $("#role_id").val();
+                            }
+                        },
+                        dataFilter: function (data) {
+                            if (data == 'true') {
+                                return "\"" + "This role name already exists." + "\"";
+                                ;
+                            } else {
+                                return 'true';
+                            }
+                        }
+                    },
+
+                },
+
+            }
+        });
+
+    });
+
+    function save_role() {
+        $.ajax({
+            url: $("#role_form").attr('action'),
+            async: false,
+            type: "POST",
+            data: $("#role_form").serialize(),
+            dataType: "json",
+            success: function (res)
+            {
+                if (res.status === 'success')
+                {
+                    app_alert('success', res.message);
+                    $('#show_role').modal('toggle');
+                    role_tbl.ajax.reload(); // reload datatabe
+
+                } else {
+                    app_alert('error', res.message);
+                }
+            }
+        });
+    }
+
+</script>
+
+{!! Form::open(['url' => ['/admin/role'], 'class' => 'form-horizontal', 'id'=>'role_form']) !!}
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h5 class="modal-title">Add Role</h5>
+</div>
+
+@include ('admin.role.form')
+
+{!! Form::close() !!}
+
+

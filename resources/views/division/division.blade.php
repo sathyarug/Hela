@@ -1,12 +1,12 @@
 
 @extends('layout.main')
 
-@section('title') Form Details @endsection
+@section('title') Division Details @endsection
 @section('load_css')
 
 @endsection
 
-@section('m_add_location') class = 'active' @endsection
+@section('m_add_division') class = 'active' @endsection
 
 @section('body')
 <!-- Page header -->
@@ -83,7 +83,6 @@
                                                 <th class="text-center">Action</th>
                                                 <th>Division Code</th>
                                                 <th>Description</th>
-                                                <th>Customer</th>
                                                 <th>Status</th>    
                                             </tr>
                                         </thead>
@@ -99,11 +98,11 @@
 
                                 <!-- popup -->
                                 <div id="show_division" class="modal fade">
-                                    <div class="modal-dialog modal-xs">
+                                    <div class="modal-dialog modal-md">
                                         <div class="modal-content">
                                             <form class="form-horizontal form-validate-jquery" action="#" id="division_form">
 
-                                                <div class="modal-header">
+                                                <div class="modal-header bg-teal-300">
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                     <h5 class="modal-title">Add Division</h5>
                                                 </div>
@@ -114,20 +113,15 @@
                                                     <div class=" col-source_hidmd-12">
 
                                                         <fieldset class="content-group">
-
-                                                            <label>Division Code <span class="text-danger">*</span> :</label>
-                                                            <input type="text" name="division_code" id="division_code" class="form-control input-xxs" >
-
-                                                            <label>Description<span class="text-danger">*</span> :</label>
-                                                            <input type="text" name="division_description" id="division_description" class="form-control input-xxs" >
-
-                                                                <label>Customer:</label>
-                                                                <select class="select-search" id="customer_code" name="customer_code">
-                                                                    <option value="AZ">Arizona</option>
-                                                                    <option value="CO">Colorado</option>
-                                                                    <option value="ID">Idaho</option>
-                                                                </select>
-
+                                                            <div class="form-group">
+                                                                <label>Division Code <span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="division_code" id="division_code" class="form-control input-xxs" >
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Description<span class="text-danger">*</span> :</label>
+                                                                <input type="text" name="division_description" id="division_description" class="form-control input-xxs" >
+                                                            </div>
+                                                            
                                                         </fieldset>
 
                                                     </div>
