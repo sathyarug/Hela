@@ -6,7 +6,7 @@
 
 @endsection
 
-@section('m_add_location') class = 'active' @endsection
+@section('m_add_country') class = 'active' @endsection
 
 @section('body')
 <!-- Page header -->
