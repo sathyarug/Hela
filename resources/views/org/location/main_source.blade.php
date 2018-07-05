@@ -29,11 +29,13 @@
 
 <!-- popup -->
  <div id="show_source" class="modal fade">
-        <div class="modal-dialog modal-xs">
+
+        <div class="modal-dialog">
             <div class="modal-content">
                 <form class="form-horizontal form-validate-jquery" action="#" id="source_form">
 
-                    <div class="modal-header">
+                    <div class="modal-header  bg-teal-300">
+
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h5 class="modal-title">Add Main Sourse</h5>
                     </div>
@@ -61,7 +63,10 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal" id="">Close</button>                                
+
+         
+                        <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>                                
+
                         <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save">
                             <b><i class="icon-floppy-disk"></i></b> Save</button>
 

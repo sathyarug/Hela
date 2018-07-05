@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Org\Location;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
 class Main_Cluster extends BaseValidator
 {
@@ -12,12 +13,11 @@ class Main_Cluster extends BaseValidator
 		const CREATED_AT = 'created_date';
 		const UPDATED_AT = 'updated_date';
    
-		protected $fillable = ['group_name','source_id','group_code','group_id'];
+		protected $fillable = ['source_id','group_code','group_name'];
     
     	protected $rules = array(
-        'group_id' => 'required',
-        'group_code' => 'required',
         'source_id' => 'required',
+        'group_code' => 'required',
         'group_name'  => 'required'        
     	);
     

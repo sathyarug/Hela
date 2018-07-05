@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Org\Location;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
 class Main_Location extends BaseValidator
 {
@@ -12,14 +13,12 @@ class Main_Location extends BaseValidator
 		const CREATED_AT = 'created_date';
 		const UPDATED_AT = 'updated_date';
    
-		protected $fillable = ['company_id','company_code','group_id','company_name','company_address_1','company_address_2','city','country_code','company_fax','company_contact_1','company_contact_2','company_logo','company_email','company_web','default_currency','finance_month','company_remarks','vat_reg_no','tax_code','company_reg_no'];
+		protected $fillable = ['company_code','group_id','company_name','company_address_1','company_address_2','city','country_code','company_fax','company_contact_1','company_contact_2','company_logo','company_email','company_web','default_currency','finance_month','company_remarks','vat_reg_no','tax_code','company_reg_no'];
     
     	protected $rules = array(
-        'company_id' => 'required',
         'company_code' => 'required',
         'company_name' => 'required',
         'group_id' => 'required',
-        'company_logo' => 'required',
         'company_address_1' => 'required',
         'company_address_2' => 'required',
         'city' => 'required',

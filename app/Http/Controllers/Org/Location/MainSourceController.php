@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
-use App\Main_Source;
+use App\Models\Org\Location\Main_Source;
 use App\Http\Controllers\Controller;
 
 class MainSourceController extends Controller
@@ -50,14 +50,14 @@ class MainSourceController extends Controller
   if($request->idcode > 0){
 
     $user = Main_Source::where('source_id', $request->idcode)->first();
-
+   //print_r($user);
     if($user->source_code == $request->code)
     {
       $msg = true;
 
     }else{
 
-      $msg = 'Already exists. please try another one';
+      $msg = 'Can not change. please try aga';
 
     }
 
@@ -98,9 +98,13 @@ public function delete(Request $request)
 }
 
 
-public function select_Source_list(){
+public function select_Source_list(Request $request){
 
-  $s_source_lists = Main_Source::select('source_code','source_name')->get();
+  $search_c = $request->search;
+  //print_r($search_c);
+  $s_source_lists = Main_Source::select('source_id','source_code','source_name')
+                    ->where([['status', '=', '1'],['source_name', 'like', '%' . $search_c . '%'],]) ->get();
+
 
   return response()->json(['items'=>$s_source_lists]);
     //return $select_source;

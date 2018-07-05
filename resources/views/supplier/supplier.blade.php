@@ -1,6 +1,6 @@
 
 @extends('layout.main')
-@section('title') Role @endsection
+@section('title') Supplier @endsection
 @section('supplier') class = 'active' @endsection
 @section('body')
 <!-- Page header -->
@@ -102,7 +102,7 @@
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <form class="form-horizontal form-validate-jquery" action="#" id="frm_supplier">
-
+                                                <input type="hidden" value="0" name="supplier_hid" id="supplier_hid" class="form-control input-xxs">
 
                                                 <div class="modal-header">
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -178,19 +178,20 @@
                                                         <div class=" col-md-12">
                                                         <div class=" col-md-4">
                                                             <label>Payment Mode<span class="text-danger">*</span></label>
-                                                            {{ Form::text('payment_mode', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            {{ Form::select('payment_method_id',$method, null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
                                                             {{--<input type="text" class="form-control input-xxs" name="payment-mode" id="payment_mode">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
-                                                            <label>Payment Code<span class="text-danger">*</span></label>
-                                                            {{ Form::text('payment_code', null, ['class' => 'form-control input-xxs', 'required' => 'required']) }}
+                                                            <label>Payment terms<span class="text-danger">*</span></label>
+                                                            {{ Form::select('payment_code',$terms, null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
                                                             {{--<input type="text" class="form-control input-xxs" name="payment-code" id="payment_code">--}}
                                                         </div>
 
                                                         <div class=" col-md-4">
-                                                            {{--<label>Fax</span>:</label>--}}
-                                                            {{--<input type="text" class="form-control input-xxs" name="com-fax" id="con_fax">--}}
+                                                            <label>Default currency code<span class="text-danger">*</span></label>
+                                                            {{ Form::select('default_currency_code',$currency, null, ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
+
                                                         </div>
                                                         </div>
 
