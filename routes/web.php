@@ -166,7 +166,7 @@ Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
 Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
 
 Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
-Route::get('Maincluster.check_code','Org\Location\Org\Location\MainClusterController@check_code');
+Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
 Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
 Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
 Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
