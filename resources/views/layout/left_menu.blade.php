@@ -57,11 +57,11 @@
                                 <ul>
 
                                     <li @yield('m_add_location')><a href="{{url('/add_location')}}">Location</a></li>
-                                    <li><a href="{{url('/add_country')}}">Country</a></li>
-                                    <li><a href="{{url('/add_division')}}">Division</a></li>
-                                    <li><a href="{{url('/add_season')}}">Season</a></li>
-                                    <li><a href="{{url('/add_uom')}}">Unit of Measure</a></li>
-                                    <li><a href="{{url('/add_section')}}">Section</a></li>
+                                    <li @yield('m_add_country')><a href="{{url('/add_country')}}">Country</a></li>
+                                    <li @yield('m_add_division')><a href="{{url('/add_division')}}">Division</a></li>
+                                    <li @yield('m_add_season')><a href="{{url('/add_season')}}">Season</a></li>
+                                    <li @yield('m_add_uom')><a href="{{url('/add_uom')}}">Unit of Measure</a></li>
+                                    <li @yield('m_add_section')><a href="{{url('/add_section')}}">Section</a></li>
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Main Cluster</a></li> -->
