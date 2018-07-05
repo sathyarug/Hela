@@ -73,6 +73,29 @@
                     </li>
 
 
+                    <li>
+                        <a href="#"><i class="icon-coins"></i> <span>Finance</span></a></a>
+                        <ul>
+
+
+                            <li>
+                                <a href="#">Accounting</a>
+                                <ul>
+                                    <li @yield('')><a href="origin-type-new">Accounting Rules</a></li>
+
+                                </ul>
+                            </li>
+
+
+                            
+
+
+                        </ul>
+                    </li>
+
+
+
+
                 </ul>
             </div>
         </div>
