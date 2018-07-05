@@ -124,6 +124,14 @@ Route::get('cost-center.get','Finance\Accounting\CostCenterController@get');
 
 Route::get('cost-center-change-status','Finance\Accounting\CostCenterController@change_status');
 
+//origin type routes
+Route::get('origin-type-new','Org\OriginTypeController@new');
+Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
+Route::post('origin-type-save','Org\OriginTypeController@save');
+Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
+Route::get('origin-type-get','Org\OriginTypeController@get');
+Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+
 // add location
 
 Route::get('add_location', function () { return view('add_location/add_location'); });
@@ -150,10 +158,10 @@ Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
 
 
-Route::resource('admin/permission', 'Admin\\PermissionController');
+Route::resource('admin/permission', 'Admin\PermissionController');
 
-Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
-Route::post('admin/role/getList', 'Admin\\RoleController@getList');
-Route::post('admin/role/{id}', 'Admin\\RoleController@update');
-Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
-Route::resource('admin/role', 'Admin\\RoleController');
+Route::get('admin/role/checkName', 'Admin\RoleController@checkName');
+Route::post('admin/role/getList', 'Admin\RoleController@getList');
+Route::post('admin/role/{id}', 'Admin\RoleController@update');
+Route::delete('admin/role/{id}', 'Admin\RoleController@destroy');
+Route::resource('admin/role', 'Admin\RoleController');
