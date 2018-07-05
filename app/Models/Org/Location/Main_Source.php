@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Org\Location;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
 class Main_Source extends BaseValidator
 {
