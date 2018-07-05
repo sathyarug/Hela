@@ -1278,8 +1278,8 @@ select.input-xs {
 
 .input-xxs {
   height: 23px;
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 2px 10px;
+  font-size: 11px;
   line-height: 1.6666667;
   border-radius: 2px;
 }

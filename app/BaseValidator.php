@@ -35,6 +35,3 @@ class BaseValidator extends Model
         return $this->errors_str;
     }
 }
-
-
-
