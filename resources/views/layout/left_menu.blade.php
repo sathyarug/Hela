@@ -67,7 +67,13 @@
                                 </ul>
                             </li>
 
+                            <li>
+                                <a href="#">Finance</a>
+                                <ul>
+                                    <li><a href="{{url('/supplier')}}">supplier</a></li>
 
+                                </ul>
+                            </li>
                         </ul>
                     </li>
 

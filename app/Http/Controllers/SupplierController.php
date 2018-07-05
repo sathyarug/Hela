@@ -46,7 +46,6 @@ class SupplierController extends Controller
 
     public function saveSupplier(Request $request) {
 
-
         $OrgSupplier = new OrgSupplier();
         if ($OrgSupplier->validate($request->all()))
         {
@@ -79,5 +78,36 @@ class SupplierController extends Controller
         $Supplier_id = $request->id;
         $source = OrgSupplier::where('supplier_id', $Supplier_id)->update(['status' => 0]);
         echo json_encode(array('delete'));
+    }
+
+    public function loadAddEditSupplier(Request $request) {
+
+        $Supplier_id = $request->id;
+        $Supplier = OrgSupplier::find($Supplier_id);
+
+//        print_r($Supplier->supplier_name);exit;
+
+        $locs=OrgLocation::all()->toArray();
+        $PaymentMethods=PaymentMethod::all()->toArray();
+        $PaymentTerms=PaymentTerm::all()->toArray();
+        $CurrencyListAll=Currency::all()->toArray();
+
+        $loction=array(''=>'');
+        foreach ($locs AS $loc ){
+            $loction[$loc['loc_id']]=$loc['loc_name'];
+        }
+        $method=array(''=>'');
+        foreach ($PaymentMethods AS $PaymentMethod ){
+            $method[$PaymentMethod['payment_method_id']]=$PaymentMethod['payment_method_code'];
+        }
+        $terms=array(''=>'');
+        foreach ($PaymentTerms AS $PaymentTerm ){
+            $terms[$PaymentTerm['payment_term_id']]=$PaymentTerm['payment_code'];
+        }
+        $currency=array(''=>'');
+        foreach ($CurrencyListAll AS $CurrencyList ){
+            $currency[$CurrencyList['currency_id']]=$CurrencyList['currency_code'];
+        }
+        return view('supplier.frmsupplier',['loc' =>$loction,'method'=>$method,'terms'=>$terms,'currency'=>$currency,'Supplier'=>$Supplier]);
     }
 }
