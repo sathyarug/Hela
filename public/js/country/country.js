@@ -127,7 +127,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#country_hid').val(data['country_id']);
-                $('#country_code').val(data['country_code']);
+                $('#country_code').val(data['country_code']).prop('disabled', true);
                 $('#country_description').val(data['country_description']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }

@@ -127,7 +127,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#section_hid').val(data['section_id']);
-                $('#section_code').val(data['section_code']);
+                $('#section_code').val(data['section_code']).prop('disabled', true);
                 $('#section_name').val(data['section_name']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
