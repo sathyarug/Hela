@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Org\Location;
 use Illuminate\Http\Request;
 use App\Models\Org\Location\Main_Location;
 use App\Models\Org\Location\Main_Cluster;
-use App\Models\Org\Location\Currency;
-use App\Models\Org\Location\Country;
+use App\Currency;
+use App\Country;
 use App\Http\Controllers\Controller;
 
 class MainLocationController extends Controller
