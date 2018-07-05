@@ -81,7 +81,7 @@
                             <li>
                                 <a href="#">Accounting</a>
                                 <ul>
-                                    <li @yield('')><a href="origin-type-new">Accounting Rules</a></li>
+                                    <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
 
                                 </ul>
                             </li>
