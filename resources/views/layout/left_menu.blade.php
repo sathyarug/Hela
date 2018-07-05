@@ -61,6 +61,7 @@
                                     <li><a href="{{url('/add_division')}}">Division</a></li>
                                     <li><a href="{{url('/add_season')}}">Season</a></li>
                                     <li><a href="{{url('/add_uom')}}">Unit of Measure</a></li>
+                                    <li><a href="{{url('/add_section')}}">Section</a></li>
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Main Cluster</a></li> -->

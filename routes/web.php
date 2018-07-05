@@ -74,6 +74,14 @@ Route::get('get_all_uom','UomController@loadData');
 Route::post('save_uom','UomController@saveUom');
 Route::get('edit_uom','UomController@edit');
 Route::get('delete_uom','UomController@delete');
+
+//Section module
+Route::get('add_section','SectionController@index');
+Route::get('check_section_code','SectionController@checkCode');
+Route::get('get_all_section','SectionController@loadData');
+Route::post('save_section','SectionController@saveSection');
+Route::get('edit_section','SectionController@edit');
+Route::get('delete_section','SectionController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
