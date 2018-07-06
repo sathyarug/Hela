@@ -11,7 +11,7 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
-                
+                <th>Status</th>
                 <th>Location Code</th> 
                 <th>Company Code</th>
                 <th>Location Name</th> 
@@ -26,7 +26,7 @@
                 <th>Web #</th>
                 <th>Time zone</th>   
                 <th>Currency Code</th>                     
-                <th>Status</th>
+                
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>

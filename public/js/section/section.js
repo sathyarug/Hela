@@ -57,6 +57,7 @@ $(document).ready(function () {
     $('#add_data').click(function () {
         $('#show_section').modal('show');
         $('#section_form')[0].reset();
+        $('#section_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
@@ -84,6 +85,7 @@ $(document).ready(function () {
 
         var data = app_serialize_form_to_json('#section_form');
         data['_token'] = X_CSRF_TOKEN;
+        data['section_code'] = $('#section_code').val();
 
         $.ajax({
             url: "save_section",

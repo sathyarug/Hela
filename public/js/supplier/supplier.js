@@ -1,39 +1,101 @@
 var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var supplier_tbl;
 
-
-function addEditSupplier(id) {
-    if (id == 0) {
-        action = '';
-    } else {
-        action = '?id='+id ;
-    }
-
-    $('#show_supplier .modal-body').html("Loading...");
-    $('#show_supplier').modal();
-
-    $("#show_supplier .modal-content").load("/supplier/loadAddOrEdit"+action, function (responseTxt, statusTxt, xhr) {
-        if (statusTxt == "success") {
-            $('.modal-backdrop').resize();
-        }
-    });
-
-}
 $(function () {
 
 
+    var validator = app_form_validator('#frm_supplier', {
 
+        submitHandler: function () {
+            try {
+                save_supplier();
+                // $("#frm_supplier :input").val('');
+                validator.resetForm();
+            } catch (e) {
+                console.log(e);
+                return false;
+            }
+            return false;
+        },
+
+        rules: {
+
+            // Supplier_code: {
+            //  required: true,
+            //  minlength: 4,
+            //  },
+            // supplier_name: {
+            //  required: true,
+            //  minlength: 4
+            //  },
+
+        },
+        messages: {
+             // source_code: {
+             // remote: jQuery.validator.format('')
+             // },
+
+        }
+    });
 
 
     $('select').select2();
 
 
 
+    $('#add_data').click(function () {
+        //
+        $('#show_supplier').modal('show');
+        $('#show_supplier')[0].reset();
+        validator.resetForm();
+        $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> Save');
 
 
 
+    });
 
 
+    $('#supplier_tbl').on('click','i',function(){
+        var ele = $(this);
+        if(ele.attr('data-action') === 'EDIT'){
+            supplier_edit(ele.attr('data-id'));
+        }
+        else if(ele.attr('data-action') === 'DELETE'){
+            supplier_delete(ele.attr('data-id'));
+        }
+    });
+
+
+    function supplier_edit(_id){
+
+        $('#show_supplier').modal('show');
+        $('#frm_supplier')[0].reset();
+        validator.resetForm();
+
+        $.ajax({
+            url : 'supplier/edit',
+            type : 'get',
+            data : {'id' : _id},
+            success : function(res){
+                var data = JSON.parse(res);
+                //alert(data);
+                $('#supplier_hid').val(data['supplier_id']);
+                $("input[name~='supplier_code']").val(data['supplier_code']);
+                $("input[name~='supplier_name']").val(data['supplier_name']);
+                $("input[name~='supplier_city']").val(data['supplier_city']);
+                $("input[name~='supplier_address1']").val(data['supplier_address1']);
+                $("input[name~='supplier_address2']").val(data['supplier_address2']);
+                $("input[name~='supplier_phone']").val(data['supplier_phone']);
+                $("input[name~='supplier_fax']").val(data['supplier_fax']);
+                $("input[name~='supplier_email']").val(data['supplier_email']);
+
+                // $("select[name='supplier_country_id']").select2("val", data['supplier_country_id']);
+                // $('#source-name').val(data['source_name']);
+                $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
+            }
+        });
+
+    }
 
     function supplier_delete(_id){
 
@@ -95,7 +157,7 @@ $(function () {
         columns: [
             {data: "supplier_id",
                 render: function (data) {
-                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" onclick="addEditSupplier((' + data + '))" data-id="' + data + '">\n\
+                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
                     return str;
                 }
@@ -158,5 +220,11 @@ function save_supplier() {
 
         }})
 
-
+    function reload_table()
+    {
+        // // var dataSet2 = get_cluster_list();
+        // var tbl = $('#cluster_tbl').dataTable();
+        supplier_tbl.fnClearTable();
+        supplier_tbl.fnDraw();
+    }
 }

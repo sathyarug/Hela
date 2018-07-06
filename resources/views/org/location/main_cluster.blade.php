@@ -11,10 +11,11 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
+                <th>Status</th>
                 <th>Cluster Code</th>
                 <th>Source Code</th>      
                 <th>Cluster Name</th>                                              
-                <th>Status</th>
+                
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>

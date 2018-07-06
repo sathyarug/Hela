@@ -81,7 +81,7 @@ class LoginController extends Controller
             );
 
             $remember = (Input::has('remember')) ? true : false;
-//            print_r(Auth::attempt($userdata,$remember));exit;
+
             // attempt to do the login
             if (Auth::attempt($userdata,$remember)) {
                 $userAuth = Auth::User();
@@ -95,7 +95,6 @@ class LoginController extends Controller
                 }
 
                 $user = UsrProfile::find($userAuth->user_id);
-
                 $userLoc = UsrLocMap::where('user_id',$userAuth->user_id)->count();
                 $request->session()->put('user', $user);
                 if($userLoc>1 ){
