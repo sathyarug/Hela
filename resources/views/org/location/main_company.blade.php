@@ -213,20 +213,14 @@
                     
                     <input type="hidden" name="company_id" id="company_id" class="form-control input-xxs">
 
-
                     <div class=" col-md-12">
 
-                        <fieldset class="content-group">
+                    <fieldset class="content-group">
+                       <label>Multiple select <span class="text-danger">*</span> :</label>
+                       <select multiple="multiple" class="select-multiple"  name="sec_mulname[]" id="sec_mulname">
+                       </select>
 
-                            <label>Multiple select <span class="text-danger">*</span> :</label>
-
-                            <select multiple="multiple" class="select-multiple"  name="sec_mulname[]" id="sec_mulname">
-                            </select>
-
-
-
-
-                        </fieldset>
+                    </fieldset>
 
                     </div>
                 </div>
