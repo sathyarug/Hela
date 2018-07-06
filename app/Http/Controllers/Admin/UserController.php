@@ -67,6 +67,16 @@ class UserController extends Controller {
 
         }
     }
+
+    public function loadReportLevels(Request $request){
+        $query = $request->get('q','');
+
+        $posts = UsrProfile::where('first_name','LIKE','%'.$query.'%')->limit(5)->get();
+       // dd($posts); exit;
+        //echo response()->json($posts);
+        echo json_encode($posts);
+
+    }
     
 
 }

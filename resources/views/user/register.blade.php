@@ -96,7 +96,7 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('date_of_birth', 'Date of Birth', array('class' => 'control-label text-semibold pickadate-year')) }}
-                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs pickadate-accessibility'))  }}
+                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -153,25 +153,25 @@
 
                                                 {{ Form::label('loc_id', 'Location', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
-                                                {{ Form::select('loc_id',array('' => 'Please Select') + $data['location'], null,  array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('loc_id',array('' => '[Select]') + $data['location'], null,  array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('dept_id', 'Department', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
-                                                {{ Form::select('dept_id', array('' => 'Please Select') + $data['dept'], null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('dept_id', array('' => '[Select]') + $data['dept'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('cost_center_id', 'Cost Center', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
-                                                {{ Form::select('cost_center_id', array('' => 'Please Select') + $data['costCtr'], null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('cost_center_id', array('' => '[Select]') + $data['costCtr'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('desig_id', 'Designation', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
-                                                {{ Form::select('desig_id', array('' => 'Please Select') + $data['desg'], null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('desig_id', array('' => '[Select]') + $data['desg'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -185,12 +185,12 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('immediate', 'Immediate Report', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('immediate', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('immediate', array('' => '[Search and Select]'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('alternative', 'Alternative Report', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('alternative', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('alternative', array('' => '[Search and Select]'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
                                             <br clear="all">
 
@@ -287,30 +287,6 @@
     <script type="text/javascript" src="js/application.js"></script>
     <script type="text/javascript" src="js/admin/user.js"></script>
 
-
-    <script>
-
-        $(function() {
-            /*$('.pickadate-accessibility').pickadate({
-                // Escape any “rule” characters with an exclamation mark (!).
-                format: 'yyyy/mm/dd',
-                formatSubmit: 'yyyy/mm/dd',
-                hiddenPrefix: 'prefix__',
-                hiddenSuffix: '__suffix'
-            })*/
-
-           /* $('#date_of_birth').pickadate({
-                format: 'yyyy/mm/dd',
-                formatSubmit: 'yyyy/mm/dd',
-                hiddenPrefix: 'prefix__',
-                hiddenSuffix: '__suffix',
-                picker.set('min', true)
-
-        });*/
-        });
-
-
-    </script>
 
 @endsection
 

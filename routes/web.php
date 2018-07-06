@@ -89,6 +89,7 @@ Route::get('grn_details','GrnController@grnDetails');
 Route::get('register', 'Admin\\UserController@register');
 Route::post('register-user', 'Admin\\UserController@store');
 Route::get('validate-empno', 'Admin\\UserController@validateEmpNo');
+Route::get('load-report-levels', 'Admin\\UserController@loadReportLevels');
 
 
 //currency routes
