@@ -72,6 +72,14 @@
                                 </ul>
                             </li>
 
+                            <li>
+                                <a href="#">User Management</a>
+                                <ul>
+                                    <li @yield('m_role')><a href="{{url('/admin/role')}}">Role</a></li>
+                                    <li @yield('m_permission')><a href="{{url('/admin/permission')}}">Permission</a></li>
+                                </ul>
+                            </li>
+
 
                         </ul>
                     </li>
