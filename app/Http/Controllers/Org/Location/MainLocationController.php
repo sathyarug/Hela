@@ -119,7 +119,7 @@ class MainLocationController extends Controller
 			$main_location->created_by = 1;  
 			$result = $main_location->saveOrFail();
            // echo json_encode(array('Saved'));
-			echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
+			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
 		}
 		else
 		{            
