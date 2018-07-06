@@ -162,6 +162,11 @@
 <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
 <script type="text/javascript">
     $('.select-search').select2();
+
+    $(".select-multiple").select2({
+        tags: true
+    });
+
 </script>
 
 @endsection

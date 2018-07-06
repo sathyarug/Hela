@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Org\Location;
 use Illuminate\Http\Request;
 use App\Models\Org\Location\Main_Location;
 use App\Models\Org\Location\Main_Cluster;
+use App\Models\Org\Location\OrgCompanySection;
 use App\Currency;
 use App\Country;
+use App\Section;
 use App\Http\Controllers\Controller;
 
 class MainLocationController extends Controller
@@ -36,7 +38,20 @@ class MainLocationController extends Controller
 
 	}
 
+	public function load_section_list(Request $request){
 
+		$search_c = $request->search;
+  		//print_r($search_c);
+		$sec_lists = Section::select('section_id','section_code','section_name')
+		->where([['status', '=', '1'],['section_name', 'like', '%' . $search_c . '%'],]) ->get();
+
+
+		return response()->json(['items'=>$sec_lists]);
+    		//return $select_source;
+
+	}
+
+	
 	public function load_currency(Request $request){
 
 		$search_c = $request->search;
@@ -127,6 +142,28 @@ class MainLocationController extends Controller
 			$errors = $main_location->errors();
 			echo json_encode(array('status' => 'error' , 'message' => $errors));
 		}        
+
+
+	}
+
+	
+
+	public function save_section(Request $request)
+	{	
+		$multipleValues = $request->get('sec_mulname');
+  		foreach($multipleValues as $value)
+    {
+        
+			$save_section = new OrgCompanySection();       
+
+			$save_section->fill($request->all());
+			$save_section->section_id = $value;
+			$save_section->created_by = 1;  
+			$result = $save_section->saveOrFail();
+           // echo json_encode(array('Saved'));
+
+		}    
+		echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );  
 
 
 	}
