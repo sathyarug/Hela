@@ -1,5 +1,5 @@
 var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-var role_tbl;
+var supplier_tbl;
 
 $(function () {
 
@@ -9,7 +9,7 @@ $(function () {
         submitHandler: function () {
             try {
                 save_supplier();
-                $("#frm_supplier :input").val('');
+                // $("#frm_supplier :input").val('');
                 validator.resetForm();
             } catch (e) {
                 console.log(e);
@@ -51,22 +51,101 @@ $(function () {
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> Save');
 
 
-        // $('#show_source .modal-title').html("Supplier");
-        // $('#show_source .modal-body').html("Loading...");
-        // $('#show_source .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
-        // $('#show_source').modal();
-        // $("#show_source .modal-content").load("supplier/getList", {id: id}, function () {
-        //     $('.modal-backdrop').resize();
-        // });
+
     });
 
 
+    $('#supplier_tbl').on('click','i',function(){
+        var ele = $(this);
+        if(ele.attr('data-action') === 'EDIT'){
+            supplier_edit(ele.attr('data-id'));
+        }
+        else if(ele.attr('data-action') === 'DELETE'){
+            supplier_delete(ele.attr('data-id'));
+        }
+    });
 
 
-    // Main Cluster Codes ====================================================================================
+    function supplier_edit(_id){
 
+        $('#show_supplier').modal('show');
+        $('#frm_supplier')[0].reset();
+        validator.resetForm();
 
-    role_tbl = $('#supplier_tbl').DataTable({
+        $.ajax({
+            url : 'supplier/edit',
+            type : 'get',
+            data : {'id' : _id},
+            success : function(res){
+                var data = JSON.parse(res);
+                //alert(data);
+                $('#supplier_hid').val(data['supplier_id']);
+                $("input[name~='supplier_code']").val(data['supplier_code']);
+                $("input[name~='supplier_name']").val(data['supplier_name']);
+                $("input[name~='supplier_city']").val(data['supplier_city']);
+                $("input[name~='supplier_address1']").val(data['supplier_address1']);
+                $("input[name~='supplier_address2']").val(data['supplier_address2']);
+                $("input[name~='supplier_phone']").val(data['supplier_phone']);
+                $("input[name~='supplier_fax']").val(data['supplier_fax']);
+                $("input[name~='supplier_email']").val(data['supplier_email']);
+
+                // $("select[name='supplier_country_id']").select2("val", data['supplier_country_id']);
+                // $('#source-name').val(data['source_name']);
+                $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
+            }
+        });
+
+    }
+
+    function supplier_delete(_id){
+
+        swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this supplier information!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm){
+                if (isConfirm) {
+
+                    $.ajax({
+                        url : 'supplier/delete',
+                        type : 'get',
+                        data : {'id' : _id},
+                        success : function(res){
+                            var data = JSON.parse(res);
+                            swal({
+                                title: "Deleted!",
+                                text: "supplier has been deleted.",
+                                confirmButtonColor: "#66BB6A",
+                                type: "success"
+                            });
+                            var tbl = $('#supplier_tbl').dataTable();
+                            tbl.fnClearTable();
+                            tbl.fnDraw();
+
+                        }
+                    });
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+
+    }
+
+    supplier_tbl = $('#supplier_tbl').DataTable({
         autoWidth: false,
         "processing": true,
         "serverSide": true,
@@ -76,7 +155,7 @@ $(function () {
             type: 'POST'
         },
         columns: [
-            {data: "id",
+            {data: "supplier_id",
                 render: function (data) {
                     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
@@ -126,9 +205,12 @@ function save_supplier() {
             if (res.status === 'success')
             {
                 app_alert('success', res.message);
-                //reload_table();
-                $('#role_form')[0].reset();
-                $('#show_role').modal('toggle');
+                var tbl = $('#supplier_tbl').dataTable();
+                tbl.fnClearTable();
+                tbl.fnDraw();
+
+                $('#frm_supplier')[0].reset();
+                $('#show_supplier').modal('toggle');
                 validator.resetForm();
 
             } else {
@@ -137,4 +219,12 @@ function save_supplier() {
 
 
         }})
+
+    function reload_table()
+    {
+        // // var dataSet2 = get_cluster_list();
+        // var tbl = $('#cluster_tbl').dataTable();
+        supplier_tbl.fnClearTable();
+        supplier_tbl.fnDraw();
+    }
 }

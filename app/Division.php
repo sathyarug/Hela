@@ -11,7 +11,7 @@ class Division extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
     
-    protected $fillable=['division_code','division_description','customer_code','division_id'];
+    protected $fillable=['division_code','division_description','division_id'];
     
     protected $rules=array(
         'division_code'=>'required',
