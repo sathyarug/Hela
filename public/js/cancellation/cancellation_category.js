@@ -1,17 +1,17 @@
 
-var SEASON_HID = 0;
+var CATEGORY_HID = 0;
 var X_CSRF_TOKEN = '';
 var TABLE = null;
 var TABLE2 = null;
 var TABLE3 = null;
 $(document).ready(function () {
     X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-    var validator = app_form_validator('#season_form', {
+    var validator = app_form_validator('#category_form', {
 
         submitHandler: function () {
             try {
-                save_season();
-                $("#season_form :input").val('');
+                save_category();
+                $("#category_form :input").val('');
                 validator.resetForm();
             } catch (e) {
                 return false;
@@ -21,32 +21,32 @@ $(document).ready(function () {
 
         rules: {
 
-            season_code: {
+            category_code: {
                 required: true,
                 minlength: 2,
                 remote: {
                     type: "get",
-                    url: "check_season_code",
+                    url: "check_category_code",
                     data: {
 
                         code: function () {
-                            return $("#season_code").val();
+                            return $("#category_code").val();
                         },
                         idcode: function () {
-                            return $("#season_hid").val();
+                            return $("#category_hid").val();
                         }
                     }
                 }
             },
 
-            season_name: {
+            category_description: {
                 required: true,
                 minlength: 4
             },
 
         },
         messages: {
-            season_code: {
+            category_code: {
                 remote: jQuery.validator.format('')
             },
 
@@ -55,19 +55,19 @@ $(document).ready(function () {
 
 
     $('#add_data').click(function () {
-        $('#show_season').modal('show');
-        $('#season_form')[0].reset();
-        $('#season_code').prop('disabled', false);
+        $('#show_category').modal('show');
+        $('#category_form')[0].reset();
+        $('#category_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
         //$('#action').val('Add');
 
     });
-    function get_all_season() {
+    function get_all_category() {
         var data = [];
         $.ajax({
-            url: "get_all_season",
+            url: "get_all_category",
             async: false,
             type: 'GET',
             data: {},
@@ -81,14 +81,14 @@ $(document).ready(function () {
         );
         return data;
     }
-    function save_season() {
+    function save_category() {
 
-        var data = app_serialize_form_to_json('#season_form');
+        var data = app_serialize_form_to_json('#category_form');
         data['_token'] = X_CSRF_TOKEN;
-        data['season_code'] = $('#season_code').val();
+        data['category_code'] = $('#category_code').val();
 
         $.ajax({
-            url: "save_season",
+            url: "save_category",
             async: false,
             type: "post",
             data: data,
@@ -101,8 +101,8 @@ $(document).ready(function () {
                 {
                     app_alert('success', json_res['message']);
                     reload_table();
-                    $('#season_form')[0].reset();
-                    $('#show_season').modal('toggle');
+                    $('#category_form')[0].reset();
+                    $('#show_category').modal('toggle');
                     validator.resetForm();
 
                 } else
@@ -115,22 +115,22 @@ $(document).ready(function () {
 
 
     }
-    function season_edit(_id) {
+    function category_edit(_id) {
 
-        $('#show_season').modal('show');
-        $('#season_form')[0].reset();
+        $('#show_category').modal('show');
+        $('#category_form')[0].reset();
         validator.resetForm();
 
         $.ajax({
-            url: 'edit_season',
+            url: 'edit_category',
             type: 'get',
-            data: {'season_id': _id},
+            data: {'category_id': _id},
             success: function (res) {
                 var data = JSON.parse(res);
                 //alert(data);
-                $('#season_hid').val(data['season_id']);
-                $('#season_code').val(data['season_code']).prop('disabled', true);
-                $('#season_name').val(data['season_name']);
+                $('#category_hid').val(data['category_id']);
+                $('#category_code').val(data['category_code']).prop('disabled', true);
+                $('#category_description').val(data['category_description']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
         });
@@ -138,8 +138,8 @@ $(document).ready(function () {
     }
     function reload_table()
     {
-        var dataset = get_season_list();
-        var tbl = $('#season_tbl').dataTable();
+        var dataset = get_category_list();
+        var tbl = $('#category_tbl').dataTable();
         tbl.fnClearTable();
         tbl.fnDraw();
         if (dataset != null && dataset.length != 0)
@@ -147,10 +147,10 @@ $(document).ready(function () {
 
     }
 
-    function get_season_list() {
+    function get_category_list() {
         var data = [];
         $.ajax({
-            url: "get_all_season",
+            url: "get_all_category",
             async: false,
             type: 'get',
             data: {},
@@ -167,20 +167,20 @@ $(document).ready(function () {
     }
 
 
-    $('#season_tbl').on('click', 'i', function () {
+    $('#category_tbl').on('click', 'i', function () {
         var ele = $(this);
         if (ele.attr('data-action') === 'EDIT') {
-            season_edit(ele.attr('data-id'));
+            category_edit(ele.attr('data-id'));
         } else if (ele.attr('data-action') === 'DELETE') {
-            season_delete(ele.attr('data-id'));
+            category_delete(ele.attr('data-id'));
         }
     });
 
-    function season_delete(_id) {
+    function category_delete(_id) {
 
         swal({
             title: "Are you sure?",
-            text: "You will not be able to recover this season file!",
+            text: "You will not be able to recover this category file!",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#EF5350",
@@ -193,14 +193,14 @@ $(document).ready(function () {
                     if (isConfirm) {
 
                         $.ajax({
-                            url: 'delete_season',
+                            url: 'delete_category',
                             type: 'get',
-                            data: {'season_id': _id},
+                            data: {'category_id': _id},
                             success: function (res) {
                                 var data = JSON.parse(res);
                                 swal({
                                     title: "Deleted!",
-                                    text: "Season has been deleted.",
+                                    text: "Category has been deleted.",
                                     confirmButtonColor: "#66BB6A",
                                     type: "success"
                                 });
@@ -222,19 +222,19 @@ $(document).ready(function () {
 
     }
 
-    var dataSet = get_all_season();
-    TABLE = $('#season_tbl').DataTable({
+    var dataSet = get_all_category();
+    TABLE = $('#category_tbl').DataTable({
         autoWidth: false,
         columns: [
-            {data: "season_id",
+            {data: "category_id",
                 render: function (data) {
                     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
        </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
                     return str;
                 }
             },
-            {data: "season_code"},
-            {data: "season_name"},
+            {data: "category_code"},
+            {data: "category_description"},
 
             {
                 'data': function (_data) {

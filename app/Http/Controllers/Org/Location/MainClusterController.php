@@ -74,7 +74,7 @@ public function postdata(Request $request)
       $main_cluster->created_by = 1;  
       $result = $main_cluster->saveOrFail();
            // echo json_encode(array('Saved'));
-      echo json_encode(array('status' => 'success' , 'message' => 'Cluster details saved successfully.') );
+      echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
     }
     else
     {            

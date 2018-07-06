@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Models\Admin;
+namespace App;
 
-use App\BaseValidator;
 use Illuminate\Database\Eloquent\Model;
 
 class UsrProfile extends BaseValidator
@@ -31,8 +30,9 @@ class UsrProfile extends BaseValidator
         'first_name' => 'required',
         'last_name' => 'required',
         'emp_number' => 'required',
+        'nic_no' => 'required',
         'email' => 'required',
-        'gender' => 'required'
+        'gender' => 'required',
 
     );
 

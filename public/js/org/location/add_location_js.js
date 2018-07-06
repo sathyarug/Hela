@@ -210,7 +210,7 @@ function source_edit(_id){
             var data = JSON.parse(res);
             //alert(data);
             $('#source_hid').val(data['source_id']);
-            $('#source-code').val(data['source_code']);
+            $('#source-code').val(data['source_code']).prop('disabled', true);
             $('#source-name').val(data['source_name']);
             $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
         }
@@ -470,7 +470,7 @@ function cluster_edit(_id){
             $('#main_source').append(loadsource).trigger('change');
 
             $('#cluster_hid').val(data[0]['group_id']);
-            $('#cluster_code').val(data[0]['group_code']);
+            $('#cluster_code').val(data[0]['group_code']).prop('disabled', true);
             $('#cluster_name').val(data[0]['group_name']);
             $('#btn-save-2').html('<b><i class="icon-pencil"></i></b> Update');
         }
@@ -1059,7 +1059,7 @@ function location_edit(_id){
         $('#def_curr').append(loadcurrency).trigger('change');
 
         $('#location_hid').val(data[0]['company_id']);
-        $('#company_code').val(data[0]['company_code']);
+        $('#company_code').val(data[0]['company_code']).prop('disabled', true);
         $('#company_name').val(data[0]['company_name']);
         $('#company_ad1').val(data[0]['company_address_1']);
         $('#company_ad2').val(data[0]['company_address_2']);
@@ -1399,7 +1399,7 @@ function sub_location_edit(_id){
         $('#currency_code').append(loadcurrency).trigger('change');
 
         $('#sub_location_hid').val(data[0]['loc_id']);
-        $('#loc_code').val(data[0]['loc_code']);
+        $('#loc_code').val(data[0]['loc_code']).prop('disabled', true);
         $('#loc_name').val(data[0]['loc_name']);
         $('#loc_address_1').val(data[0]['loc_address_1']);
         $('#loc_address_2').val(data[0]['loc_address_2']);

@@ -96,9 +96,9 @@ $(function () {
  $('#show_role').modal('show');
  $('#role_form')[0].reset();
  validator.resetForm();
-
+ 
  $('#role_id').val(id);
-
+ 
  $.ajax({
  url: '/admin/role/edit',
  type: 'get',

@@ -93,7 +93,7 @@ class MainSubLocationController extends Controller
 			$main_sub_location->created_by = 1;  
 			$result = $main_sub_location->saveOrFail();
            // echo json_encode(array('Saved'));
-			echo json_encode(array('status' => 'success' , 'message' => 'Sub Location details saved successfully.') );
+			echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
 		}
 		else
 		{            

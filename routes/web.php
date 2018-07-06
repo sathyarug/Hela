@@ -36,22 +36,7 @@ Route::get('/home', function () {
 Route::get('/icon', function () {
     return view('icon_page');
 });
-Route::get('alert', function () {
-	return view('alert');
-});
 
-
-Route::get('costing', function () {
-	return view('costing');
-});
-
-// Country module
-/*Route::get('create_country','CountryController@index');
-Route::get('get_all_country','CountryController@show');
-Route::delete('delete_country/{country_id}','CountryController@delete');
-Route::get('edit_country/{country_id}','CountryController@edit');
-Route::post('update_country/{country_id}','CountryController@update');
-Route::post('insertCountry','CountryController@insertCountry');*/
 Route::get('add_country','CountryController@index');
 Route::get('get_all_country','CountryController@loaddata');
 Route::get('check_code','CountryController@checkCode');
@@ -90,14 +75,32 @@ Route::get('get_all_section','SectionController@loadData');
 Route::post('save_section','SectionController@saveSection');
 Route::get('edit_section','SectionController@edit');
 Route::get('delete_section','SectionController@delete');
+
+//Cancellation category module
+Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
+Route::get('check_category_code','Org\Cancellation\CancellationCategoryController@checkCode');
+Route::get('get_all_category','Org\Cancellation\CancellationCategoryController@loadData');
+Route::post('save_category','Org\Cancellation\CancellationCategoryController@saveCategory');
+Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit');
+Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
+
+//Cancellation Reason module
+Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
+Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
+Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
+Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
+Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
+Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
-//User Management
-Route::get('register', 'Admin\\UserController@register');
-Route::post('register-user', 'Admin\\UserController@store');
-Route::get('validate-empno', 'Admin\\UserController@validateEmpNo');
 
+Route::get('register', function () {
+    return view('user.register');
+});
+
+
+Route::post('register-user', 'UserController@store');
 
 //currency routes
 Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
@@ -166,7 +169,7 @@ Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
 Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
 
 Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
-Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
+Route::get('Maincluster.check_code','Org\Location\Org\Location\MainClusterController@check_code');
 Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
 Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
 Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
@@ -195,8 +198,7 @@ Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@dele
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
-//Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
-Route::get('supplier/loadAddOrEdit', 'SupplierController@loadAddEditSupplier');
+Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
 Route::get('supplier/delete', 'SupplierController@deleteSupplier');
 
 

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Org\Location;
 use Illuminate\Http\Request;
 use App\Models\Org\Location\Main_Location;
 use App\Models\Org\Location\Main_Cluster;
+
 use App\Models\Org\Location\OrgCompanySection;
 use App\Currency;
 use App\Country;
 use App\Section;
+
 use App\Http\Controllers\Controller;
 
 class MainLocationController extends Controller
@@ -134,7 +136,7 @@ class MainLocationController extends Controller
 			$main_location->created_by = 1;  
 			$result = $main_location->saveOrFail();
            // echo json_encode(array('Saved'));
-			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
+			echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
 		}
 		else
 		{            
