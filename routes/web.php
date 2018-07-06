@@ -133,6 +133,10 @@ Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
 
 
+Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
+Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
+Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
+Route::delete('admin/permission/{id}', 'Admin\\PermissionController@destroy');
 Route::resource('admin/permission', 'Admin\\PermissionController');
 
 Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
