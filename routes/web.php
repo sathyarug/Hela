@@ -106,23 +106,36 @@ Route::get('cost-center.get','Org\CostCenterController@get');
 
 // add location
 
-Route::get('add_location', function () { return view('add_location/add_location'); });
+Route::get('add_location', function () { return view('org/location/add_location'); });
 
-Route::post('Mainsource.postdata','MainSourceController@postdata');
+Route::post('Mainsource.postdata','Org\Location\MainSourceController@postdata');
+Route::get('Mainsource.loaddata','Org\Location\MainSourceController@loaddata');
+Route::get('Mainsource.check_code','Org\Location\MainSourceController@check_code');
+Route::get('Mainsource.edit','Org\Location\MainSourceController@edit');
+Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
+Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
 
-Route::get('Mainsource.loaddata','MainSourceController@loaddata');
+Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
+Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
+Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
+Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
+Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
 
-Route::get('Mainsource.check_code','MainSourceController@check_code');
+Route::get('Mainlocation.loaddata','Org\Location\MainLocationController@loaddata');
+Route::get('Mainlocation.load_list','Org\Location\MainLocationController@select_loc_list');
+Route::get('Mainlocation.load_currency','Org\Location\MainLocationController@load_currency');
+Route::get('Mainlocation.load_country','Org\Location\MainLocationController@load_country');
+Route::get('Mainlocation.check_code','Org\Location\MainLocationController@check_code');
+Route::post('Mainlocation.postdata','Org\Location\MainLocationController@postdata');
+Route::get('Mainlocation.edit','Org\Location\MainLocationController@edit');
+Route::get('Mainlocation.delete','Org\Location\MainLocationController@delete');
 
-Route::get('Mainsource.edit','MainSourceController@edit');
-
-Route::get('Mainsource.delete','MainSourceController@delete');
-
-Route::get('Mainsource.load_list','MainSourceController@select_Source_list');
-
-Route::get('Maincluster.loaddata','MainClusterController@loaddata');
-
-Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
+Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
+Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
+Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@check_code');
+Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
+Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
+Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
 
 // close add location
 
