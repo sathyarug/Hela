@@ -127,7 +127,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#division_hid').val(data['division_id']);
-                $('#division_code').val(data['division_code']);
+                $('#division_code').val(data['division_code']).prop('disabled', true);
                 $('#division_description').val(data['division_description']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
@@ -233,7 +233,6 @@ $(document).ready(function () {
             },
             {data: "division_code"},
             {data: "division_description"},
-            {data: "customer_code"},
 
             {
                 'data': function (_data) {

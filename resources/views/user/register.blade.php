@@ -6,7 +6,6 @@
 
 @section('body')
 
-
     <!-- Page header -->
 
     <div class="page-header page-header-default ">
@@ -80,11 +79,13 @@
 
                                             <div class="form-group  col-md-4">
                                                 {{ Form::label('first_name', 'First Name', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::text('first_name','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('last_name', 'Last Name', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::text('last_name','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
@@ -105,6 +106,7 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('gender', 'Gender', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::select('gender', array('M' => 'Male', 'F' => 'Female'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
@@ -131,11 +133,13 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('email', 'Email', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::text('email', '', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('emp_number', 'Employee Number', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::text('emp_number', '', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
@@ -144,24 +148,30 @@
                                                 {{ Form::text('joined_date','', array('class' => 'form-control input-xxs pickadate'))  }}
                                             </div>
 
+                                            <br clear="all">
                                             <div class="form-group col-md-4">
+
                                                 {{ Form::label('loc_id', 'Location', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('loc_id', array('2' => 'Merchandising'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                <span class="text-danger">*</span>
+                                                {{ Form::select('loc_id',array('' => 'Please Select') + $data['location'], null,  array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('dept_id', 'Department', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('dept_id', array('1' => 'Merchanding'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                <span class="text-danger">*</span>
+                                                {{ Form::select('dept_id', array('' => 'Please Select') + $data['dept'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('cost_center_id', 'Cost Center', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('cost_center_id', array('1' => 'Kelaniya'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                <span class="text-danger">*</span>
+                                                {{ Form::select('cost_center_id', array('' => 'Please Select') + $data['costCtr'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('desig_id', 'Designation', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('desig_id', array('1' => 'Merchandiser'), null, array('class' => 'form-control input-xxs select'))  }}
+                                                <span class="text-danger">*</span>
+                                                {{ Form::select('desig_id', array('' => 'Please Select') + $data['desg'], null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -188,11 +198,13 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('user_name', 'User Name', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::text('user_name','', array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('password', 'Password', array('class' => 'control-label text-semibold')) }}
+                                                <span class="text-danger">*</span>
                                                 {{ Form::password('password',  array('class' => 'form-control input-xxs'))  }}
                                             </div>
 
@@ -269,17 +281,32 @@
     <script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
     <!-- /Content loading -->
 
+    <script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
+    <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
+    <script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
+    <script type="text/javascript" src="js/application.js"></script>
+    <script type="text/javascript" src="js/admin/user.js"></script>
+
 
     <script>
 
         $(function() {
-            $('.pickadate-accessibility').pickadate({
+            /*$('.pickadate-accessibility').pickadate({
                 // Escape any “rule” characters with an exclamation mark (!).
                 format: 'yyyy/mm/dd',
                 formatSubmit: 'yyyy/mm/dd',
                 hiddenPrefix: 'prefix__',
                 hiddenSuffix: '__suffix'
-            })
+            })*/
+
+           /* $('#date_of_birth').pickadate({
+                format: 'yyyy/mm/dd',
+                formatSubmit: 'yyyy/mm/dd',
+                hiddenPrefix: 'prefix__',
+                hiddenSuffix: '__suffix',
+                picker.set('min', true)
+
+        });*/
         });
 
 

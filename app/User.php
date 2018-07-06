@@ -4,10 +4,8 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Permission\Traits\HasRoles;
 
-
-class User extends BaseValidator
+class User extends Authenticatable
 {
     use Notifiable;
 
@@ -19,10 +17,8 @@ class User extends BaseValidator
     protected $table = 'usr_login';
     protected $primaryKey = 'user_id';
     protected $fillable = [
-        'user_name', 'email', 'password',
+        'name', 'email', 'password',
     ];
-
-    public $timestamps = false;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -30,11 +26,6 @@ class User extends BaseValidator
      * @var array
      */
     protected $hidden = [
-        'password'
+        'password', 'remember_token',
     ];
-
-    protected $rules = array(
-        'user_name' => 'required',
-        'password' => 'required'
-    );
 }

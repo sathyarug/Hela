@@ -1,12 +1,12 @@
 
 @extends('layout.main')
 
-@section('title') Form Details @endsection
+@section('title') Country Details @endsection
 @section('load_css')
 
 @endsection
 
-@section('m_add_location') class = 'active' @endsection
+@section('m_add_country') class = 'active' @endsection
 
 @section('body')
 <!-- Page header -->

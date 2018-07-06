@@ -49,10 +49,13 @@ class DivisionController extends Controller {
         if ($division->validate($request->all())) {
             if ($request->division_hid > 0) {
                 $division = Division::find($request->division_hid);
+                $division->division_description = $request->division_description;
+            } else {
+                $division->fill($request->all());
+                $division->status = 1;
+                $division->created_by = 1;
             }
-            $division->fill($request->all());
-            $division->status = 1;
-            $division->created_by = 1;
+
             $division = $division->saveOrFail();
             // echo json_encode(array('Saved'));
             echo json_encode(array('status' => 'success', 'message' => 'Source details saved successfully.'));
@@ -63,9 +66,9 @@ class DivisionController extends Controller {
         }
     }
 
-        public function edit(Request $request) {
+    public function edit(Request $request) {
         $division_id = $request->division_id;
-        $division= Division::find($division_id);
+        $division = Division::find($division_id);
         echo json_encode($division);
     }
 
@@ -73,7 +76,7 @@ class DivisionController extends Controller {
         $division_id = $request->division_id;
         //$source = Main_Source::find($source_id);
         //$source->delete();
-        $division= Division::where('division_id', $division_id)->update(['status' => 0]);
+        $division = Division::where('division_id', $division_id)->update(['status' => 0]);
         echo json_encode(array('delete'));
     }
 
