@@ -57,6 +57,7 @@ $(document).ready(function () {
     $('#add_data').click(function () {
         $('#show_country').modal('show');
         $('#country_form')[0].reset();
+         $('#country_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
@@ -84,6 +85,7 @@ $(document).ready(function () {
 
         var data = app_serialize_form_to_json('#country_form');
         data['_token'] = X_CSRF_TOKEN;
+        data['country_code'] = $('#country_code').val();
 
         $.ajax({
             url: "save_country",
