@@ -12,7 +12,7 @@ class OrgSupplier extends BaseValidator
     const CREATED_AT='created_date';
 
     protected $fillable = ['supplier_code','payment_code','payment_mode_id','supplier_name','supplier_address1','supplier_address2','supplier_city'
-    ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email','contact_person','default_currency_code','supplier_tolerance','vat_reg_no','origin'];
+    ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email','contact_person','supplier_tolerance','vat_reg_no','origin','shipment_mode'];
 
 //    protected $fillable = ['supplier_code','payment_code','supplier_name','supplier_address1','supplier_address2','supplier_city'
 //        ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email'];
@@ -28,9 +28,8 @@ class OrgSupplier extends BaseValidator
         'supplier_country_id'  => 'required',
        'supplier_email'  => 'required|email',
         'supplier_phone'  => 'required',
-        'default_currency_code'  => 'required',
+//        'default_currency_code'  => 'required',
         'vat_reg_no'  => 'required',
-        'origin'  => 'required',
     );
     
     public function __construct()
