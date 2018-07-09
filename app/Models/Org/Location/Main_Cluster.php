@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Models\Org\Location;
@@ -29,3 +30,4 @@ class Main_Cluster extends BaseValidator
         );
     	}
 }
+

@@ -65,10 +65,6 @@ class SupplierController extends Controller
             //$OrgSupplier->supplier_id
             $currencyAll=$request->currency;
 
-//            print_r($id);exit;
-//            $count = OrgSupplierCurrencyMap::where('active', $id)
-//                                            ->where('status', 1)->count();
-
             OrgSupplierCurrencyMap::where('supplier_id', '=', $id)->update(['status' => 0]);
 
 //            print_r($id);exit;
@@ -76,8 +72,8 @@ class SupplierController extends Controller
             $updateCurrency=array();
             foreach ($currencyAll AS $currency){
 
-                 $OrgSupplierCurrencyMapCheck = OrgSupplierCurrencyMap::where('supplier_id', $id)
-                                            ->where('currency_id', $currency)->get()->toArray();
+                $OrgSupplierCurrencyMapCheck = OrgSupplierCurrencyMap::where('supplier_id', $id)
+                    ->where('currency_id', $currency)->get()->toArray();
 
                 if(count($OrgSupplierCurrencyMapCheck) != 0){
                     $OrgSupplierCurrencyMap = OrgSupplierCurrencyMap::find($OrgSupplierCurrencyMapCheck[0]['supplier_currency_map_id']);
@@ -92,7 +88,7 @@ class SupplierController extends Controller
                 $OrgSupplierCurrencyMap->status = 1;
                 $OrgSupplierCurrencyMap->saveOrFail();
 
-               // dump($OrgSupplierCurrencyMap->saveOrFail());
+                // dump($OrgSupplierCurrencyMap->saveOrFail());
             }
             echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
         }
@@ -131,7 +127,7 @@ class SupplierController extends Controller
         $OrgShipmentModeListAll=OrgShipmentMode::all()->toArray();
 
         $OrgSupplierCurrencyMap = OrgSupplierCurrencyMap::where('supplier_id', $Supplier_id)->
-                                                            where('status', 1)->get()->pluck('currency_id', 'currency_id');
+        where('status', 1)->get()->pluck('currency_id', 'currency_id');
 
 
         $loction=array(''=>'');
