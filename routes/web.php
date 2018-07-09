@@ -163,9 +163,13 @@ Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@dele
 
 
 // supplier
+// supplier
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
+//Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
+Route::get('supplier/loadAddOrEdit', 'SupplierController@loadAddEditSupplier');
+Route::get('supplier/delete', 'SupplierController@deleteSupplier');
 
 // Roles and permission module
 Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
