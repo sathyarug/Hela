@@ -157,3 +157,14 @@ Route::post('admin/role/getList', 'Admin\\RoleController@getList');
 Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
+
+Route::get('add_stores', function () { return view('add_stores/add_stores'); });
+Route::post('OrgStores.postdata','OrgStoresController@postdata');
+Route::get('OrgStores.loaddata','OrgStoresController@loaddata');
+Route::get('OrgStores.edit','OrgStoresController@edit');
+Route::get('OrgStores.delete','OrgStoresController@delete');
+Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
+Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
+Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
+
+//Route::resource('customesizes', 'customesizesController');
