@@ -87,13 +87,23 @@ Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 Route::get('currency.get','CurrencyController@get_currency');
 
 //payment term routes
-Route::get('payment-term.new','PaymentTermController@new_payment_term');
+//Route::get('payment-term.new','PaymentTermController@new_payment_term');
+Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
+Route::post('payment-term.save','Finance\Accounting\PaymentTermController@save');
+Route::get('payment-term.get_payment_term_list','Finance\Accounting\PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get','Finance\Accounting\PaymentTermController@get_payment_term');
+Route::get('payment-term-change-status','Finance\Accounting\PaymentTermController@change_status');
 
-Route::post('payment-term.save','PaymentTermController@save');
-
+/*Route::post('payment-term.save','PaymentTermController@save');
 Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get','PaymentTermController@get_payment_term');*/
 
-Route::get('payment-term.get','PaymentTermController@get_payment_term');
+//Payment method
+Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodController@check_perment_method_code');
+Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
+Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
+Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
+Route::get('payment-method-change-status','Finance\Accounting\PaymentMethodController@change_status');
 
 //cost center routes
 Route::get('cost-center.new','Org\CostCenterController@new');
@@ -145,7 +155,7 @@ Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
 
-
+// Roles and permission module
 Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
 Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
 Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
@@ -183,5 +193,13 @@ Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadD
 Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
 Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
 Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
+
+//origin type routes
+Route::get('origin-type-new','Org\OriginTypeController@new');
+Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
+Route::post('origin-type-save','Org\OriginTypeController@save');
+Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
+Route::get('origin-type-get','Org\OriginTypeController@get');
+Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
 
 //Route::resource('customesizes', 'customesizesController');
