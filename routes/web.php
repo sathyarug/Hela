@@ -140,6 +140,15 @@ Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
 Route::get('origin-type-get','Org\OriginTypeController@get');
 Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
 
+//color routes
+Route::get('color-new','Org\ColorController@new');
+Route::get('color-check-code','Org\ColorController@check_color_code');
+Route::get('color-check-name','Org\ColorController@check_color_name');
+Route::post('color-save','Org\ColorController@save');
+Route::get('color-get-list','Org\ColorController@get_list');
+Route::get('color-get','Org\ColorController@get');
+Route::get('color-change-status','Org\ColorController@change_status');
+
 // add location
 
 Route::get('add_location', function () { return view('add_location/add_location'); });
