@@ -87,13 +87,23 @@ Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 Route::get('currency.get','CurrencyController@get_currency');
 
 //payment term routes
-Route::get('payment-term.new','PaymentTermController@new_payment_term');
+//Route::get('payment-term.new','PaymentTermController@new_payment_term');
+Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
+Route::post('payment-term.save','Finance\Accounting\PaymentTermController@save');
+Route::get('payment-term.get_payment_term_list','Finance\Accounting\PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get','Finance\Accounting\PaymentTermController@get_payment_term');
+Route::get('payment-term-change-status','Finance\Accounting\PaymentTermController@change_status');
 
-Route::post('payment-term.save','PaymentTermController@save');
-
+/*Route::post('payment-term.save','PaymentTermController@save');
 Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get','PaymentTermController@get_payment_term');*/
 
-Route::get('payment-term.get','PaymentTermController@get_payment_term');
+//Payment method
+Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodController@check_perment_method_code');
+Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
+Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
+Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
+Route::get('payment-method-change-status','Finance\Accounting\PaymentMethodController@change_status');
 
 //cost center routes
 Route::get('cost-center.new','Org\CostCenterController@new');
@@ -148,7 +158,7 @@ Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
 
-
+// Roles and permission module
 Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
 Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
 Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
@@ -160,3 +170,39 @@ Route::post('admin/role/getList', 'Admin\\RoleController@getList');
 Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
+
+// Stores module
+Route::get('add_stores', function () { return view('add_stores/add_stores'); });
+Route::post('OrgStores.postdata','OrgStoresController@postdata');
+Route::get('OrgStores.loaddata','OrgStoresController@loaddata');
+Route::get('OrgStores.edit','OrgStoresController@edit');
+Route::get('OrgStores.delete','OrgStoresController@delete');
+Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
+Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
+Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
+
+//Cancellation category module
+Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
+Route::get('check_category_code','Org\Cancellation\CancellationCategoryController@checkCode');
+Route::get('get_all_category','Org\Cancellation\CancellationCategoryController@loadData');
+Route::post('save_category','Org\Cancellation\CancellationCategoryController@saveCategory');
+Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit');
+Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
+
+//Cancellation Reason module
+Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
+Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
+Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
+Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
+Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
+Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
+
+//origin type routes
+Route::get('origin-type-new','Org\OriginTypeController@new');
+Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
+Route::post('origin-type-save','Org\OriginTypeController@save');
+Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
+Route::get('origin-type-get','Org\OriginTypeController@get');
+Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+
+//Route::resource('customesizes', 'customesizesController');
