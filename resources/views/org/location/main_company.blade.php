@@ -12,7 +12,6 @@
             <tr>
                 <th class="text-center">Action</th>
                 <th>Status</th>
-                <th>Section</th>
                 <th>Cluster Code</th> 
                 <th>Company Code</th>
                 <th>Company Name</th> 
@@ -198,7 +197,7 @@
 
 
 <!-- popup -->
-<div id="show_section" class="modal fade">
+<!-- <div id="show_section" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <form class="form-horizontal form-validate-jquery" action="#" id="section_form">
@@ -211,7 +210,7 @@
                 <div class="modal-body">
                     {{csrf_field()}}
                     
-                    <input type="hidden" name="company_id" id="company_id" class="form-control input-xxs">
+                    <input type="hidden" name="company_id_d" id="company_id_d" class="form-control input-xxs">
 
                     <div class=" col-md-12">
 
@@ -235,4 +234,4 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->

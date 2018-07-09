@@ -751,13 +751,13 @@ messages: {
        }
    }
 },
-{
-    'data' : function(_data){
+// {
+//     'data' : function(_data){
       
-           return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
+//            return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
       
-   }
-},
+//    }
+// },
 { data: "group_code" },
 { data: "company_code" },
 { data: "company_name" },
@@ -922,112 +922,99 @@ $('#location_tbl').on('click','i',function(){
     else if(ele.attr('data-action') === 'DELETE'){
         location_delete(ele.attr('data-id'));
     }
-    else if(ele.attr('data-action') === 'Sec_popup'){
-        location_load_sec(ele.attr('data-id'));
-        //alert(ele.attr('data-id'));
-    }
+    // else if(ele.attr('data-action') === 'Sec_popup'){
+    //     location_load_sec(ele.attr('data-id'));
+       
+    // }
 });
 
-function location_load_sec(_id){ 
+// function location_load_sec(_id){ 
 
- $('#show_section').modal('show');
- $('#section_form')[0].reset();
- $('#sec_mulname').val(null).trigger('change');
- $('#company_id').val(_id);
-
- // $.ajax({
- //        url : 'Mainlocation.section',
- //        type : 'get',
- //        data : {'com_id' : _id},
- //        success : function(res){
- //            var data = JSON.parse(res);
- //            //alert(data);
- //            $('#source_hid').val(data['source_id']);
- //            $('#source-code').val(data['source_code']);
- //            $('#source-name').val(data['source_name']);
- //            $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
- //        }
- //    });
-
-}
-
-$('#sec_mulname').select2({
-
-    placeholder: '[ Select and Search ]',
-    //allowClear: true,
-    ajax: {
-        dataType: 'json',
-        url: 'Mainlocation.load_section_list',
-        type:'GET',
-        delay: 250,
-        data: function(params) {
-            return {
-                search: params.term,
-                type: 'public'
-            }
-        },
-        processResults: function (data) {
-          return {
-            results: $.map(data.items,function(val,i){
-                return {id:val.section_id, text:val.section_name};
-            })
-        };
-    },
-}
+//  $('#show_section').modal('show');
+//  $('#section_form')[0].reset();
+//  $('#sec_mulname').val(null).trigger('change');
+//  $('#company_id').val(_id);
 
 
-});
+// }
+
+// $('#sec_mulname').select2({
+
+//     placeholder: '[ Select and Search ]',
+//     //allowClear: true,
+//     ajax: {
+//         dataType: 'json',
+//         url: 'Mainlocation.load_section_list',
+//         type:'GET',
+//         delay: 250,
+//         data: function(params) {
+//             return {
+//                 search: params.term,
+//                 type: 'public'
+//             }
+//         },
+//         processResults: function (data) {
+//           return {
+//             results: $.map(data.items,function(val,i){
+//                 return {id:val.section_id, text:val.section_name};
+//             })
+//         };
+//     },
+// }
 
 
-var validator5 = app_form_validator('#section_form',{
+// });
 
-    submitHandler: function() { 
-        try{
-            save_section_location();
-            $("#section_form :input").val('');
-            validator5.resetForm();
-        }catch(e){return false;}
-        return false; 
-    },
+
+// var validator5 = app_form_validator('#section_form',{
+
+//     submitHandler: function() { 
+//         try{
+//             save_section_location();
+//             $("#section_form :input").val('');
+//             validator5.resetForm();
+//         }catch(e){return false;}
+//         return false; 
+//     },
 
    
 
-});
+// });
 
 
-function save_section_location(){
+// function save_section_location(){
 
-     var data = app_serialize_form_to_json('#section_form');
-         data['_token'] = X_CSRF_TOKEN;
+//      var data = app_serialize_form_to_json('#section_form');
+//          data['_token'] = X_CSRF_TOKEN;
 
-     $.ajax({
-       url:"Mainlocation.save_section",
-       async : false,
-       type:"post",
-       data:data,
-       data_type:"json",
-       success:function(res)
-       {
-        var json_res = JSON.parse(res); 
-            //alert(json_res['status']) ;
-            if(json_res['status'] === 'success')
-            {
-                app_alert('success',json_res['message']);
-                $('#section_form')[0].reset();
-                $('#show_section').modal('toggle');
-                validator5.resetForm();
+//      $.ajax({
+//        url:"Mainlocation.save_section",
+//        async : false,
+//        type:"post",
+//        data:data,
+//        data_type:"json",
+//        success:function(res)
+//        {
+//         var json_res = JSON.parse(res); 
+//             //alert(json_res['status']) ;
+//             if(json_res['status'] === 'success')
+//             {
+//                 app_alert('success',json_res['message']);
+//                 $('#section_form')[0].reset();
+//                 $('#show_section').modal('toggle');
+//                 validator5.resetForm();
 
-            }
-            else
-            {
-                app_alert('error',json_res['message']);
-            }      
-
-
-        }})
+//             }
+//             else
+//             {
+//                 app_alert('error',json_res['message']);
+//             }      
 
 
- }
+//         }})
+
+
+//  }
 
 
 
