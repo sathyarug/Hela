@@ -158,6 +158,7 @@ Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
 
+// Stores module
 Route::get('add_stores', function () { return view('add_stores/add_stores'); });
 Route::post('OrgStores.postdata','OrgStoresController@postdata');
 Route::get('OrgStores.loaddata','OrgStoresController@loaddata');
@@ -166,5 +167,21 @@ Route::get('OrgStores.delete','OrgStoresController@delete');
 Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
 Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
 Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
+
+//Cancellation category module
+Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
+Route::get('check_category_code','Org\Cancellation\CancellationCategoryController@checkCode');
+Route::get('get_all_category','Org\Cancellation\CancellationCategoryController@loadData');
+Route::post('save_category','Org\Cancellation\CancellationCategoryController@saveCategory');
+Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit');
+Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
+
+//Cancellation Reason module
+Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
+Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
+Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
+Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
+Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
+Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
 
 //Route::resource('customesizes', 'customesizesController');
