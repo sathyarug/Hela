@@ -57,6 +57,7 @@ $(document).ready(function () {
     $('#add_data').click(function () {
         $('#show_uom').modal('show');
         $('#uom_form')[0].reset();
+        $('#uom_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
@@ -84,6 +85,7 @@ $(document).ready(function () {
 
         var data = app_serialize_form_to_json('#uom_form');
         data['_token'] = X_CSRF_TOKEN;
+        data['uom_code'] =$('#uom_code').val();
 
         $.ajax({
             url: "save_uom",
@@ -114,7 +116,6 @@ $(document).ready(function () {
 
     }
     function uom_edit(_id) {
-
         $('#show_uom').modal('show');
         $('#uom_form')[0].reset();
         validator.resetForm();
@@ -127,7 +128,8 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#uom_hid').val(data['uom_id']);
-                $('#uom_code').val(data['uom_code']);
+                $('#uom_code').val(data['uom_code']).prop('disabled', true);
+                //$('#uom_code').prop('disabled', true);
                 $('#uom_description').val(data['uom_description']);
                 $('#uom_factor').val(data['uom_factor']);
                 $('#uom_base_unit').val(data['uom_base_unit']);

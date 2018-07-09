@@ -57,6 +57,7 @@ $(document).ready(function () {
     $('#add_data').click(function () {
         $('#show_division').modal('show');
         $('#division_form')[0].reset();
+        $('#division_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
@@ -84,6 +85,7 @@ $(document).ready(function () {
 
         var data = app_serialize_form_to_json('#division_form');
         data['_token'] = X_CSRF_TOKEN;
+        data['division_code'] = $('#division_code').val();
 
         $.ajax({
             url: "save_division",
@@ -127,7 +129,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#division_hid').val(data['division_id']);
-                $('#division_code').val(data['division_code']);
+                $('#division_code').val(data['division_code']).prop('disabled', true);
                 $('#division_description').val(data['division_description']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }

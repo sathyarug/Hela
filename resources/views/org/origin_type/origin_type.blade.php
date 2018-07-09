@@ -6,7 +6,7 @@
     rel="stylesheet" type="text/css" /> @endsection
 
 
-@section('m_costing') class = 'active' @endsection
+@section('m_orgtype') class = 'active' @endsection
 
 @section('body')
 

@@ -73,10 +73,13 @@ class CountryController extends Controller {
         if ($country->validate($request->all())) {
             if ($request->country_hid > 0) {
                 $country = Country::find($request->country_hid);
+                $country->country_description = $request->country_description;
+            } else {
+                $country->fill($request->all());
+                $country->status = 1;
+                $country->created_by = 1;
             }
-            $country->fill($request->all());
-            $country->status = 1;
-            $country->created_by = 1;
+
             $result = $country->saveOrFail();
             // echo json_encode(array('Saved'));
             echo json_encode(array('status' => 'success', 'message' => 'Source details saved successfully.'));
@@ -101,22 +104,22 @@ class CountryController extends Controller {
         echo json_encode(array('delete'));
     }
 
-   /* public function delete($id) {
-        try {
-            Country::destroy($id);
-            return 'true';
-        } catch (Exception $e) {
-            return 'false';
-        }
-    }*/
+    /* public function delete($id) {
+      try {
+      Country::destroy($id);
+      return 'true';
+      } catch (Exception $e) {
+      return 'false';
+      }
+      } */
 
-   /* public function edit($id) {
-        try {
-            return Country::find($id);
-        } catch (Exception source_hid) {
-            return 'false';
-        }
-    }*/
+    /* public function edit($id) {
+      try {
+      return Country::find($id);
+      } catch (Exception source_hid) {
+      return 'false';
+      }
+      } */
 
     public function update(Request $request, $id) {
         try {

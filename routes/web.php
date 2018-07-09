@@ -66,14 +66,6 @@ Route::get('get_all_season','SeasonController@loadData');
 Route::post('save_season','SeasonController@saveSeason');
 Route::get('edit_season','SeasonController@edit');
 Route::get('delete_season','SeasonController@delete');
-
-//UOM module
-Route::get('add_uom','UomController@index');
-Route::get('check_uom_code','UomController@checkCode');
-Route::get('get_all_uom','UomController@loadData');
-Route::post('save_uom','UomController@saveUom');
-Route::get('edit_uom','UomController@edit');
-Route::get('delete_uom','UomController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
@@ -94,51 +86,33 @@ Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 
 Route::get('currency.get','CurrencyController@get_currency');
 
-
-Route::get('accounting-rules', function () { return view('finance/accounting/accounting_rules'); });
-
 //payment term routes
 //Route::get('payment-term.new','PaymentTermController@new_payment_term');
 Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
-
 Route::post('payment-term.save','Finance\Accounting\PaymentTermController@save');
-
 Route::get('payment-term.get_payment_term_list','Finance\Accounting\PaymentTermController@get_payment_term_list');
-
 Route::get('payment-term.get','Finance\Accounting\PaymentTermController@get_payment_term');
-
 Route::get('payment-term-change-status','Finance\Accounting\PaymentTermController@change_status');
+
+/*Route::post('payment-term.save','PaymentTermController@save');
+Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get','PaymentTermController@get_payment_term');*/
 
 //Payment method
 Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodController@check_perment_method_code');
-
 Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
-
 Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
-
 Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
-
 Route::get('payment-method-change-status','Finance\Accounting\PaymentMethodController@change_status');
 
 //cost center routes
-//Route::get('cost-center.new','Finance\Accounting\CostCenterController@new');
-Route::get('cost-center-check-code','Finance\Accounting\CostCenterController@check_cost_center_code');
+Route::get('cost-center.new','Org\CostCenterController@new');
 
-Route::post('cost-center.save','Finance\Accounting\CostCenterController@save');
+Route::post('cost-center.save','Org\CostCenterController@save');
 
-Route::get('cost-center.get_list','Finance\Accounting\CostCenterController@get_list');
+Route::get('cost-center.get_list','Org\CostCenterController@get_list');
 
-Route::get('cost-center.get','Finance\Accounting\CostCenterController@get');
-
-Route::get('cost-center-change-status','Finance\Accounting\CostCenterController@change_status');
-
-//origin type routes
-Route::get('origin-type-new','Org\OriginTypeController@new');
-Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
-Route::post('origin-type-save','Org\OriginTypeController@save');
-Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
-Route::get('origin-type-get','Org\OriginTypeController@get');
-Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+Route::get('cost-center.get','Org\CostCenterController@get');
 
 //color routes
 Route::get('color-new','Org\ColorController@new');
@@ -151,36 +125,93 @@ Route::get('color-change-status','Org\ColorController@change_status');
 
 // add location
 
-Route::get('add_location', function () { return view('add_location/add_location'); });
+Route::get('add_location', function () { return view('org/location/add_location'); });
 
-Route::post('Mainsource.postdata','MainSourceController@postdata');
+Route::post('Mainsource.postdata','Org\Location\MainSourceController@postdata');
+Route::get('Mainsource.loaddata','Org\Location\MainSourceController@loaddata');
+Route::get('Mainsource.check_code','Org\Location\MainSourceController@check_code');
+Route::get('Mainsource.edit','Org\Location\MainSourceController@edit');
+Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
+Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
 
-Route::get('Mainsource.loaddata','MainSourceController@loaddata');
+Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
+Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
+Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
+Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
+Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
 
-Route::get('Mainsource.check_code','MainSourceController@check_code');
+Route::get('Mainlocation.loaddata','Org\Location\MainLocationController@loaddata');
+Route::get('Mainlocation.load_list','Org\Location\MainLocationController@select_loc_list');
+Route::get('Mainlocation.load_currency','Org\Location\MainLocationController@load_currency');
+Route::get('Mainlocation.load_country','Org\Location\MainLocationController@load_country');
+Route::get('Mainlocation.check_code','Org\Location\MainLocationController@check_code');
+Route::post('Mainlocation.postdata','Org\Location\MainLocationController@postdata');
+Route::get('Mainlocation.edit','Org\Location\MainLocationController@edit');
+Route::get('Mainlocation.delete','Org\Location\MainLocationController@delete');
+Route::get('Mainlocation.load_section_list','Org\Location\MainLocationController@load_section_list');
+Route::post('Mainlocation.save_section','Org\Location\MainLocationController@save_section');
+Route::get('Mainlocation.section','Org\Location\MainLocationController@edit_load_section');
 
-Route::get('Mainsource.edit','MainSourceController@edit');
+Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
+Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
+Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@check_code');
+Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
+Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
+Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
 
-Route::get('Mainsource.delete','MainSourceController@delete');
+// close add location
 
-Route::get('Mainsource.load_list','MainSourceController@select_Source_list');
-
-Route::get('Maincluster.loaddata','MainClusterController@loaddata');
-
-Route::get('Mainlocation.loaddata','MainLocationController@loaddata');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
-Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
-Route::get('supplier/delete', 'SupplierController@deleteSupplier');
 
+// Roles and permission module
+Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
+Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
+Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
+Route::delete('admin/permission/{id}', 'Admin\\PermissionController@destroy');
+Route::resource('admin/permission', 'Admin\\PermissionController');
 
-Route::resource('admin/permission', 'Admin\PermissionController');
+Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
+Route::post('admin/role/getList', 'Admin\\RoleController@getList');
+Route::post('admin/role/{id}', 'Admin\\RoleController@update');
+Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
+Route::resource('admin/role', 'Admin\\RoleController');
 
-Route::get('admin/role/checkName', 'Admin\RoleController@checkName');
-Route::post('admin/role/getList', 'Admin\RoleController@getList');
-Route::post('admin/role/{id}', 'Admin\RoleController@update');
-Route::delete('admin/role/{id}', 'Admin\RoleController@destroy');
-Route::resource('admin/role', 'Admin\RoleController');
+// Stores module
+Route::get('add_stores', function () { return view('add_stores/add_stores'); });
+Route::post('OrgStores.postdata','OrgStoresController@postdata');
+Route::get('OrgStores.loaddata','OrgStoresController@loaddata');
+Route::get('OrgStores.edit','OrgStoresController@edit');
+Route::get('OrgStores.delete','OrgStoresController@delete');
+Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
+Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
+Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
+
+//Cancellation category module
+Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
+Route::get('check_category_code','Org\Cancellation\CancellationCategoryController@checkCode');
+Route::get('get_all_category','Org\Cancellation\CancellationCategoryController@loadData');
+Route::post('save_category','Org\Cancellation\CancellationCategoryController@saveCategory');
+Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit');
+Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
+
+//Cancellation Reason module
+Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
+Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
+Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
+Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
+Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
+Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
+
+//origin type routes
+Route::get('origin-type-new','Org\OriginTypeController@new');
+Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
+Route::post('origin-type-save','Org\OriginTypeController@save');
+Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
+Route::get('origin-type-get','Org\OriginTypeController@get');
+Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+
+//Route::resource('customesizes', 'customesizesController');

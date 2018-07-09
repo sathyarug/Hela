@@ -57,6 +57,7 @@ $(document).ready(function () {
     $('#add_data').click(function () {
         $('#show_season').modal('show');
         $('#season_form')[0].reset();
+        $('#season_code').prop('disabled', false);
         validator.resetForm();
         $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> save');
         //$('#button_action').val('insert');
@@ -84,6 +85,7 @@ $(document).ready(function () {
 
         var data = app_serialize_form_to_json('#season_form');
         data['_token'] = X_CSRF_TOKEN;
+        data['season_code'] = $('#season_code').val();
 
         $.ajax({
             url: "save_season",
@@ -127,7 +129,7 @@ $(document).ready(function () {
                 var data = JSON.parse(res);
                 //alert(data);
                 $('#season_hid').val(data['season_id']);
-                $('#season_code').val(data['season_code']);
+                $('#season_code').val(data['season_code']).prop('disabled', true);
                 $('#season_name').val(data['season_name']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }

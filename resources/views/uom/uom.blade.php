@@ -6,7 +6,7 @@
 
 @endsection
 
-@section('m_add_location') class = 'active' @endsection
+@section('m_add_uom') class = 'active' @endsection
 
 @section('body')
 <!-- Page header -->
@@ -86,7 +86,7 @@
                                                 <th>Factor</th>
                                                 <th>Base Unit</th>
                                                 <th>Unit Type</th>
-                                                <th>Status</th>    
+                                                <th>Status</th>  
                                             </tr>
                                         </thead>
                                         <tbody>
