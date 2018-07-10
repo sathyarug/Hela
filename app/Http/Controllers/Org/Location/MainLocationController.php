@@ -125,7 +125,10 @@ class MainLocationController extends Controller
 	public function postdata(Request $request)
 	{
   	//print_r($request->cluster_hid);
-		$main_location = new Main_Location();       
+		$main_location = new Main_Location();
+		
+
+
 		if ($main_location->validate($request->all()))   
 		{
 			if($request->location_hid > 0){
@@ -137,18 +140,21 @@ class MainLocationController extends Controller
 			$result = $main_location->saveOrFail();
 			
 			$insertedId = $main_location->company_id;
-
+			
+			OrgCompanySection::where('company_id', '=', $insertedId)->update(['status' => 0]);
 			$multipleValues = $request->get('sec_mulname');
+
+			if($multipleValues != ''){
   			foreach($multipleValues as $value)
    			{
-        
-			$save_section = new OrgCompanySection();       
+          	$save_section = new OrgCompanySection();  
 			$save_section->company_id = $insertedId;
 			$save_section->section_id = $value;
+			$save_section->status = 1;
 			$save_section->created_by = 1;  
 			$result = $save_section->saveOrFail();
 
-			}    
+			}} 
 
 			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
 		}
@@ -193,12 +199,18 @@ class MainLocationController extends Controller
 		$cluster = Main_Location::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
 		->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
 		->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
-		->leftJoin('org_company_section', 'org_company.company_id', '=', 'org_company_section.company_id')
-		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description', 'fin_currency.currency_description','org_company_section.section_id')
+		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description', 'fin_currency.currency_description')
 		->where('org_company.company_id', '=', $loc_id)->get();
-		echo json_encode($cluster);
 
+	
+		$load_mul = OrgCompanySection::join('org_section', 'org_company_section.section_id', '=', 'org_section.section_id')
+		 	->select('org_company_section.*', 'org_section.section_name')
+		 	->where([
+		 			['org_company_section.status', '=', '1'],
+		 			['org_company_section.company_id', '=', $loc_id]
+					])->get();
 
+		echo json_encode(array('com_hed' => $cluster,'multi' => $load_mul));  
 	}
 
 

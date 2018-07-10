@@ -1030,6 +1030,7 @@ function location_edit(_id){
  $('#show_location').modal('show');
  $('#location_form')[0].reset();
  validator2.resetForm(); 
+ $('#sec_mulname').val(null).trigger('change');
 
  $.ajax({
     url : 'Mainlocation.edit',
@@ -1037,34 +1038,39 @@ function location_edit(_id){
     data : {'loc_id' : _id},
     success : function(res){
         var data = JSON.parse(res);
+        //alert(data.com_hed[0]['company_code']);
+        var loadclust = new Option(data.com_hed[0].group_name, data.com_hed[0].group_id, true, true);
+        var loadfinmonth = new Option(data.com_hed[0].finance_month, data.com_hed[0].finance_month, true, true);
+        var loadcountry = new Option(data.com_hed[0].country_description, data.com_hed[0].country_code, true, true);
+        var loadcurrency = new Option(data.com_hed[0].currency_description, data.com_hed[0].default_currency, true, true);
+        
 
-        var loadclust = new Option(data[0].group_name, data[0].group_id, true, true);
-        var loadfinmonth = new Option(data[0].finance_month, data[0].finance_month, true, true);
-        var loadcountry = new Option(data[0].country_description, data[0].country_code, true, true);
-        var loadcurrency = new Option(data[0].currency_description, data[0].default_currency, true, true);
-        var loadmulti= new Option(data[0].section_id, data[0].section_id, true, true);
+        for(var i=0;i<data.multi.length;i++){
+            var loadmulti= new Option(data.multi[i].section_name, data.multi[i].section_id, true, true);
+            $('#sec_mulname').append(loadmulti).trigger('change');
+            }
 
         $('#main_cluster').append(loadclust).trigger('change');
         $('#fin_month').append(loadfinmonth).trigger('change');
         $('#ctry_code').append(loadcountry).trigger('change');
         $('#def_curr').append(loadcurrency).trigger('change');
-        $('#sec_mulname').append(loadmulti).trigger('change');
+        
 
-        $('#location_hid').val(data[0]['company_id']);
-        $('#company_code').val(data[0]['company_code']).prop('disabled', true);
-        $('#company_name').val(data[0]['company_name']);
-        $('#company_ad1').val(data[0]['company_address_1']);
-        $('#company_ad2').val(data[0]['company_address_2']);
-        $('#company_city').val(data[0]['city']);
-        $('#com_regnum').val(data[0]['company_reg_no']);
-        $('#contact_1').val(data[0]['company_contact_1']);
-        $('#contact_2').val(data[0]['company_contact_2']);
-        $('#con_fax').val(data[0]['company_fax']);
-        $('#com_email').val(data[0]['company_email']);
-        $('#com_web').val(data[0]['company_web']);
-        $('#com_remak').val(data[0]['company_remarks']);
-        $('#vat_regnum').val(data[0]['vat_reg_no']);
-        $('#tax_code').val(data[0]['tax_code']);
+        $('#location_hid').val(data.com_hed[0]['company_id']);
+        $('#company_code').val(data.com_hed[0]['company_code']).prop('disabled', true);
+        $('#company_name').val(data.com_hed[0]['company_name']);
+        $('#company_ad1').val(data.com_hed[0]['company_address_1']);
+        $('#company_ad2').val(data.com_hed[0]['company_address_2']);
+        $('#company_city').val(data.com_hed[0]['city']);
+        $('#com_regnum').val(data.com_hed[0]['company_reg_no']);
+        $('#contact_1').val(data.com_hed[0]['company_contact_1']);
+        $('#contact_2').val(data.com_hed[0]['company_contact_2']);
+        $('#con_fax').val(data.com_hed[0]['company_fax']);
+        $('#com_email').val(data.com_hed[0]['company_email']);
+        $('#com_web').val(data.com_hed[0]['company_web']);
+        $('#com_remak').val(data.com_hed[0]['company_remarks']);
+        $('#vat_regnum').val(data.com_hed[0]['vat_reg_no']);
+        $('#tax_code').val(data.com_hed[0]['tax_code']);
 
         $('#btn-save-3').html('<b><i class="icon-pencil"></i></b> Update');
     }
