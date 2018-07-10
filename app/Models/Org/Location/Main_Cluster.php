@@ -29,4 +29,3 @@ class Main_Cluster extends BaseValidator
         );
     	}
 }
-

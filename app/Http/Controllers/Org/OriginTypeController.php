@@ -40,8 +40,6 @@ class OriginTypeController extends Controller
 
     public function get_list(){
         $origin_type_list = OriginType::all();
-        //header('Access-Control-AllowOrigin: *');
-        //header('Content-Type: application/json');
         echo json_encode($origin_type_list);
     }
 

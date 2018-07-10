@@ -67,6 +67,7 @@
                                     <li @yield('m_currency')><a href="currency.new">Currency</a></li>
                                     <li @yield('m_cancellation_category')><a href="add_category">Cancellation Category</a></li>
                                     <li @yield('m_cancellation_reason')><a href="add_reason">Cancellation Reason</a></li>
+                                    <li @yield('m_add_product_type')><a href="add_product_type">Product Type</a></li>
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Main Cluster</a></li> -->
@@ -95,20 +96,12 @@
                                 <a href="#">Accounting</a>
                                 <ul>
                                     <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
-                                    
-
-                                </ul>
-                            </li>
-
-                             <li>
-                                <a href="#">Finance</a>
-                                <ul>
-                                    <li><a href="{{url('/supplier')}}">supplier</a></li>
 
                                 </ul>
                             </li>
 
 
+                            
 
 
                         </ul>
