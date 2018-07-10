@@ -78,6 +78,7 @@ $(document).ready(function(){
 
      var data = app_serialize_form_to_json('#source_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['source_code'] = $('#source-code').val();
 
      $.ajax({
        url:"Mainsource.postdata",
@@ -340,6 +341,7 @@ function save_cluster(){
 
  var data = app_serialize_form_to_json('#cluster_form');
  data['_token'] = X_CSRF_TOKEN;
+ data['group_code'] = $('#cluster_code').val();
 
  $.ajax({
    url:"Maincluster.postdata",
@@ -573,6 +575,8 @@ $('#main_source').select2({
     $('#ctry_code').val(null).trigger('change');
     $('#def_curr').val(null).trigger('change');
     $('#fin_month').val(null).trigger('change');
+    $('#sec_mulname').val(null).trigger('change');
+    
 });
 
 
@@ -693,6 +697,7 @@ messages: {
 
      var data = app_serialize_form_to_json('#location_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['company_code'] = $('#company_code').val();
 
      $.ajax({
        url:"Mainlocation.postdata",
@@ -751,13 +756,13 @@ messages: {
        }
    }
 },
-{
-    'data' : function(_data){
+// {
+//     'data' : function(_data){
       
-           return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
+//            return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
       
-   }
-},
+//    }
+// },
 { data: "group_code" },
 { data: "company_code" },
 { data: "company_name" },
@@ -922,34 +927,21 @@ $('#location_tbl').on('click','i',function(){
     else if(ele.attr('data-action') === 'DELETE'){
         location_delete(ele.attr('data-id'));
     }
-    else if(ele.attr('data-action') === 'Sec_popup'){
-        location_load_sec(ele.attr('data-id'));
-        //alert(ele.attr('data-id'));
-    }
+    // else if(ele.attr('data-action') === 'Sec_popup'){
+    //     location_load_sec(ele.attr('data-id'));
+       
+    // }
 });
 
-function location_load_sec(_id){ 
+// function location_load_sec(_id){ 
 
- $('#show_section').modal('show');
- $('#section_form')[0].reset();
- $('#sec_mulname').val(null).trigger('change');
- $('#company_id').val(_id);
+//  $('#show_section').modal('show');
+//  $('#section_form')[0].reset();
+//  $('#sec_mulname').val(null).trigger('change');
+//  $('#company_id').val(_id);
 
- // $.ajax({
- //        url : 'Mainlocation.section',
- //        type : 'get',
- //        data : {'com_id' : _id},
- //        success : function(res){
- //            var data = JSON.parse(res);
- //            //alert(data);
- //            $('#source_hid').val(data['source_id']);
- //            $('#source-code').val(data['source_code']);
- //            $('#source-name').val(data['source_name']);
- //            $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
- //        }
- //    });
 
-}
+// }
 
 $('#sec_mulname').select2({
 
@@ -979,63 +971,61 @@ $('#sec_mulname').select2({
 });
 
 
-var validator5 = app_form_validator('#section_form',{
+// var validator5 = app_form_validator('#section_form',{
 
-    submitHandler: function() { 
-        try{
-            save_section_location();
-            $("#section_form :input").val('');
-            validator5.resetForm();
-        }catch(e){return false;}
-        return false; 
-    },
+//     submitHandler: function() { 
+//         try{
+//             save_section_location();
+//             $("#section_form :input").val('');
+//             validator5.resetForm();
+//         }catch(e){return false;}
+//         return false; 
+//     },
 
    
 
-});
+// });
 
 
-function save_section_location(){
+// function save_section_location(){
 
-     var data = app_serialize_form_to_json('#section_form');
-         data['_token'] = X_CSRF_TOKEN;
+//      var data = app_serialize_form_to_json('#section_form');
+//          data['_token'] = X_CSRF_TOKEN;
 
-     $.ajax({
-       url:"Mainlocation.save_section",
-       async : false,
-       type:"post",
-       data:data,
-       data_type:"json",
-       success:function(res)
-       {
-        var json_res = JSON.parse(res); 
-            //alert(json_res['status']) ;
-            if(json_res['status'] === 'success')
-            {
-                app_alert('success',json_res['message']);
-                $('#section_form')[0].reset();
-                $('#show_section').modal('toggle');
-                validator5.resetForm();
+//      $.ajax({
+//        url:"Mainlocation.save_section",
+//        async : false,
+//        type:"post",
+//        data:data,
+//        data_type:"json",
+//        success:function(res)
+//        {
+//         var json_res = JSON.parse(res); 
+//             //alert(json_res['status']) ;
+//             if(json_res['status'] === 'success')
+//             {
+//                 app_alert('success',json_res['message']);
+//                 $('#section_form')[0].reset();
+//                 $('#show_section').modal('toggle');
+//                 validator5.resetForm();
 
-            }
-            else
-            {
-                app_alert('error',json_res['message']);
-            }      
-
-
-        }})
+//             }
+//             else
+//             {
+//                 app_alert('error',json_res['message']);
+//             }      
 
 
- }
+//         }})
+
+
+//  }
 
 
 
 
 
 function location_edit(_id){ 
-
-
 
  $('#show_location').modal('show');
  $('#location_form')[0].reset();
@@ -1246,6 +1236,7 @@ function save_sub_location(){
 
      var data = app_serialize_form_to_json('#sub_location_form');
          data['_token'] = X_CSRF_TOKEN;
+         data['loc_code'] = $('#loc_code').val();
 
      $.ajax({
        url:"MainSubLocation.postdata",

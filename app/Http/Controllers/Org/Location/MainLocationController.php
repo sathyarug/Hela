@@ -135,8 +135,22 @@ class MainLocationController extends Controller
 			$main_location->status = 1;
 			$main_location->created_by = 1;  
 			$result = $main_location->saveOrFail();
-           // echo json_encode(array('Saved'));
-			echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
+			
+			$insertedId = $main_location->company_id;
+
+			$multipleValues = $request->get('sec_mulname');
+  			foreach($multipleValues as $value)
+   			{
+        
+			$save_section = new OrgCompanySection();       
+			$save_section->company_id = $insertedId;
+			$save_section->section_id = $value;
+			$save_section->created_by = 1;  
+			$result = $save_section->saveOrFail();
+
+			}    
+
+			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
 		}
 		else
 		{            
@@ -150,25 +164,25 @@ class MainLocationController extends Controller
 
 	
 
-	public function save_section(Request $request)
-	{	
-		$multipleValues = $request->get('sec_mulname');
-  		foreach($multipleValues as $value)
-    {
+	// public function save_section(Request $request)
+	// {	
+	// 	$multipleValues = $request->get('sec_mulname');
+ //  		foreach($multipleValues as $value)
+ //    {
         
-			$save_section = new OrgCompanySection();       
+	// 		$save_section = new OrgCompanySection();       
 
-			$save_section->fill($request->all());
-			$save_section->section_id = $value;
-			$save_section->created_by = 1;  
-			$result = $save_section->saveOrFail();
-           // echo json_encode(array('Saved'));
+	// 		$save_section->fill($request->all());
+	// 		$save_section->section_id = $value;
+	// 		$save_section->created_by = 1;  
+	// 		$result = $save_section->saveOrFail();
+ //           // echo json_encode(array('Saved'));
 
-		}    
-		echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );  
+	// 	}    
+	// 	echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );  
 
 
-	}
+	// }
 
 
 	public function edit(Request $request)
