@@ -193,7 +193,8 @@ class MainLocationController extends Controller
 		$cluster = Main_Location::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
 		->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
 		->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
-		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description', 'fin_currency.currency_description')
+		->leftJoin('org_company_section', 'org_company.company_id', '=', 'org_company_section.company_id')
+		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description', 'fin_currency.currency_description','org_company_section.section_id')
 		->where('org_company.company_id', '=', $loc_id)->get();
 		echo json_encode($cluster);
 

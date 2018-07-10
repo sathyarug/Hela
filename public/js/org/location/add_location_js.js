@@ -1042,11 +1042,13 @@ function location_edit(_id){
         var loadfinmonth = new Option(data[0].finance_month, data[0].finance_month, true, true);
         var loadcountry = new Option(data[0].country_description, data[0].country_code, true, true);
         var loadcurrency = new Option(data[0].currency_description, data[0].default_currency, true, true);
+        var loadmulti= new Option(data[0].section_id, data[0].section_id, true, true);
 
         $('#main_cluster').append(loadclust).trigger('change');
         $('#fin_month').append(loadfinmonth).trigger('change');
         $('#ctry_code').append(loadcountry).trigger('change');
         $('#def_curr').append(loadcurrency).trigger('change');
+        $('#sec_mulname').append(loadmulti).trigger('change');
 
         $('#location_hid').val(data[0]['company_id']);
         $('#company_code').val(data[0]['company_code']).prop('disabled', true);
