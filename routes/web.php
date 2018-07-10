@@ -66,6 +66,15 @@ Route::get('get_all_season','SeasonController@loadData');
 Route::post('save_season','SeasonController@saveSeason');
 Route::get('edit_season','SeasonController@edit');
 Route::get('delete_season','SeasonController@delete');
+
+//UOM module
+Route::get('add_uom','UomController@index');
+Route::get('check_uom_code','UomController@checkCode');
+Route::get('get_all_uom','UomController@loadData');
+Route::post('save_uom','UomController@saveUom');
+Route::get('edit_uom','UomController@edit');
+Route::get('delete_uom','UomController@delete');
+
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\OrgSupplier;
 use App\OrgLocation;
 use App\Currency;
+use App\Country;
 use App\OrgSupplierCurrencyMap;
 use App\OrgShipmentMode;
 use App\Models\Org\OriginType;
@@ -50,7 +51,7 @@ class SupplierController extends Controller
     public function saveSupplier(Request $request) {
 
         $OrgSupplier = new OrgSupplier();
-        $OrgSupplierCurrencyMap = new OrgSupplierCurrencyMap();
+//        $OrgSupplierCurrencyMap = new OrgSupplierCurrencyMap();
 
         if ($OrgSupplier->validate($request->all()))
         {
@@ -71,7 +72,7 @@ class SupplierController extends Controller
 
             $updateCurrency=array();
             foreach ($currencyAll AS $currency){
-
+                $OrgSupplierCurrencyMap = new OrgSupplierCurrencyMap();
                 $OrgSupplierCurrencyMapCheck = OrgSupplierCurrencyMap::where('supplier_id', $id)
                     ->where('currency_id', $currency)->get()->toArray();
 
@@ -119,7 +120,8 @@ class SupplierController extends Controller
         $Supplier_id = $request->id;
         $Supplier = OrgSupplier::find($Supplier_id);
 
-        $locs=OrgLocation::all()->toArray();
+        $locs=Country::all()->toArray();
+//        $locs=OrgLocation::all()->toArray();
         $PaymentMethods=PaymentMethod::all()->toArray();
         $PaymentTerms=PaymentTerm::all()->toArray();
         $CurrencyListAll=Currency::all()->toArray();
@@ -132,7 +134,7 @@ class SupplierController extends Controller
 
         $loction=array(''=>'');
         foreach ($locs AS $loc ){
-            $loction[$loc['loc_id']]=$loc['loc_name'];
+            $loction[$loc['country_id']]=$loc['country_code'];
         }
         $method=array(''=>'');
         foreach ($PaymentMethods AS $PaymentMethod ){
