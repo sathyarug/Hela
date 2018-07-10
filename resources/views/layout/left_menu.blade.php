@@ -95,7 +95,7 @@
                                 <a href="#">Accounting</a>
                                 <ul>
                                     <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
-                                    <li><a href="{{url('/supplier')}}">Supplier</a></li>
+                                    
 
                                 </ul>
                             </li>
