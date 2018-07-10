@@ -573,6 +573,8 @@ $('#main_source').select2({
     $('#ctry_code').val(null).trigger('change');
     $('#def_curr').val(null).trigger('change');
     $('#fin_month').val(null).trigger('change');
+    $('#sec_mulname').val(null).trigger('change');
+    
 });
 
 
@@ -938,32 +940,32 @@ $('#location_tbl').on('click','i',function(){
 
 // }
 
-// $('#sec_mulname').select2({
+$('#sec_mulname').select2({
 
-//     placeholder: '[ Select and Search ]',
-//     //allowClear: true,
-//     ajax: {
-//         dataType: 'json',
-//         url: 'Mainlocation.load_section_list',
-//         type:'GET',
-//         delay: 250,
-//         data: function(params) {
-//             return {
-//                 search: params.term,
-//                 type: 'public'
-//             }
-//         },
-//         processResults: function (data) {
-//           return {
-//             results: $.map(data.items,function(val,i){
-//                 return {id:val.section_id, text:val.section_name};
-//             })
-//         };
-//     },
-// }
+    placeholder: '[ Select and Search ]',
+    //allowClear: true,
+    ajax: {
+        dataType: 'json',
+        url: 'Mainlocation.load_section_list',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                search: params.term,
+                type: 'public'
+            }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+                return {id:val.section_id, text:val.section_name};
+            })
+        };
+    },
+}
 
 
-// });
+});
 
 
 // var validator5 = app_form_validator('#section_form',{
@@ -1021,8 +1023,6 @@ $('#location_tbl').on('click','i',function(){
 
 
 function location_edit(_id){ 
-
-
 
  $('#show_location').modal('show');
  $('#location_form')[0].reset();

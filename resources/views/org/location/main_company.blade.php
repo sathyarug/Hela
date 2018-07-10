@@ -176,7 +176,14 @@
                          <label>Company Logo :</label>
                          <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
 
-                     </div>
+                        </div>
+
+                        <div class=" col-md-12">
+                         <label>Multiple select :</label>
+                         <select multiple="multiple" class="select-multiple"  name="sec_mulname[]" id="sec_mulname">
+                       </select>
+
+                        </div>
 
 
                  </fieldset>
