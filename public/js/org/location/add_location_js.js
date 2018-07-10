@@ -341,7 +341,7 @@ function save_cluster(){
 
  var data = app_serialize_form_to_json('#cluster_form');
  data['_token'] = X_CSRF_TOKEN;
- data['cluster_code'] = $('#cluster_code').val();
+ data['group_code'] = $('#cluster_code').val();
 
  $.ajax({
    url:"Maincluster.postdata",
