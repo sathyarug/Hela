@@ -78,6 +78,7 @@ $(document).ready(function(){
 
      var data = app_serialize_form_to_json('#source_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['source_code'] = $('#source-code').val();
 
      $.ajax({
        url:"Mainsource.postdata",
@@ -340,6 +341,7 @@ function save_cluster(){
 
  var data = app_serialize_form_to_json('#cluster_form');
  data['_token'] = X_CSRF_TOKEN;
+ data['cluster_code'] = $('#cluster_code').val();
 
  $.ajax({
    url:"Maincluster.postdata",
@@ -695,6 +697,7 @@ messages: {
 
      var data = app_serialize_form_to_json('#location_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['company_code'] = $('#company_code').val();
 
      $.ajax({
        url:"Mainlocation.postdata",
@@ -1233,6 +1236,7 @@ function save_sub_location(){
 
      var data = app_serialize_form_to_json('#sub_location_form');
          data['_token'] = X_CSRF_TOKEN;
+         data['loc_code'] = $('#loc_code').val();
 
      $.ajax({
        url:"MainSubLocation.postdata",
