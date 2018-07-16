@@ -110,6 +110,14 @@ Route::get('get_all_product_type','Org\ProductTypeController@loadData');
 Route::post('save_product_type','Org\ProductTypeController@saveProduct');
 Route::get('edit_product_type','Org\ProductTypeController@edit');
 Route::get('delete_product_type','Org\ProductTypeController@delete');
+
+//sample stage Module
+Route::get('add_sample_stage','Org\SampleStageController@index');
+Route::get('check_sample_stage_code','Org\SampleStageController@checkCode');
+Route::get('get_all_sample_stage','Org\SampleStageController@loadData');
+Route::post('save_sample_stage','Org\SampleStageController@saveStage');
+Route::get('edit_sample_stage','Org\SampleStageController@edit');
+Route::get('delete_sample_stage','Org\SampleStageController@delete');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 
