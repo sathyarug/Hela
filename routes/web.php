@@ -254,3 +254,4 @@ Route::get('customesizes/getdivision','customesizesController@GetDivisionsByCust
 Route::post('customesizes/save_sizes','customesizesController@SaveSizes');
 Route::get('customesizes/list_customesizes','customesizesController@LoadCustomeSizes');
 Route::get('customesizes/edit_customesizes','customesizesController@EditCustomeSizes');
+Route::get('customesizes/delete_customesizes','customesizesController@DeleteCustomeSizes');
