@@ -46,7 +46,7 @@ $(document).ready(function(){
         
         var customercode = $("#customers").val();
         
-        LoadDivisions(customercode);
+        LoadDivisions(customercode,-1);
         
     });
     
@@ -62,8 +62,8 @@ $(document).ready(function(){
        
     });
     
-    function LoadDivisions(customercode){
-        
+    function LoadDivisions(customercode, divisionId){
+        $("#divisions").empty();
         $.ajax({
             url: "/customesizes/getdivision",
             type:"GET",
@@ -72,7 +72,12 @@ $(document).ready(function(){
             success:function(response){
                 
                 $.each(response, function(key, value){
+                    
                     $("#divisions").append(new Option(key,value));
+                   
+                    if(value == divisionId){                        
+                        $("#divisions").val(divisionId).attr('selected','selected');
+                    }
                 });
             },
             error:function(response){
@@ -128,7 +133,7 @@ $(document).ready(function(){
         if (ele.attr('data-action') === 'EDIT') {
             customesize_edit(ele.attr('data-id'));
         } else if (ele.attr('data-action') === 'DELETE') {
-            season_delete(ele.attr('data-id'));
+            customesize_delete(ele.attr('data-id'));
         }
     });
     
@@ -145,16 +150,59 @@ $(document).ready(function(){
             success: function (res) {
                 var data = JSON.parse(res);
                 
-                LoadDivisions(data['customer_id']);
+                LoadDivisions(data['customer_id'],data['division_id']);
                
                 $('#size_hid').val(data['size_id']);
-                $('#customers').val(data['customer_id']);
-                $('#divisions option:selected').val(data['division_id']);
+                $('#customers').val(data['customer_id']);                
                 $('#sizenames').val(data['size_name']);
                 $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
             }
         });
+    }
+    
+    function customesize_delete(_id) {
 
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this custome size file!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#EF5350",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel pls!",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        },
+                function (isConfirm) {
+                    if (isConfirm) {
+
+                        $.ajax({
+                            url: '/customesizes/delete_customesizes',
+                            type: 'get',
+                            data: {'size_id': _id},
+                            success: function (res) {
+                                var data = JSON.parse(res);
+                                swal({
+                                    title: "Deleted!",
+                                    text: "Season has been deleted.",
+                                    confirmButtonColor: "#66BB6A",
+                                    type: "success"
+                                });
+
+                                reload_table();
+
+                            }
+                        });
+
+                    } else {
+                        swal({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            confirmButtonColor: "#2196F3",
+                            type: "error"
+                        });
+                    }
+                });
     }
     
     function reload_table()
