@@ -105,7 +105,7 @@
 
                                                 <div class="modal-body">
                                                     {{csrf_field()}}
-                                                    <input type="hidden" value="0" name="season_hid" id="season_hid" class="form-control input-xxs">
+                                                    <input type="hidden" value="0" name="size_hid" id="size_hid" class="form-control input-xxs">
                                                     <div class=" col-source_hidmd-12">
 
                                                         <fieldset class="content-group">
