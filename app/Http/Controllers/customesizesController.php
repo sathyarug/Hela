@@ -141,12 +141,21 @@ class customesizesController extends Controller
         
         $custome_sizes = new customesize();
         
-        $custome_sizes->customer_id = $request->customer_code;
-        $custome_sizes->division_id = $request->division_code;
-        $custome_sizes->size_name = $request->size_name;
-        $custome_sizes->save();
+        if($request->size_hid>0){
+            $custome_sizes = customesize::find($request->size_hid);
+            $custome_sizes->size_name = $request->size_name;
+            
+        }else{
+            $custome_sizes->customer_id = $request->customer_code;
+            $custome_sizes->division_id = $request->division_code;
+            $custome_sizes->size_name = $request->size_name;
+        }
         
-        echo json_encode(array('status' => 'success','message'=>'Customer size saved successfully'));
+        //$custome_sizes->save();
+        $custome_sizes->saveOrFail();
+        
+        
+        echo json_encode(array('status' => 'success','message'=>$request->size_name));
         
     }
     
@@ -163,7 +172,14 @@ class customesizesController extends Controller
         $customesize_id = $request->size_id;
         $customesizes = customesize::find($customesize_id);
         echo json_encode($customesizes);
+    }
+    
+    public function DeleteCustomeSizes(Request $request){
+                
+        $customesize_id = $request->size_id;        
         
+        $custom_sizes = customesize::where('size_id',$customesize_id)->update(['status'=>'0']);
+        echo json_encode(array('delete'));
         
     }
     
