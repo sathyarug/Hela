@@ -31,11 +31,11 @@ class customesize extends Model
      *
      * @var array
      */
-    protected $fillable = ['size_id', 'customer_id', 'division_id', 'size_name'];
+    protected $fillable = ['size_id', 'customer_id', 'division_id', 'size_name', 'status'];
     
     public function scopeLoadCustomeSizeList(){
         
-       return DB::table('cust_sizes')->join('cust_division','cust_division.division_id','=','cust_sizes.division_id' )->join('cust_customer','cust_customer.customer_id','=','cust_sizes.customer_id')->select('cust_sizes.*','cust_division.division_description','cust_customer.customer_name')->get();
+       return DB::table('cust_sizes')->join('cust_division','cust_division.division_id','=','cust_sizes.division_id' )->join('cust_customer','cust_customer.customer_id','=','cust_sizes.customer_id')->select('cust_sizes.*','cust_division.division_description','cust_customer.customer_name')->where('cust_sizes.status','=','1')->get();
         
     }
     
