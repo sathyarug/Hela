@@ -43,7 +43,7 @@ class PaymentTermController extends Controller
     }
 
 
-    public function get_payment_term(Request $request){
+    public function get_payment_term(Request $request){		
         $payment_term_id = $request->payment_term_id;
         $payment_term = PaymentTerm::find($payment_term_id);
         echo json_encode($payment_term);
@@ -54,11 +54,13 @@ class PaymentTermController extends Controller
     {
         $count = PaymentTerm::where('payment_code','=',$request->payment_code)->count();
         if($count >= 1){
-              $msg = 'Payment code already exists';
-          }else{
-              $msg = true;
+              //$msg = 'Payment code already exists';
+			  echo json_encode(array('status'=>'error','message'=>'Payment code already exists'));
+		  }else{
+             // $msg = true;
+			  echo json_encode(array('status'=>'success'));
         }
-        echo json_encode($msg);
+        //echo json_encode($msg);
     }
 
 

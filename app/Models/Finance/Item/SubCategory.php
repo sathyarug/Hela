@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models\Finance\Item;
+
+use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
+
+class SubCategory extends BaseValidator
+{
+    protected $table = 'item_subcategory';
+    protected $primaryKey = 'subcategory_id';
+    const CREATED_AT = 'created_date';
+    const UPDATED_AT = 'updated_date';
+
+    protected $fillable = ['subcategory_id','subcategory_code','subcategory_name','category_code','is_inspectiion_allowed','is_display'];
+
+  //  protected $casts = [ 'is_inspectiion_allowed' => 'int' ,  'is_display' => 'int'];
+
+    protected $rules = array(
+        'subcategory_code' => 'required',
+        'subcategory_name'  => 'required'/*,
+        'category_id'  => 'required'*/
+    );
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->attributes = array(
+            'updated_by' => 2//Session::get("user_id")
+        );
+    }
+
+
+}

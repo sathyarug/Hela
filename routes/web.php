@@ -214,4 +214,17 @@ Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
 Route::get('origin-type-get','Org\OriginTypeController@get');
 Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
 
+//item sub add_category
+Route::get('item','Finance\Item\ItemSubCategoryController@new');
+Route::get('sub-category-check-code','Finance\Item\ItemSubCategoryController@check_sub_category_code');
+Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
+Route::get('sub-category-get-list','Finance\Item\ItemSubCategoryController@get_sub_category_list');
+Route::get('sub-category-get','Finance\Item\ItemSubCategoryController@get');
+Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
+Route::get('category-get-list','Finance\Item\ItemSubCategoryController@get_category_list');
 //Route::resource('customesizes', 'customesizesController');
+
+
+
+//test
+Route::post('test-auth','TestController@auth');
