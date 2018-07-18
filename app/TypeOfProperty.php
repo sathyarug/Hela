@@ -1,24 +1,22 @@
 <?php
 
-namespace App\Models\Org;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\BaseValidator;
 
-class Color extends BaseValidator
+class TypeOfProperty extends BaseValidator
 {
-    protected $table = 'org_color';
-    protected $primaryKey = 'color_id';
+    protected $table = 'type_of_property';
+    protected $primaryKey = 'type_prop_id';
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
-
-    protected $fillable = ['color_id','color_code','color_name'];
-
+    
+    protected $fillable = ['type_property'];
+    
     protected $rules = array(
-        'color_code' => 'required',
-        'color_name' => 'required'
+        'type_property' => 'required'       
     );
-
+    
     public function __construct()
     {
         parent::__construct();
@@ -26,6 +24,6 @@ class Color extends BaseValidator
             'updated_by' => 2//Session::get("user_id")
         );
     }
-
-
+    
+    
 }

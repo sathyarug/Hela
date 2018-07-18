@@ -12,3 +12,12 @@ yarn-error.log
 .env
 /nbproject/private/
 /.env
+resources/views/org/currency/_currency.blade.php
+resources/views/org/color/color.blade.php
+public/js/org/color/color.js
+public/js/admin/permission.js
+database/migrations/2018_07_04_050811_create_permissions_table.php
+database/migrations/2018_07_04_050033_create_roles_table.php
+app/OrgSupplierCurrencyMap.php
+app/Models/Org/Color.php
+app/Http/Controllers/Org/ColorController.php

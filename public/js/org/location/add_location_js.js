@@ -78,6 +78,7 @@ $(document).ready(function(){
 
      var data = app_serialize_form_to_json('#source_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['source_code'] = $('#source-code').val();
 
      $.ajax({
        url:"Mainsource.postdata",
@@ -116,12 +117,20 @@ $(document).ready(function(){
 
  TABLE = $('#source_tbl').DataTable({
     autoWidth: false,
+    order: [[ 1, "asc" ]],
     columns: [
     { data: "source_id",
-    render : function(data){
+    render : function(data, type, row){
+     if ( row.status == '1') {
      var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
      </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
      return str;
+     }else if(row.status == '0'){
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;margin-right:3px;background-color:#999999;" >\n\
+     </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;background-color:#999999;"></i>';
+     return str;
+     }
+   
  }
 },
 {
@@ -133,11 +142,8 @@ $(document).ready(function(){
        }
    }
 },
-
 { data: "source_code" },
-{ data: "source_name" },
-
-
+{ data: "source_name" }
 
 
 ],
@@ -340,6 +346,7 @@ function save_cluster(){
 
  var data = app_serialize_form_to_json('#cluster_form');
  data['_token'] = X_CSRF_TOKEN;
+ data['group_code'] = $('#cluster_code').val();
 
  $.ajax({
    url:"Maincluster.postdata",
@@ -375,12 +382,20 @@ var dataSet2 = get_cluster_list();
 
 TABLE2 = $('#cluster_tbl').DataTable({
     autoWidth: false,
+    order: [[ 1, "asc" ]],
     columns: [
     { data: "group_id",
-    render : function(data){
-        var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
+    render : function(data, type, row){
+        if ( row.status == '1') {
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
         return str;
+     }else if(row.status == '0'){
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;margin-right:3px;background-color:#999999;" >\n\
+     </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;background-color:#999999;"></i>';
+     return str;
+     }
+
     }
 },
 {
@@ -573,6 +588,8 @@ $('#main_source').select2({
     $('#ctry_code').val(null).trigger('change');
     $('#def_curr').val(null).trigger('change');
     $('#fin_month').val(null).trigger('change');
+    $('#sec_mulname').val(null).trigger('change');
+    
 });
 
 
@@ -693,6 +710,7 @@ messages: {
 
      var data = app_serialize_form_to_json('#location_form');
      data['_token'] = X_CSRF_TOKEN;
+     data['company_code'] = $('#company_code').val();
 
      $.ajax({
        url:"Mainlocation.postdata",
@@ -728,6 +746,7 @@ messages: {
  var dataSet3 = get_location_list();
 
  TABLE3 = $('#location_tbl').DataTable({
+    order: [[ 1, "asc" ]],
     scrollY:        "300px",
     scrollX:        true,
     scrollCollapse: true,
@@ -736,10 +755,16 @@ messages: {
 
     columns: [
     { data: "company_id",
-    render : function(data){
+    render : function(data, type, row){
+        if ( row.status == '1') {
         var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
         return str;
+     }else if(row.status == '0'){
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;margin-right:3px;background-color:#999999;" >\n\
+     </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;background-color:#999999;"></i>';
+     return str;
+     }
     }
 },
 {
@@ -751,13 +776,13 @@ messages: {
        }
    }
 },
-{
-    'data' : function(_data){
+// {
+//     'data' : function(_data){
       
-           return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
+//            return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
       
-   }
-},
+//    }
+// },
 { data: "group_code" },
 { data: "company_code" },
 { data: "company_name" },
@@ -922,34 +947,10 @@ $('#location_tbl').on('click','i',function(){
     else if(ele.attr('data-action') === 'DELETE'){
         location_delete(ele.attr('data-id'));
     }
-    else if(ele.attr('data-action') === 'Sec_popup'){
-        location_load_sec(ele.attr('data-id'));
-        //alert(ele.attr('data-id'));
-    }
+    
 });
 
-function location_load_sec(_id){ 
 
- $('#show_section').modal('show');
- $('#section_form')[0].reset();
- $('#sec_mulname').val(null).trigger('change');
- $('#company_id').val(_id);
-
- // $.ajax({
- //        url : 'Mainlocation.section',
- //        type : 'get',
- //        data : {'com_id' : _id},
- //        success : function(res){
- //            var data = JSON.parse(res);
- //            //alert(data);
- //            $('#source_hid').val(data['source_id']);
- //            $('#source-code').val(data['source_code']);
- //            $('#source-name').val(data['source_name']);
- //            $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
- //        }
- //    });
-
-}
 
 $('#sec_mulname').select2({
 
@@ -979,67 +980,13 @@ $('#sec_mulname').select2({
 });
 
 
-var validator5 = app_form_validator('#section_form',{
-
-    submitHandler: function() { 
-        try{
-            save_section_location();
-            $("#section_form :input").val('');
-            validator5.resetForm();
-        }catch(e){return false;}
-        return false; 
-    },
-
-   
-
-});
-
-
-function save_section_location(){
-
-     var data = app_serialize_form_to_json('#section_form');
-         data['_token'] = X_CSRF_TOKEN;
-
-     $.ajax({
-       url:"Mainlocation.save_section",
-       async : false,
-       type:"post",
-       data:data,
-       data_type:"json",
-       success:function(res)
-       {
-        var json_res = JSON.parse(res); 
-            //alert(json_res['status']) ;
-            if(json_res['status'] === 'success')
-            {
-                app_alert('success',json_res['message']);
-                $('#section_form')[0].reset();
-                $('#show_section').modal('toggle');
-                validator5.resetForm();
-
-            }
-            else
-            {
-                app_alert('error',json_res['message']);
-            }      
-
-
-        }})
-
-
- }
-
-
-
-
 
 function location_edit(_id){ 
-
-
 
  $('#show_location').modal('show');
  $('#location_form')[0].reset();
  validator2.resetForm(); 
+ $('#sec_mulname').val(null).trigger('change');
 
  $.ajax({
     url : 'Mainlocation.edit',
@@ -1047,32 +994,37 @@ function location_edit(_id){
     data : {'loc_id' : _id},
     success : function(res){
         var data = JSON.parse(res);
-
-        var loadclust = new Option(data[0].group_name, data[0].group_id, true, true);
-        var loadfinmonth = new Option(data[0].finance_month, data[0].finance_month, true, true);
-        var loadcountry = new Option(data[0].country_description, data[0].country_code, true, true);
-        var loadcurrency = new Option(data[0].currency_description, data[0].default_currency, true, true);
+        //alert(data.com_hed[0]['company_code']);
+        var loadclust = new Option(data.com_hed[0].group_name, data.com_hed[0].group_id, true, true);
+        var loadfinmonth = new Option(data.com_hed[0].finance_month, data.com_hed[0].finance_month, true, true);
+        var loadcountry = new Option(data.com_hed[0].country_description, data.com_hed[0].country_code, true, true);
+        var loadcurrency = new Option(data.com_hed[0].currency_description, data.com_hed[0].default_currency, true, true);
+        
+        for(var i=0;i<data.multi.length;i++){
+            var loadmulti= new Option(data.multi[i].section_name, data.multi[i].section_id, true, true);
+            $('#sec_mulname').append(loadmulti).trigger('change');
+            }
 
         $('#main_cluster').append(loadclust).trigger('change');
         $('#fin_month').append(loadfinmonth).trigger('change');
         $('#ctry_code').append(loadcountry).trigger('change');
         $('#def_curr').append(loadcurrency).trigger('change');
-
-        $('#location_hid').val(data[0]['company_id']);
-        $('#company_code').val(data[0]['company_code']).prop('disabled', true);
-        $('#company_name').val(data[0]['company_name']);
-        $('#company_ad1').val(data[0]['company_address_1']);
-        $('#company_ad2').val(data[0]['company_address_2']);
-        $('#company_city').val(data[0]['city']);
-        $('#com_regnum').val(data[0]['company_reg_no']);
-        $('#contact_1').val(data[0]['company_contact_1']);
-        $('#contact_2').val(data[0]['company_contact_2']);
-        $('#con_fax').val(data[0]['company_fax']);
-        $('#com_email').val(data[0]['company_email']);
-        $('#com_web').val(data[0]['company_web']);
-        $('#com_remak').val(data[0]['company_remarks']);
-        $('#vat_regnum').val(data[0]['vat_reg_no']);
-        $('#tax_code').val(data[0]['tax_code']);
+        
+        $('#location_hid').val(data.com_hed[0]['company_id']);
+        $('#company_code').val(data.com_hed[0]['company_code']).prop('disabled', true);
+        $('#company_name').val(data.com_hed[0]['company_name']);
+        $('#company_ad1').val(data.com_hed[0]['company_address_1']);
+        $('#company_ad2').val(data.com_hed[0]['company_address_2']);
+        $('#company_city').val(data.com_hed[0]['city']);
+        $('#com_regnum').val(data.com_hed[0]['company_reg_no']);
+        $('#contact_1').val(data.com_hed[0]['company_contact_1']);
+        $('#contact_2').val(data.com_hed[0]['company_contact_2']);
+        $('#con_fax').val(data.com_hed[0]['company_fax']);
+        $('#com_email').val(data.com_hed[0]['company_email']);
+        $('#com_web').val(data.com_hed[0]['company_web']);
+        $('#com_remak').val(data.com_hed[0]['company_remarks']);
+        $('#vat_regnum').val(data.com_hed[0]['vat_reg_no']);
+        $('#tax_code').val(data.com_hed[0]['tax_code']);
 
         $('#btn-save-3').html('<b><i class="icon-pencil"></i></b> Update');
     }
@@ -1143,6 +1095,11 @@ function location_delete(_id){
     $('#loc_type').val(null).trigger('change');
     $('#country_code').val(null).trigger('change');
     $('#currency_code').val(null).trigger('change');
+    $('#type_of_loc').val(null).trigger('change');
+    $('#type_center').val(null).trigger('change');
+    $('#type_property').val(null).trigger('change');
+    
+    
 });
 
  var validator4 = app_form_validator('#sub_location_form',{
@@ -1229,6 +1186,11 @@ function location_delete(_id){
 
     },
 
+    opr_start_date: {
+        required: true
+
+    },
+
 
 },
 messages: {
@@ -1246,6 +1208,9 @@ function save_sub_location(){
 
      var data = app_serialize_form_to_json('#sub_location_form');
          data['_token'] = X_CSRF_TOKEN;
+         data['loc_code'] = $('#loc_code').val();
+
+         //alert(data);
 
      $.ajax({
        url:"MainSubLocation.postdata",
@@ -1282,16 +1247,23 @@ var dataSet4 = get_sub_location_list();
 //alert(dataSet4);
 
 TABLE4 = $('#sub_location_tbl').DataTable({
+    order: [[ 1, "asc" ]],
     autoWidth: false,
     scrollY: "300px",
     scrollX: true,
     scrollCollapse: true,
     columns: [
     { data: "loc_id",
-    render : function(data){
-        var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
+    render : function(data, type, row){
+        if ( row.status == '1') {
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="'+data+'">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="'+data+'"></i>';
         return str;
+     }else if(row.status == '0'){
+     var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;margin-right:3px;background-color:#999999;" >\n\
+     </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;background-color:#999999;"></i>';
+     return str;
+     }
     }
 },
 {
@@ -1392,11 +1364,15 @@ function sub_location_edit(_id){
         var loadismanu = new Option(data[0].loc_type, data[0].loc_type, true, true);
         var loadcountry = new Option(data[0].country_description, data[0].country_code, true, true);
         var loadcurrency = new Option(data[0].currency_description, data[0].currency_code, true, true);
+        var loadloctype = new Option(data[0].type_location, data[0].type_of_loc, true, true);
+        var loadproperty = new Option(data[0].type_property, data[0].type_prop_id, true, true);
 
         $('#company_id').append(loadcompany).trigger('change');
         $('#loc_type').append(loadismanu).trigger('change');
         $('#country_code').append(loadcountry).trigger('change');
         $('#currency_code').append(loadcurrency).trigger('change');
+        $('#type_of_loc').append(loadloctype).trigger('change');
+        $('#type_property').append(loadproperty).trigger('change');
 
         $('#sub_location_hid').val(data[0]['loc_id']);
         $('#loc_code').val(data[0]['loc_code']).prop('disabled', true);
@@ -1409,6 +1385,13 @@ function sub_location_edit(_id){
         $('#loc_email').val(data[0]['loc_email']);
         $('#loc_web').val(data[0]['loc_web']);
         $('#time_zone').val(data[0]['time_zone']);
+        $('#postal_code').val(data[0]['postal_code']);
+        $('#state_Territory').val(data[0]['state_Territory']);
+        $('#loc_google').val(data[0]['loc_google']);
+        $('#land_acres').val(data[0]['land_acres']);
+        $('#latitude').val(data[0]['latitude']);
+        $('#longitude').val(data[0]['longitude']);
+        $('#opr_start_date').val(data[0]['opr_start_date']);
         
         $('#btn-save-4').html('<b><i class="icon-pencil"></i></b> Update');
     }
@@ -1550,7 +1533,88 @@ $('#currency_code').select2({
 });
 
 
+$('#type_of_loc').select2({
 
+    placeholder: '[ Select and Search ]',
+    //allowClear: true,
+    ajax: {
+        dataType: 'json',
+        url: 'MainSubLocation.type_of_loc',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                search: params.term,
+                type: 'public'
+            }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+                return {id:val.type_loc_id, text:val.type_location};
+            })
+        };
+    },
+}
+
+
+});
+
+
+$('#type_center').select2({
+
+    placeholder: '[ Select and Search ]',
+    //allowClear: true,
+    ajax: {
+        dataType: 'json',
+        url: 'MainSubLocation.load_cost_center',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                search: params.term,
+                type: 'public'
+            }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+                return {id:val.cost_center_id, text:val.cost_center_name};
+            })
+        };
+    },
+}
+
+
+});
+
+
+$('#type_property').select2({
+
+    placeholder: '[ Select and Search ]',
+    //allowClear: true,
+    ajax: {
+        dataType: 'json',
+        url: 'MainSubLocation.load_property',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                search: params.term,
+                type: 'public'
+            }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+                return {id:val.type_prop_id, text:val.type_property};
+            })
+        };
+    },
+}
+
+
+});
 
 
 

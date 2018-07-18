@@ -9,8 +9,9 @@
 
             submitHandler: function () {
                 try {
-                    //save_role();
-                    add_edit_role();
+                    save_role();
+                    $("#role_form :input").val('');
+                    validator.resetForm();
                 } catch (e) {
                     console.log(e);
                     return false;
@@ -50,7 +51,7 @@
 
     });
 
-   /* function save_role() {
+    function save_role() {
         $.ajax({
             url: $("#role_form").attr('action'),
             async: false,
@@ -63,14 +64,14 @@
                 {
                     app_alert('success', res.message);
                     $('#show_role').modal('toggle');
-                    role_tbl.ajax.reload(null, false); // reload datatabe
+                    role_tbl.ajax.reload(); // reload datatabe
 
                 } else {
                     app_alert('error', res.message);
                 }
             }
         });
-    }*/
+    }
 
 </script>
 
