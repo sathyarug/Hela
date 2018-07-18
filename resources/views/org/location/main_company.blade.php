@@ -179,7 +179,7 @@
                         </div>
 
                         <div class=" col-md-12">
-                         <label>Multiple select :</label>
+                         <label>Select Section :</label>
                          <select multiple="multiple" class="select-multiple"  name="sec_mulname[]" id="sec_mulname">
                        </select>
 

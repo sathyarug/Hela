@@ -986,7 +986,7 @@ function location_edit(_id){
  $('#show_location').modal('show');
  $('#location_form')[0].reset();
  validator2.resetForm(); 
- $('#sec_mulname').val(null).trigger('change');
+ $('#sec_mulname').empty().trigger('change');
 
  $.ajax({
     url : 'Mainlocation.edit',
@@ -1348,6 +1348,8 @@ $('#sub_location_tbl').on('click','i',function(){
 
 
 function sub_location_edit(_id){ 
+ //$('#type_center').val(null).trigger('change');
+$("#type_center").empty().trigger('change')
 
  $('#show_sub_location').modal('show');
  $('#sub_location_form')[0].reset();
@@ -1359,13 +1361,18 @@ function sub_location_edit(_id){
     data : {'company_id' : _id},
     success : function(res){
         var data = JSON.parse(res);
+       
+        var loadcompany = new Option(data.sl_hd[0].company_name, data.sl_hd[0].company_id, true, true);
+        var loadismanu = new Option(data.sl_hd[0].loc_type, data.sl_hd[0].loc_type, true, true);
+        var loadcountry = new Option(data.sl_hd[0].country_description, data.sl_hd[0].country_code, true, true);
+        var loadcurrency = new Option(data.sl_hd[0].currency_description, data.sl_hd[0].currency_code, true, true);
+        var loadloctype = new Option(data.sl_hd[0].type_location, data.sl_hd[0].type_of_loc, true, true);
+        var loadproperty = new Option(data.sl_hd[0].type_property, data.sl_hd[0].type_prop_id, true, true);
 
-        var loadcompany = new Option(data[0].company_name, data[0].company_id, true, true);
-        var loadismanu = new Option(data[0].loc_type, data[0].loc_type, true, true);
-        var loadcountry = new Option(data[0].country_description, data[0].country_code, true, true);
-        var loadcurrency = new Option(data[0].currency_description, data[0].currency_code, true, true);
-        var loadloctype = new Option(data[0].type_location, data[0].type_of_loc, true, true);
-        var loadproperty = new Option(data[0].type_property, data[0].type_prop_id, true, true);
+        for(var i=0;i<data.sl_mul.length;i++){
+            var loadmulti= new Option(data.sl_mul[i].cost_center_name, data.sl_mul[i].cost_name, true, true);
+            $('#type_center').append(loadmulti).trigger('change');
+            }
 
         $('#company_id').append(loadcompany).trigger('change');
         $('#loc_type').append(loadismanu).trigger('change');
@@ -1373,25 +1380,25 @@ function sub_location_edit(_id){
         $('#currency_code').append(loadcurrency).trigger('change');
         $('#type_of_loc').append(loadloctype).trigger('change');
         $('#type_property').append(loadproperty).trigger('change');
-
-        $('#sub_location_hid').val(data[0]['loc_id']);
-        $('#loc_code').val(data[0]['loc_code']).prop('disabled', true);
-        $('#loc_name').val(data[0]['loc_name']);
-        $('#loc_address_1').val(data[0]['loc_address_1']);
-        $('#loc_address_2').val(data[0]['loc_address_2']);
-        $('#city').val(data[0]['city']);
-        $('#loc_phone').val(data[0]['loc_phone']);
-        $('#loc_fax').val(data[0]['loc_fax']);
-        $('#loc_email').val(data[0]['loc_email']);
-        $('#loc_web').val(data[0]['loc_web']);
-        $('#time_zone').val(data[0]['time_zone']);
-        $('#postal_code').val(data[0]['postal_code']);
-        $('#state_Territory').val(data[0]['state_Territory']);
-        $('#loc_google').val(data[0]['loc_google']);
-        $('#land_acres').val(data[0]['land_acres']);
-        $('#latitude').val(data[0]['latitude']);
-        $('#longitude').val(data[0]['longitude']);
-        $('#opr_start_date').val(data[0]['opr_start_date']);
+ 
+        $('#sub_location_hid').val(data.sl_hd[0]['loc_id']);
+        $('#loc_code').val(data.sl_hd[0]['loc_code']).prop('disabled', true);
+        $('#loc_name').val(data.sl_hd[0]['loc_name']);
+        $('#loc_address_1').val(data.sl_hd[0]['loc_address_1']);
+        $('#loc_address_2').val(data.sl_hd[0]['loc_address_2']);
+        $('#city').val(data.sl_hd[0]['city']);
+        $('#loc_phone').val(data.sl_hd[0]['loc_phone']);
+        $('#loc_fax').val(data.sl_hd[0]['loc_fax']);
+        $('#loc_email').val(data.sl_hd[0]['loc_email']);
+        $('#loc_web').val(data.sl_hd[0]['loc_web']);
+        $('#time_zone').val(data.sl_hd[0]['time_zone']);
+        $('#postal_code').val(data.sl_hd[0]['postal_code']);
+        $('#state_Territory').val(data.sl_hd[0]['state_Territory']);
+        $('#loc_google').val(data.sl_hd[0]['loc_google']);
+        $('#land_acres').val(data.sl_hd[0]['land_acres']);
+        $('#latitude').val(data.sl_hd[0]['latitude']);
+        $('#longitude').val(data.sl_hd[0]['longitude']);
+        $('#opr_start_date').val(data.sl_hd[0]['opr_start_date']);
         
         $('#btn-save-4').html('<b><i class="icon-pencil"></i></b> Update');
     }
