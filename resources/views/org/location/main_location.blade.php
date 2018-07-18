@@ -176,7 +176,14 @@
 
                     <div class=" col-md-3">
                         <label>Operations start date <span class="text-danger">*</span>:</label>
-                        <input type="text" class="form-control input-xxs pickadate" name="opr_start_date" id="opr_start_date" placeholder="[ Select Date ]">
+
+                        <div class="input-group">
+                                <span class="input-group-addon  input-xxs"><i class="icon-calendar5"></i></span>
+                                <input type="text" class="form-control pickadate-accessibility  input-xxs" name="opr_start_date" id="opr_start_date" placeholder="[ Select Date ]">
+                            </div>
+
+
+                        <!-- <input type="text" class="form-control input-xxs pickadate" name="opr_start_date" id="opr_start_date" placeholder="[ Select Date ]"> -->
 
                     </div>
 
@@ -192,7 +199,7 @@
                     </div>
 
                     <div class=" col-md-3">
-                        <label>Time Zone<span class="text-danger">*</span>:</label>
+                        <label>Time Zone <span class="text-danger">*</span>:</label>
                         <input type="text" class="form-control input-xxs" name="time_zone" id="time_zone">
                     </div>
 
