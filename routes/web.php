@@ -158,7 +158,7 @@ Route::get('cost-center.get','Org\CostCenterController@get');
 
 // add location
 
-Route::get('add_location', function () { return view('org/location/add_location'); });
+Route::get('location', function () { return view('org/location/add_location'); });
 
 Route::post('Mainsource.postdata','Org\Location\MainSourceController@postdata');
 Route::get('Mainsource.loaddata','Org\Location\MainSourceController@loaddata');
@@ -185,14 +185,15 @@ Route::get('Mainlocation.load_section_list','Org\Location\MainLocationController
 Route::post('Mainlocation.save_section','Org\Location\MainLocationController@save_section');
 Route::get('Mainlocation.section','Org\Location\MainLocationController@edit_load_section');
 
-//new
 Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
 Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
 Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@check_code');
 Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
 Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
 Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
-
+Route::get('MainSubLocation.type_of_loc','Org\Location\MainSubLocationController@type_of_loc');
+Route::get('MainSubLocation.load_cost_center','Org\Location\MainSubLocationController@load_cost_center');
+Route::get('MainSubLocation.load_property','Org\Location\MainSubLocationController@load_property');
 // close add location
 
 
