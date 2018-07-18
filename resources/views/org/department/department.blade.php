@@ -1,7 +1,7 @@
 
 @extends('layout.main')
 
-@section('title') Section Details @endsection
+@section('title') Department Details @endsection
 @section('load_css')
 
 @endsection
