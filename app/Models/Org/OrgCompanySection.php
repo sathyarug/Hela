@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Org\Location;
+namespace App\Models\Org;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;

@@ -588,7 +588,9 @@ $('#main_source').select2({
     $('#ctry_code').val(null).trigger('change');
     $('#def_curr').val(null).trigger('change');
     $('#fin_month').val(null).trigger('change');
-    $('#sec_mulname').val(null).trigger('change');
+    $('#sec_mulname').empty().trigger('change');
+    $('#sel_depart').empty().trigger('change');
+
     
 });
 
@@ -979,6 +981,35 @@ $('#sec_mulname').select2({
 
 });
 
+$('#sel_depart').select2({
+
+    placeholder: '[ Select and Search ]',
+    //allowClear: true,
+    ajax: {
+        dataType: 'json',
+        url: 'Mainlocation.load_depat_list',
+        type:'GET',
+        delay: 250,
+        data: function(params) {
+            return {
+                search: params.term,
+                type: 'public'
+            }
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data.items,function(val,i){
+                return {id:val.dep_id, text:val.dep_name};
+            })
+        };
+    },
+}
+
+
+});
+
+
+
 
 
 function location_edit(_id){ 
@@ -987,6 +1018,7 @@ function location_edit(_id){
  $('#location_form')[0].reset();
  validator2.resetForm(); 
  $('#sec_mulname').empty().trigger('change');
+ $('#sel_depart').empty().trigger('change');
 
  $.ajax({
     url : 'Mainlocation.edit',
@@ -1003,6 +1035,11 @@ function location_edit(_id){
         for(var i=0;i<data.multi.length;i++){
             var loadmulti= new Option(data.multi[i].section_name, data.multi[i].section_id, true, true);
             $('#sec_mulname').append(loadmulti).trigger('change');
+            }
+
+        for(var i=0;i<data.dep.length;i++){
+            var loaddep= new Option(data.dep[i].dep_name, data.dep[i].com_dep_name, true, true);
+            $('#sel_depart').append(loaddep).trigger('change');
             }
 
         $('#main_cluster').append(loadclust).trigger('change');
