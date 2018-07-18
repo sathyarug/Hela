@@ -112,7 +112,7 @@
 
                                                 <div class="modal-body">
                                                     {{csrf_field()}}
-                                                    <input type="text" value="0" name="department_hid" id="department_hid" class="form-control input-xxs">
+                                                    <input type="hidden" value="0" name="department_hid" id="department_hid" class="form-control input-xxs">
                                                     <div class=" col-md-12">
 
                                                         <fieldset class="content-group">
