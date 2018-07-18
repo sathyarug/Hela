@@ -37,6 +37,12 @@ class Main_Sub_Location extends BaseValidator
         public function setOprStartDateAttribute($value){
         $this->attributes['opr_start_date'] = date('Y-m-d', strtotime($value));
          }
+
+        public function getOprStartDateAttribute($value){
+        $this->attributes['opr_start_date'] = date('d F,Y', strtotime($value));
+        return $this->attributes['opr_start_date']; 
+        }
+
     //
     	public function __construct()
     	{

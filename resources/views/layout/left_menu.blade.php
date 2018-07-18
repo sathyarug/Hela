@@ -57,6 +57,7 @@
                                 <ul>
 
                                     <li @yield('m_add_location')><a href="{{url('/location')}}">Location</a></li>
+                                    <li @yield('m_add_dep')><a href="{{url('/department')}}">Department</a></li>
                                     <li @yield('m_add_stores')><a href="{{url('/add_stores')}}">Stores</a></li>
                                     <li @yield('m_add_country')><a href="{{url('/add_country')}}">Country</a></li>
                                     <li @yield('m_add_division')><a href="{{url('/add_division')}}">Division</a></li>

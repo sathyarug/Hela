@@ -184,6 +184,7 @@ Route::get('Mainlocation.delete','Org\Location\MainLocationController@delete');
 Route::get('Mainlocation.load_section_list','Org\Location\MainLocationController@load_section_list');
 Route::post('Mainlocation.save_section','Org\Location\MainLocationController@save_section');
 Route::get('Mainlocation.section','Org\Location\MainLocationController@edit_load_section');
+Route::get('Mainlocation.load_depat_list','Org\Location\MainLocationController@load_depat_list');
 
 Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
 Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
@@ -196,6 +197,13 @@ Route::get('MainSubLocation.load_cost_center','Org\Location\MainSubLocationContr
 Route::get('MainSubLocation.load_property','Org\Location\MainSubLocationController@load_property');
 // close add location
 
+// Department
+Route::get('department', function () { return view('org/department/department'); });
+Route::post('Department.save','Org\DepartmentController@save_dep');
+Route::get('Department.check_department','Org\DepartmentController@check_department');
+Route::get('Department.loaddata','Org\DepartmentController@loaddata');
+Route::get('Department.edit','Org\DepartmentController@edit');
+Route::get('Department.delete','Org\DepartmentController@delete');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
