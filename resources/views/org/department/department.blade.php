@@ -117,13 +117,13 @@
 
                                                         <fieldset class="content-group">
 
-                                                            <label>Department Code <span class="text-danger">*</span> :</label>
+                                                        <label>Department Code <span class="text-danger">*</span> :</label>
 
                                                             <input type="text" name="dep_code" id="dep_code" class="form-control input-xxs" >
 
 
 
-                                                            <label>Department Name <span class="text-danger">*</span> :</label>
+                                                        <label>Department Name <span class="text-danger">*</span> :</label>
 
                                                             <input type="text" name="dep_name" id="dep_name" class="form-control input-xxs" >
 

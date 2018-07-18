@@ -175,7 +175,7 @@
 <div class=" col-md-12">    
                         <div class=" col-md-6">
                          <label>Company Logo :</label>
-                         <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
+                         <input type="file" class="form-control file-styled input-xxs" name="company_logo" id="company_logo">
 
                         </div>
 
