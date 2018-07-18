@@ -17,7 +17,7 @@ class OrgDepartments extends BaseValidator
     protected $rules = array(
         
         'dep_code' => 'required',
-        'dep_name' => 'dep_name'
+        'dep_name' => 'required'
     );
 
     public function __construct() {

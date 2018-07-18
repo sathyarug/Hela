@@ -197,6 +197,13 @@ Route::get('MainSubLocation.load_cost_center','Org\Location\MainSubLocationContr
 Route::get('MainSubLocation.load_property','Org\Location\MainSubLocationController@load_property');
 // close add location
 
+// Department
+Route::get('department', function () { return view('org/department/department'); });
+Route::post('Department.save','Org\DepartmentController@save_dep');
+Route::get('Department.check_department','Org\DepartmentController@check_department');
+Route::get('Department.loaddata','Org\DepartmentController@loaddata');
+Route::get('Department.edit','Org\DepartmentController@edit');
+Route::get('Department.delete','Org\DepartmentController@delete');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
