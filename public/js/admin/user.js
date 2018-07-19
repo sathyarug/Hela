@@ -2,28 +2,18 @@
  * Created by sankap on 7/4/2018.
  */
 $(document).ready(function(){
-    // User regisration date pickers
-    $('#date_of_birth').pickadate({
-        max: true,
-        selectMonths: true,
-        selectYears: true
-    });
-
-    $('#date_of_birth').pickadate({
-        max: true,
-        selectMonths: true,
-        selectYears: true
-    });
 
     // User regisration form validation
     X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
     var validator = app_form_validator('#signup-form',{
         submitHandler: function() {
-            try{
+            alert('ss');
+            /*try{
+
                $( "#signup-form" ).submit();
             }catch(e){return false;}
-            return false;
+            return false;*/
         },
         rules: {
 
@@ -45,6 +35,7 @@ $(document).ready(function(){
 
             emp_number: {
                 required: true,
+                remote: "validate-empno"
             },
 
             loc_id: {
@@ -69,21 +60,25 @@ $(document).ready(function(){
 
             user_name: {
                 required: true,
-                remote: "validate-empno"
+                remote: "validate-username"
             }
 
         },
         messages: {
             user_name:{
-             remote: "This Username is already avilable."
-             },
+                remote: "This Username is already avilable."
+            },
+
+            emp_number:{
+                remote: "This Employee Number is already avilable."
+            }
         }
     });
 
     // User regisration Report Level dropdowns
     $('#immediate').select2({
         ajax: {
-            url: "load-report-levels",
+            url: "admin/load-report-levels",
             dataType: 'json',
             delay: 250,
             dropdownParent: $('#alternative'),
@@ -108,7 +103,7 @@ $(document).ready(function(){
     // Initialize
     $("#alternative").select2({
         ajax: {
-            url: "load-report-levels",
+            url: "admin/load-report-levels",
             dataType: 'json',
             delay: 250,
             dropdownParent: $('#alternative'),
@@ -128,10 +123,6 @@ $(document).ready(function(){
             cache: true
         },
 
-        /*escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-        minimumInputLength: 1,
-        templateResult: formatRepo, // omitted for brevity, see the source of this page
-        templateSelection: formatRepoSelection // omitted for brevity, see the source of this page*/
     });
 
     function formatRepoSelection (repo) {
@@ -140,27 +131,53 @@ $(document).ready(function(){
     }
 
 
-    // Format displayed data
-    function formatRepo (repo) {
-        if (repo.loading) return repo.first_name;
 
-        var markup = "<div class='select2-result-repository clearfix'>" +
-            //"<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
-            "<div class='select2-result-repository__meta'>" +
-            "<div class='select2-result-repository__title'>" + repo.first_name +' '+ repo.last_name+  "</div></div></div>";
+    supplier_tbl = $('#user-tbl').DataTable({
+        autoWidth: false,
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            url: "get-user-list",
+            data: {'_token': X_CSRF_TOKEN},
+            type: 'POST'
+        },
+        "pageLength": 25,
+        columns: [
+            {data: "user_id",
+                    render: function (data) {
+                        var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
+                        </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
+                        return str;
+                    }
+                },
+            {data: "first_name"},
+            {data: "last_name"},
+            {data: "emp_number"},
+            {data: "email"},
+            {data: "loc_name"},
+            {data: "dept_name"},
+            {data: "desig_name"}
+           /* {
+                'data' : function(_data){
+                    if (_data['status'] == '1'){
+                        return '<td><span class="label label-success">Active</span></td>';
+                    }else{
+                        return '<td><span class="label label-default">Inactive</span></td>';
+                    }
+                }
+            },*/
+        ],
+        columnDefs: [{
+            orderable: false,
+            width: '100px',
+            targets: [0]
+        }],
+        dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
+    });
 
-        /*if (repo.description) {
-            markup += "<div class='select2-result-repository__description'>" + repo.description + "</div>";
-        }*/
-
-        /*markup += "<div class='select2-result-repository__statistics'>" +
-            "<div class='select2-result-repository__forks'>" + repo.forks_count + " Forks</div>" +
-            "<div class='select2-result-repository__stargazers'>" + repo.stargazers_count + " Stars</div>" +
-            "<div class='select2-result-repository__watchers'>" + repo.watchers_count + " Watchers</div>" +
-            "</div>" +
-            "</div></div>";*/
-
-        return markup;
-    }
-
+    $('#date_of_birth').pickadate({
+        max: true,
+        selectMonths: true,
+        selectYears: true
+    });
 });

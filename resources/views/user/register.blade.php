@@ -96,7 +96,7 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('date_of_birth', 'Date of Birth', array('class' => 'control-label text-semibold pickadate-year')) }}
-                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs'))  }}
+                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs pickadate'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -259,34 +259,33 @@
 @section('javascripy')
 
     <!-- Select with search -->
-    <script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/form_select2.js"></script>
-    <!-- /Select with search -->
+    <script type="text/javascript" src="{{ URL::asset('assets/js/core/libraries/jquery_ui/interactions.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/selects/select2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/form_select2.js') }}"></script>
+
 
     <!-- picker_date -->
-    <script type="text/javascript" src="assets/js/plugins/notifications/jgrowl.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/ui/moment/moment.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/daterangepicker.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/anytime.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.date.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.time.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/legacy.js"></script>
-    <script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/notifications/jgrowl.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/ui/moment/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/daterangepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/anytime.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.date.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.time.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/legacy.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/picker_date.js') }}"></script>
+
     <!-- /picker_date -->
 
     <!-- Content loading -->
-    <script type="text/javascript" src="assets/js/plugins/loaders/progressbar.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/loaders/progressbar.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/components_loaders.js') }}"></script>
     <!-- /Content loading -->
 
-    <script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
-    <script type="text/javascript" src="js/application.js"></script>
-    <script type="text/javascript" src="js/admin/user.js"></script>
-
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/validation/validate.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/notifications/sweet_alert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('js/application.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('js/admin/user.js') }}"></script>
 
 @endsection
 
