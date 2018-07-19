@@ -12,7 +12,6 @@
             <tr>
                 <th class="text-center">Action</th>
                 <th>Status</th>
-                <th>Section</th>
                 <th>Cluster Code</th> 
                 <th>Company Code</th>
                 <th>Company Name</th> 
@@ -172,12 +171,27 @@
                                 <option value="March to April">March to April</option>
                             </select>
                         </div>
-
-                        <div class=" col-md-12">
+                    </div>
+<div class=" col-md-12">    
+                        <div class=" col-md-6">
                          <label>Company Logo :</label>
-                         <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
+                         <input type="file" class="form-control file-styled input-xxs" name="company_logo" id="company_logo">
 
-                     </div>
+                        </div>
+
+                        <div class=" col-md-6">
+                         <label>Select Section :</label>
+                         <select multiple="multiple" class="select-multiple input-xxs"  name="sec_mulname[]" id="sec_mulname">
+                       </select>
+
+                        </div></div>
+
+                        <div class=" col-md-12"><div class=" col-md-12">    
+                         <label>Select Department :</label>
+                         <select multiple="multiple" class="select-multiple input-xxs"  name="sel_depart[]" id="sel_depart">
+                       </select>
+
+                        </div></div>
 
 
                  </fieldset>
@@ -198,7 +212,7 @@
 
 
 <!-- popup -->
-<div id="show_section" class="modal fade">
+<!-- <div id="show_section" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <form class="form-horizontal form-validate-jquery" action="#" id="section_form">
@@ -211,7 +225,7 @@
                 <div class="modal-body">
                     {{csrf_field()}}
                     
-                    <input type="hidden" name="company_id" id="company_id" class="form-control input-xxs">
+                    <input type="hidden" name="company_id_d" id="company_id_d" class="form-control input-xxs">
 
                     <div class=" col-md-12">
 
@@ -235,4 +249,4 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->

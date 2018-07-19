@@ -103,6 +103,9 @@ Route::get('admin/validate-username', 'Admin\\UserController@validateUserName');
 Route::get('admin/load-report-levels', 'Admin\\UserController@loadReportLevels');
 Route::post('admin/get-user-list', 'Admin\\UserController@getUserList');
 
+Route::get('register', function () {
+    return view('user.register');
+});
 
 
 Route::post('register-user', 'UserController@store');
@@ -120,47 +123,22 @@ Route::get('currency.get','CurrencyController@get_currency');
 Route::get('accounting-rules', function () { return view('finance/accounting/accounting_rules'); });
 
 //payment term routes
-//Route::get('payment-term.new','PaymentTermController@new_payment_term');
-Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
+Route::get('payment-term.new','PaymentTermController@new_payment_term');
 
-Route::post('payment-term.save','Finance\Accounting\PaymentTermController@save');
+Route::post('payment-term.save','PaymentTermController@save');
 
-Route::get('payment-term.get_payment_term_list','Finance\Accounting\PaymentTermController@get_payment_term_list');
+Route::get('payment-term.get_payment_term_list','PaymentTermController@get_payment_term_list');
 
-Route::get('payment-term.get','Finance\Accounting\PaymentTermController@get_payment_term');
-
-Route::get('payment-term-change-status','Finance\Accounting\PaymentTermController@change_status');
-
-//Payment method
-Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodController@check_perment_method_code');
-
-Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
-
-Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
-
-Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
-
-Route::get('payment-method-change-status','Finance\Accounting\PaymentMethodController@change_status');
+Route::get('payment-term.get','PaymentTermController@get_payment_term');
 
 //cost center routes
-//Route::get('cost-center.new','Finance\Accounting\CostCenterController@new');
-Route::get('cost-center-check-code','Finance\Accounting\CostCenterController@check_cost_center_code');
+Route::get('cost-center.new','Org\CostCenterController@new');
 
-Route::post('cost-center.save','Finance\Accounting\CostCenterController@save');
+Route::post('cost-center.save','Org\CostCenterController@save');
 
-Route::get('cost-center.get_list','Finance\Accounting\CostCenterController@get_list');
+Route::get('cost-center.get_list','Org\CostCenterController@get_list');
 
-Route::get('cost-center.get','Finance\Accounting\CostCenterController@get');
-
-Route::get('cost-center-change-status','Finance\Accounting\CostCenterController@change_status');
-
-//origin type routes
-Route::get('origin-type-new','Org\OriginTypeController@new');
-Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
-Route::post('origin-type-save','Org\OriginTypeController@save');
-Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
-Route::get('origin-type-get','Org\OriginTypeController@get');
-Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+Route::get('cost-center.get','Org\CostCenterController@get');
 
 // add location
 
@@ -174,7 +152,7 @@ Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
 Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
 
 Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
-Route::get('Maincluster.check_code','Org\Location\Org\Location\MainClusterController@check_code');
+Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
 Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
 Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
 Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
@@ -190,7 +168,7 @@ Route::get('Mainlocation.delete','Org\Location\MainLocationController@delete');
 Route::get('Mainlocation.load_section_list','Org\Location\MainLocationController@load_section_list');
 Route::post('Mainlocation.save_section','Org\Location\MainLocationController@save_section');
 Route::get('Mainlocation.section','Org\Location\MainLocationController@edit_load_section');
-
+Route::get('Mainlocation.load_depat_list','Org\Location\MainLocationController@load_depat_list');
 
 Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
 Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
@@ -198,18 +176,33 @@ Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@
 Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
 Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
 Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
+Route::get('MainSubLocation.type_of_loc','Org\Location\MainSubLocationController@type_of_loc');
+Route::get('MainSubLocation.load_cost_center','Org\Location\MainSubLocationController@load_cost_center');
+Route::get('MainSubLocation.load_property','Org\Location\MainSubLocationController@load_property');
+// close add location
+
+// Department
+Route::get('department', function () { return view('org/department/department'); });
+Route::post('Department.save','Org\DepartmentController@save_dep');
+Route::get('Department.check_department','Org\DepartmentController@check_department');
+Route::get('Department.loaddata','Org\DepartmentController@loaddata');
+Route::get('Department.edit','Org\DepartmentController@edit');
+Route::get('Department.delete','Org\DepartmentController@delete');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
-Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
-Route::get('supplier/delete', 'SupplierController@deleteSupplier');
 
 
-Route::resource('admin/permission', 'Admin\PermissionController');
-Route::get('admin/role/checkName', 'Admin\RoleController@checkName');
-Route::post('admin/role/getList', 'Admin\RoleController@getList');
-Route::post('admin/role/{id}', 'Admin\RoleController@update');
-Route::delete('admin/role/{id}', 'Admin\RoleController@destroy');
-Route::resource('admin/role', 'Admin\RoleController');
+Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
+Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
+Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
+Route::delete('admin/permission/{id}', 'Admin\\PermissionController@destroy');
+Route::resource('admin/permission', 'Admin\\PermissionController');
+
+Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
+Route::post('admin/role/getList', 'Admin\\RoleController@getList');
+Route::post('admin/role/{id}', 'Admin\\RoleController@update');
+Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
+Route::resource('admin/role', 'Admin\\RoleController');

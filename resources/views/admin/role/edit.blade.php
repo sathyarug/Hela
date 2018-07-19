@@ -9,8 +9,8 @@
 
             submitHandler: function () {
                 try {
-                   // edit_role();
-                   add_edit_role();
+                    edit_role();
+                    validator.resetForm();
                 } catch (e) {
                     console.log(e);
                     return false;
@@ -22,7 +22,30 @@
 
     });
 
- </script>
+    function edit_role() {
+        $.ajax({
+            url: $("#role_form").attr('action'),
+            async: false,
+            type: "POST",
+            data: $("#role_form").serialize(),
+            dataType: "json",
+            success: function (res)
+            {
+                if (res.status === 'success')
+                {
+                    app_alert('success', res.message);
+                    $('#show_role').modal('toggle');
+                    role_tbl.ajax.reload(); // reload datatabe
+
+                } else {
+                    app_alert('error', res.message);
+                }
+
+            }
+        });
+    }
+
+</script>
 
 {!! Form::model($role, [
 'method' => 'POST',

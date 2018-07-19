@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Org\Location\Main_Location;
 use App\Models\Org\Location\Main_Cluster;
 
-use App\Models\Org\Location\OrgCompanySection;
+use App\Models\Org\OrgCompanySection;
+use App\Models\Org\OrgDepartments;
+use App\Models\Org\OrgCompanyDepartments;
 use App\Currency;
 use App\Country;
 use App\Section;
+
 
 use App\Http\Controllers\Controller;
 
@@ -80,6 +83,21 @@ class MainLocationController extends Controller
 
 	}
 
+	public function load_depat_list(Request $request){
+
+		$search_c = $request->search;
+  		//print_r($search_c);
+		$dep_lists = OrgDepartments::select('dep_id','dep_code','dep_name')
+		->where([['dep_name', 'like', '%' . $search_c . '%'],]) ->get();
+
+		return response()->json(['items'=>$dep_lists]);
+    		//return $select_source;
+
+	}
+
+
+	
+
 
 	public function check_code(Request $request)
 	{
@@ -125,7 +143,10 @@ class MainLocationController extends Controller
 	public function postdata(Request $request)
 	{
   	//print_r($request->cluster_hid);
-		$main_location = new Main_Location();       
+		$main_location = new Main_Location();
+		
+
+
 		if ($main_location->validate($request->all()))   
 		{
 			if($request->location_hid > 0){
@@ -135,8 +156,39 @@ class MainLocationController extends Controller
 			$main_location->status = 1;
 			$main_location->created_by = 1;  
 			$result = $main_location->saveOrFail();
-           // echo json_encode(array('Saved'));
-			echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
+			
+			$insertedId = $main_location->company_id;
+			
+			OrgCompanySection::where('company_id', '=', $insertedId)->update(['status' => 0]);
+			$multipleValues = $request->get('sec_mulname');
+			if($multipleValues != ''){
+  			foreach($multipleValues as $value)
+   			{
+          	$save_section = new OrgCompanySection();  
+			$save_section->company_id = $insertedId;
+			$save_section->section_id = $value;
+			$save_section->status = 1;
+			$save_section->created_by = 1;  
+			$result = $save_section->saveOrFail();
+
+			}} 
+
+			OrgCompanyDepartments::where('company_id', '=', $insertedId)->update(['status' => 0]);
+			$multidepart = $request->get('sel_depart');
+			if($multidepart != ''){
+  			foreach($multidepart as $value2)
+   			{
+          	$save_dep = new OrgCompanyDepartments();  
+			$save_dep->company_id = $insertedId;
+			$save_dep->com_dep_name = $value2;
+			$save_dep->status = 1;
+			$save_dep->created_by = 1;  
+			$result = $save_dep->saveOrFail();
+
+			}} 
+
+
+			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
 		}
 		else
 		{            
@@ -148,27 +200,6 @@ class MainLocationController extends Controller
 
 	}
 
-	
-
-	public function save_section(Request $request)
-	{	
-		$multipleValues = $request->get('sec_mulname');
-  		foreach($multipleValues as $value)
-    {
-        
-			$save_section = new OrgCompanySection();       
-
-			$save_section->fill($request->all());
-			$save_section->section_id = $value;
-			$save_section->created_by = 1;  
-			$result = $save_section->saveOrFail();
-           // echo json_encode(array('Saved'));
-
-		}    
-		echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );  
-
-
-	}
 
 
 	public function edit(Request $request)
@@ -181,9 +212,23 @@ class MainLocationController extends Controller
 		->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
 		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description', 'fin_currency.currency_description')
 		->where('org_company.company_id', '=', $loc_id)->get();
-		echo json_encode($cluster);
 
+	
+		$load_mul = OrgCompanySection::join('org_section', 'org_company_section.section_id', '=', 'org_section.section_id')
+		 	->select('org_company_section.*', 'org_section.section_name')
+		 	->where([
+		 			['org_company_section.status', '=', '1'],
+		 			['org_company_section.company_id', '=', $loc_id]
+					])->get();
 
+		$load_dep = OrgCompanyDepartments::join('org_departments', 'org_company_departments.com_dep_name', '=', 'org_departments.dep_id')
+		 	->select('org_company_departments.*', 'org_departments.dep_name')
+		 	->where([
+		 			['org_company_departments.status', '=', '1'],
+		 			['org_company_departments.company_id', '=', $loc_id]
+					])->get(); 	
+
+		echo json_encode(array('com_hed' => $cluster,'multi' => $load_mul,'dep' => $load_dep));  
 	}
 
 
