@@ -118,6 +118,9 @@ Route::get('get_all_sample_stage','Org\SampleStageController@loadData');
 Route::post('save_sample_stage','Org\SampleStageController@saveStage');
 Route::get('edit_sample_stage','Org\SampleStageController@edit');
 Route::get('delete_sample_stage','Org\SampleStageController@delete');
+
+//Buyer creation module
+ Route::get('create_customer','Org\BuyerController@index');
 //GRN module
 Route::get('grn_details','GrnController@grnDetails');
 

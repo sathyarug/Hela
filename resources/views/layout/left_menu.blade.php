@@ -69,6 +69,7 @@
                                     <li @yield('m_cancellation_reason')><a href="add_reason">Cancellation Reason</a></li>
                                     <li @yield('m_add_product_type')><a href="add_product_type">Product Type</a></li>
                                     <li @yield('m_add_sample_stage')><a href="add_sample_stage">Sample Stage</a></li>
+                                    <li @yield('m_buyer_creation')><a href="create_customer">Customer Creation</a></li>
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Main Cluster</a></li> -->
