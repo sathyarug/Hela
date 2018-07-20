@@ -98,13 +98,17 @@
                             <li>
                                 <a href="#">Accounting</a>
                                 <ul>
-                                    <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
-
+                                  <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Items</a>
+                                <ul>
+                                  <li @yield('m_item')><a href="item">Items</a></li>
                                 </ul>
                             </li>
 
 
-                            
 
 
                         </ul>
