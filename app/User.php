@@ -7,7 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 
-class User extends BaseValidator
+//class User extends BaseValidator
+Class User extends Authenticatable
 {
     use Notifiable;
 
