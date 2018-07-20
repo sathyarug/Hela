@@ -206,3 +206,11 @@ Route::post('admin/role/getList', 'Admin\\RoleController@getList');
 Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
+
+//cost center routes sub-category-check-code
+Route::get('item','Finance\Item\ItemSubCategoryController@new');
+Route::get('sub-category-check-code' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
+Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
+Route::get('sub-category-get-list','Finance\Item\ItemSubCategoryController@get_sub_category_list');
+Route::get('sub-category-get','Finance\Item\ItemSubCategoryController@get');
+Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
