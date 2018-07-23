@@ -227,7 +227,7 @@ Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
 
-/ Stores module
+// Stores module
 Route::get('add_stores', function () { return view('add_stores/add_stores'); });
 Route::post('OrgStores.postdata','OrgStoresController@postdata');
 Route::get('OrgStores.loaddata','OrgStoresController@loaddata');
