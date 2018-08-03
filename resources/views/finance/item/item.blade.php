@@ -43,7 +43,7 @@
         <div class="panel panel-flat">
             <div class="panel-heading">
 
-                <h5 class="panel-title">Item</h5>
+                <h5 class="panel-title">Sub Category</h5>
                 <div class="heading-elements">
                     <ul class="icons-list">
                         <li><a data-action="collapse"></a></li>
@@ -55,13 +55,13 @@
             <div class="panel-body">
 
 				<div class="tabbable">
-                        <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
+                    <!--    <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
                             <li class="active"><a href="#tab_payment_term" data-toggle="tab">Sub Category</a></li>
-                            <li><a href="#tab_cost_center" data-toggle="tab">Item</a></li>
+                             <li><a href="#tab_cost_center" data-toggle="tab">Item</a></li> 
 
 
                         </ul>
-
+                        -->
                         <div class="tab-content">
 
                             <div class="tab-pane active" id="tab_payment_term">
@@ -79,7 +79,7 @@
                         </div>
                     </div>
 
-            </div>
+            </div> 
         </div>
     </div>
 </div>
