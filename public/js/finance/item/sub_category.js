@@ -56,7 +56,7 @@
                 },
             { data: "subcategory_code" },
             { data: "subcategory_name" },
-            { data: "category_code" },
+            { data: "category_name" },
             {
               data: "is_inspectiion_allowed",
               render : function(data){
@@ -162,9 +162,11 @@
 			url : 'sub-category-get-list',
 			async : false,
 			type : 'get',
+                        dataType:'JSON',
 			data : {},
 			success : function(res){
-				data = JSON.parse(res);
+				//data = JSON.parse(res);
+				data = JSON.parse(JSON.stringify(res));
 			},
 			error : function(){
 
@@ -222,5 +224,28 @@
 			}
 		});
 	}
+        
+        
 
 })();
+
+function LoadSubCategories(mainCatCode){
+    
+    $.ajax({
+        url:'get-subcatby-maincat',
+        type:'get',
+        data:{'category_id': mainCatCode},
+        dataType:'JSON',
+        success:function(res){
+            
+            $.each(res, function(key, value){
+               $("#subcategory").append(new Option(key, value)); 
+            });
+                
+            
+            
+            //alert(JSON.parse(JSON.stringify(res)));
+        }
+    });
+            
+}
