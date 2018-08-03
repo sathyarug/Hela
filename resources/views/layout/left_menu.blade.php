@@ -104,10 +104,13 @@
                             </li>
                             <li><a href="{{url('/supplier')}}">supplier</a></li>
                             <li>
-                                <a href="#">Items</a>
+                                <a href="#">Style Item Creation</a>
                                 <ul>
-                                  <li @yield('m_item')><a href="item">Items</a></li>
+                                  <li @yield('m_item')><a href="item">Item Creation Wizard</a></li>   
+                                  <li @yield('m_item')><a href="itemproperty">Item Property Assign</a></li>
+                                  <li @yield('m_item')><a href="item">Sub Category</a></li>
                                 </ul>
+                                
                             </li>
 
 
