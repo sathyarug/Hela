@@ -276,3 +276,12 @@ Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
 Route::get('sub-category-get-list','Finance\Item\ItemSubCategoryController@get_sub_category_list');
 Route::get('sub-category-get','Finance\Item\ItemSubCategoryController@get');
 Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
+
+
+Route::get('itemproperty', 'itempropertyController@index');
+Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
+Route::post('itemproperty/save_itemproperty', 'itempropertyController@SaveItemProperty');
+Route::get('itemproperty/load-properties', 'itempropertyController@LoadProperties');
+Route::post('itemproperty/save-assign', 'itempropertyController@SavePropertyAssign');
+Route::get('itemproperty/load-assign-properties', 'itempropertyController@LoadAssignProperties');
+Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUnAssignPropertiesBySubCat');
