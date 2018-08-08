@@ -46,7 +46,8 @@ class ItemSubCategoryController extends Controller
     }
 
     public function get_sub_category_list(){
-        $sub_category_list = SubCategory::all();
+        //$sub_category_list = SubCategory::all();
+        $sub_category_list = SubCategory::GetSubCategoryList();
         echo json_encode($sub_category_list);
     }
 
@@ -81,6 +82,12 @@ class ItemSubCategoryController extends Controller
     public function get_category_list(){
         $category_list = Category::all();
         echo json_encode($category_list);
+    }
+    
+    public function get_subcat_list_by_maincat(Request $request){
+        
+        $sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
+        echo json_encode($sub_category);        
     }
 
 }
