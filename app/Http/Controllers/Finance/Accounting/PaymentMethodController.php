@@ -37,9 +37,33 @@ class PaymentMethodController extends Controller
 
     }
 
-    public function get_payment_method_list(){
-        $payment_method_list = PaymentMethod::all();
-        echo json_encode($payment_method_list);
+    public function get_list(Request $request)
+    {
+      $data = $request->all();
+  		$start = $data['start'];
+  		$length = $data['length'];
+  		$draw = $data['draw'];
+  		$search = $data['search']['value'];
+  		$order = $data['order'][0];
+  		$order_column = $data['columns'][$order['column']]['data'];
+  		$order_type = $order['dir'];
+
+      $payment_method_list = PaymentMethod::select('*')
+      ->where('payment_method_code','like',$search.'%')
+  		->orWhere('payment_method_description', 'like', $search.'%')
+      ->orderBy($order_column, $order_type)
+  		->offset($start)->limit($length)->get();
+
+      $payment_method_count = PaymentMethod::where('payment_method_code','like',$search.'%')
+      ->orWhere('payment_method_description', 'like', $search.'%')
+      ->count();
+
+      echo json_encode(array(
+  				"draw" => $draw,
+  				"recordsTotal" => $payment_method_count,
+  				"recordsFiltered" => $payment_method_count,
+  				"data" => $payment_method_list
+  		));
     }
 
 
@@ -50,16 +74,19 @@ class PaymentMethodController extends Controller
     }
 
 
-    public function check_perment_method_code(Request $request)
-    {
-        $count = PaymentMethod::where('payment_method_code','=',$request->payment_method_code)->count();
-        if($count >= 1){
-              $msg = 'Payment code already exists';
-          }else{
-              $msg = true;
-        }
-        echo json_encode($msg);
-    }
+    public function check_code(Request $request)
+  	{
+  		$payment_method = PaymentMethod::where('payment_method_code','=',$request->payment_method_code)->first();
+  		if($payment_method == null){
+  			echo json_encode(array('status' => 'success'));
+  		}
+  		else if($payment_method->payment_method_id == $request->payment_method_id){
+  			echo json_encode(array('status' => 'success'));
+  		}
+  		else {
+  			echo json_encode(array('status' => 'error','message' => 'payment method code already exists'));
+  		}
+  	}
 
 
       public function change_status(Request $request){
