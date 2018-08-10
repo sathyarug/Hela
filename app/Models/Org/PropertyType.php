@@ -5,24 +5,26 @@ namespace App\Models\Org;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class OrgCompanySection extends BaseValidator
+class PropertyType extends BaseValidator
 {
-  protected $table = 'org_company_section';
-    protected $primaryKey = 'sec_id';
-
-    const UPDATED_AT = 'updated_date';
+    protected $table = 'type_of_property';
+    protected $primaryKey = 'type_prop_id';
     const CREATED_AT = 'created_date';
+    const UPDATED_AT = 'updated_date';
 
-    protected $fillable = ['sec_id', 'company_id','section_id'];
+    protected $fillable = ['type_property'];
+
     protected $rules = array(
-        
-        'company_id' => 'required'
+        'type_property' => 'required'
     );
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->attributes = array(
             'updated_by' => 2//Session::get("user_id")
         );
     }
+
+
 }
