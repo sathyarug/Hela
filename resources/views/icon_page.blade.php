@@ -205,6 +205,48 @@
                             <button type="button" class="btn bg-teal-400 btn-labeled btn-info btn-xs"><b><i class="icon-printer2"></i></b> Print</button>
 
 
+                            
+                           
+
+                        </div>
+
+                        <div class="form-group col-md-12">
+
+                             <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class=" icon-arrow-left16"></i></b> Left</button>
+                            <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class=" icon-arrow-right16"></i></b> Right</button>
+                            <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class=" icon-arrow-up16"></i></b> Up</button>
+                            <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"><b><i class="icon-arrow-down16"></i></b> Down</button>
+
+                        </div>
+
+
+                        <div class="form-group col-md-12">
+
+                            <div class="media-left media-middle">
+                            <a href="#" class="btn bg-teal-400 btn-rounded btn-icon btn-primary btn-xs">
+                            <span class="icon-arrow-left16"></span>
+                            </a>
+                            </div>
+
+                            <div class="media-left media-middle">
+                            <a href="#" class="btn bg-teal-400 btn-rounded btn-icon btn-primary btn-xs">
+                            <span class="icon-arrow-right16"></span>
+                            </a>
+                            </div>
+
+                            <div class="media-left media-middle">
+                            <a href="#" class="btn bg-teal-400 btn-rounded btn-icon btn-primary btn-xs">
+                            <span class="icon-arrow-up16"></span>
+                            </a>
+                            </div>
+
+                            <div class="media-left media-middle">
+                            <a href="#" class="btn bg-teal-400 btn-rounded btn-icon btn-primary btn-xs">
+                            <span class="icon-arrow-down16"></span>
+                            </a>
+                            </div>
+
+
                         </div>
 
                         <div class="form-group col-md-12">
