@@ -64,7 +64,7 @@
                                     <li @yield('m_add_season')><a href="{{url('/add_season')}}">Season</a></li>
                                     <li @yield('m_add_uom')><a href="{{url('/add_uom')}}">Unit of Measure</a></li>
                                     <li @yield('m_add_section')><a href="{{url('/add_section')}}">Section</a></li>
-				                    <li @yield('m_orgtype')><a href="origin-type-new">Orgin Type</a></li>
+				    <li @yield('m_orgtype')><a href="origin-type-new">Orgin Type</a></li>
                                     <li @yield('m_currency')><a href="currency.new">Currency</a></li>
                                     <li @yield('m_cancellation_category')><a href="add_category">Cancellation Category</a></li>
                                     <li @yield('m_cancellation_reason')><a href="add_reason">Cancellation Reason</a></li>
@@ -102,11 +102,15 @@
                                   <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
                                 </ul>
                             </li>
+                            <li><a href="{{url('/supplier')}}">supplier</a></li>
                             <li>
-                                <a href="#">Items</a>
+                                <a href="#">Style Item Creation</a>
                                 <ul>
-                                  <li @yield('m_item')><a href="item">Items</a></li>
+                                  <li @yield('m_item')><a href="item">Item Creation Wizard</a></li>   
+                                  <li @yield('m_item')><a href="itemproperty">Item Property Assign</a></li>
+                                  <li @yield('m_item')><a href="item">Sub Category</a></li>
                                 </ul>
+                                
                             </li>
 
 

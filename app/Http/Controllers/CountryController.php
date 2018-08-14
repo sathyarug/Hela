@@ -133,4 +133,12 @@ class CountryController extends Controller {
         }
     }
 
+    public function get_active_list(Request $request)
+  	{
+  		$search_c = $request->search;
+  		$country_lists = Country::select('country_id','country_code','country_description')
+  		->where([['country_description', 'like', '%' . $search_c . '%'],]) ->get();
+  		return response()->json($country_lists);
+  	}
+
 }
