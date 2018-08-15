@@ -85,7 +85,10 @@
 				{{ Form::open(array('url' => 'login','id'=> 'login')) }}
 				<div class="panel panel-body login-form">
 					<div class="text-center">
-						<div class="icon-object border-warning-400 text-warning-400"><i class="icon-people"></i></div>
+						<div class="icon-object " style="color:#FFF">
+							<!--<i class="icon-people"></i>-->
+							<img style="width:150px" src="{{ URL::asset('assets/images/logo.jpg') }}">
+						</div>
 						<h5 class="content-group-lg">Login to your account <small class="display-block">Enter your credentials</small></h5>
 					</div>
 					<!-- if there are login errors, show them here -->
@@ -124,8 +127,10 @@
 					</div>
 
 					<div class="form-group">
-						{{ Form::submit('Login',array('class' => 'btn bg-blue btn-block')) }}
+					<!--	{{ Form::submit('Login',array('class' => 'btn bg-blue btn-block')) }}
 						{{--<button type="submit" class="btn bg-blue btn-block">Login <i class="icon-circle-right2 position-right"></i></button>--}}
+					-->
+					<a href="http://localhost:4200" class="btn bg-blue btn-block">Submit</a>
 					</div>
 
 
