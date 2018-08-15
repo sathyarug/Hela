@@ -1,15 +1,15 @@
 <?php
 
 /*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+  |--------------------------------------------------------------------------
+  | Web Routes
+  |--------------------------------------------------------------------------
+  |
+  | Here is where you can register web routes for your application. These
+  | routes are loaded by the RouteServiceProvider within a group which
+  | contains the "web" middleware group. Now create something great!
+  |
+ */
 
 //login
 Route::get('/', 'Auth\LoginController@showLogin');
@@ -91,42 +91,54 @@ Route::prefix('org/section/')->group(function(){
 });
 
 //Cancellation category module
-Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
-Route::get('check_category_code','Org\Cancellation\CancellationCategoryController@checkCode');
-Route::get('get_all_category','Org\Cancellation\CancellationCategoryController@loadData');
-Route::post('save_category','Org\Cancellation\CancellationCategoryController@saveCategory');
-Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit');
-Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
+Route::get('add_category', 'Org\Cancellation\CancellationCategoryController@index');
+Route::get('check_category_code', 'Org\Cancellation\CancellationCategoryController@checkCode');
+Route::get('get_all_category', 'Org\Cancellation\CancellationCategoryController@loadData');
+Route::post('save_category', 'Org\Cancellation\CancellationCategoryController@saveCategory');
+Route::get('edit_category', 'Org\Cancellation\CancellationCategoryController@edit');
+Route::get('delete_category', 'Org\Cancellation\CancellationCategoryController@delete');
 
 //Cancellation Reason module
-Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
-Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
-Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
-Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
-Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
-Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
+Route::get('add_reason', 'Org\Cancellation\CancellationReasonController@index');
+Route::get('check_reason_code', 'Org\Cancellation\CancellationReasonController@checkCode');
+Route::get('get_all_reason', 'Org\Cancellation\CancellationReasonController@loadData');
+Route::post('save_reason', 'Org\Cancellation\CancellationReasonController@saveReason');
+Route::get('edit_reason', 'Org\Cancellation\CancellationReasonController@edit');
+Route::get('delete_reason', 'Org\Cancellation\CancellationReasonController@delete');
 
 //product type Module
-Route::get('add_product_type','Org\ProductTypeController@index');
-Route::get('check_product_type_code','Org\ProductTypeController@checkCode');
-Route::get('get_all_product_type','Org\ProductTypeController@loadData');
-Route::post('save_product_type','Org\ProductTypeController@saveProduct');
-Route::get('edit_product_type','Org\ProductTypeController@edit');
-Route::get('delete_product_type','Org\ProductTypeController@delete');
+Route::get('add_product_type', 'Org\ProductTypeController@index');
+Route::get('check_product_type_code', 'Org\ProductTypeController@checkCode');
+Route::get('get_all_product_type', 'Org\ProductTypeController@loadData');
+Route::post('save_product_type', 'Org\ProductTypeController@saveProduct');
+Route::get('edit_product_type', 'Org\ProductTypeController@edit');
+Route::get('delete_product_type', 'Org\ProductTypeController@delete');
 
 //sample stage Module
-Route::get('add_sample_stage','Org\SampleStageController@index');
-Route::get('check_sample_stage_code','Org\SampleStageController@checkCode');
-Route::get('get_all_sample_stage','Org\SampleStageController@loadData');
-Route::post('save_sample_stage','Org\SampleStageController@saveStage');
-Route::get('edit_sample_stage','Org\SampleStageController@edit');
-Route::get('delete_sample_stage','Org\SampleStageController@delete');
+Route::get('add_sample_stage', 'Org\SampleStageController@index');
+Route::get('check_sample_stage_code', 'Org\SampleStageController@checkCode');
+Route::get('get_all_sample_stage', 'Org\SampleStageController@loadData');
+Route::post('save_sample_stage', 'Org\SampleStageController@saveStage');
+Route::get('edit_sample_stage', 'Org\SampleStageController@edit');
+Route::get('delete_sample_stage', 'Org\SampleStageController@delete');
 
-//Buyer creation module
- Route::get('create_customer','Org\BuyerController@index');
+//customer creation module
+Route::get('create_customer', 'Org\CustomerController@index');
+Route::get('check_customer_code', 'Org\CustomerController@checkCode');
+Route::get('get_all_customers', 'Org\CustomerController@loadData');
+Route::post('save_customer', 'Org\CustomerController@saveCustomer');
+Route::get('edit_customer', 'Org\CustomerController@edit');
+Route::get('delete_customer', 'Org\CustomerController@delete');
+Route::get('load_currency', 'Org\CustomerController@loadCurrency');
+Route::get('load_payemnt_terms', 'Org\CustomerController@loadPayemntTerms');
+//Route::get('Mainlocation.load_country', 'Org\Location\MainLocationController@load_country');
+//DESIGN SHEET & STYLE BRIEF
+Route::get('create_style', 'Org\DesignAndStyleController@index');
+//Item Creation
+Route::get('create_item', 'Org\ItemController@index');
 
 //GRN module
-Route::get('grn_details','GrnController@grnDetails');
+Route::get('grn_details', 'GrnController@grnDetails');
 
 //User Management
 Route::get('admin/register', 'Admin\\UserController@register');
@@ -233,6 +245,42 @@ Route::get('org/property-type/active_list','Org\PropertyTypeController@get_activ
 Route::get('org/location-type/list','Org\LocationTypeController@get_list');
 Route::get('org/location-type/active_list','Org\LocationTypeController@get_active_list');
 
+Route::post('Mainsource.postdata', 'Org\Location\MainSourceController@postdata');
+Route::get('Mainsource.loaddata', 'Org\Location\MainSourceController@loaddata');
+Route::get('Mainsource.check_code', 'Org\Location\MainSourceController@check_code');
+Route::get('Mainsource.edit', 'Org\Location\MainSourceController@edit');
+Route::get('Mainsource.delete', 'Org\Location\MainSourceController@delete');
+Route::get('Mainsource.load_list', 'Org\Location\MainSourceController@select_Source_list');
+
+Route::get('Maincluster.loaddata', 'Org\Location\MainClusterController@loaddata');
+Route::get('Maincluster.check_code', 'Org\Location\MainClusterController@check_code');
+Route::post('Maincluster.postdata', 'Org\Location\MainClusterController@postdata');
+Route::get('Maincluster.edit', 'Org\Location\MainClusterController@edit');
+Route::get('Maincluster.delete', 'Org\Location\MainClusterController@delete');
+
+Route::get('Mainlocation.loaddata', 'Org\Location\MainLocationController@loaddata');
+Route::get('Mainlocation.load_list', 'Org\Location\MainLocationController@select_loc_list');
+Route::get('Mainlocation.load_currency', 'Org\Location\MainLocationController@load_currency');
+Route::get('Mainlocation.load_country', 'Org\Location\MainLocationController@load_country');
+Route::get('Mainlocation.check_code', 'Org\Location\MainLocationController@check_code');
+Route::post('Mainlocation.postdata', 'Org\Location\MainLocationController@postdata');
+Route::get('Mainlocation.edit', 'Org\Location\MainLocationController@edit');
+Route::get('Mainlocation.delete', 'Org\Location\MainLocationController@delete');
+Route::get('Mainlocation.load_section_list', 'Org\Location\MainLocationController@load_section_list');
+Route::post('Mainlocation.save_section', 'Org\Location\MainLocationController@save_section');
+Route::get('Mainlocation.section', 'Org\Location\MainLocationController@edit_load_section');
+Route::get('Mainlocation.load_depat_list', 'Org\Location\MainLocationController@load_depat_list');
+
+Route::get('MainSubLocation.loaddata', 'Org\Location\MainSubLocationController@loaddata');
+Route::get('MainSubLocation.load_list', 'Org\Location\MainSubLocationController@load_list');
+Route::get('MainSubLocation.check_code', 'Org\Location\MainSubLocationController@check_code');
+Route::post('MainSubLocation.postdata', 'Org\Location\MainSubLocationController@postdata');
+Route::get('MainSubLocation.edit', 'Org\Location\MainSubLocationController@edit');
+Route::get('MainSubLocation.delete', 'Org\Location\MainSubLocationController@delete');
+Route::get('MainSubLocation.type_of_loc', 'Org\Location\MainSubLocationController@type_of_loc');
+Route::get('MainSubLocation.load_cost_center', 'Org\Location\MainSubLocationController@load_cost_center');
+Route::get('MainSubLocation.load_property', 'Org\Location\MainSubLocationController@load_property');
+// close add location
 // Department
 Route::get('department', function () { return view('org/department/department'); });
 Route::post('org/department/save','Org\DepartmentController@save_dep');

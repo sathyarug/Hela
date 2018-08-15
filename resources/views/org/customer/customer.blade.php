@@ -53,7 +53,7 @@
         <div class="col-md-12">
             <div class="panel panel-flat">
                 <div class="panel-heading">
-                    <h6 class="panel-title">Customer</h6>
+                    <h6 class="panel-title">Customers</h6>
 
                     <div class="heading-elements">
                         <ul class="icons-list">
@@ -68,18 +68,18 @@
 
                     <div class="tabbable">
                         <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
-                            <li class="active"><a href="#highlighted-justified-tab1" data-toggle="tab">Customer Listing</a></li>
-                            <li><a href="#highlighted-justified-tab2" data-toggle="tab">Customer Creation</a></li>
+                            <li class="active"><a href="#highlighted-justified-tab1" data-toggle="tab">Customers</a></li>
+                            <li><a href="#highlighted-justified-tab2" data-toggle="tab">Customer</a></li>
 
                         </ul>
 
                         <div class="tab-content">
                             <div class="tab-pane active" id="highlighted-justified-tab1">
-                                @include('org/buyer.customer_listing')
+                                @include('org/customer.customer_listing')
                             </div>
 
                             <div class="tab-pane" id="highlighted-justified-tab2">
-                                @include('org/buyer.customer_creation')
+                                @include('org/customer.customer_creation')
                             </div>
 
                         </div>
@@ -120,7 +120,7 @@
 <script type="text/javascript" src="assets/js/plugins/forms/styling/switch.min.js"></script>
 <script type="text/javascript" src="assets/js/plugins/forms/styling/switchery.min.js"></script>
 <script type="text/javascript" src="assets/js/plugins/forms/styling/uniform.min.js"></script>
-<script type="text/javascript" src="js/org/location/add_location_js.js"></script>
+<script type="text/javascript" src="js/customer/customer.js"></script>
 <script type="text/javascript" src="js/application.js"></script>
 
 <script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>

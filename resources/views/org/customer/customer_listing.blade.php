@@ -1,6 +1,5 @@
 <div class="col-md-12">
-
-    <table class="table datatable-basic" id="location_tbl">
+    <table class="table datatable-basic" id="customer_listing_tbl">
         <thead>
             <tr>
                 <th>No</th>
@@ -54,16 +53,66 @@
                 <th>Approved by</th>
                 <th>System updated by</th>
                 <th>Buyer creation form</th>
-                <th>Status</th>
-                <th class="text-center">Actions</th>
+                <th class="text-center">Actions</th>                     
+
+<!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>
+
+
         <tbody>
-            <tr>
-                <td>Marth</td>
-                <td><a href="#">Enright</a></td>
-                <td>Traffic Court Referee</td>
-                <td>22 Jun 1972</td>
+<!--            <tr>
+                <td>No</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
+                <td>Code</td>
                 <td><span class="label label-success">Active</span></td>
                 <td class="text-center">
                     <ul class="icons-list">
@@ -80,52 +129,10 @@
                         </li>
                     </ul>
                 </td>
-            </tr>
-            <tr>
-                <td>Jackelyn</td>
-                <td>Weible</td>
-                <td><a href="#">Airline Transport Pilot</a></td>
-                <td>3 Oct 1981</td>
-                <td><span class="label label-default">Inactive</span></td>
-                <td class="text-center">
-                    <ul class="icons-list">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="icon-menu9"></i>
-                            </a>
+            </tr>-->
+        </tbody>
 
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a href="#"><i class="icon-file-pdf"></i> Export to .pdf</a></li>
-                                <li><a href="#"><i class="icon-file-excel"></i> Export to .csv</a></li>
-                                <li><a href="#"><i class="icon-file-word"></i> Export to .doc</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <td>Aura</td>
-                <td>Hard</td>
-                <td>Business Services Sales Representative</td>
-                <td>19 Apr 1969</td>
-                <td><span class="label label-danger">Suspended</span></td>
-                <td class="text-center">
-                    <ul class="icons-list">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="icon-menu9"></i>
-                            </a>
 
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a href="#"><i class="icon-file-pdf"></i> Export to .pdf</a></li>
-                                <li><a href="#"><i class="icon-file-excel"></i> Export to .csv</a></li>
-                                <li><a href="#"><i class="icon-file-word"></i> Export to .doc</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-
-        </tbody></table>
+    </table>
 
 </div>
