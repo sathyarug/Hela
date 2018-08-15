@@ -38,45 +38,57 @@ Route::get('/icon', function () {
 });
 
 //country routes
-Route::get('add_country','CountryController@index');
-Route::get('get_all_country','CountryController@loaddata');
-Route::get('check_code','CountryController@checkCode');
-Route::post('save_country','CountryController@saveCountry');
-Route::get('edit_country','CountryController@edit');
-Route::get('delete_country','CountryController@delete');
-Route::get('org/country/active_list','CountryController@get_active_list');
+Route::prefix('org/country/')->group(function () {
+  Route::get('add_country','CountryController@index');
+  Route::get('list','CountryController@loaddata');
+  Route::get('check-code','CountryController@check_code');
+  Route::post('save','CountryController@saveCountry');
+  Route::get('get','CountryController@edit');
+  Route::get('change-status','CountryController@delete');
+  Route::get('active_list','CountryController@get_active_list');
+});
+
 
 //Division module
-Route::get('add_division','DivisionController@index');
-Route::get('check_division_code','DivisionController@checkCode');
-Route::get('get_all_division','DivisionController@loadData');
-Route::post('save_division','DivisionController@saveDivision');
-Route::get('edit_division','DivisionController@edit');
-Route::get('delete_division','DivisionController@delete');
+Route::prefix('org/division/')->group(function () {
+  Route::get('add_division','DivisionController@index');
+  Route::get('check-code','DivisionController@check_code');
+  Route::get('list','DivisionController@loadData');
+  Route::post('save','DivisionController@saveDivision');
+  Route::get('get','DivisionController@edit');
+  Route::get('change-status','DivisionController@delete');
+});
+
 
 //Season module
-Route::get('add_season','SeasonController@index');
-Route::get('check_season_code','SeasonController@checkCode');
-Route::get('get_all_season','SeasonController@loadData');
-Route::post('save_season','SeasonController@saveSeason');
-Route::get('edit_season','SeasonController@edit');
-Route::get('delete_season','SeasonController@delete');
+Route::prefix('org/season/')->group(function () {
+  Route::get('add_season','SeasonController@index');
+  Route::get('check-code','SeasonController@check_code');
+  Route::get('list','SeasonController@loadData');
+  Route::post('save','SeasonController@saveSeason');
+  Route::get('get','SeasonController@edit');
+  Route::get('change-status','SeasonController@delete');
+});
 
 //UOM module
-Route::get('add_uom','UomController@index');
-Route::get('check_uom_code','UomController@checkCode');
-Route::get('get_all_uom','UomController@loadData');
-Route::post('save_uom','UomController@saveUom');
-Route::get('edit_uom','UomController@edit');
-Route::get('delete_uom','UomController@delete');
+Route::prefix('org/uom/')->group(function () {
+  Route::get('add_uom','UomController@index');
+  Route::get('check-code','UomController@check_code');
+  Route::get('list','UomController@loadData');
+  Route::post('save','UomController@saveUom');
+  Route::get('get','UomController@edit');
+  Route::get('delete','UomController@delete');
+});
 
 //Section module
-Route::get('add_section','SectionController@index');
-Route::get('check_section_code','SectionController@checkCode');
-Route::get('get_all_section','SectionController@loadData');
-Route::post('save_section','SectionController@saveSection');
-Route::get('edit_section','SectionController@edit');
-Route::get('delete_section','SectionController@delete');
+Route::prefix('org/section/')->group(function(){
+  Route::get('add_section','SectionController@index');
+  Route::get('check-code','SectionController@check_code');
+  Route::get('list','SectionController@loadData');
+  Route::post('save','SectionController@saveSection');
+  Route::get('get','SectionController@edit');
+  Route::get('delete','SectionController@delete');
+});
 
 //Cancellation category module
 Route::get('add_category','Org\Cancellation\CancellationCategoryController@index');
@@ -223,11 +235,11 @@ Route::get('org/location-type/active_list','Org\LocationTypeController@get_activ
 
 // Department
 Route::get('department', function () { return view('org/department/department'); });
-Route::post('Department.save','Org\DepartmentController@save_dep');
-Route::get('Department.check_department','Org\DepartmentController@check_department');
-Route::get('Department.loaddata','Org\DepartmentController@loaddata');
-Route::get('Department.edit','Org\DepartmentController@edit');
-Route::get('Department.delete','Org\DepartmentController@delete');
+Route::post('org/department/save','Org\DepartmentController@save_dep');
+Route::get('org/department/check-code','Org\DepartmentController@check_code');
+Route::get('org/department/list','Org\DepartmentController@loaddata');
+Route::get('org/department/get','Org\DepartmentController@edit');
+Route::get('org/department/change-status','Org\DepartmentController@delete');
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
@@ -274,12 +286,15 @@ Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
 Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
 
 //origin type routes
-Route::get('origin-type-new','Org\OriginTypeController@new');
-Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
-Route::post('origin-type-save','Org\OriginTypeController@save');
-Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
-Route::get('origin-type-get','Org\OriginTypeController@get');
-Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+Route::prefix('org/origin-type/')->group(function(){
+  //Route::get('origin-type-new','Org\OriginTypeController@new');
+  Route::get('check-code','Org\OriginTypeController@check_code');
+  Route::post('save','Org\OriginTypeController@save');
+  Route::get('list','Org\OriginTypeController@get_list');
+  Route::get('get','Org\OriginTypeController@get');
+  Route::get('change-status','Org\OriginTypeController@change_status');
+});
+
 
 //Route::resource('customesizes', 'customesizesController');
 Route::get('customesizes', 'customesizesController@index');
