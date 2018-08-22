@@ -227,4 +227,7 @@ Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
 Route::get('origin-type-get','Org\OriginTypeController@get');
 Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
 
+//style creation
+Route::get('loadPart','Merchandising\StyleCreationController@getList');
+
 //Route::resource('customesizes', 'customesizesController');

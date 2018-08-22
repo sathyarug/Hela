@@ -79,10 +79,10 @@ class SupplierController extends Controller
                 if(count($OrgSupplierCurrencyMapCheck) != 0){
                     $OrgSupplierCurrencyMap = OrgSupplierCurrencyMap::find($OrgSupplierCurrencyMapCheck[0]['supplier_currency_map_id']);
                     $OrgSupplierCurrencyMap->updated_date = 1;
-                    $OrgSupplierCurrencyMap->updated_by = 1;
+                    $OrgSupplierCurrencyMap->updated_by = Auth::id();
                 }else{
                     $OrgSupplierCurrencyMap->created_date = 1;
-                    $OrgSupplierCurrencyMap->created_by = 1;
+                    $OrgSupplierCurrencyMap->created_by = Auth::id();
                 }
                 $OrgSupplierCurrencyMap->supplier_id =$id;
                 $OrgSupplierCurrencyMap->currency_id = $currency;
