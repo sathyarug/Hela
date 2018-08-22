@@ -37,42 +37,53 @@ class CountryController extends Controller {
       }
       } */
 
-    public function loaddata() {
-        $source_list = Country::all();
-        echo json_encode($source_list);
+    public function loaddata(Request $request) {
+      $data = $request->all();
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $country_list = Country::select('*')
+      ->where('country_code'  , 'like', $search.'%' )
+      ->orWhere('country_description'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $country_count = Country::where('country_code'  , 'like', $search.'%' )
+      ->orWhere('country_description'  , 'like', $search.'%' )
+      ->count();
+
+      echo json_encode(array(
+          "draw" => $draw,
+          "recordsTotal" => $country_count,
+          "recordsFiltered" => $country_count,
+          "data" => $country_list
+      ));
     }
 
-    public function checkCode(Request $request) {
-        $count = Country::where('country_code', '=', $request->code)->count();
-
-        if ($request->idcode > 0) {
-
-            $user = Country::where('country_id', $request->idcode)->first();
-
-            if ($user->country_code == $request->code) {
-                $msg = true;
-            } else {
-
-                $msg = 'Already exists. please try another one';
-            }
-        } else {
-
-            if ($count == 1) {
-
-                $msg = 'Already exists. please try another one';
-            } else {
-
-                $msg = true;
-            }
-        }
-        echo json_encode($msg);
+    public function check_code(Request $request)
+    {
+      $country = Country::where('country_code','=',$request->country_code)->first();
+      if($country == null){
+        echo json_encode(array('status' => 'success'));
+      }
+      else if($country->country_id == $request->country_id){
+        echo json_encode(array('status' => 'success'));
+      }
+      else {
+        echo json_encode(array('status' => 'error','message' => 'Country code already exists'));
+      }
     }
 
     public function saveCountry(Request $request) {
         $country = new Country();
         if ($country->validate($request->all())) {
-            if ($request->country_hid > 0) {
-                $country = Country::find($request->country_hid);
+            if ($request->country_id > 0) {
+                $country = Country::find($request->country_id);
                 $country->country_description = $request->country_description;
             } else {
                 $country->fill($request->all());
@@ -101,7 +112,10 @@ class CountryController extends Controller {
         //$source = Main_Source::find($source_id);
         //$source->delete();
         $country = Country::where('country_id', $country_id)->update(['status' => 0]);
-        echo json_encode(array('delete'));
+        echo json_encode(array(
+          'status' => 'success',
+          'message' => 'Country was deactivated successfully.'
+        ));
     }
 
     /* public function delete($id) {
@@ -132,5 +146,13 @@ class CountryController extends Controller {
             return 'false';
         }
     }
+
+    public function get_active_list(Request $request)
+  	{
+  		$search_c = $request->search;
+  		$country_lists = Country::select('country_id','country_code','country_description')
+  		->where([['country_description', 'like', '%' . $search_c . '%'],]) ->get();
+  		return response()->json($country_lists);
+  	}
 
 }

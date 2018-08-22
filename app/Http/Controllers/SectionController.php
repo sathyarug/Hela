@@ -12,42 +12,56 @@ class SectionController extends Controller {
         return view('section.section');
     }
 
-    public function loadData() {
-        $section_list = Section::all();
-        echo json_encode($section_list);
+    public function loadData(Request $request)
+    {
+      $data = $request->all();
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $section_list = Section::select('*')
+      ->where('section_code'  , 'like', $search.'%' )
+      ->orWhere('section_name'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $section_count = Section::where('section_code'  , 'like', $search.'%' )
+      ->orWhere('section_name'  , 'like', $search.'%' )
+      ->count();
+
+      echo json_encode(array(
+          "draw" => $draw,
+          "recordsTotal" => $section_count,
+          "recordsFiltered" => $section_count,
+          "data" => $section_list
+      ));
     }
 
-    public function checkCode(Request $request) {
-        $count = Section::where('section_code', '=', $request->code)->count();
 
-        if ($request->idcode > 0) {
-
-            $user = Section::where('section_id', $request->idcode)->first();
-
-            if ($user->section_code == $request->code) {
-                $msg = true;
-            } else {
-
-                $msg = 'Already exists. please try another one';
-            }
-        } else {
-
-            if ($count == 1) {
-
-                $msg = 'Already exists. please try another one';
-            } else {
-
-                $msg = true;
-            }
-        }
-        echo json_encode($msg);
+    public function check_code(Request $request)
+    {
+      $section = Section::where('section_code','=',$request->section_code)->first();
+      if($section == null){
+        echo json_encode(array('status' => 'success'));
+      }
+      else if($section->section_id == $request->section_id){
+        echo json_encode(array('status' => 'success'));
+      }
+      else {
+        echo json_encode(array('status' => 'error','message' => 'Section code already exists'));
+      }
     }
+
 
     public function saveSection(Request $request) {
         $section = new Section();
         if ($section->validate($request->all())) {
-            if ($request->section_hid > 0) {
-                $section = Section::find($request->section_hid);
+            if ($request->section_id > 0) {
+                $section = Section::find($request->section_id);
                 $section->section_name=$request->section_name;
             } else {
                 $section->fill($request->all());
@@ -75,7 +89,10 @@ class SectionController extends Controller {
         //$source = Main_Source::find($source_id);
         //$source->delete();
         $section = Section::where('section_id', $section_id)->update(['status' => 0]);
-        echo json_encode(array('delete'));
+        echo json_encode(array(
+          'status' => 'success',
+          'message' => 'Division was deactivated successfully.'
+        ));
     }
 
 }

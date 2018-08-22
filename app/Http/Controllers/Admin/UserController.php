@@ -33,6 +33,10 @@ class UserController extends Controller {
         return view('/user/register')->with('data', $data);
     }
 
+    public function user(){
+        return view('/user/user');
+    }
+
     public function store(Request $request)
     {
 
@@ -51,21 +55,53 @@ class UserController extends Controller {
             //Adding user id user login table
             $login->user_id = $profile->user_id;
             $login->save();
-            echo 'Saved';
+            return redirect()->route('admin/user');
         }else{
            $errors = $profile->errors_tostring();
            return $errors;
         }
     }
 
-    public function validateEmpNo(Request $request){
+    public function validateUserName(Request $request){
         $user = User::where('user_name',Input::get('user_name'))->first();
-        if(is_null($user)){
+        if(is_null($user))
             echo json_encode(true);
-        }else{
+        else
             echo json_encode(false);
+    }
 
-        }
+    public function validateEmpNo(Request $request){
+        $emp = UsrProfile::where('emp_number',Input::get('emp_number'))->first();
+        if(is_null($emp))
+            echo json_encode(true);
+        else
+            echo json_encode(false);
+    }
+
+    public function loadReportLevels(Request $request){
+         dd($request); exit;
+        //echo response()->json($posts);
+        $query = $request->get('q','');
+
+        $posts = UsrProfile::where('first_name','LIKE','%'.$query.'%')->limit(5)->get();
+
+        echo json_encode($posts);
+
+    }
+
+    public function getUserList() {
+        //UsrProfile::all()->sortByDesc("created_at")->sortByDesc("status")
+
+        return datatables()->of(DB::table('usr_profile as t1')
+            ->select("t1.user_id", "t1.first_name", "t1.last_name", "t1.emp_number", "t1.email", "t2.dept_name", "t3.desig_name", "t4.loc_name" )
+            ->join("usr_department AS t2", "t1.dept_id", "=", "t2.dept_id")
+            ->join("usr_designation AS t3", "t1.desig_id", "=", "t3.desig_id")
+            ->join("org_location AS t4", "t1.loc_id", "=", "t4.loc_id")
+            ->get())->toJson();
+
+        //return datatables()->query(DB::table('users'))->toJson();
+
+
     }
     
 

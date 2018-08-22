@@ -144,12 +144,7 @@
                 <div class=" col-md-4">
 
                     <label>Supplier Code<span class="text-danger">*</span>:</label>
-                    @if(isset($Supplier->supplier_id))
-                        {{ Form::text('supplier_code',  ($Supplier->supplier_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required','readonly']) }}
-                    @else
-                        {{ Form::text('supplier_code',  ($Supplier->supplier_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required']) }}
-                    @endif
-
+                    {{ Form::text('supplier_code',  ($Supplier->supplier_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required']) }}
                     {{--<input type="text" class="form-control input-xxs" name="supplier-code" id="Supplier_code">--}}
 
                 </div>
@@ -222,9 +217,7 @@
 
                 <div class=" col-md-4">
                     <label>Default currency code<span class="text-danger">*</span></label>
-                    {{ Form::select('currency[]',$currency,  ($CurrencyMap) ?? '', ['class' => 'form-control', 'required' => 'required','multiple','id'=>'permission-field'] ) }}
-                    {{--{{Form::select('currency[]',$currency,null,array('multiple'=>'multiple','name'=>'sports[]'))}}--}}
-                    {{--{{ Form::select('default_currency_code',$currency, ($Supplier->default_currency_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}--}}
+                    {{ Form::select('default_currency_code',$currency, ($Supplier->default_currency_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
 
                 </div>
             </div>
@@ -236,14 +229,14 @@
                 </div>
 
                 <div class=" col-md-4">
-                    <label>Origin</label>
-                    {{ Form::select('origin',$origin, ($Supplier->origin) ?? '', ['class' => 'form-control input-xxs'])  }}
+                    <label>Origin<span class="text-danger">*</span></label>
+                    {{ Form::select('payment_code1',$origin, ($Supplier->origin) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
 
                 </div>
 
                 <div class=" col-md-4">
-                    <label>Shipment Mode</label>
-                    {{ Form::select('shipment_mode',$ShipmentMode, ($Supplier->shipment_mode) ?? '', ['class' => 'form-control input-xxs'])  }}
+                    <label>Default currency code<span class="text-danger">*</span></label>
+                    {{ Form::select('default_currency_code1',$currency, ($Supplier->default_currency_code) ?? '', ['class' => 'form-control input-xxs', 'required' => 'required'])  }}
 
                 </div>
             </div>

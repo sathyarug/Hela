@@ -8,7 +8,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 
 //class User extends BaseValidator
-class User extends Authenticatable
+Class User extends Authenticatable
 {
     use Notifiable;
 

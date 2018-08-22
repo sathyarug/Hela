@@ -12,6 +12,13 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        'test-auth',
+        'sub-category-save',
+		'sub-category-save',
+		'payment-term.save',
+    'Mainlocation.postdata',
+    'MainSubLocation.postdata',
+    'cost-center.save',
+    'payment-method.save'
     ];
 }
