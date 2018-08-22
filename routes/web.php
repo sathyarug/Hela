@@ -245,7 +245,7 @@ Route::get('org/property-type/active_list','Org\PropertyTypeController@get_activ
 Route::get('org/location-type/list','Org\LocationTypeController@get_list');
 Route::get('org/location-type/active_list','Org\LocationTypeController@get_active_list');
 
-Route::post('Mainsource.postdata', 'Org\Location\MainSourceController@postdata');
+/*Route::post('Mainsource.postdata', 'Org\Location\MainSourceController@postdata');
 Route::get('Mainsource.loaddata', 'Org\Location\MainSourceController@loaddata');
 Route::get('Mainsource.check_code', 'Org\Location\MainSourceController@check_code');
 Route::get('Mainsource.edit', 'Org\Location\MainSourceController@edit');
@@ -279,7 +279,7 @@ Route::get('MainSubLocation.edit', 'Org\Location\MainSubLocationController@edit'
 Route::get('MainSubLocation.delete', 'Org\Location\MainSubLocationController@delete');
 Route::get('MainSubLocation.type_of_loc', 'Org\Location\MainSubLocationController@type_of_loc');
 Route::get('MainSubLocation.load_cost_center', 'Org\Location\MainSubLocationController@load_cost_center');
-Route::get('MainSubLocation.load_property', 'Org\Location\MainSubLocationController@load_property');
+Route::get('MainSubLocation.load_property', 'Org\Location\MainSubLocationController@load_property');*/
 // close add location
 // Department
 Route::get('department', function () { return view('org/department/department'); });
