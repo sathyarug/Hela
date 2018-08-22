@@ -344,6 +344,9 @@ Route::prefix('org/origin-type/')->group(function(){
 });
 
 
+//style creation
+Route::get('loadPart','Merchandising\StyleCreationController@getList');
+
 //Route::resource('customesizes', 'customesizesController');
 Route::get('customesizes', 'customesizesController@index');
 Route::get('customesizes/getdivision','customesizesController@GetDivisionsByCustomer');
