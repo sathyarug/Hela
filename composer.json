@@ -11,8 +11,7 @@
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "~5.0",
         "spatie/laravel-permission": "^2.12",
-        "yajra/laravel-datatables-oracle": "~8.0",
-        "tymon/jwt-auth": "1.0.0-rc.1"
+        "yajra/laravel-datatables-oracle": "~8.0"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^3.0",
