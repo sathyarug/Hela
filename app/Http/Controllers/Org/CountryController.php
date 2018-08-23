@@ -14,13 +14,24 @@ class CountryController extends Controller
 {
     public function __construct()
     {
-      $this->middleware('jwt.verify', ['except' => ['list']]);
+      $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
     //Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
-        return CountryResource::collection(Country::all());
+       $type = $request->type;
+       if($type == 'datatable'){
+         $data = $request->all();
+         return response($this->list_for_datatable($data));
+       }
+       else{
+         $status = $request->status;
+         $fields = if($request->fields != null) ? explode($request->fields) : [];
+         $search = $request->search;
+         $this->search();
+       }
+      //  return CountryResource::collection(Country::all());
     }
 
 
@@ -126,8 +137,14 @@ class CountryController extends Controller
 
 
     //search countries
-    public function search(Request $request)
+    private function search($status , $fields , $search)
   	{
+      if($fields == null){
+        $country_lists = Country::select('*')
+    		->where([['country_code', 'like', '%' . $search_c . '%']])
+        ->where([['country_description', 'like', '%' . $search_c . '%']])
+        ->get();
+      }
   		$search_c = $request->search;
   		$country_lists = Country::select('country_id','country_code','country_description')
   		->where([['country_description', 'like', '%' . $search_c . '%'],]) ->get();
@@ -136,9 +153,9 @@ class CountryController extends Controller
 
 
     //get searched countries for datatable plugin format
-    public function list(Request $request)
+    private function list_for_datatable($data)
     {
-      $data = $request->all();
+
       $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
@@ -157,12 +174,12 @@ class CountryController extends Controller
       ->orWhere('country_description'  , 'like', $search.'%' )
       ->count();
 
-      echo json_encode(array(
+      return [
           "draw" => $draw,
           "recordsTotal" => $country_count,
           "recordsFiltered" => $country_count,
           "data" => $country_list
-      ));
+      ];
     }
 
 }
