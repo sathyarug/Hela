@@ -371,3 +371,8 @@ Route::get('itemproperty/load-properties', 'itempropertyController@LoadPropertie
 Route::post('itemproperty/save-assign', 'itempropertyController@SavePropertyAssign');
 Route::get('itemproperty/load-assign-properties', 'itempropertyController@LoadAssignProperties');
 Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUnAssignPropertiesBySubCat');
+
+Route::prefix('finance/item/')->group(function(){    
+    Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
+    Route::get('maincategorylist','Finance\Item\ItemSubCategoryController@get_category_list');
+});
