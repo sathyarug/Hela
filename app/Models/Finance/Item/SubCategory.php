@@ -36,6 +36,11 @@ class SubCategory extends BaseValidator
         return DB::table('item_subcategory')->join('item_category','item_category.category_id','=','item_subcategory.category_id')->select('item_subcategory.*','item_category.category_name')->get();
         
     }
+    
+    public function scopeGetSubCategoryCount(){
+        
+        return DB::table('item_subcategory')->where('status','1')->count();
+    }
 
 
 }
