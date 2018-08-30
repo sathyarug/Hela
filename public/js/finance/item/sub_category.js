@@ -60,7 +60,6 @@
             {
               data: "is_inspectiion_allowed",
               render : function(data){
-                  alert(data);
                 if(data == 1){
                     return '<span class="label label-success">Yes</span>';
                 }
