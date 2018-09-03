@@ -5,19 +5,18 @@ namespace App\Models\Org;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class OrgDepartments extends BaseValidator
+class UOM extends BaseValidator
 {
-  protected $table = 'org_departments';
-    protected $primaryKey = 'dep_id';
+ protected $table = 'org_uom';
+    protected $primaryKey = 'uom_id';
 
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['dep_id', 'dep_code','dep_name'];
+    protected $fillable = ['uom_code', 'uom_description','uom_factor','uom_base_unit','unit_type', 'uom_id'];
     protected $rules = array(
-        
-        'dep_code' => 'required',
-        'dep_name' => 'required'
+        'uom_code' => 'required',
+        'uom_description' => 'required'
     );
 
     public function __construct() {

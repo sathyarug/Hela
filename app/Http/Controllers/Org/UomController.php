@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Department;
+use App\Models\Org\UOM;
 use Exception;
 
-class DepartmentController extends Controller
+class UomController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class DepartmentController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Department list
+    //get UOM list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,73 +40,73 @@ class DepartmentController extends Controller
     }
 
 
-    //create a Department
+    //create a UOM
     public function store(Request $request)
     {
-      $department = new Department();
-      if($department->validate($request->all()))
+      $uom = new UOM();
+      if($uom->validate($request->all()))
       {
-        $department->fill($request->all());
-        $department->status = 1;
-        $department->save();
+        $uom->fill($request->all());
+        $uom->status = 1;
+        $uom->save();
 
         return response([ 'data' => [
-          'message' => 'Department was saved successfully',
-          'department' => $department
+          'message' => 'UOM was saved successfully',
+          'uom' => $uom
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $department->errors();// failure, get errors
+          $errors = $uom->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Department
+    //get a UOM
     public function show($id)
     {
-    // $error = 'Always throw this error';
+    //  $error = 'Always throw this error';
     //  throw new Exception($error);
-      $department = Department::find($id);
-      if($department == null)
-        throw new ModelNotFoundException("Requested department not found", 1);
+      $uom = UOM::find($id);
+      if($uom == null)
+        throw new ModelNotFoundException("Requested UOM not found", 1);
       else
-        return response([ 'data' => $department ]);
+        return response([ 'data' => $uom ]);
     }
 
 
-    //update a Department
+    //update a UOM
     public function update(Request $request, $id)
     {
-      $department = Department::find($id);
-      if($department->validate($request->all()))
+      $uom = UOM::find($id);
+      if($uom->validate($request->all()))
       {
-        $department->fill($request->except('dep_code'));
-        $department->save();
+        $uom->fill($request->except('uom_code'));
+        $uom->save();
 
         return response([ 'data' => [
-          'message' => 'Department was updated successfully',
-          'department' => $department
+          'message' => 'UOM was updated successfully',
+          'uom' => $uom
         ]]);
       }
       else
       {
-        $errors = $department->errors();// failure, get errors
+        $errors = $uom->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Department
+    //deactivate a UOM
     public function destroy($id)
     {
-      $department = Department::where('dep_id', $id)->update(['status' => 0]);
+      $uom = UOM::where('uom_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Department was deactivated successfully.',
-          'department' => $department
+          'message' => 'UOM was deactivated successfully.',
+          'uom' => $uom
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -117,23 +117,23 @@ class DepartmentController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->dep_id , $request->dep_code));
+        return response($this->validate_duplicate_code($request->uom_id , $request->uom_code));
       }
     }
 
 
-    //check Department code already exists
+    //check UOM code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $department = Department::where('dep_code','=',$code)->first();
-      if($department == null){
+      $uom = UOM::where('uom_code','=',$code)->first();
+      if($uom == null){
         return ['status' => 'success'];
       }
-      else if($department->Department_id == $id){
+      else if($uom->uom_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Department code already exists'];
+        return ['status' => 'error','message' => 'UOM code already exists'];
       }
     }
 
@@ -143,11 +143,11 @@ class DepartmentController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Department::select('*');
+        $query = UOM::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Department::select($fields);
+        $query = UOM::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -155,16 +155,16 @@ class DepartmentController extends Controller
       return $query->get();
     }
 
-    //search Department for autocomplete
+    //search UOM for autocomplete
     private function autocomplete_search($search)
   	{
-  		$department_lists = Department::select('dep_id','dep_name')
-  		->where([['dep_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $department_lists;
+  		$uom_lists = UOM::select('uom_id','uom_code')
+  		->where([['uom_code', 'like', '%' . $search . '%'],]) ->get();
+  		return $uom_lists;
   	}
 
 
-    //get searched Departments for datatable plugin format
+    //get searched UOMs for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -175,21 +175,21 @@ class DepartmentController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $dep_list = Department::select('*')
-      ->where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
+      $uom_list = UOM::select('*')
+      ->where('uom_code'  , 'like', $search.'%' )
+      ->orWhere('uom_description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $dep_count = Department::where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
+      $uom_count = UOM::where('uom_code'  , 'like', $search.'%' )
+      ->orWhere('uom_description'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $dep_count,
-          "recordsFiltered" => $dep_count,
-          "data" => $dep_list
+          "recordsTotal" => $uom_count,
+          "recordsFiltered" => $uom_count,
+          "data" => $uom_list
       ];
     }
 

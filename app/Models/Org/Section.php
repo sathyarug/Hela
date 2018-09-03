@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Org;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
 class Section extends BaseValidator
 {
@@ -19,9 +20,6 @@ class Section extends BaseValidator
     );
 
     public function __construct() {
-        parent::__construct();
-        $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
-        );
+        parent::__construct();  
     }
 }

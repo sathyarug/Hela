@@ -20,10 +20,7 @@ class PropertyType extends BaseValidator
 
     public function __construct()
     {
-        parent::__construct();
-        $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
-        );
+        parent::__construct();    
     }
 
 

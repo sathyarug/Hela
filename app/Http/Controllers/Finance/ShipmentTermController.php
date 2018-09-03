@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Finance\Accounting;
+namespace App\Http\Controllers\Finance;
 
 use Exception;
 use Illuminate\Http\Request;
@@ -8,9 +8,9 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Finance\Accounting\PaymentTerm;
+use App\Models\Finance\ShipmentTerm;
 
-class PaymentTermController extends Controller
+class ShipmentTermController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class PaymentTermController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Payment Term list
+    //get shipment term list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -31,7 +31,7 @@ class PaymentTermController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
-      else {
+      else{
         $active = $request->active;
         $fields = $request->fields;
         return response([
@@ -40,53 +40,53 @@ class PaymentTermController extends Controller
       }
     }
 
-    //create a Payment Term
+    //create a shipment term
     public function store(Request $request)
     {
-        $paymentTerm = new PaymentTerm();
-        $paymentTerm->fill($request->all());
-        $paymentTerm->status = 1;
-        $paymentTerm->save();
+        $shipTerm = new ShipmentTerm();
+        $shipTerm->fill($request->all());
+        $shipTerm->status = 1;
+        $shipTerm->save();
 
         return response([ 'data' => [
-          'message' => 'Payment term was saved successfully',
-          'PaymentTerm' => $paymentTerm
+          'message' => 'Shipment term saved successfully',
+          'shipTerm' => $shipTerm
           ]
         ], Response::HTTP_CREATED );
     }
 
-    //get a Payment Term
+    //get shipment term
     public function show($id)
     {
-        $paymentTerm = PaymentTerm::find($id);
-        if($paymentTerm == null)
-          throw new ModelNotFoundException("Requested payment term not found", 1);
+        $shipTerm = ShipmentTerm::find($id);
+        if($shipTerm == null)
+          throw new ModelNotFoundException("Requested shipment term not found", 1);
         else
-          return response( ['data' => $paymentTerm] );
+          return response([ 'data' => $shipTerm ]);
     }
 
 
-    //update a Payment Term
+    //update a shipment term
     public function update(Request $request, $id)
     {
-        $paymentTerm = PaymentTerm::find($id);
-        $paymentTerm->fill( $request->except('payment_code'));
-        $paymentTerm->save();
+        $shipTerm = ShipmentTerm::find($id);
+        $shipTerm->fill($request->except('ship_term_code'));
+        $shipTerm->save();
 
         return response([ 'data' => [
-          'message' => 'Payment term was updated successfully',
-          'PaymentTerm' => $paymentTerm
+          'message' => 'Shipment term updated successfully',
+          'shipTerm' => $shipTerm
         ]]);
     }
 
-    //deactivate a Payment Term
+    //deactivate a ship term
     public function destroy($id)
     {
-        $paymentTerm = PaymentTerm::where('payment_term_id', $id)->update(['status' => 0]);
+        $shipTerm = ShipmentTerm::where('ship_term_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Payment term was deactivated successfully.',
-            'PaymentTerm' => $paymentTerm
+            'message' => 'Shipment term was deactivated successfully.',
+            'shipTerm' => $shipTerm
           ]
         ] , Response::HTTP_NO_CONTENT);
     }
@@ -97,23 +97,23 @@ class PaymentTermController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->payment_term_id , $request->payment_code));
+        return response($this->validate_duplicate_code($request->ship_term_id , $request->ship_term_code));
       }
     }
 
 
-    //check Payment Term code already exists
+    //check shipment cterm code code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $paymentTerm = PaymentTerm::where('payment_code','=',$code)->first();
-      if($paymentTerm == null){
+      $shipTerm = ShipmentTerm::where('ship_term_code','=',$code)->first();
+      if($shipTerm == null){
         return ['status' => 'success'];
       }
-      else if($paymentTerm->payment_term_id == $id){
+      else if($shipTerm->ship_term_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Payment term code already exists'];
+        return ['status' => 'error','message' => 'Ship term code already exists'];
       }
     }
 
@@ -123,11 +123,11 @@ class PaymentTermController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = PaymentTerm::select('*');
+        $query = ShipmentTerm::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = PaymentTerm::select($fields);
+        $query = ShipmentTerm::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -136,16 +136,16 @@ class PaymentTermController extends Controller
     }
 
 
-    //search Payment Terms for autocomplete
+    //search shipment terms for autocomplete
     private function autocomplete_search($search)
   	{
-  		$payment_method_list = PaymentTerm::select('payment_term_id','payment_code')
-  		->where([['payment_code', 'like', '%' . $search . '%'],]) ->get();
-  		return $payment_method_list;
+  		$ship_term_lists = ShipmentTerm::select('ship_term_id','ship_term_code')
+  		->where([['ship_term_code', 'like', '%' . $search . '%'],]) ->get();
+  		return $ship_term_lists;
   	}
 
 
-    //get searched Payment Terms for datatable plugin format
+    //get searched ship terms for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -156,21 +156,21 @@ class PaymentTermController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $payment_method_list = PaymentTerm::select('*')
-      ->where('payment_code'  , 'like', $search.'%' )
-      ->orWhere('payment_description'  , 'like', $search.'%' )
+      $ship_term_list = ShipmentTerm::select('*')
+      ->where('ship_term_code'  , 'like', $search.'%' )
+      ->orWhere('ship_term_description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $payment_method_count = PaymentTerm::where('payment_code'  , 'like', $search.'%' )
-      ->orWhere('payment_description'  , 'like', $search.'%' )
+      $ship_term_count = ShipmentTerm::where('ship_term_code'  , 'like', $search.'%' )
+      ->orWhere('ship_term_description'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $payment_method_count,
-          "recordsFiltered" => $payment_method_count,
-          "data" => $payment_method_list
+          "recordsTotal" => $ship_term_count,
+          "recordsFiltered" => $ship_term_count,
+          "data" => $ship_term_list
       ];
     }
 

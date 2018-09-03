@@ -3,197 +3,221 @@
 namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
-use App\Models\Org\Location\Company;
-use App\Models\Org\Location\Cluster;
-
-use App\Models\Org\CompanySection;
-use App\Models\Org\OrgDepartments;
-use App\Currency;
-use App\Country;
-use App\Section;
-
-
 use App\Http\Controllers\Controller;
+use App\Models\Org\Location\Company;
+use App\Models\Org\Department;
+use App\Models\Org\Section;
 
 class CompanyController extends Controller
 {
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
 
-	public function get_list(Request $request)
-	{
-		$data = $request->all();
-		$start = $data['start'];
-		$length = $data['length'];
-		$draw = $data['draw'];
-		$search = $data['search']['value'];
-		$order = $data['order'][0];
-		$order_column = $data['columns'][$order['column']]['data'];
-		$order_type = $order['dir'];
-
-		$company_list = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
-		->select('org_company.*', 'org_group.group_name')
-		->where('company_code','like',$search.'%')
-		->orWhere('company_name', 'like', $search.'%')
-		->orWhere('group_name', 'like', $search.'%')
-		->orderBy($order_column, $order_type)
-		->offset($start)->limit($length)->get();
-
-		$company_list_count = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
-		->select('org_company.*', 'org_group.group_name')
-		->where('company_code','like',$search.'%')
-		->orWhere('company_name', 'like', $search.'%')
-		->orWhere('group_name', 'like', $search.'%')
-		->count();
-
-		echo json_encode(array(
-				"draw" => $draw,
-				"recordsTotal" => $company_list_count,
-				"recordsFiltered" => $company_list_count,
-				"data" => $company_list
-		));
-
-	}
+    //get Company list
+    public function index(Request $request)
+    {
+      $type = $request->type;
+      if($type == 'datatable')   {
+        $data = $request->all();
+        return response($this->datatable_search($data));
+      }
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
+      }
+    }
 
 
-	public function get_active_list(Request $request)
-	{
-		$search_c = $request->search;
-		$loc_lists = Company::select('company_id','company_code','company_name')
-		->where([['status', '=', '1'],['company_name', 'like', '%' . $search_c . '%'],]) ->get();
-		return response()->json($loc_lists);
-	}
+    //create a Company
+    public function store(Request $request)
+    {
+      $company = new Company();
+      if($company->validate($request->all()))
+      {
+        $company->fill($request->all());
+        $company->status = 1;
+        $company->created_by = 1;
+        $result = $company->saveOrFail();
+        $insertedId = $company->company_id;
+
+        /*DB::table('org_company_departments')->where('company_id', '=', $insertedId)->delete();
+  			$departments = $request->get('departments');
+  			$save_departments = array();
+  			if($departments != '') {
+  	  		foreach($departments as $dep)		{
+  					array_push($save_departments,Department::find($dep['dep_id']));
+  				}
+  			}
+  			$company->departments()->saveMany($save_departments);
+
+        DB::table('org_company_sections')->where('company_id', '=', $insertedId)->delete();
+  			$sections = $request->get('sections');
+  			$save_sections = array();
+  			if($sections != '') {
+  	  		foreach($sections as $sec)		{
+  					array_push($save_sections,Section::find($sec['section_id']));
+  				}
+  			}
+  			$company->sections()->saveMany($save_sections);*/
+
+        return response([ 'data' => [
+          'message' => 'Company was saved successfully',
+          'company' => $company
+          ]
+        ], Response::HTTP_CREATED );
+      }
+      else
+      {
+          $errors = $company->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
 
 
-	public function load_section_list(Request $request)
-	{
-		$search_c = $request->search;
-		$sec_lists = Section::select('section_id','section_code','section_name')
-		->where([['status', '=', '1'],['section_name', 'like', '%' . $search_c . '%'],]) ->get();
-		return response()->json(['items'=>$sec_lists]);
-	}
+    //get a Company
+    public function show($id)
+    {
+      $company = Company::find($id);
+      if($company == null)
+        throw new ModelNotFoundException("Requested company not found", 1);
+      else
+        return response([ 'data' => $company ]);
+    }
 
 
-	public function load_depat_list(Request $request)
-	{
-		$search_c = $request->search;
-		$dep_lists = OrgDepartments::select('dep_id','dep_code','dep_name')
-		->where([['dep_name', 'like', '%' . $search_c . '%'],]) ->get();
-		return response()->json(['items'=>$dep_lists]);
-	}
+    //update a Company
+    public function update(Request $request, $id)
+    {
+      $company = Company::find($id);
+      if($company->validate($request->all()))
+      {
+        $company->fill($request->except('company_code'));
+        $company->save();
+
+        return response([ 'data' => [
+          'message' => 'Company was updated successfully',
+          'company' => $company
+        ]]);
+      }
+      else
+      {
+        $errors = $company->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
 
 
-	public function check_code(Request $request)
-	{
-		$company = Company::where('company_code','=',$request->company_code)->first();
-		if($company == null){
-			echo json_encode(array('status' => 'success'));
-		}
-		else if($company->company_id == $request->company_id){
-			echo json_encode(array('status' => 'success'));
-		}
-		else {
-			echo json_encode(array('status' => 'error','message' => 'Company code already exists'));
-		}
-	}
+    //deactivate a Company
+    public function destroy($id)
+    {
+      $company = Company::where('company_id', $id)->update(['status' => 0]);
+      return response([
+        'data' => [
+          'message' => 'Company was deactivated successfully.',
+          'company' => $company
+        ]
+      ] , Response::HTTP_NO_CONTENT);
+    }
 
 
-	public function save(Request $request)
-	{
-		$company = new Company();
-		if ($company->validate($request->all()))
-		{
-			if($request->company_id > 0){
-				$company = Company::find($request->company_id);
-			}
-			$company->fill($request->all());
-			$company->status = 1;
-			$company->created_by = 1;
-			$result = $company->saveOrFail();
-			$insertedId = $company->company_id;
-
-			DB::table('org_company_departments')->where('company_id', '=', $insertedId)->delete();
-
-			$departments = $request->get('departments');
-			$save_departments = array();
-			if($departments != '') {
-	  		foreach($departments as $dep)		{
-					array_push($save_departments,OrgDepartments::find($dep['dep_id']));
-				}
-			}
-			$company->departments()->saveMany($save_departments);
-
-			DB::table('org_company_sections')->where('company_id', '=', $insertedId)->delete();
-
-			$sections = $request->get('sections');
-			$save_sections = array();
-			if($sections != '') {
-	  		foreach($sections as $sec)		{
-					array_push($save_sections,Section::find($sec['section_id']));
-				}
-			}
-			$company->sections()->saveMany($save_sections);
-
-			echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
-		}
-		else
-		{
-      // failure, get errors
-			$errors = $company->errors_tostring();
-			echo json_encode(array('status' => 'error' , 'message' => $errors));
-		}
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_code($request->company_id , $request->company_code));
+      }
+    }
 
 
-	}
+    //check Company code already exists
+    private function validate_duplicate_code($id , $code)
+    {
+      $company = Company::where('company_code','=',$code)->first();
+      if($company == null){
+        return ['status' => 'success'];
+      }
+      else if($company->company_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Company code already exists'];
+      }
+    }
 
 
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Company::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Company::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
+    }
 
-	public function get_company(Request $request)
-	{
-		$company = Company::with(['departments','sections','currency','country'])->find($request->company_id);
-		echo json_encode($company);
-	/*	$loc_id = $request->loc_id;
-		$cluster = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
-		->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
-		->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
-		->select('org_company.*', 'org_group.group_code', 'org_group.group_name', 'org_country.country_description',
-				'fin_currency.currency_id' ,'fin_currency.currency_description')
-		->where('org_company.company_id', '=', $loc_id)->get();*/
-
-
-	/*	$load_mul = [];OrgCompanySection::join('org_section', 'org_company_section.section_id', '=', 'org_section.section_id')
-		 	->select('org_company_section.*', 'org_section.section_name')
-		 	->where([
-		 			['org_company_section.status', '=', '1'],
-		 			['org_company_section.company_id', '=', $loc_id]
-					])->get();*/
-
-		/*$load_dep = [];OrgCompanyDepartments::join('org_departments', 'org_company_departments.com_dep_name', '=', 'org_departments.dep_id')
-		 	->select('org_company_departments.*', 'org_departments.dep_name')
-		 	->where([
-		 			['org_company_departments.status', '=', '1'],
-		 			['org_company_departments.company_id', '=', $loc_id]
-					])->get();*/
-
-		//echo json_encode(array('com_hed' => $cluster,'multi' => $load_mul,'dep' => $load_dep));
-	}
+    //search Company for autocomplete
+    private function autocomplete_search($search)
+  	{
+  		$company_lists = Company::select('company_id','comapny_name')
+  		->where([['comapny_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $company_lists;
+  	}
 
 
-	public function change_status(Request $request)
-	{
-		$loc_id = $request->loc_id;
+    //get searched Companys for datatable plugin format
+    private function datatable_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
 
-		$cluster = Company::where('company_id', $loc_id)->update(['status' => 0]);
-		echo json_encode(array('delete'));
-	}
+      $company_list = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
+  		->select('org_company.*', 'org_group.group_name')
+  		->where('company_code','like',$search.'%')
+  		->orWhere('company_name', 'like', $search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->orderBy($order_column, $order_type)
+  		->offset($start)->limit($length)->get();
 
+  		$company_count = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
+  		->select('org_company.*', 'org_group.group_name')
+  		->where('company_code','like',$search.'%')
+  		->orWhere('company_name', 'like', $search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->count();
 
-   public function test(){
-		 $company = Company::with(['departments','currency','country'])->find(14);
-		 echo json_encode($company);
-		 /*foreach ($company->departments as $role) {
-     	echo json_encode($role);
-		}*/
-	 }
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $company_count,
+          "recordsFiltered" => $company_count,
+          "data" => $company_list
+      ];
+    }
 
 }

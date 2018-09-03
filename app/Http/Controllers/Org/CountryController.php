@@ -14,32 +14,34 @@ class CountryController extends Controller
 {
     public function __construct()
     {
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => []]);
     }
 
     //Display a listing of the resource.
     public function index(Request $request)
     {
        $type = $request->type;
-       if($type == 'datatable'){
+
+       if($type == 'datatable')   {
          $data = $request->all();
-         return response($this->list_for_datatable($data));
+         return response($this->datatable_search($data));
+       }
+       else if($type == 'auto')    {
+         $search = $request->search;
+         return response($this->autocomplete_search($search));
        }
        else{
-         $status = $request->status;
-         $fields = if($request->fields != null) ? explode($request->fields) : [];
-         $search = $request->search;
-         $this->search();
+         return response([]);
        }
-      //  return CountryResource::collection(Country::all());
     }
 
 
     //create new country
     public function store(Request $request)
     {
-      try {
-
+      try
+      {
           $country = new Country();
           $country->country_code = $request->country_code;
           $country->country_description = $request->country_description;
@@ -47,15 +49,18 @@ class CountryController extends Controller
           $country->save();
 
           return response([
-            'status' => 'success',
-            'message' => 'Country updated successfully',
-            'country' => $country
+            'data' => [
+              'message' => 'Country updated successfully',
+              'country' => $country
+            ]
           ] , Response::HTTP_CREATED );
 
       } catch (Exception $e) {
           return response([
-            'status' => 'error',
-            'message' => 'Country updating process error'
+            'errors' => [
+              'userMessage' => 'Error occured while creating country',
+              'internalMessage' => $e
+            ]
           ] , Response::HTTP_INTERNAL_SERVER_ERROR);
       }
     }
@@ -68,12 +73,15 @@ class CountryController extends Controller
         {
           $country = Country::find($id);
           if($country == null)
-            return response( ['data' => []] , Response::HTTP_NOT_FOUND );
+            return response( ['data' => 'Requested country not found'] , Response::HTTP_NOT_FOUND );
           else
             return response( ['data' => $country] );
         }
-        catch(Exception $e){
-          return response( ['data' => $country] , Response::HTTP_INTERNAL_SERVER_ERROR);
+        catch(Exception $e) {
+          return response( ['errors' => [
+              'userMessage' => 'Error occured finding requested country',
+              'internalMessage' => $e
+            ] ] , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -87,16 +95,18 @@ class CountryController extends Controller
           $country->save();
 
           return response([
-            'status' => 'success',
-            'message' => 'Country saved successfully',
-            'country' => $country
+            'data' => [
+              'message' => 'Country saved successfully',
+              'country' => $country
+            ]
           ]);
 
       } catch (Exception $e) {
-          return response([
-            'status' => 'error',
-            'message' => 'Country saving process error'
-          ] , Response::HTTP_INTERNAL_SERVER_ERROR);
+        return response([ 'errors' => [
+          'userMessage' => 'Error occured updating country',
+          'internalMessage' => $e
+          ]
+        ] , Response::HTTP_INTERNAL_SERVER_ERROR);
       }
     }
 
@@ -107,27 +117,51 @@ class CountryController extends Controller
       try{
         $country = Country::where('country_id', $id)->update(['status' => 0]);
         return response([
-          'status' => 'success',
-          'message' => 'Country was deactivated successfully.'
+          'data' => [
+            'message' => 'Country was deactivated successfully',
+            'country' => $country
+          ]
         ]);
       }
       catch(Exception $e){
         return response([
-          'status' => 'error',
-          'message' => ''
+          'errors' => [
+            'userMessage' => 'Error occured while deleting country',
+            'internalMessage' => $e
+            ]
+        ] , Response::HTTP_INTERNAL_SERVER_ERROR);
+      }
+    }
+
+
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      try{
+        $for = $request->for;
+        if($for == 'duplicate')
+        {
+          return response($this->validate_duplicate_code($request->goods_type_id , $request->goods_type_description));
+        }
+      }
+      catch(Exception $e){
+        return response([
+          'errors' => [
+            'userMessage' => 'Error occured while validating',
+            'internalMessage' => $e
+            ]
         ] , Response::HTTP_INTERNAL_SERVER_ERROR);
       }
     }
 
 
     //check country code
-    public function check_code(Request $request)
+    public function validate_duplicate_code($country_id , $country_code)
     {
-      $country = Country::where('country_code','=',$request->country_code)->first();
+      $country = Country::where('country_code','=',$country_code)->first();
       if($country == null){
         return response(['status' => 'success']);
       }
-      else if($country->country_id == $request->country_id){
+      else if($country->country_id == $country_id){
         return response(['status' => 'success']);
       }
       else {
@@ -136,24 +170,18 @@ class CountryController extends Controller
     }
 
 
-    //search countries
-    private function search($status , $fields , $search)
+    //search countries for autocomplete
+    private function autocomplete_search($search)
   	{
-      if($fields == null){
-        $country_lists = Country::select('*')
-    		->where([['country_code', 'like', '%' . $search_c . '%']])
-        ->where([['country_description', 'like', '%' . $search_c . '%']])
-        ->get();
-      }
-  		$search_c = $request->search;
   		$country_lists = Country::select('country_id','country_code','country_description')
-  		->where([['country_description', 'like', '%' . $search_c . '%'],]) ->get();
-  		return response()->json($country_lists);
+  		->where([['country_description', 'like', '%' . $search . '%'],])
+      ->get();
+  		return $country_lists;
   	}
 
 
     //get searched countries for datatable plugin format
-    private function list_for_datatable($data)
+    private function datatable_search($data)
     {
 
       $start = $data['start'];
