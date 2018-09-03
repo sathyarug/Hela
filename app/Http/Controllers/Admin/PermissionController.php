@@ -4,31 +4,31 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
 //use App\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
 use Spatie\Permission\Models\Permission;
 
-class PermissionController extends Controller
-{
+class PermissionController extends Controller {
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
-    {
-        $keyword = $request->get('search');
-        $perPage = 25;
+    public function index(Request $request) {
+        /* $keyword = $request->get('search');
+          $perPage = 25;
 
-        if (!empty($keyword)) {
-            $permission = Permission::where('name', 'LIKE', "%$keyword%")
-                ->latest()->paginate($perPage);
-        } else {
-            $permission = Permission::latest()->paginate($perPage);
-        }
+          if (!empty($keyword)) {
+          $permission = Permission::where('name', 'LIKE', "%$keyword%")
+          ->latest()->paginate($perPage);
+          } else {
+          $permission = Permission::latest()->paginate($perPage);
+          } */
 
-        return view('admin.permission.index', compact('permission'));
+        //return view('admin.permission.index', compact('permission'));
+        return view('admin.permission.index');
     }
 
     /**
@@ -36,9 +36,9 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
-    {
-        return view('admin.permission.create');
+    public function create() {
+        //return view('admin.permission.create');
+        return view('admin.permission.edit');
     }
 
     /**
@@ -48,14 +48,18 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
-    {
-        
-        $requestData = $request->all();
-        
-        Permission::create($requestData);
+    public function store(Request $request) {
 
-        return redirect('admin/permission')->with('flash_message', 'Permission added!');
+        $requestData = $request->all();
+        $requestData['created_by'] = 1;//Auth::id();
+        
+        if (Permission::create($requestData)) {
+            echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
+        } else {
+            echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
+        }
+
+        //return redirect('admin/permission')->with('flash_message', 'Permission added!');
     }
 
     /**
@@ -65,10 +69,8 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function show($id)
-    {
+    public function show($id) {
         $permission = Permission::findOrFail($id);
-
         return view('admin.permission.show', compact('permission'));
     }
 
@@ -79,10 +81,8 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         $permission = Permission::findOrFail($id);
-
         return view('admin.permission.edit', compact('permission'));
     }
 
@@ -94,15 +94,21 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
-    {
-        
+    public function update(Request $request, $id) {
+
         $requestData = $request->all();
+        $requestData['updated_by'] = 1;//Auth::id();
         
         $permission = Permission::findOrFail($id);
-        $permission->update($requestData);
 
-        return redirect('admin/permission')->with('flash_message', 'Permission updated!');
+        if ($permission) {
+            $permission->update($requestData);
+            echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
+        } else {
+            echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
+        }
+
+        //return redirect('admin/permission')->with('flash_message', 'Permission updated!');
     }
 
     /**
@@ -112,10 +118,37 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
-    {
-        Permission::destroy($id);
-
-        return redirect('admin/permission')->with('flash_message', 'Permission deleted!');
+    public function destroy($id) {
+        if (Permission::destroy($id)) {
+            echo json_encode(array('status' => 'success', 'message' => 'Permission deleted successfully.'));
+        } else {
+            echo json_encode(array('status' => 'error', 'message' => 'Failed deletion!'));
+        }
+        //return redirect('admin/permission')->with('flash_message', 'Permission deleted!');
     }
+
+    public function getList() {
+        return datatables()->of(Permission::all())->toJson();
+    }
+
+    public function checkName() {
+        $id = Input::get('id');
+        $name = Input::get('name');
+
+
+        if ($id) {
+            if (Permission::where([['name', '=', $name], ['id', '<>', $id]])->exists()) {
+                echo 'true';
+            } else {
+                echo 'false';
+            }
+        } else {
+            if (Permission::where('name', '=', $name)->exists()) {
+                echo 'true';
+            } else {
+                echo 'false';
+            }
+        }
+    }
+
 }
