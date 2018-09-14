@@ -1,23 +1,23 @@
 var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-var role_tbl;
+var permission_tbl;
 
 $(function () {
 
-    role_tbl = $('#role_tbl').DataTable({
+    permission_tbl = $('#permission_tbl').DataTable({
         autoWidth: false,
         "processing": true,
         "serverSide": true,
         "order": [[1, "asc"]],
         "ajax": {
-            url: "/admin/role/getList",
+            url: "/admin/permission/getList",
             data: {'_token': X_CSRF_TOKEN},
             type: 'POST'
         },
         columns: [
             {data: "id",
                 render: function (data) {
-                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" onclick="addEditRole(' + data + ')">\n\
- </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" onclick="delete_role(' + data + ')"></i>';
+                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" onclick="addEditPermission(' + data + ')">\n\
+ </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" onclick="delete_permission(' + data + ')"></i>';
                     return str;
                 }
             },
@@ -34,36 +34,36 @@ $(function () {
 });
 
 
-function addEditRole(id) {
+function addEditPermission(id) {
     if (id == 0) {
         action = 'create';
     } else {
         action = id + '/edit';
     }
-    $('#show_role .modal-body').html("Loading...");
-    $('#show_role').modal();
+    $('#show_permission .modal-body').html("Loading...");
+    $('#show_permission').modal();
 
-    $("#show_role .modal-content").load("/admin/role/" + action, function (responseTxt, statusTxt, xhr) {
+    $("#show_permission .modal-content").load("/admin/permission/" + action, function (responseTxt, statusTxt, xhr) {
         if (statusTxt == "success") {
             $('.modal-backdrop').resize();
         }
     });
 }
 
-function add_edit_role() {
+function add_edit_permission() {
     $.ajax({
-        url: $("#role_form").attr('action'),
+        url: $("#permission_form").attr('action'),
         async: false,
         type: "POST",
-        data: $("#role_form").serialize(),
+        data: $("#permission_form").serialize(),
         dataType: "json",
         success: function (res)
         {
             if (res.status === 'success')
             {
                 app_alert('success', res.message);
-                $('#show_role').modal('toggle');
-                role_tbl.ajax.reload(null, false); // reload datatabe
+                $('#show_permission').modal('toggle');
+                permission_tbl.ajax.reload(null, false); // reload datatabe
 
             } else {
                 app_alert('error', res.message);
@@ -73,7 +73,9 @@ function add_edit_role() {
     });
 }
 
-function delete_role(id) {
+
+
+function delete_permission(id) {
     swal({
         title: "Are you sure?",
         text: "You will not be able to recover this source file!",
@@ -89,7 +91,7 @@ function delete_role(id) {
                 if (isConfirm) {
 
                     $.ajax({
-                        url: '/admin/role/' + id,
+                        url: '/admin/permission/' + id,
                         type: 'delete',
                         data: {'_token': X_CSRF_TOKEN},
                         dataType: 'json',
@@ -97,7 +99,7 @@ function delete_role(id) {
                             if (res.status === 'success')
                             {
                                 app_alert('success', res.message);
-                                role_tbl.ajax.reload(null, false);
+                                permission_tbl.ajax.reload(null, false);
                             } else {
                                 app_alert('error', res.message);
                             }

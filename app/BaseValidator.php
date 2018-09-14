@@ -10,6 +10,29 @@ class BaseValidator extends Model
     protected $errors;
     protected $errors_str;
 
+
+    public static function boot()
+    {
+        static::creating(function ($model) {
+          $user = auth()->user();
+          $model->created_by = $user->user_id;
+          $model->updated_by = $user->user_id;
+        });
+
+        static::updating(function ($model) {
+            $user = auth()->user();
+            $model->updated_by = $user->user_id;
+        });
+
+        /*static::deleting(function ($model) {
+            // bluh bluh
+        });*/
+
+        parent::boot();
+    }
+
+
+
     public function validate($data)
     {
         // make a new validator object
@@ -30,7 +53,7 @@ class BaseValidator extends Model
     {
         return $this->errors;
     }
-    
+
     public function errors_tostring(){
         return $this->errors_str;
     }

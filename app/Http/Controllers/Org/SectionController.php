@@ -7,10 +7,9 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Department;
-use Exception;
+use App\Models\Org\Section;
 
-class DepartmentController extends Controller
+class SectionController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +17,7 @@ class DepartmentController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Department list
+    //get Section list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,73 +39,71 @@ class DepartmentController extends Controller
     }
 
 
-    //create a Department
+    //create a Section
     public function store(Request $request)
     {
-      $department = new Department();
-      if($department->validate($request->all()))
+      $section = new Section();
+      if($section->validate($request->all()))
       {
-        $department->fill($request->all());
-        $department->status = 1;
-        $department->save();
+        $section->fill($request->all());
+        $section->status = 1;
+        $section->save();
 
         return response([ 'data' => [
-          'message' => 'Department was saved successfully',
-          'department' => $department
+          'message' => 'Section was saved successfully',
+          'section' => $section
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $department->errors();// failure, get errors
+          $errors = $section->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Department
+    //get a Section
     public function show($id)
     {
-    // $error = 'Always throw this error';
-    //  throw new Exception($error);
-      $department = Department::find($id);
-      if($department == null)
-        throw new ModelNotFoundException("Requested department not found", 1);
+      $section = Section::find($id);
+      if($section == null)
+        throw new ModelNotFoundException("Requested section not found", 1);
       else
-        return response([ 'data' => $department ]);
+        return response([ 'data' => $section ]);
     }
 
 
-    //update a Department
+    //update a Section
     public function update(Request $request, $id)
     {
-      $department = Department::find($id);
-      if($department->validate($request->all()))
+      $section = Section::find($id);
+      if($section->validate($request->all()))
       {
-        $department->fill($request->except('dep_code'));
-        $department->save();
+        $section->fill($request->except('section_code'));
+        $section->save();
 
         return response([ 'data' => [
-          'message' => 'Department was updated successfully',
-          'department' => $department
+          'message' => 'Section was updated successfully',
+          'section' => $section
         ]]);
       }
       else
       {
-        $errors = $department->errors();// failure, get errors
+        $errors = $section->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Department
+    //deactivate a Section
     public function destroy($id)
     {
-      $department = Department::where('dep_id', $id)->update(['status' => 0]);
+      $section = Section::where('section_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Department was deactivated successfully.',
-          'department' => $department
+          'message' => 'Section was deactivated successfully.',
+          'section' => $section
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -117,23 +114,23 @@ class DepartmentController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->dep_id , $request->dep_code));
+        return response($this->validate_duplicate_code($request->section_id , $request->section_code));
       }
     }
 
 
-    //check Department code already exists
+    //check Section code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $department = Department::where('dep_code','=',$code)->first();
-      if($department == null){
+      $section = Section::where('section_code','=',$code)->first();
+      if($section == null){
         return ['status' => 'success'];
       }
-      else if($department->Department_id == $id){
+      else if($section->section_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Department code already exists'];
+        return ['status' => 'error','message' => 'Section code already exists'];
       }
     }
 
@@ -143,11 +140,11 @@ class DepartmentController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Department::select('*');
+        $query = Section::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Department::select($fields);
+        $query = Section::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -155,16 +152,16 @@ class DepartmentController extends Controller
       return $query->get();
     }
 
-    //search Department for autocomplete
+    //search Section for autocomplete
     private function autocomplete_search($search)
   	{
-  		$department_lists = Department::select('dep_id','dep_name')
-  		->where([['dep_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $department_lists;
+  		$section_lists = Section::select('section_id','section_name')
+  		->where([['section_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $section_lists;
   	}
 
 
-    //get searched Departments for datatable plugin format
+    //get searched Sections for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -175,21 +172,21 @@ class DepartmentController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $dep_list = Department::select('*')
-      ->where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
+      $section_list = Section::select('*')
+      ->where('section_code'  , 'like', $search.'%' )
+      ->orWhere('section_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $dep_count = Department::where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
+      $section_count = Section::where('section_code'  , 'like', $search.'%' )
+      ->orWhere('section_name'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $dep_count,
-          "recordsFiltered" => $dep_count,
-          "data" => $dep_list
+          "recordsTotal" => $section_count,
+          "recordsFiltered" => $section_count,
+          "data" => $section_list
       ];
     }
 

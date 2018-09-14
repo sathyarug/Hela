@@ -38,7 +38,7 @@ Route::get('/icon', function () {
 });
 
 //country routes
-Route::prefix('org/country/')->group(function () {
+/*Route::prefix('org/country/')->group(function () {
   Route::get('add_country','CountryController@index');
   Route::get('list','CountryController@loaddata');
   Route::get('check-code','CountryController@check_code');
@@ -46,7 +46,7 @@ Route::prefix('org/country/')->group(function () {
   Route::get('get','CountryController@edit');
   Route::get('change-status','CountryController@delete');
   Route::get('active_list','CountryController@get_active_list');
-});
+});*/
 
 
 //Division module
@@ -82,14 +82,14 @@ Route::prefix('org/uom/')->group(function () {
 });
 
 //Section module
-Route::prefix('org/section/')->group(function(){
+/*Route::prefix('org/section/')->group(function(){
   Route::get('add_section','SectionController@index');
   Route::get('check-code','SectionController@check_code');
   Route::get('list','SectionController@loadData');
   Route::post('save','SectionController@saveSection');
   Route::get('get','SectionController@edit');
   Route::get('delete','SectionController@delete');
-});
+});*/
 
 //Cancellation category module
 Route::get('add_category', 'Org\Cancellation\CancellationCategoryController@index');
@@ -124,14 +124,14 @@ Route::get('edit_sample_stage', 'Org\SampleStageController@edit');
 Route::get('delete_sample_stage', 'Org\SampleStageController@delete');
 
 //customer creation module
-Route::get('create_customer', 'Org\CustomerController@index');
+/*Route::get('create_customer', 'Org\CustomerController@index');
 Route::get('check_customer_code', 'Org\CustomerController@checkCode');
 Route::get('get_all_customers', 'Org\CustomerController@loadData');
 Route::post('save_customer', 'Org\CustomerController@saveCustomer');
 Route::get('edit_customer', 'Org\CustomerController@edit');
 Route::get('delete_customer', 'Org\CustomerController@delete');
 Route::get('load_currency', 'Org\CustomerController@loadCurrency');
-Route::get('load_payemnt_terms', 'Org\CustomerController@loadPayemntTerms');
+Route::get('load_payemnt_terms', 'Org\CustomerController@loadPayemntTerms');*/
 //Route::get('Mainlocation.load_country', 'Org\Location\MainLocationController@load_country');
 //DESIGN SHEET & STYLE BRIEF
 Route::get('create_style', 'Org\DesignAndStyleController@index');
@@ -158,67 +158,67 @@ Route::get('register', function () {
 Route::post('register-user', 'UserController@store');
 
 //currency routes
-Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
+/*Route::get('currency.new',['uses' => 'CurrencyController@new_currency']);
 Route::post('currency.save','CurrencyController@save');
 Route::get('currency.get_currency_list','CurrencyController@get_currency_list');
 Route::get('org/currency/active-list','CurrencyController@get_active_list');
-Route::get('currency.get','CurrencyController@get_currency');
+Route::get('currency.get','CurrencyController@get_currency');*/
 
 Route::get('accounting-rules', function () { return view('finance/accounting/accounting_rules'); });
 
 //payment term routes
 //Route::get('payment-term.new','Finance\Accounting\PaymentTermController@new_payment_term');
-Route::get('finance/accounting/payment-term/check-code','Finance\Accounting\PaymentTermController@check_code');
+/*Route::get('finance/accounting/payment-term/check-code','Finance\Accounting\PaymentTermController@check_code');
 Route::post('finance/accounting/payment-term/save','Finance\Accounting\PaymentTermController@save');
 Route::get('finance/accounting/payment-term/list','Finance\Accounting\PaymentTermController@get_list');
 Route::get('finance/accounting/payment-term/get','Finance\Accounting\PaymentTermController@get_payment_term');
-Route::get('finance/accounting/payment-term/change-status','Finance\Accounting\PaymentTermController@change_status');
+Route::get('finance/accounting/payment-term/change-status','Finance\Accounting\PaymentTermController@change_status');*/
 
 //payment term routes
 //Route::get('payment-method.new','Finance\Accounting\PaymentMethodController@new_payment_term');
-Route::post('finance/accounting/payment-method/save','Finance\Accounting\PaymentMethodController@save');
+/*Route::post('finance/accounting/payment-method/save','Finance\Accounting\PaymentMethodController@save');
 Route::get('finance/accounting/payment-method/check-code','Finance\Accounting\PaymentMethodController@check_code');
 Route::get('finance/accounting/payment-method/list','Finance\Accounting\PaymentMethodController@get_list');
 Route::get('finance/accounting/payment-method/get','Finance\Accounting\PaymentMethodController@get_payment_method');
-Route::get('finance/accounting/payment-method/change-status','Finance\Accounting\PaymentMethodController@change_status');
+Route::get('finance/accounting/payment-method/change-status','Finance\Accounting\PaymentMethodController@change_status');*/
 
 //cost center routes
 //Route::get('cost-center.new','Finance\Accounting\CostCenterController@new');
-Route::post('finance/accounting/cost-center/save','Finance\Accounting\CostCenterController@save');
+/*Route::post('finance/accounting/cost-center/save','Finance\Accounting\CostCenterController@save');
 Route::get('finance/accounting/cost-center/check-code','Finance\Accounting\CostCenterController@check_code');
 Route::get('finance/accounting/cost-center/list','Finance\Accounting\CostCenterController@get_list');
 Route::get('finance/accounting/cost-center/get','Finance\Accounting\CostCenterController@get');
 Route::get('finance/accounting/cost-center/change-status','Finance\Accounting\CostCenterController@change_status');
-Route::get('finance/accounting/cost-center/active_list','Finance\Accounting\CostCenterController@get_active_list');
+Route::get('finance/accounting/cost-center/active_list','Finance\Accounting\CostCenterController@get_active_list');*/
 
 // add location
 
 //Route::get('add_location', function () { return view('org/location/add_location'); });
 //Source routes
-Route::post('org/source/save','Org\Location\SourceController@save');
+/*Route::post('org/source/save','Org\Location\SourceController@save');
 Route::get('org/source/list','Org\Location\SourceController@get_list');
 Route::get('org/source/check-code','Org\Location\SourceController@check_code');
 Route::get('org/source/edit','Org\Location\SourceController@edit');
 Route::get('org/source/change-status','Org\Location\SourceController@change_status');
 Route::get('org/source/active-list','Org\Location\SourceController@get_active_source_list');
-Route::get('org/source/change-status','Org\Location\SourceController@change_status');
+Route::get('org/source/change-status','Org\Location\SourceController@change_status');*/
 
 //cluster routes
-Route::post('org/cluster/save','Org\Location\ClusterController@save');
+/*Route::post('org/cluster/save','Org\Location\ClusterController@save');
 Route::get('org/cluster/list','Org\Location\ClusterController@get_list');
 Route::get('org/cluster/check-code','Org\Location\ClusterController@check_code');
 Route::get('org/cluster/get','Org\Location\ClusterController@get');
 Route::get('org/cluster/change-status','Org\Location\ClusterController@change_status');
-Route::get('org/cluster/active_list','Org\Location\ClusterController@get_active_list');
+Route::get('org/cluster/active_list','Org\Location\ClusterController@get_active_list');*/
 
-Route::get('org/company/list','Org\Location\CompanyController@get_list');
+/*Route::get('org/company/list','Org\Location\CompanyController@get_list');
 Route::get('org/company/check-code','Org\Location\CompanyController@check_code');
 Route::post('org/company/save','Org\Location\CompanyController@save');
 Route::get('org/company/get','Org\Location\CompanyController@get_company');
 Route::get('org/company/depat_list','Org\Location\CompanyController@load_depat_list');
 Route::get('org/company/section-list','Org\Location\CompanyController@load_section_list');
 Route::get('org/company/change-status','Org\Location\CompanyController@change_status');
-Route::get('org/company/active_list','Org\Location\CompanyController@get_active_list');
+Route::get('org/company/active_list','Org\Location\CompanyController@get_active_list');*/
 //Route::get('org/company/test','Org\Location\CompanyController@test');
 
 
@@ -229,22 +229,22 @@ Route::get('org/company/active_list','Org\Location\CompanyController@get_active_
 //Route::get('MainSubLocation.type_of_loc','Org\Location\MainSubLocationController@type_of_loc');
 
 //routes for location
-Route::get('org/location/list','Org\Location\LocationController@get_list');
+/*Route::get('org/location/list','Org\Location\LocationController@get_list');
 Route::get('org/location/check-code','Org\Location\LocationController@check_code');
 Route::post('org/location/save','Org\Location\LocationController@save');
 Route::get('org/location/get','Org\Location\LocationController@get_location');
-Route::get('org/location/change-status','Org\Location\LocationController@change_status');
+Route::get('org/location/change-status','Org\Location\LocationController@change_status');*/
 
 //Route::get('MainSubLocation.load_cost_center','Org\Location\MainSubLocationController@load_cost_center');
 //Route::get('MainSubLocation.load_property','Org\Location\MainSubLocationController@load_property');
 
 //property type routes
-Route::get('org/property-type/list','Org\PropertyTypeController@get_list');
-Route::get('org/property-type/active_list','Org\PropertyTypeController@get_active_list');
+/*Route::get('org/property-type/list','Org\PropertyTypeController@get_list');
+Route::get('org/property-type/active_list','Org\PropertyTypeController@get_active_list');*/
 
 //location type routes
-Route::get('org/location-type/list','Org\LocationTypeController@get_list');
-Route::get('org/location-type/active_list','Org\LocationTypeController@get_active_list');
+/*Route::get('org/location-type/list','Org\LocationTypeController@get_list');
+Route::get('org/location-type/active_list','Org\LocationTypeController@get_active_list');*/
 
 /*Route::post('Mainsource.postdata', 'Org\Location\MainSourceController@postdata');
 Route::get('Mainsource.loaddata', 'Org\Location\MainSourceController@loaddata');
@@ -283,12 +283,12 @@ Route::get('MainSubLocation.load_cost_center', 'Org\Location\MainSubLocationCont
 Route::get('MainSubLocation.load_property', 'Org\Location\MainSubLocationController@load_property');*/
 // close add location
 // Department
-Route::get('department', function () { return view('org/department/department'); });
+/*Route::get('department', function () { return view('org/department/department'); });
 Route::post('org/department/save','Org\DepartmentController@save_dep');
 Route::get('org/department/check-code','Org\DepartmentController@check_code');
 Route::get('org/department/list','Org\DepartmentController@loaddata');
 Route::get('org/department/get','Org\DepartmentController@edit');
-Route::get('org/department/change-status','Org\DepartmentController@delete');
+Route::get('org/department/change-status','Org\DepartmentController@delete');*/
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
@@ -346,7 +346,7 @@ Route::prefix('org/origin-type/')->group(function(){
 
 
 //style creation
-Route::get('loadPart','Merchandising\StyleCreationController@getList');
+//Route::get('loadPart','Merchandising\StyleCreationController@getList');
 
 //Route::resource('customesizes', 'customesizesController');
 Route::get('customesizes', 'customesizesController@index');

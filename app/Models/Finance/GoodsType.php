@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Models\Org;
+namespace App\Models\Finance;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class OriginType extends BaseValidator
+class GoodsType extends BaseValidator
 {
-    protected $table = 'org_origin_type';
-    protected $primaryKey = 'origin_type_id';
+    protected $table = 'fin_goods_type';
+    protected $primaryKey = 'goods_type_id';
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
 
-    protected $fillable = ['origin_type','origin_type_id'];
+    protected $fillable = ['goods_type_description'];
 
     protected $rules = array(
-        'origin_type' => 'required'
+        'goods_type_description' => 'required'
     );
 
     public function __construct()

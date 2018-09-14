@@ -3,40 +3,168 @@
 namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
-use App\Models\Org\Location\Source;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 use App\Http\Controllers\Controller;
+use App\Models\Org\Location\Source;
 
 class SourceController extends Controller
 {
-
-  //save or update a source
-  public function save(Request $request)
-  {
-    $source = new Source();
-    if ($source->validate($request->all()))
+    public function __construct()
     {
-      if($request->source_id > 0){
-        $source = Source::find($request->source_id);
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
+
+    //get Source list
+    public function index(Request $request)
+    {
+      $type = $request->type;
+      if($type == 'datatable')   {
+        $data = $request->all();
+        return response($this->datatable_search($data));
       }
-      $source->fill($request->all());
-      $source->status = 1;
-      $source->created_by = 1;
-      $result = $source->saveOrFail();
-
-      echo json_encode(array('status' => 'success' , 'message' => 'Source details saved successfully.') );
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else{
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
+      }
     }
-    else
+
+
+    //create a Source
+    public function store(Request $request)
     {
-      // failure, get errors
-      $errors = $source->errors();
-      echo json_encode(array('status' => 'error' , 'message' => $errors));
-    }
-  }
+      $source = new Source();
+      if($source->validate($request->all()))
+      {
+        $source->fill($request->all());
+        $source->status = 1;
+        $source->save();
 
-  //get searched source list
-  public function get_list(Request $request)
-  {
-      $data = $request->all();
+        return response([ 'data' => [
+          'message' => 'Source was saved successfully',
+          'source' => $source
+          ]
+        ], Response::HTTP_CREATED );
+      }
+      else
+      {
+          $errors = $source->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
+
+
+    //get a Source
+    public function show($id)
+    {
+      $source = Source::find($id);
+      if($source == null)
+        throw new ModelNotFoundException("Requested source not found", 1);
+      else
+        return response([ 'data' => $source ]);
+    }
+
+
+    //update a Source
+    public function update(Request $request, $id)
+    {
+      $source = Source::find($id);
+      if($source->validate($request->all()))
+      {
+        $source->fill($request->except('source_code'));
+        $source->save();
+
+        return response([ 'data' => [
+          'message' => 'Source was updated successfully',
+          'source' => $source
+        ]]);
+      }
+      else
+      {
+        $errors = $source->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
+
+
+    //deactivate a Source
+    public function destroy($id)
+    {
+      $source = Source::where('source_id', $id)->update(['status' => 0]);
+      return response([
+        'data' => [
+          'message' => 'Source was deactivated successfully.',
+          'source' => $source
+        ]
+      ] , Response::HTTP_NO_CONTENT);
+    }
+
+
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_code($request->source_id , $request->source_code));
+      }
+    }
+
+
+    //check Source code already exists
+    private function validate_duplicate_code($id , $code)
+    {
+      $source = Source::where('source_code','=',$code)->first();
+      if($source == null){
+        return ['status' => 'success'];
+      }
+      else if($source->source_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Source code already exists'];
+      }
+    }
+
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Source::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Source::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
+    }
+
+
+    //search Source for autocomplete
+    private function autocomplete_search($search)
+  	{
+  		$source_lists = Source::select('source_id','source_name')
+  		->where([['source_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $source_lists;
+  	}
+
+
+    //get searched Sources for datatable plugin format
+    private function datatable_search($data)
+    {
       $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
@@ -45,69 +173,24 @@ class SourceController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $source_list = Source::where('source_code','like',$search.'%')
-      ->orWhere('source_name', 'like', $search.'%')
+      $source_list = Source::select('*')
+      ->where('source_code'  , 'like', $search.'%' )
+      ->orWhere('source_name'  , 'like', $search.'%' )
+      ->orWhere('source_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
-      $source_list_count = Source::where('source_code','like',$search.'%')
-      ->orWhere('source_name', 'like', $search.'%')
+
+      $source_count = Source::where('source_code'  , 'like', $search.'%' )
+      ->orWhere('source_name'  , 'like', $search.'%' )
+      ->orWhere('source_name'  , 'like', $search.'%' )
       ->count();
 
-      echo json_encode(array(
+      return [
           "draw" => $draw,
-          "recordsTotal" => $source_list_count,
-          "recordsFiltered" => $source_list_count,
+          "recordsTotal" => $source_count,
+          "recordsFiltered" => $source_count,
           "data" => $source_list
-      ));
- }
-
- //check a source code already exists
- public function check_code(Request $request)
- {
-   $source = Source::where('source_code','=',$request->source_code)->first();
-   if($source == null){
-     echo json_encode(array('status' => 'success'));
-   }
-   else if($source->source_id == $request->source_id){
-     echo json_encode(array('status' => 'success'));
-   }
-   else {
-     echo json_encode(array('status' => 'error','message' => 'Source code already exists'));
-   }
- }
-
-
-public function edit(Request $request)
-{
-   $source_id = $request->source_id;
-   $source = Source::find($source_id);
-   echo json_encode($source);
-}
-
-
-public function change_status(Request $request)
-{
-    $source_id = $request->source_id;
-    $source = Source::where('source_id', $source_id)->update(['status' => 0]);
-    echo json_encode(array(
-      'status' => 'success',
-      'message' => 'Source deactivated successfully'
-    ));
-}
-
-//get only active source list
-public function get_active_source_list(Request $request)
-{
-  $search_c = $request->search;
-  $s_source_lists = Source::select('source_id','source_code','source_name')
-  ->where([
-    ['status', '=', '1']
-    /*['source_name', 'like', '%' . $search_c . '%'],*/
-  ])
-  ->get();
-  return response()->json($s_source_lists);
-}
-
-
+      ];
+    }
 
 }
