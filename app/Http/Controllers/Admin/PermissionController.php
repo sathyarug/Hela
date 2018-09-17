@@ -6,17 +6,100 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 //use App\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Input;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller {
+
+    public function __construct() {
+        //add functions names to 'except' paramert to skip authentication
+        $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
 
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request) {
+    
+    public function index(Request $request)
+    {
+      $type = $request->type;
+      
+      if($type == 'datatable')   {
+        $data = $request->all();
+        return response($this->datatable_search($data));
+      }
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
+      }
+    }
+    
+      //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Permission::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Permission::select($fields);
+        /*if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }*/
+      }
+      return $query->get();
+    }
+
+
+    //search goods types for autocomplete
+    private function autocomplete_search($search)
+  	{
+  		$permission_list = Permission::select('id','name')
+  		->where([['name', 'like', '%' . $search . '%'],]) ->get();
+  		return $permission_list;
+  	}
+
+
+    //get searched goods types for datatable plugin format
+    private function datatable_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+      
+      $permission_list = Permission::select('*')
+      ->where('name'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $permission_count = Permission::where('name'  , 'like', $search.'%' )
+      ->count();
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $permission_count,
+          "recordsFiltered" => $permission_count,
+          "data" => $permission_list
+      ];
+    }
+    
+   /* public function index(Request $request) {*/
         /* $keyword = $request->get('search');
           $perPage = 25;
 
@@ -27,9 +110,9 @@ class PermissionController extends Controller {
           $permission = Permission::latest()->paginate($perPage);
           } */
 
-        //return view('admin.permission.index', compact('permission'));
+      /*  //return view('admin.permission.index', compact('permission'));
         return view('admin.permission.index');
-    }
+    }*/
 
     /**
      * Show the form for creating a new resource.
@@ -51,8 +134,8 @@ class PermissionController extends Controller {
     public function store(Request $request) {
 
         $requestData = $request->all();
-        $requestData['created_by'] = 1;//Auth::id();
-        
+        $requestData['created_by'] = 1; //Auth::id();
+
         if (Permission::create($requestData)) {
             echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
         } else {
@@ -97,8 +180,8 @@ class PermissionController extends Controller {
     public function update(Request $request, $id) {
 
         $requestData = $request->all();
-        $requestData['updated_by'] = 1;//Auth::id();
-        
+        $requestData['updated_by'] = 1; //Auth::id();
+
         $permission = Permission::findOrFail($id);
 
         if ($permission) {

@@ -112,6 +112,9 @@ Route::prefix('finance/')->group(function(){
 
 });
 
+Route::prefix('admin/')->group(function(){
+  Route::apiResource('permission','Admin\PermissionController');
+});
 
 //Route::group(['middleware' => ['jwt.auth']], function() {
   /*Route::post('/sources','Test\SourceController@index');
