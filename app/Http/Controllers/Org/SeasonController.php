@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\OriginType;
+use App\Models\Org\Season;
 use Exception;
 
-class OriginTypeController extends Controller
+class SeasonController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class OriginTypeController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Origin Type list
+    //get Season list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class OriginTypeController extends Controller
     }
 
 
-    //create a Origin Type
+    //create a Season
     public function store(Request $request)
     {
-      $originType = new OriginType();
-      if($originType->validate($request->all()))
+      $season = new Season();
+      if($season->validate($request->all()))
       {
-        $originType->fill($request->all());
-        $originType->status = 1;
-        $originType->save();
+        $season->fill($request->all());
+        $season->status = 1;
+        $season->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was saved successfully',
-          'originType' => $originType
+          'message' => 'Season was saved successfully',
+          'season' => $season
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
+          $errors = $season->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Origin Type
+    //get a Season
     public function show($id)
     {
-      $originType = OriginType::find($id);
-      if($originType == null)
-        throw new ModelNotFoundException("Requested origin type not found", 1);
+      $season = Season::find($id);
+      if($season == null)
+        throw new ModelNotFoundException("Requested season not found", 1);
       else
-        return response([ 'data' => $originType ]);
+        return response([ 'data' => $season ]);
     }
 
 
-    //update a Origin Type
+    //update a Season
     public function update(Request $request, $id)
     {
-      $originType = OriginType::find($id);
-      if($originType->validate($request->all()))
+      $season = Season::find($id);
+      if($season->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
-        $originType->save();
+        $season->fill($request->except('season_code'));
+        $season->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was updated successfully',
-          'originType' => $originType
+          'message' => 'Season was updated successfully',
+          'season' => $season
         ]]);
       }
       else
       {
-        $errors = $originType->errors();// failure, get errors
+        $errors = $season->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Origin Type
+    //deactivate a Season
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $season = Season::where('season_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'message' => 'Season was deactivated successfully.',
+          'Season' => $season
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class OriginTypeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->origin_type_id , $request->origin_type));
+        return response($this->validate_duplicate_code($request->season_id , $request->season_code));
       }
     }
 
 
-    //check OriginType code already exists
+    //check Season code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $originType = OriginType::where('origin_type','=',$code)->first();
-      if($originType == null){
+      $season = Season::where('season_code','=',$code)->first();
+      if($season == null){
         return ['status' => 'success'];
       }
-      else if($originType->origin_type_id == $id){
+      else if($season->season_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Origin type code already exists'];
+        return ['status' => 'error','message' => 'Season code already exists'];
       }
     }
 
@@ -141,11 +141,11 @@ class OriginTypeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = OriginType::select('*');
+        $query = Season::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = OriginType::select($fields);
+        $query = Season::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +153,16 @@ class OriginTypeController extends Controller
       return $query->get();
     }
 
-    //search Origin Type for autocomplete
+    //search Season for autocomplete
     private function autocomplete_search($search)
   	{
-  		$origin_type_lists = OriginType::select('origin_type_id','origin_type')
-  		->where([['origin_type', 'like', '%' . $search . '%'],]) ->get();
-  		return $origin_type_lists;
+  		$season_lists = Season::select('season_id','season_name')
+  		->where([['season_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $season_lists;
   	}
 
 
-    //get searched OriginTypes for datatable plugin format
+    //get searched Seasons for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,18 +173,21 @@ class OriginTypeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $origin_type_list = OriginType::select('*')
-      ->where('origin_type'  , 'like', $search.'%' )
+      $season_list = Season::select('*')
+      ->where('season_code'  , 'like', $search.'%' )
+      ->orWhere('season_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $origin_type_count = OriginType::where('origin_type'  , 'like', $search.'%' )->count();
+      $season_count = Season::where('season_code'  , 'like', $search.'%' )
+      ->orWhere('Season_name'  , 'like', $search.'%' )
+      ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $origin_type_count,
-          "recordsFiltered" => $origin_type_count,
-          "data" => $origin_type_list
+          "recordsTotal" => $season_count,
+          "recordsFiltered" => $season_count,
+          "data" => $season_list
       ];
     }
 

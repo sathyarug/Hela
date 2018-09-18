@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models\Org;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
 class Season extends BaseValidator {
 

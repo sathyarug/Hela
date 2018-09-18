@@ -13,7 +13,7 @@ protected $table = 'org_cancellation_reason';
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['reason_code', 'reason_description', 'reason_id'];
+    protected $fillable = ['reason_code', 'reason_description', 'reason_id' , 'reason_category'];
     protected $rules = array(
         'reason_code' => 'required',
         'reason_description' => 'required'

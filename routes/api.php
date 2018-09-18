@@ -79,13 +79,39 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('property-types','Org\PropertyTypeController');
 
   Route::get('customers/validate' , 'Org\CustomerController@validate_data');
+  Route::get('customers/divisions' , 'Org\CustomerController@customer_divisions');
+  Route::put('customers/divisions' , 'Org\CustomerController@save_customer_divisions');
   Route::apiResource('customers','Org\CustomerController');
+
+  Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
+  Route::apiResource('suppliers','Org\SupplierController');
 
   Route::get('uom/validate' , 'Org\UOMController@validate_data');
   Route::apiResource('uom','Org\UOMController');
 
   Route::get('cancellation-categories/validate' , 'Org\Cancellation\CancellationCategoryController@validate_data');
   Route::apiResource('cancellation-categories','Org\Cancellation\CancellationCategoryController');
+
+  Route::get('cancellation-reasons/validate' , 'Org\Cancellation\CancellationReasonController@validate_data');
+  Route::apiResource('cancellation-reasons','Org\Cancellation\CancellationReasonController');
+
+  Route::get('divisions/validate' , 'Org\DivisionController@validate_data');
+  Route::apiResource('divisions','Org\DivisionController');
+
+  Route::get('seasons/validate' , 'Org\SeasonController@validate_data');
+  Route::apiResource('seasons','Org\SeasonController');
+
+  Route::get('origin-types/validate' , 'Org\OriginTypeController@validate_data');
+  Route::apiResource('origin-types','Org\OriginTypeController');
+
+  Route::get('sizes/validate' , 'Org\SizeController@validate_data');
+  Route::apiResource('sizes','Org\SizeController');
+
+  Route::get('colors/validate' , 'Org\ColorController@validate_data');
+  Route::apiResource('colors','Org\ColorController');
+
+  Route::get('stores/validate' , 'Org\StoreController@validate_data');
+  Route::apiResource('stores','Org\StoreController');
 
 });
 
@@ -110,8 +136,30 @@ Route::prefix('finance/')->group(function(){
   Route::get('currencies/validate' , 'Finance\CurrencyController@validate_data');
   Route::apiResource('currencies','Finance\CurrencyController');
 
+  Route::get('exchange-rates/validate' , 'Finance\ExchangeRateController@validate_data');
+  Route::apiResource('exchange-rates','Finance\ExchangeRateController');
+
 });
 
+
+Route::prefix('merchandising/')->group(function(){
+
+//  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
+  Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+
+  Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+
+
+
+});
+
+
+
+Route::prefix('core/')->group(function(){
+
+  Route::apiResource('status','Core\StatusController');
+
+});
 
 //Route::group(['middleware' => ['jwt.auth']], function() {
   /*Route::post('/sources','Test\SourceController@index');

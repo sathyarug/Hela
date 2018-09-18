@@ -5,29 +5,29 @@ namespace App\Models\Org;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class Customer extends BaseValidator {
+class Supplier extends BaseValidator {
 
-    protected $table = 'cust_customer';
-    protected $primaryKey = 'customer_id';
+    protected $table = 'org_supplier';
+    protected $primaryKey = 'supplier_id';
 
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['customer_code', 'customer_name', 'customer_short_name', 'type_of_service', 'business_reg_no', 'business_reg_date', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal_code', 'customer_state', 'customer_county', 'customer_contact1', 'customer_contact2',
-        'customer_contact3', 'customer_email', 'customer_map_location', 'customer_website', 'company_code', 'operation_start_date', 'order_destination', 'currency', 'boi_reg_no', 'boi_reg_date', 'vat_reg_no', 'svat_no', 'managing_director_name', 'managing_director_email', 'finance_director_name', 'finance_director_email',
+    protected $fillable = ['supplier_code', 'supplier_name', 'supplier_short_name', 'type_of_service', 'business_reg_no', 'business_reg_date', 'supplier_address1', 'supplier_address2', 'supplier_city', 'supplier_postal_code', 'supplier_state', 'supplier_county', 'supplier_contact1', 'supplier_contact2',
+        'supplier_contact3', 'supplier_email', 'supplier_map_location', 'supplier_website', 'company_code', 'operation_start_date', 'order_destination', 'currency', 'boi_reg_no', 'boi_reg_date', 'vat_reg_no', 'svat_no', 'managing_director_name', 'managing_director_email', 'finance_director_name', 'finance_director_email',
         'finance_director_contact', 'additional_comments', 'ship_terms_agreed', 'payemnt_terms', 'payment_mode', 'bank_acc_no', 'bank_name', 'bank_branch', 'bank_code', 'bank_swift', 'bank_iban', 'bank_contact', 'intermediary_bank_name', 'intermediary_bank_address', 'intermediary_bank_contact', 'buyer_posting_group',
-        'business_posting_group', 'approved_by', 'system_updated_by', 'customer_creation_form','customer_country', 'status'];
+        'business_posting_group', 'approved_by', 'system_updated_by', 'supplier_creation_form','supplier_country', 'status'];
 
     protected $dates = ['operation_start_date'];
     protected $rules = array(
-        'customer_code' => 'required',
-        'customer_name' => 'required',
-        'customer_short_name' => 'required',
+        'supplier_code' => 'required',
+        'supplier_name' => 'required',
+        'supplier_short_name' => 'required',
         'type_of_service' => 'required',
-        'customer_city' => 'required',
-        'customer_country' => 'required',
+        'supplier_city' => 'required',
+        'supplier_country' => 'required',
         'currency' => 'required'
-        /*'customer_contact1' => 'required'*/
+        /*'supplier_contact1' => 'required'*/
     );
 
     public function __construct() {
@@ -69,16 +69,11 @@ class Customer extends BaseValidator {
 		}
 
     //country of the company
-		public function customerCountry()
+		public function country()
 		{
-			 return $this->belongsTo('App\Models\Org\Country' , 'customer_country');
+			 return $this->belongsTo('App\Models\Org\Country' , 'supplier_country');
 		}
 
-    public function divisions()
-    {
-        return $this->belongsToMany('App\Models\Org\Division','org_customer_divisions','customer_id','division_id')
-        ->withPivot('id');
-    }
 
 
 }
