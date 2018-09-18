@@ -11,6 +11,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
 
+use App\Models\Finance\Accounting\PaymentTerm;
+use App\Currency;
+use App\Http\Resources\CustomerResource;
+
+
 class CustomerController extends Controller
 {
     public function __construct()
@@ -225,6 +230,23 @@ class CustomerController extends Controller
           "recordsFiltered" => $customer_count,
           "data" => $customer_list
       ];
+    }
+
+
+	}
+
+    public function loadCustomer(Request $request) {
+//        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;
+        try{
+            echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
+//            return CustomerResource::collection(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get() );
+        }
+        catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
+//        $customer_list = Customer::all();
+//        echo json_encode($customer_list);
     }
 
 }
