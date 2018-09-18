@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Customer;
 use App\Models\Finance\Accounting\PaymentTerm;
 use App\Currency;
+use App\Http\Resources\CustomerResource;
+
 class CustomerController extends Controller
 {
     public function index(){
@@ -102,4 +104,18 @@ class CustomerController extends Controller
     		//return $select_source;
 
 	}
+
+    public function loadCustomer(Request $request) {
+//        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;
+        try{
+            echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
+//            return CustomerResource::collection(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get() );
+        }
+        catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
+//        $customer_list = Customer::all();
+//        echo json_encode($customer_list);
+    }
 }

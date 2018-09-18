@@ -43,6 +43,14 @@ Route::apiResource('/countries','Org\CountryController');
 
 //Route::group(['middleware' => ['jwt.auth']], function() {
   Route::GET('/sources','Test\SourceController@index');
+  Route::GET('/getCustomer','Org\CustomerController@loadCustomer');
+  Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadProductCategory');
+  Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
+  Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
+  Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+
+  Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
+
     Route::get('logout', 'AuthController@logout');
     Route::get('test', function(){
         return response()->json(['foo'=>'bar']);
