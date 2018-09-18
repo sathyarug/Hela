@@ -3,75 +3,51 @@
 namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
+use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Location;
 use App\Models\Finance\Accounting\CostCenter;
-use App\Http\Controllers\Controller;
 
 class LocationController extends Controller
 {
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
 
-	public function get_list(Request $request)
-	{
-		$data = $request->all();
-		$start = $data['start'];
-		$length = $data['length'];
-		$draw = $data['draw'];
-		$search = $data['search']['value'];
-		$order = $data['order'][0];
-		$order_column = $data['columns'][$order['column']]['data'];
-		$order_type = $order['dir'];
-
-		$location_list = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-		->select('org_location.*', 'org_company.company_name')
-		->where('loc_code','like',$search.'%')
-		->orWhere('loc_name', 'like', $search.'%')
-		->orWhere('company_name', 'like', $search.'%')
-		->orderBy($order_column, $order_type)
-		->offset($start)->limit($length)->get();
-
-		$location_count = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-		->select('org_location.*', 'org_company.company_name')
-		->where('loc_code','like',$search.'%')
-		->orWhere('loc_name', 'like', $search.'%')
-		->orWhere('company_name', 'like', $search.'%')
-		->count();
-
-		echo json_encode(array(
-				"draw" => $draw,
-				"recordsTotal" => $location_count,
-				"recordsFiltered" => $location_count,
-				"data" => $location_list
-		));
-
-	}
+    //get Location list
+    public function index(Request $request)
+    {
+      $type = $request->type;
+      if($type == 'datatable')   {
+        $data = $request->all();
+        return response($this->datatable_search($data));
+      }
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
+      }
+    }
 
 
-	public function check_code(Request $request)
-	{
-		$location = Location::where('loc_code','=',$request->loc_code)->first();
-		if($location == null){
-			echo json_encode(array('status' => 'success'));
-		}
-		else if($location->loc_id == $request->loc_id){
-			echo json_encode(array('status' => 'success'));
-		}
-		else {
-			echo json_encode(array('status' => 'error','message' => 'Location code already exists'));
-		}
-	}
-
-
-	public function save(Request $request)
-	{
-		$location = new Location();
-		if ($location->validate($request->all()))
-		{
-				if($request->loc_id > 0){
-					$location = Location::find($request->loc_id);
-				}
-				$location->fill($request->all());
+    //create a Location
+    public function store(Request $request)
+    {
+      $location = new Location();
+      if($location->validate($request->all()))
+      {
+        $location->fill($request->all());
 				$location->status = 1;
 				$location->created_by = 1;
 				$result = $location->saveOrFail();
@@ -86,32 +62,150 @@ class LocationController extends Controller
 					}
 				}
 				$location->costCenters()->saveMany($save_cost_centers);
-				echo json_encode(array('status' => 'success' , 'message' => 'Location details saved successfully.') );
-			}
-			else
-			{
-        // failure, get errors
-				$errors = $location->errors_tostring();
-				echo json_encode(array('status' => 'error' , 'message' => $errors));
-			}
-		}
+
+        return response([ 'data' => [
+          'message' => 'Location was saved successfully',
+          'location' => $location
+          ]
+        ], Response::HTTP_CREATED );
+      }
+      else
+      {
+          $errors = $location->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
 
 
-		public function get_location(Request $request)
-		{
-			$location = Location::with(['currency','country','costCenters'])->find($request->loc_id);
-			echo json_encode($location);
-		}
+    //get a Location
+    public function show($id)
+    {
+      $location = Location::find($id);
+      if($location == null)
+        throw new ModelNotFoundException("Requested location not found", 1);
+      else
+        return response([ 'data' => $location ]);
+    }
 
 
-		public function change_status(Request $request)
-		{
-			$loc_id = $request->loc_id;
-			Location::where('loc_id', $loc_id)->update(['status' => 0]);
-			echo json_encode(array(
-				'status' => 'success',
-				'message' => 'Location deactivated successfully'
-			));
-		}
+    //update a Location
+    public function update(Request $request, $id)
+    {
+      $location = Location::find($id);
+      if($location->validate($request->all()))
+      {
+        $location->fill($request->except('loc_code'));
+        $location->save();
 
-	}
+        return response([ 'data' => [
+          'message' => 'Location was updated successfully',
+          'location' => $location
+        ]]);
+      }
+      else
+      {
+        $errors = $location->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
+
+
+    //deactivate a Location
+    public function destroy($id)
+    {
+      $location = Location::where('loc_id', $id)->update(['status' => 0]);
+      return response([
+        'data' => [
+          'message' => 'Location was deactivated successfully.',
+          'location' => $location
+        ]
+      ] , Response::HTTP_NO_CONTENT);
+    }
+
+
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_code($request->Location_id , $request->Location_code));
+      }
+    }
+
+
+    //check Location code already exists
+    private function validate_duplicate_code($id , $code)
+    {
+      $location = Location::where('loc_code','=',$code)->first();
+      if($location == null){
+        return ['status' => 'success'];
+      }
+      else if($location->Location_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Location code already exists'];
+      }
+    }
+
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Location::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Location::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
+    }
+
+    //search Location for autocomplete
+    private function autocomplete_search($search)
+  	{
+  		$location_lists = Location::select('loc_id','loc_name')
+  		->where([['loc_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $location_lists;
+  	}
+
+
+    //get searched Locations for datatable plugin format
+    private function datatable_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $location_list = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
+  		->select('org_location.*', 'org_company.company_name')
+  		->where('loc_code','like',$search.'%')
+  		->orWhere('loc_name', 'like', $search.'%')
+  		->orWhere('company_name', 'like', $search.'%')
+  		->orderBy($order_column, $order_type)
+  		->offset($start)->limit($length)->get();
+
+  		$location_count = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
+  		->select('org_location.*', 'org_company.company_name')
+  		->where('loc_code','like',$search.'%')
+  		->orWhere('loc_name', 'like', $search.'%')
+  		->orWhere('company_name', 'like', $search.'%')
+  		->count();
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $location_count,
+          "recordsFiltered" => $location_count,
+          "data" => $location_list
+      ];
+    }
+
+}

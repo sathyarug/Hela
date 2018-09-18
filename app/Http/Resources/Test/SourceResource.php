@@ -14,10 +14,11 @@ class SourceResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
-//      return [
-//        'id' => $this->source_id,
-//        'name' => $this->source_name
-//      ];
+      //  return parent::toArray($request);
+      return [
+        'id' => $this->source_id,
+        'name' => $this->source_name,
+        'link' => route('sources.show',$this->source_id)
+      ];
     }
 }

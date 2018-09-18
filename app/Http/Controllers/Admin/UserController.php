@@ -76,7 +76,7 @@ class UserController extends Controller {
             echo json_encode(true);
         else
             echo json_encode(false);
-    }
+        }
 
     public function loadReportLevels(Request $request){
          dd($request); exit;
@@ -88,7 +88,7 @@ class UserController extends Controller {
         echo json_encode($posts);
 
     }
-
+    
     public function getUserList() {
         //UsrProfile::all()->sortByDesc("created_at")->sortByDesc("status")
 
@@ -102,7 +102,7 @@ class UserController extends Controller {
         //return datatables()->query(DB::table('users'))->toJson();
 
 
-    }
+}
     
 
 }

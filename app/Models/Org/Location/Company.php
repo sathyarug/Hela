@@ -34,36 +34,33 @@ class Company extends BaseValidator
 
     	public function __construct()
     	{
-        parent::__construct();
-        $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
-        );
+        parent::__construct();  
     	}
 
 			//departments belongs to the company
 			public function departments()
 	    {
-	        return $this->belongsToMany('App\Models\Org\OrgDepartments','org_company_departments','company_id','dep_id')
+	        return $this->belongsToMany('App\Models\Org\Department','org_company_departments','company_id','dep_id')
 					->withPivot('id');
 	    }
 
 			//sections belongs to the company
 			public function sections()
 	    {
-	        return $this->belongsToMany('App\Section','org_company_sections','company_id','section_id')
+	        return $this->belongsToMany('App\Models\Org\Section','org_company_sections','company_id','section_id')
 					->withPivot('id');
 	    }
 
 			//default currency of the company
 			public function currency()
 			{
-				 return $this->belongsTo('App\Currency' , 'default_currency');
+				 return $this->belongsTo('App\Models\Finance\Currency' , 'default_currency');
 			}
 
 			//country of the company
 			public function country()
 			{
-				 return $this->belongsTo('App\Country' , 'country_code');
+				 return $this->belongsTo('App\Models\Org\Country' , 'country_code');
 			}
 
 }

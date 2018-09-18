@@ -1,69 +1,123 @@
+
+
+
 @extends('layout.main')
+@section('title') Permission @endsection
+@section('m_permission') class = 'active' @endsection
 
 @section('body')
-    <div class="container">
-        <div class="row">
-          
-             @include('admin.sidebar')
-            <div class="col-md-9">
-                <div class="card">
-                    <div class="card-header">Permission</div>
-                    <div class="card-body">
-                        <a href="{{ url('/admin/permission/create') }}" class="btn btn-success btn-sm" title="Add New Permission">
-                            <i class="fa fa-plus" aria-hidden="true"></i> Add New
-                        </a>
 
-                        {!! Form::open(['method' => 'GET', 'url' => '/admin/permission', 'class' => 'form-inline my-2 my-lg-0 float-right', 'role' => 'search'])  !!}
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ request('search') }}">
-                            <span class="input-group-append">
-                                <button class="btn btn-secondary" type="submit">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </span>
-                        </div>
-                        {!! Form::close() !!}
+<div class="page-header page-header-default ">
 
-                        <br/>
-                        <br/>
-                        <div class="table-responsive">
-                            <table class="table table-borderless">
+
+    <div class="breadcrumb-line">
+        <ul class="breadcrumb">
+            <li><a href="index.html"><i class="icon-home2 position-left"></i> Home</a></li>
+            <li class="active">@yield('title')</li>
+        </ul>
+
+        <ul class="breadcrumb-elements">
+            <li><a href="#"><i class="icon-comment-discussion position-left"></i> Support</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="icon-gear position-left"></i>
+                    Settings
+                    <span class="caret"></span>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#"><i class="icon-user-lock"></i> Account security</a></li>
+                    <li><a href="#"><i class="icon-statistics"></i> Analytics</a></li>
+                    <li><a href="#"><i class="icon-accessibility"></i> Accessibility</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="icon-gear"></i> All settings</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- /page header -->
+<div class="content">
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <div class="panel panel-flat">
+
+                <div class="panel-heading">
+                    <h5 class="panel-title">Permission</h5>
+                    <div class="heading-elements">
+                        <ul class="icons-list">
+                            <li><a data-action="collapse"></a></li>
+                            <li><a data-action="reload"></a></li>
+                            <li><a data-action="close"></a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="text-right">
+                                <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs" onclick="addEditPermission(0)"><b><i class="icon-plus3"></i></b>Add New</button>
+                            </div> 
+
+                            <table class="table datatable-basic" id="permission_tbl">
                                 <thead>
                                     <tr>
-                                        <th>#</th><th>Name</th><th>Actions</th>
+                                        <th class="text-center">Action</th>
+                                        <th>Role Name</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                @foreach($permission as $item)
-                                    <tr>
-                                        <td>{{ $loop->iteration or $item->id }}</td>
-                                        <td>{{ $item->name }}</td>
-                                        <td>
-                                            <a href="{{ url('/admin/permission/' . $item->id) }}" title="View Permission"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
-                                            <a href="{{ url('/admin/permission/' . $item->id . '/edit') }}" title="Edit Permission"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
-                                            {!! Form::open([
-                                                'method'=>'DELETE',
-                                                'url' => ['/admin/permission', $item->id],
-                                                'style' => 'display:inline'
-                                            ]) !!}
-                                                {!! Form::button('<i class="fa fa-trash-o" aria-hidden="true"></i> Delete', array(
-                                                        'type' => 'submit',
-                                                        'class' => 'btn btn-danger btn-sm',
-                                                        'title' => 'Delete Permission',
-                                                        'onclick'=>'return confirm("Confirm delete?")'
-                                                )) !!}
-                                            {!! Form::close() !!}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
-                            <div class="pagination-wrapper"> {!! $permission->appends(['search' => Request::get('search')])->render() !!} </div>
                         </div>
 
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
+<div id="show_permission" class="modal fade">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <!--<form class="form-horizontal form-validate-jquery" action="#" id="permission_form">-->
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Role</h5>
+            </div>
+
+
+
+            <div class="modal-body"> </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>                               
+                <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save" ><b><i class="icon-floppy-disk"></i></b> Save</button>
+            </div>
+            <!--</form>-->
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('javascripy') 
+<script type="text/javascript" src="{{ URL::asset('assets/js/plugins/tables/datatables/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/selects/select2.min.js') }}"></script>
+
+<script type="text/javascript" src="{{ URL::asset('js/admin/permission.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('js/application.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('assets/js/pages/datatables_basic.js') }}"></script>
+
+<script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/validation/validate.min.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('assets/js/plugins/notifications/sweet_alert.min.js') }}"></script>
+
 @endsection

@@ -1,6 +1,16 @@
 Changelog
 =========
 
+6.1.2 (2018-07-13)
+------------------
+
+ * handled recipient errors when pipelining
+
+6.1.1 (2018-07-04)
+------------------
+
+ * removed hard dependency on an IDN encoder
+
 6.1.0 (2018-07-02)
 ------------------
 

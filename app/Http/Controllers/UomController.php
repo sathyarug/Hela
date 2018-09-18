@@ -96,5 +96,9 @@ class UomController extends Controller {
           'message' => 'UOM was deactivated successfully.'
         ));
     }
-
+    
+    public function LoadUOM(){        
+        $objUOM = UnitOfMeasure::select("*")->get();        
+        echo json_encode($objUOM);        
+    }
 }
