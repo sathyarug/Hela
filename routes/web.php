@@ -392,5 +392,5 @@ Route::prefix('finance/item/')->group(function(){
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
     Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');    
-    
+    /* */
 });
