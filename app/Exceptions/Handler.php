@@ -7,6 +7,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
+
+  use ExceptionTrait;
     /**
      * A list of the exception types that are not reported.
      *
@@ -46,6 +48,24 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+      if(!$request->expectsJson())
+      {
         return parent::render($request, $exception);
+      }
+      else{
+        //$this->apiException($request , $exception);
+        return response()->json([
+          'errors' => [
+            "file" => $exception->getFile(),
+            "line" => $exception->getLine(),
+            "exceptionFull" => (new \ReflectionClass($exception)),
+            "exception" => (new \ReflectionClass($exception))->getShortName(),
+            "code" => $exception->getCode(),
+            "message" => $exception->getMessage(),
+            'userMessage' => 'Bad Request'
+          ]
+        ] , 400);
+      }
+      //return parent::render($request, $exception);
     }
 }

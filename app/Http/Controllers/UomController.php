@@ -97,12 +97,8 @@ class UomController extends Controller {
         ));
     }
     
-    public function LoadUOM(){
-        
-        $objUOM = UnitOfMeasure::select("*")->get();
-        
-        echo json_encode($objUOM);
-        
+    public function LoadUOM(){        
+        $objUOM = UnitOfMeasure::select("*")->get();        
+        echo json_encode($objUOM);        
     }
-
 }
