@@ -78,6 +78,7 @@ Route::prefix('org/uom/')->group(function () {
   Route::post('save','UomController@saveUom');
   Route::get('get','UomController@edit');
   Route::get('delete','UomController@delete');
+  Route::get('list-all','UomController@LoadUOM');  
 });
 
 //Section module
@@ -372,7 +373,21 @@ Route::post('itemproperty/save-assign', 'itempropertyController@SavePropertyAssi
 Route::get('itemproperty/load-assign-properties', 'itempropertyController@LoadAssignProperties');
 Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUnAssignPropertiesBySubCat');
 
+Route::post('itemCreation/saveContent','itemCreationController@SaveContentType');
+Route::post('itemCreation/saveComposition','itemCreationController@SaveCompositions');
+Route::post('itemCreation/savePropertyValue','itemCreationController@SavePropertyValue');
+Route::get('itemCreation/loadContent','itemCreationController@LoadContentType');
+Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositions');
+Route::get('itemCreation/loadPropertyValue','itemCreationController@LoadPropertyValues');
+Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');  
+Route::post('itemCreation/saveItem','itemCreationController@store');
+Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');  
+
 Route::prefix('finance/item/')->group(function(){    
     Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
     Route::get('maincategorylist','Finance\Item\ItemSubCategoryController@get_category_list');
+    Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
+    Route::get('get','Finance\Item\ItemSubCategoryController@get');
+    Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
+    Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
 });
