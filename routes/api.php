@@ -113,6 +113,7 @@ Route::prefix('finance/')->group(function(){
 });
 
 Route::prefix('admin/')->group(function(){
+  Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
 });
 
