@@ -50,14 +50,14 @@ Route::get('/icon', function () {
 
 
 //Division module
-Route::prefix('org/division/')->group(function () {
+/*Route::prefix('org/division/')->group(function () {
   Route::get('add_division','DivisionController@index');
   Route::get('check-code','DivisionController@check_code');
   Route::get('list','DivisionController@loadData');
   Route::post('save','DivisionController@saveDivision');
   Route::get('get','DivisionController@edit');
   Route::get('change-status','DivisionController@delete');
-});
+});*/
 
 
 //Season module
@@ -327,22 +327,22 @@ Route::get('edit_category','Org\Cancellation\CancellationCategoryController@edit
 Route::get('delete_category','Org\Cancellation\CancellationCategoryController@delete');
 
 //Cancellation Reason module
-Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
+/*Route::get('add_reason','Org\Cancellation\CancellationReasonController@index');
 Route::get('check_reason_code','Org\Cancellation\CancellationReasonController@checkCode');
 Route::get('get_all_reason','Org\Cancellation\CancellationReasonController@loadData');
 Route::post('save_reason','Org\Cancellation\CancellationReasonController@saveReason');
 Route::get('edit_reason','Org\Cancellation\CancellationReasonController@edit');
-Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');
+Route::get('delete_reason','Org\Cancellation\CancellationReasonController@delete');*/
 
 //origin type routes
-Route::prefix('org/origin-type/')->group(function(){
+/*Route::prefix('org/origin-type/')->group(function(){
   //Route::get('origin-type-new','Org\OriginTypeController@new');
   Route::get('check-code','Org\OriginTypeController@check_code');
   Route::post('save','Org\OriginTypeController@save');
   Route::get('list','Org\OriginTypeController@get_list');
   Route::get('get','Org\OriginTypeController@get');
   Route::get('change-status','Org\OriginTypeController@change_status');
-});
+});*/
 
 
 //style creation
@@ -381,8 +381,8 @@ Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositi
 Route::get('itemCreation/loadPropertyValue','itemCreationController@LoadPropertyValues');
 Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');  
 Route::post('itemCreation/saveItem','itemCreationController@store');
+Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');  
 Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist'); 
-
 
 Route::prefix('finance/item/')->group(function(){    
     Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
@@ -391,6 +391,5 @@ Route::prefix('finance/item/')->group(function(){
     Route::get('get','Finance\Item\ItemSubCategoryController@get');
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
-    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');    
-    
+    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');   
 });

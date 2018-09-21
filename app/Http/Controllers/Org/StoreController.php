@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\OriginType;
+use App\Models\Org\Store;
 use Exception;
 
-class OriginTypeController extends Controller
+class StoreController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class OriginTypeController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Origin Type list
+    //get Store list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class OriginTypeController extends Controller
     }
 
 
-    //create a Origin Type
+    //create a Store
     public function store(Request $request)
     {
-      $originType = new OriginType();
-      if($originType->validate($request->all()))
+      $store = new Store();
+      if($store->validate($request->all()))
       {
-        $originType->fill($request->all());
-        $originType->status = 1;
-        $originType->save();
+        $store->fill($request->all());
+        $store->status = 1;
+        $store->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was saved successfully',
-          'originType' => $originType
+          'message' => 'Store was saved successfully',
+          'store' => $store
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
+          $errors = $store->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Origin Type
+    //get a Store
     public function show($id)
     {
-      $originType = OriginType::find($id);
-      if($originType == null)
-        throw new ModelNotFoundException("Requested origin type not found", 1);
+      $store = Store::find($id);
+      if($store == null)
+        throw new ModelNotFoundException("Requested store not found", 1);
       else
-        return response([ 'data' => $originType ]);
+        return response([ 'data' => $store ]);
     }
 
 
-    //update a Origin Type
+    //update a Store
     public function update(Request $request, $id)
     {
-      $originType = OriginType::find($id);
-      if($originType->validate($request->all()))
+      $store = Store::find($id);
+      if($store->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
-        $originType->save();
+        $store->fill($request->except('store_name'));
+        $store->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was updated successfully',
-          'originType' => $originType
+          'message' => 'Store was updated successfully',
+          'store' => $store
         ]]);
       }
       else
       {
-        $errors = $originType->errors();// failure, get errors
+        $errors = $store->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Origin Type
+    //deactivate a Store
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $store = Store::where('store_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'message' => 'Store was deactivated successfully.',
+          'store' => $store
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class OriginTypeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->origin_type_id , $request->origin_type));
+        return response($this->validate_duplicate_code($request->store_id , $request->store_name));
       }
     }
 
 
-    //check OriginType code already exists
+    //check Store code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $originType = OriginType::where('origin_type','=',$code)->first();
-      if($originType == null){
+      $store = Store::where('store_name','=',$code)->first();
+      if($store == null){
         return ['status' => 'success'];
       }
-      else if($originType->origin_type_id == $id){
+      else if($store->store_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Origin type code already exists'];
+        return ['status' => 'error','message' => 'Store code already exists'];
       }
     }
 
@@ -141,11 +141,11 @@ class OriginTypeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = OriginType::select('*');
+        $query = Store::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = OriginType::select($fields);
+        $query = Store::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +153,16 @@ class OriginTypeController extends Controller
       return $query->get();
     }
 
-    //search Origin Type for autocomplete
+    //search Store for autocomplete
     private function autocomplete_search($search)
   	{
-  		$origin_type_lists = OriginType::select('origin_type_id','origin_type')
-  		->where([['origin_type', 'like', '%' . $search . '%'],]) ->get();
-  		return $origin_type_lists;
+  		$store_lists = Store::select('store_id','store_name')
+  		->where([['store_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $store_lists;
   	}
 
 
-    //get searched OriginTypes for datatable plugin format
+    //get searched Stores for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,18 +173,23 @@ class OriginTypeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $origin_type_list = OriginType::select('*')
-      ->where('origin_type'  , 'like', $search.'%' )
+      $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
+      ->select('org_store.*','org_location.loc_name')
+      ->where('store_name'  , 'like', $search.'%' )
+      ->orWhere('loc_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $origin_type_count = OriginType::where('origin_type'  , 'like', $search.'%' )->count();
+      $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
+      ->where('store_name'  , 'like', $search.'%' )
+      ->orWhere('loc_name'  , 'like', $search.'%' )
+      ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $origin_type_count,
-          "recordsFiltered" => $origin_type_count,
-          "data" => $origin_type_list
+          "recordsTotal" => $store_count,
+          "recordsFiltered" => $store_count,
+          "data" => $store_list
       ];
     }
 

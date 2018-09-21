@@ -1,23 +1,33 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: shanilad
+ * Date: 9/4/2018
+ * Time: 11:46 AM
+ */
 
-namespace App\Models\Org\Cancellation;
+namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class CancellationReason extends BaseValidator
-{
-protected $table = 'org_cancellation_reason';
-    protected $primaryKey = 'reason_id';
+
+class productType extends BaseValidator {
+
+    protected $table = 'product_type';
+    protected $primaryKey = 'pack_type_id';
 
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['reason_code', 'reason_description', 'reason_id' , 'reason_category'];
+    protected $fillable = ['pack_type_description'];
+
     protected $rules = array(
-        'reason_code' => 'required',
-        'reason_description' => 'required'
+        'pack_type_description' => 'required'
+
     );
+
+
 
     public function __construct() {
         parent::__construct();
@@ -25,4 +35,6 @@ protected $table = 'org_cancellation_reason';
             'updated_by' => 2//Session::get("user_id")
         );
     }
+
+
 }

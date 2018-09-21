@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\OriginType;
+use App\Models\Org\Division;
 use Exception;
 
-class OriginTypeController extends Controller
+class DivisionController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class OriginTypeController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Origin Type list
+    //get Division list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class OriginTypeController extends Controller
     }
 
 
-    //create a Origin Type
+    //create a Division
     public function store(Request $request)
     {
-      $originType = new OriginType();
-      if($originType->validate($request->all()))
+      $division = new Division();
+      if($division->validate($request->all()))
       {
-        $originType->fill($request->all());
-        $originType->status = 1;
-        $originType->save();
+        $division->fill($request->all());
+        $division->status = 1;
+        $division->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was saved successfully',
-          'originType' => $originType
+          'message' => 'Division was saved successfully',
+          'Division' => $division
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
+          $errors = $division->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Origin Type
+    //get a Division
     public function show($id)
     {
-      $originType = OriginType::find($id);
-      if($originType == null)
-        throw new ModelNotFoundException("Requested origin type not found", 1);
+      $division = Division::find($id);
+      if($division == null)
+        throw new ModelNotFoundException("Requested division not found", 1);
       else
-        return response([ 'data' => $originType ]);
+        return response([ 'data' => $division ]);
     }
 
 
-    //update a Origin Type
+    //update a Division
     public function update(Request $request, $id)
     {
-      $originType = OriginType::find($id);
-      if($originType->validate($request->all()))
+      $division = Division::find($id);
+      if($division->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
-        $originType->save();
+        $division->fill($request->except('division_code'));
+        $division->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was updated successfully',
-          'originType' => $originType
+          'message' => 'Division was updated successfully',
+          'division' => $division
         ]]);
       }
       else
       {
-        $errors = $originType->errors();// failure, get errors
+        $errors = $division->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Origin Type
+    //deactivate a Division
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $division = Division::where('division_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'message' => 'Division was deactivated successfully.',
+          'division' => $division
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class OriginTypeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->origin_type_id , $request->origin_type));
+        return response($this->validate_duplicate_code($request->division_id , $request->division_code));
       }
     }
 
 
-    //check OriginType code already exists
+    //check Division code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $originType = OriginType::where('origin_type','=',$code)->first();
-      if($originType == null){
+      $division = Division::where('division_code','=',$code)->first();
+      if($division == null){
         return ['status' => 'success'];
       }
-      else if($originType->origin_type_id == $id){
+      else if($division->division_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Origin type code already exists'];
+        return ['status' => 'error','message' => 'Division code already exists'];
       }
     }
 
@@ -141,11 +141,11 @@ class OriginTypeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = OriginType::select('*');
+        $query = Division::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = OriginType::select($fields);
+        $query = Division::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +153,16 @@ class OriginTypeController extends Controller
       return $query->get();
     }
 
-    //search Origin Type for autocomplete
+    //search Division for autocomplete
     private function autocomplete_search($search)
   	{
-  		$origin_type_lists = OriginType::select('origin_type_id','origin_type')
-  		->where([['origin_type', 'like', '%' . $search . '%'],]) ->get();
-  		return $origin_type_lists;
+  		$division_lists = Division::select('division_id','division_name')
+  		->where([['division_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $division_lists;
   	}
 
 
-    //get searched OriginTypes for datatable plugin format
+    //get searched Divisions for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,18 +173,21 @@ class OriginTypeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $origin_type_list = OriginType::select('*')
-      ->where('origin_type'  , 'like', $search.'%' )
+      $division_list = Division::select('*')
+      ->where('division_code'  , 'like', $search.'%' )
+      ->orWhere('division_description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $origin_type_count = OriginType::where('origin_type'  , 'like', $search.'%' )->count();
+      $division_count = Division::where('division_code'  , 'like', $search.'%' )
+      ->orWhere('division_description'  , 'like', $search.'%' )
+      ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $origin_type_count,
-          "recordsFiltered" => $origin_type_count,
-          "data" => $origin_type_list
+          "recordsTotal" => $division_count,
+          "recordsFiltered" => $division_count,
+          "data" => $division_list
       ];
     }
 

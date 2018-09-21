@@ -1,23 +1,26 @@
 <?php
 
-namespace App\Models\Org\Cancellation;
+namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class CancellationReason extends BaseValidator
-{
-protected $table = 'org_cancellation_reason';
-    protected $primaryKey = 'reason_id';
+class ProductCategory extends BaseValidator {
+
+    protected $table = 'prod_category';
+    protected $primaryKey = 'prod_cat_id';
 
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['reason_code', 'reason_description', 'reason_id' , 'reason_category'];
+    protected $fillable = ['prod_cat_description'];
+
     protected $rules = array(
-        'reason_code' => 'required',
-        'reason_description' => 'required'
+        'prod_cat_description' => 'required'
+
     );
+    
+    
 
     public function __construct() {
         parent::__construct();
@@ -25,4 +28,5 @@ protected $table = 'org_cancellation_reason';
             'updated_by' => 2//Session::get("user_id")
         );
     }
+
 }

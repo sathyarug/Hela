@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Org;
+namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -10,13 +10,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
+use App\Libraries\UniqueIdGenerator;
 
-use App\Models\Finance\Accounting\PaymentTerm;
-use App\Currency;
-use App\Http\Resources\CustomerResource;
-
-
-class CustomerController extends Controller
+class CustomerOrderController extends Controller
 {
     public function __construct()
     {
@@ -27,7 +23,10 @@ class CustomerController extends Controller
     //get customer list
     public function index(Request $request)
     {
-      $type = $request->type;
+      //$id_generator = new UniqueIdGenerator();
+      //echo $id_generator->generateCustomerOrderId('CUSTOMER_ORDER' , 1);
+      echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
+      /*$type = $request->type;
       if($type == 'datatable')   {
         $data = $request->all();
         return response($this->datatable_search($data));
@@ -38,14 +37,14 @@ class CustomerController extends Controller
       }
       else{
         return response([]);
-      }
+      }*/
     }
 
 
     //create a customer
     public function store(Request $request)
     {
-      $customer = new Customer();
+      /*$customer = new Customer();
       if($customer->validate($request->all()))
       {
         $customer->fill($request->all());
@@ -62,25 +61,25 @@ class CustomerController extends Controller
       {
           $errors = $customer->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
+      }*/
     }
 
 
     //get a customer
     public function show($id)
     {
-      $customer = Customer::with(['customerCountry','currency'])->find($id);
+      /*$customer = Customer::with(['customerCountry','currency'])->find($id);
       if($customer == null)
         throw new ModelNotFoundException("Requested customer not found", 1);
       else
-        return response([ 'data' => $customer ]);
+        return response([ 'data' => $customer ]);*/
     }
 
 
     //update a customer
     public function update(Request $request, $id)
     {
-      $customer = Customer::find($id);
+    /*  $customer = Customer::find($id);
       if($customer->validate($request->all()))
       {
         $customer->fill($request->except('customer_code'));
@@ -95,35 +94,35 @@ class CustomerController extends Controller
       {
         $errors = $customer->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
+      }*/
     }
 
 
     //deactivate a customer
     public function destroy($id)
     {
-      $customer = Customer::where('customer_id', $id)->update(['status' => 0]);
+      /*$customer = Customer::where('customer_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
           'message' => 'Customer was deactivated successfully.',
           'customer' => $customer
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ] , Response::HTTP_NO_CONTENT);*/
     }
 
 
     //validate anything based on requirements
     public function validate_data(Request $request){
-      $for = $request->for;
+      /*$for = $request->for;
       if($for == 'duplicate')
       {
         return response($this->validate_duplicate_code($request->customer_id , $request->customer_code));
-      }
+      }*/
     }
 
 
     public function customer_divisions(Request $request) {
-        $type = $request->type;
+        /*$type = $request->type;
         $customer_id = $request->customer_id;
 
         if($type == 'selected')
@@ -145,13 +144,13 @@ class CustomerController extends Controller
               ->where('customer_id', $customer_id);
           })->get();
           return response([ 'data' => $notSelected]);
-        }
+        }*/
 
     }
 
     public function save_customer_divisions(Request $request)
     {
-      $customer_id = $request->get('customer_id');
+      /*$customer_id = $request->get('customer_id');
       $divisions = $request->get('divisions');
       if($customer_id != '')
       {
@@ -172,14 +171,14 @@ class CustomerController extends Controller
       }
       else {
         throw new ModelNotFoundException("Requested customer not found", 1);
-      }
+      }*/
     }
 
 
     //check customer code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $customer = Customer::where('customer_code','=',$code)->first();
+      /*$customer = Customer::where('customer_code','=',$code)->first();
       if($customer == null){
         return ['status' => 'success'];
       }
@@ -188,23 +187,23 @@ class CustomerController extends Controller
       }
       else {
         return ['status' => 'error','message' => 'Customer code already exists'];
-      }
+      }*/
     }
 
 
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		$customer_lists = Customer::select('customer_id','customer_name')
+  		/*$customer_lists = Customer::select('customer_id','customer_name')
   		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $customer_lists;
+  		return $customer_lists;*/
   	}
 
 
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
+      /*$start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
@@ -229,24 +228,7 @@ class CustomerController extends Controller
           "recordsTotal" => $customer_count,
           "recordsFiltered" => $customer_count,
           "data" => $customer_list
-      ];
-    }
-
-
-	}
-
-    public function loadCustomer(Request $request) {
-//        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;
-        try{
-            echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
-//            return CustomerResource::collection(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get() );
-        }
-        catch (JWTException $e) {
-            // something went wrong whilst attempting to encode the token
-            return response()->json(['error' => 'could_not_create_token'], 500);
-        }
-//        $customer_list = Customer::all();
-//        echo json_encode($customer_list);
+      ];*/
     }
 
 }

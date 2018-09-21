@@ -15,7 +15,7 @@ class CountryController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => []]);
+      $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
     //Display a listing of the resource.
@@ -40,28 +40,22 @@ class CountryController extends Controller
     //create new country
     public function store(Request $request)
     {
-      try
+      $country = new Country();
+      if($country->validate($request->all()))
       {
-          $country = new Country();
-          $country->country_code = $request->country_code;
-          $country->country_description = $request->country_description;
-          $country->status = 1;
-          $country->save();
-
-          return response([
-            'data' => [
-              'message' => 'Country updated successfully',
-              'country' => $country
-            ]
-          ] , Response::HTTP_CREATED );
-
-      } catch (Exception $e) {
-          return response([
-            'errors' => [
-              'userMessage' => 'Error occured while creating country',
-              'internalMessage' => $e
-            ]
-          ] , Response::HTTP_INTERNAL_SERVER_ERROR);
+        $country->fill($request->all());
+        $country->status = 1;
+        $country->save();
+        return response([
+          'data' => [
+            'message' => 'Country updated successfully',
+            'country' => $country
+          ]
+        ] , Response::HTTP_CREATED );
+      }
+      else{
+        $errors = $department->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
@@ -69,44 +63,34 @@ class CountryController extends Controller
     //get new country
     public function show($id)
     {
-        try
-        {
-          $country = Country::find($id);
-          if($country == null)
-            return response( ['data' => 'Requested country not found'] , Response::HTTP_NOT_FOUND );
-          else
-            return response( ['data' => $country] );
-        }
-        catch(Exception $e) {
-          return response( ['errors' => [
-              'userMessage' => 'Error occured finding requested country',
-              'internalMessage' => $e
-            ] ] , Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $country = Country::find($id);
+        if($country == null)
+          return response( ['data' => 'Requested country not found'] , Response::HTTP_NOT_FOUND );
+        else
+          return response( ['data' => $country] );
     }
 
 
     //update country
     public function update(Request $request, $id)
     {
-      try {
-          $country = Country::find($id);
-          $country->country_description = $request->country_description;
-          $country->save();
+      $country = Country::find($id);
+      if($country->validate($request->all()))
+      {
+        $country->fill($request->except('country_code'));
+        $country->save();
 
-          return response([
-            'data' => [
-              'message' => 'Country saved successfully',
-              'country' => $country
-            ]
-          ]);
-
-      } catch (Exception $e) {
-        return response([ 'errors' => [
-          'userMessage' => 'Error occured updating country',
-          'internalMessage' => $e
+        return response([
+          'data' => [
+            'message' => 'Country saved successfully',
+            'country' => $country
           ]
-        ] , Response::HTTP_INTERNAL_SERVER_ERROR);
+        ]);
+      }
+      else
+      {
+        $errors = $country->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
@@ -114,43 +98,24 @@ class CountryController extends Controller
     //deactivate a country
     public function destroy($id)
     {
-      try{
         $country = Country::where('country_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Country was deactivated successfully',
+            'message' => 'Country was deactivated successfully.',
             'country' => $country
           ]
-        ]);
-      }
-      catch(Exception $e){
-        return response([
-          'errors' => [
-            'userMessage' => 'Error occured while deleting country',
-            'internalMessage' => $e
-            ]
-        ] , Response::HTTP_INTERNAL_SERVER_ERROR);
-      }
+        ] , Response::HTTP_NO_CONTENT);
     }
 
 
     //validate anything based on requirements
     public function validate_data(Request $request){
-      try{
         $for = $request->for;
         if($for == 'duplicate')
         {
-          return response($this->validate_duplicate_code($request->goods_type_id , $request->goods_type_description));
+          return response($this->validate_duplicate_code($request->country_id , $request->country_code));
         }
-      }
-      catch(Exception $e){
-        return response([
-          'errors' => [
-            'userMessage' => 'Error occured while validating',
-            'internalMessage' => $e
-            ]
-        ] , Response::HTTP_INTERNAL_SERVER_ERROR);
-      }
+
     }
 
 
@@ -159,13 +124,13 @@ class CountryController extends Controller
     {
       $country = Country::where('country_code','=',$country_code)->first();
       if($country == null){
-        return response(['status' => 'success']);
+        return ['status' => 'success'];
       }
       else if($country->country_id == $country_id){
-        return response(['status' => 'success']);
+        return ['status' => 'success'];
       }
       else {
-        return response(['status' => 'error','message' => 'Country code already exists']);
+        return ['status' => 'error','message' => 'Country code already exists'];
       }
     }
 

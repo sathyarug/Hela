@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\OriginType;
+use App\Models\Org\Color;
 use Exception;
 
-class OriginTypeController extends Controller
+class ColorController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class OriginTypeController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Origin Type list
+    //get Color list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class OriginTypeController extends Controller
     }
 
 
-    //create a Origin Type
+    //create a Color
     public function store(Request $request)
     {
-      $originType = new OriginType();
-      if($originType->validate($request->all()))
+      $color = new Color();
+      if($color->validate($request->all()))
       {
-        $originType->fill($request->all());
-        $originType->status = 1;
-        $originType->save();
+        $color->fill($request->all());
+        $color->status = 1;
+        $color->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was saved successfully',
-          'originType' => $originType
+          'message' => 'Color was saved successfully',
+          'color' => $color
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
+          $errors = $color->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Origin Type
+    //get a Color
     public function show($id)
     {
-      $originType = OriginType::find($id);
-      if($originType == null)
-        throw new ModelNotFoundException("Requested origin type not found", 1);
+      $color = Color::find($id);
+      if($color == null)
+        throw new ModelNotFoundException("Requested color not found", 1);
       else
-        return response([ 'data' => $originType ]);
+        return response([ 'data' => $color ]);
     }
 
 
-    //update a Origin Type
+    //update a Color
     public function update(Request $request, $id)
     {
-      $originType = OriginType::find($id);
-      if($originType->validate($request->all()))
+      $color = Color::find($id);
+      if($color->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
-        $originType->save();
+        $color->fill($request->except('color_code'));
+        $color->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was updated successfully',
-          'originType' => $originType
+          'message' => 'Color was updated successfully',
+          'color' => $color
         ]]);
       }
       else
       {
-        $errors = $originType->errors();// failure, get errors
+        $errors = $color->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Origin Type
+    //deactivate a Color
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $color = Color::where('color_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'message' => 'Color was deactivated successfully.',
+          'color' => $color
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class OriginTypeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->origin_type_id , $request->origin_type));
+        return response($this->validate_duplicate_code($request->color_id , $request->color_code));
       }
     }
 
 
-    //check OriginType code already exists
+    //check Color code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $originType = OriginType::where('origin_type','=',$code)->first();
-      if($originType == null){
+      $color = Color::where('color_code','=',$code)->first();
+      if($color == null){
         return ['status' => 'success'];
       }
-      else if($originType->origin_type_id == $id){
+      else if($color->color_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Origin type code already exists'];
+        return ['status' => 'error','message' => 'Color code already exists'];
       }
     }
 
@@ -141,11 +141,11 @@ class OriginTypeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = OriginType::select('*');
+        $query = Color::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = OriginType::select($fields);
+        $query = Color::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +153,16 @@ class OriginTypeController extends Controller
       return $query->get();
     }
 
-    //search Origin Type for autocomplete
+    //search Color for autocomplete
     private function autocomplete_search($search)
   	{
-  		$origin_type_lists = OriginType::select('origin_type_id','origin_type')
-  		->where([['origin_type', 'like', '%' . $search . '%'],]) ->get();
-  		return $origin_type_lists;
+  		$color_lists = Color::select('color_id','color_name')
+  		->where([['color_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $color_lists;
   	}
 
 
-    //get searched OriginTypes for datatable plugin format
+    //get searched Colors for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,18 +173,21 @@ class OriginTypeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $origin_type_list = OriginType::select('*')
-      ->where('origin_type'  , 'like', $search.'%' )
+      $color_list = Color::select('*')
+      ->where('color_code'  , 'like', $search.'%' )
+      ->orWhere('Color_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $origin_type_count = OriginType::where('origin_type'  , 'like', $search.'%' )->count();
+      $color_count = Color::where('color_code'  , 'like', $search.'%' )
+      ->orWhere('color_name'  , 'like', $search.'%' )
+      ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $origin_type_count,
-          "recordsFiltered" => $origin_type_count,
-          "data" => $origin_type_list
+          "recordsTotal" => $color_count,
+          "recordsFiltered" => $color_count,
+          "data" => $color_list
       ];
     }
 
