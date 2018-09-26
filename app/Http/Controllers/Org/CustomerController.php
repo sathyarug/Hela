@@ -233,9 +233,9 @@ class CustomerController extends Controller
     }
 
 
-	}
+	
 
-    public function loadCustomer(Request $request) {
+   public function loadCustomer(Request $request) {
 //        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;
         try{
             echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
@@ -247,6 +247,6 @@ class CustomerController extends Controller
         }
 //        $customer_list = Customer::all();
 //        echo json_encode($customer_list);
-    }
+   }
 
 }
