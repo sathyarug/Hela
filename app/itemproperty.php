@@ -33,14 +33,19 @@ class itemproperty extends Model
         
         $subcatcode = $request->subcategory_code;
                 
-        return DB::table('item_property')->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')->select('item_property.property_id','item_property.property_name')->where('item_property_assign.subcategory_id','=',$subcatcode)->get();
+        return DB::table('item_property')->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')->select('item_property.property_id','item_property.property_name')->where('item_property_assign.subcategory_id','=',$subcatcode)->orderBy('sequence_no')->get();
         
     }
     
-    public function scopeLoadUnAssignPropertiesBySubCat(){        
+    public function LoadUnAssignPropertiesBySubCat($result){ 
+                        
+       $subcatCode = $result->subcategory_code;        
+        
+        return DB::table('item_property')->select('item_property.property_id','item_property.property_name')->whereNotIn('item_property.property_id',function($q) use ($subcatCode){
+           $q->select('property_id')->from('item_property_assign')->where('subcategory_id',$subcatCode);
+       })->get();
+        
        
-                
-        return DB::table('item_property')->leftJoin('item_property_assign','item_property_assign.property_id','=','item_property.property_id')->select('item_property.property_id','item_property.property_name')->where('item_property_assign.subcategory_id')->get();
         
     }
 
