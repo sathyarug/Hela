@@ -142,12 +142,19 @@ Route::prefix('finance/')->group(function(){
 });
 
 
+Route::prefix('stores/')->group(function(){
+
+  Route::apiResource('po-load','stores\RollPlanController');
+
+});
+
 Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
-  Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
-
-  Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+    Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+    Route::apiResource('get-style','Merchandising\StyleCreationController');
+    Route::apiResource('tna-master','Merchandising\TnaMasterController');
 
 
 
