@@ -112,6 +112,9 @@ Route::prefix('org/')->group(function(){
 
   Route::get('stores/validate' , 'Org\StoreController@validate_data');
   Route::apiResource('stores','Org\StoreController');
+  
+  Route::get('store-bin/validate' , 'Org\Store\StoreBinController@validate_data');
+  Route::apiResource('store-bin','Org\Store\StoreBinController');
 
 });
 
@@ -156,6 +159,9 @@ Route::prefix('merchandising/')->group(function(){
 Route::prefix('admin/')->group(function(){
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
+  
+  Route::get('role/validate' , 'Admin\RoleController@validate_data');
+  Route::apiResource('role','Admin\RoleController');
 });
 
 

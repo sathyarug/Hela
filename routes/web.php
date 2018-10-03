@@ -393,3 +393,7 @@ Route::prefix('finance/item/')->group(function(){
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
     Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');   
 });
+
+Route::prefix('org/')->group(function(){    
+    Route::resource('store-bin','Org\Store\StoreBinController');
+});
