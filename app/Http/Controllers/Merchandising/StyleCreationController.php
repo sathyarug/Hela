@@ -9,6 +9,24 @@ use App\Models\Merchandising\styleCreation;
 
 class StyleCreationController extends Controller
 {
+    public function __construct()
+    {
+        //add functions names to 'except' paramert to skip authentication
+        $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
+
+    //get customer list
+    public function index(Request $request)
+    {//print_r('eeee');exit;
+        try{
+            echo json_encode(styleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
+        }
+        catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
+    }
+
     public function saveStyleCreation(Request $request) {
 //        $payload = $request->avatar;
 
