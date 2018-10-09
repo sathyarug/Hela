@@ -112,8 +112,15 @@ Route::prefix('org/')->group(function(){
 
   Route::get('stores/validate' , 'Org\StoreController@validate_data');
   Route::apiResource('stores','Org\StoreController');
-
+  
 });
+
+Route::prefix('items/')->group(function(){
+    Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
+    Route::apiResource('itemlists','itemCreationController');
+});
+
+
 
 
 Route::prefix('finance/')->group(function(){
