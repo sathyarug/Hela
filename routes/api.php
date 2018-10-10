@@ -113,9 +113,18 @@ Route::prefix('org/')->group(function(){
   Route::get('stores/validate' , 'Org\StoreController@validate_data');
   Route::apiResource('stores','Org\StoreController');
 
+});
+
+
   Route::apiResource('ship-modes','Org\ShipModeController');
 
+
+Route::prefix('items/')->group(function(){
+    Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
+    Route::apiResource('itemlists','itemCreationController');
 });
+
+
 
 
 Route::prefix('finance/')->group(function(){
@@ -144,20 +153,26 @@ Route::prefix('finance/')->group(function(){
 });
 
 
+Route::prefix('stores/')->group(function(){
+
+  Route::apiResource('po-load','stores\RollPlanController');
+
+});
+
 Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
-  Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
-
-  Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
-
-  Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-
+    Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+    Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
+    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+    Route::apiResource('get-style','Merchandising\StyleCreationController');
+    Route::apiResource('tna-master','Merchandising\TnaMasterController');
 
 
 });
 
 Route::prefix('admin/')->group(function(){
+  Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
 });
 

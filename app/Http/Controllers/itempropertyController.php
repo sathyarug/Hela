@@ -168,8 +168,11 @@ class itempropertyController extends Controller
         
     }
     
-    public function LoadUnAssignPropertiesBySubCat(){
-        $objUnassignPropertiesBySubCat = itemproperty::LoadUnAssignPropertiesBySubCat();
+    public function LoadUnAssignPropertiesBySubCat(Request $request){
+        $propperty_assign = new itemproperty();
+        
+        $subcatcode = $request->subcategory_code;
+        $objUnassignPropertiesBySubCat = $propperty_assign->LoadUnAssignPropertiesBySubCat($request);
         echo json_encode($objUnassignPropertiesBySubCat);
     }
 }

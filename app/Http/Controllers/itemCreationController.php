@@ -19,6 +19,13 @@ class itemCreationController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['GetItemList']]);
+    }
+    
     public function index(Request $request)
     {
         $keyword = $request->get('search');
@@ -37,8 +44,8 @@ class itemCreationController extends Controller
 
         //return view('item-creation.index', compact('itemcreation'));
         return view('item-creation.index',$data);
-    }
-
+    }    
+       
     /**
      * Show the form for creating a new resource.
      *
@@ -209,6 +216,33 @@ class itemCreationController extends Controller
         
         echo json_encode(array('recordscount' => $rowCount));
         
+        
+    }
+    
+    public function GetItemList(Request $data){
+        
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+        
+      $itemCreationModel = new itemCreation();
+      $rsItemList = $itemCreationModel->LoadItems();
+      
+      $countItems = $itemCreationModel->LoadItems()->count();
+        
+      //echo json_encode($rsItemList);
+      
+      return[
+        "draw" => $draw,
+        "recordsTotal" => $countItems,
+        "recordsFiltered" => $countItems,
+        "data" => $rsItemList  
+          
+      ]; 
         
     }
 }

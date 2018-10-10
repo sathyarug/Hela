@@ -381,8 +381,8 @@ Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositi
 Route::get('itemCreation/loadPropertyValue','itemCreationController@LoadPropertyValues');
 Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');  
 Route::post('itemCreation/saveItem','itemCreationController@store');
+Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');  
 Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist'); 
-
 
 Route::prefix('finance/item/')->group(function(){    
     Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
@@ -391,6 +391,6 @@ Route::prefix('finance/item/')->group(function(){
     Route::get('get','Finance\Item\ItemSubCategoryController@get');
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
-    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');    
-    
+    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');   
 });
+/* */
