@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
-use App\Models\Merchandising\CustomerOrder;
+use App\Models\Merchandising\CustomerOrderDetails;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 
-class CustomerOrderController extends Controller
+class CustomerOrderDetailsController extends Controller
 {
     public function __construct()
     {
@@ -24,23 +24,19 @@ class CustomerOrderController extends Controller
     public function index(Request $request)
     {
       //$id_generator = new UniqueIdGenerator();
-      //echo $id_generator->generateCustomerOrderId('CUSTOMER_ORDER' , 1);
+      //echo $id_generator->generateCustomerOrderDetailsId('CUSTOMER_ORDER' , 1);
       //echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
       $type = $request->type;
       if($type == 'datatable') {
         $data = $request->all();
         return response($this->datatable_search($data));
       }
-      else if($type == 'auto')    {
+      else if($type == 'auto')  {
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
-      else if($type == 'style')    {
-        $search = $request->search;
-        return response($this->style_search($search));
-      }
       else{
-        return response([]);
+        return response(['data' => $this->list()]);
       }
     }
 
@@ -48,22 +44,22 @@ class CustomerOrderController extends Controller
     //create a customer
     public function store(Request $request)
     {
-      $order = new CustomerOrder();
-      if($order->validate($request->all()))
+      $order_details = new CustomerOrderDetails();
+      if($order_details->validate($request->all()))
       {
-        $order->fill($request->all());
-        //$order->status = 1;
-        $order->save();
+        $order_details->fill($request->all());
+        //$order_details->status = 1;
+        $order_details->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order was saved successfully',
-          'customerOrder' => $order
+          'message' => 'Customer order line was saved successfully',
+          'CustomerOrderDetails' => $order_details
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $order->errors();// failure, get errors
+          $errors = $order_details->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
@@ -72,11 +68,11 @@ class CustomerOrderController extends Controller
     //get a customer
     public function show($id)
     {
-      /*$customer = Customer::with(['customerCountry','currency'])->find($id);
+      $customer = CustomerOrderDeails::find($id);
       if($customer == null)
         throw new ModelNotFoundException("Requested customer not found", 1);
       else
-        return response([ 'data' => $customer ]);*/
+        return response([ 'data' => $customer ]);
     }
 
 
@@ -213,6 +209,11 @@ class CustomerOrderController extends Controller
   	}
 
 
+    private function list(){
+      return CustomerOrderDetails::all();
+    }
+
+
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
@@ -220,15 +221,15 @@ class CustomerOrderController extends Controller
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      $order_details = $data['order'][0];
+      $order_details_column = $data['columns'][$order_details['column']]['data'];
+      $order_details_type = $order_details['dir'];
 
       $customer_list = Customer::select('*')
       ->where('customer_code'  , 'like', $search.'%' )
       ->orWhere('customer_name'  , 'like', $search.'%' )
       ->orWhere('customer_short_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
+      ->orderBy($order_details_column, $order_details_type)
       ->offset($start)->limit($length)->get();
 
       $customer_count = Customer::where('customer_code'  , 'like', $search.'%' )

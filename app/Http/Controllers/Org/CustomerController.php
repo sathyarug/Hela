@@ -69,7 +69,7 @@ class CustomerController extends Controller
     //get a customer
     public function show($id)
     {
-      $customer = Customer::with(['customerCountry','currency'])->find($id);
+      $customer = Customer::with(['customerCountry','currency','divisions'])->find($id);
       if($customer == null)
         throw new ModelNotFoundException("Requested customer not found", 1);
       else
@@ -233,7 +233,7 @@ class CustomerController extends Controller
     }
 
 
-	}
+
 
     public function loadCustomer(Request $request) {
 //        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;

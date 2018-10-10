@@ -58,7 +58,7 @@ class CurrencyController extends Controller
       }
       else
       {
-        $errors = $customer->errors();// failure, get errors
+        $errors = $currency->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
