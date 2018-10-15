@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Customer;
-use App\Models\Org\Division;
-use App\Libraries\UniqueIdGenerator;
+use App\Models\Merchandising\CustomerOrder;
+//use App\Libraries\UniqueIdGenerator;
+use App\Models\Merchandising\StyleCreation;
 
 class CustomerOrderController extends Controller
 {
@@ -25,9 +25,9 @@ class CustomerOrderController extends Controller
     {
       //$id_generator = new UniqueIdGenerator();
       //echo $id_generator->generateCustomerOrderId('CUSTOMER_ORDER' , 1);
-      echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
-      /*$type = $request->type;
-      if($type == 'datatable')   {
+      //echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
+      $type = $request->type;
+      if($type == 'datatable') {
         $data = $request->all();
         return response($this->datatable_search($data));
       }
@@ -35,33 +35,37 @@ class CustomerOrderController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'style')    {
+        $search = $request->search;
+        return response($this->style_search($search));
+      }
       else{
         return response([]);
-      }*/
+      }
     }
 
 
     //create a customer
     public function store(Request $request)
     {
-      /*$customer = new Customer();
-      if($customer->validate($request->all()))
+      $order = new CustomerOrder();
+      if($order->validate($request->all()))
       {
-        $customer->fill($request->all());
-        $customer->status = 1;
-        $customer->save();
+        $order->fill($request->all());
+        //$order->status = 1;
+        $order->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was saved successfully',
-          'customer' => $customer
+          'message' => 'Customer order was saved successfully',
+          'customerOrder' => $order
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $customer->errors();// failure, get errors
+          $errors = $order->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }*/
+      }
     }
 
 
@@ -197,6 +201,15 @@ class CustomerOrderController extends Controller
   		/*$customer_lists = Customer::select('customer_id','customer_name')
   		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
   		return $customer_lists;*/
+  	}
+
+
+    //search customer for autocomplete
+    private function style_search($search)
+  	{
+  		$style_lists = StyleCreation::select('style_id','style_no','customer_id')
+  		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
+  		return $style_lists;
   	}
 
 
