@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Org;
+namespace App\Http\Controllers\Store;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Store;
+use App\Models\Store\Store;
 use Exception;
 
 class StoreController extends Controller

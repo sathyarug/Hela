@@ -110,8 +110,8 @@ Route::prefix('org/')->group(function(){
   Route::get('colors/validate' , 'Org\ColorController@validate_data');
   Route::apiResource('colors','Org\ColorController');
 
-  Route::get('stores/validate' , 'Org\StoreController@validate_data');
-  Route::apiResource('stores','Org\StoreController');
+  //Route::get('stores/validate' , 'Org\StoreController@validate_data');
+  //Route::apiResource('stores','Org\StoreController');
 
 });
 
@@ -174,6 +174,23 @@ Route::prefix('merchandising/')->group(function(){
 Route::prefix('admin/')->group(function(){
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
+  
+  Route::get('role/validate' , 'Admin\RoleController@validate_data');
+  Route::apiResource('role','Admin\RoleController');
+});
+
+Route::prefix('store/')->group(function(){
+    
+  Route::auth();
+ 
+  Route::get('stores/validate' , 'Store\StoreController@validate_data');
+  Route::apiResource('stores','Store\StoreController');
+  
+  Route::get('storebin/validate' , 'Store\StoreBinController@validate_data');
+  Route::apiResource('storebin','Store\StoreBinController');
+  
+  Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
+  Route::apiResource('substore','Store\SubStoreController');
 });
 
 
