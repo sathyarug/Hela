@@ -44,10 +44,6 @@ class itemproperty extends Model
         return DB::table('item_property')->select('item_property.property_id','item_property.property_name')->whereNotIn('item_property.property_id',function($q) use ($subcatCode){
            $q->select('property_id')->from('item_property_assign')->where('subcategory_id',$subcatCode);
        })->get();
-        
-       
-        
     }
-
     
 }

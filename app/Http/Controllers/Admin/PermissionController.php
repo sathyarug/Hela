@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller {
@@ -190,14 +191,14 @@ class PermissionController extends Controller {
     public function update(Request $request, $id) {
 
         $requestData = $request->all();
-        $requestData['updated_by'] = 1; //Auth::id();
+        $requestData['updated_by'] = Auth::id();
 
         $permission = Permission::findOrFail($id);
 
         if ($permission) {
             $permission->update($requestData);
             return response([ 'data' => [
-            'message' => 'Currency was updated successfully',
+            'message' => 'Permission is updated successfully',
             'permission' => $permission
           ]]);
            // echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
