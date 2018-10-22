@@ -145,6 +145,7 @@ Route::prefix('finance/')->group(function(){
 Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
+  Route::apiResource('roll','stores\RollPlanController');
 
 });
 
