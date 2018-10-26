@@ -19,6 +19,13 @@ class itemCreationController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['GetItemList']]);
+    }
+    
     public function index(Request $request)
     {
         $keyword = $request->get('search');
@@ -37,8 +44,8 @@ class itemCreationController extends Controller
 
         //return view('item-creation.index', compact('itemcreation'));
         return view('item-creation.index',$data);
-    }
-
+    }    
+       
     /**
      * Show the form for creating a new resource.
      *
@@ -150,10 +157,18 @@ class itemCreationController extends Controller
     public function SaveContentType(Request $request){
         
         $content_type = new ContentType();
-        $content_type->type_description = strtoupper($request->content_type);
+        $content_name = strtoupper($request->content_type);
+        $status = "";
         
-        $content_type->saveOrFail();
-        echo json_encode(array('status' => 'success'));         
+        if(ContentType::where('type_description','=',$content_name)->count()>0){
+            $status = "exist";
+        }else{
+            $content_type->type_description = $content_name;
+        
+            $content_type->saveOrFail();
+            $status = "success";
+        }
+        echo json_encode(array('status' => $status));         
         
     }
     
@@ -185,12 +200,23 @@ class itemCreationController extends Controller
     public function SavePropertyValue(Request $request){
         
         $propertyValueAssign = new PropertyValueAssign();
-        $propertyValueAssign->property_id = $request->propertyid;
-        $propertyValueAssign->assign_value = $request->propertyValue;
-        $propertyValueAssign->status = 1;
-        $propertyValueAssign->saveOrFail();
+        $status = '';
         
-        echo json_encode(array('status' => 'success'));
+        if($propertyValueAssign::where('property_id','=',$request->propertyid)->where('assign_value','=',$request->propertyValue)->count()>0){
+            $status = 'exist';
+        }else{
+            $propertyValueAssign->property_id = $request->propertyid;
+            $propertyValueAssign->assign_value = $request->propertyValue;
+            $propertyValueAssign->status = 1;
+            $propertyValueAssign->saveOrFail();
+            
+            $status = 'success';
+        }
+        
+        
+        
+        
+        echo json_encode(array('status' => $status));
     }   
     
     public function LoadPropertyValues(Request $request){
@@ -209,6 +235,33 @@ class itemCreationController extends Controller
         
         echo json_encode(array('recordscount' => $rowCount));
         
+        
+    }
+    
+    public function GetItemList(Request $data){
+        
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+        
+      $itemCreationModel = new itemCreation();
+      $rsItemList = $itemCreationModel->LoadItems();
+      
+      $countItems = $itemCreationModel->LoadItems()->count();
+        
+      //echo json_encode($rsItemList);
+      
+      return[
+        "draw" => $draw,
+        "recordsTotal" => $countItems,
+        "recordsFiltered" => $countItems,
+        "data" => $rsItemList  
+          
+      ]; 
         
     }
 }

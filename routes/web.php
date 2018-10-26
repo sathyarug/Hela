@@ -372,6 +372,8 @@ Route::get('itemproperty/load-properties', 'itempropertyController@LoadPropertie
 Route::post('itemproperty/save-assign', 'itempropertyController@SavePropertyAssign');
 Route::get('itemproperty/load-assign-properties', 'itempropertyController@LoadAssignProperties');
 Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUnAssignPropertiesBySubCat');
+Route::get('itemproperty/check_property','itempropertyController@CheckProperty');
+Route::post('itemproperty/delete-assign', 'itempropertyController@RemoveAssign');  
 
 Route::post('itemCreation/saveContent','itemCreationController@SaveContentType');
 Route::post('itemCreation/saveComposition','itemCreationController@SaveCompositions');
@@ -381,7 +383,7 @@ Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositi
 Route::get('itemCreation/loadPropertyValue','itemCreationController@LoadPropertyValues');
 Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');  
 Route::post('itemCreation/saveItem','itemCreationController@store');
-Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist'); 
+Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');  
 
 
 Route::prefix('finance/item/')->group(function(){    
@@ -391,6 +393,6 @@ Route::prefix('finance/item/')->group(function(){
     Route::get('get','Finance\Item\ItemSubCategoryController@get');
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
-    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');    
-    /* */
+    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');   
 });
+/* */

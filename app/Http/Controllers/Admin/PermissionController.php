@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller {
@@ -137,9 +138,15 @@ class PermissionController extends Controller {
         $requestData['created_by'] = 1; //Auth::id();
 
         if (Permission::create($requestData)) {
-            echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
+            
+            return response([ 'data' => [
+          'message' => 'Permission saved successfully.'
+          ]
+        ], Response::HTTP_CREATED );
+            //echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
         } else {
-            echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
+            return response(['errors' => ['validationErrors' => 'Failed saving!' ]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            //echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
         }
 
         //return redirect('admin/permission')->with('flash_message', 'Permission added!');
@@ -154,7 +161,11 @@ class PermissionController extends Controller {
      */
     public function show($id) {
         $permission = Permission::findOrFail($id);
-        return view('admin.permission.show', compact('permission'));
+        //return view('admin.permission.show', compact('permission'));
+        if($permission == null)
+          throw new ModelNotFoundException("Requested permission not found", 1);
+        else
+          return response([ 'data' => $permission ]);
     }
 
     /**
@@ -180,15 +191,19 @@ class PermissionController extends Controller {
     public function update(Request $request, $id) {
 
         $requestData = $request->all();
-        $requestData['updated_by'] = 1; //Auth::id();
+        $requestData['updated_by'] = Auth::id();
 
         $permission = Permission::findOrFail($id);
 
         if ($permission) {
             $permission->update($requestData);
-            echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
+            return response([ 'data' => [
+            'message' => 'Permission is updated successfully',
+            'permission' => $permission
+          ]]);
+           // echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
         } else {
-            echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
+           // echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
         }
 
         //return redirect('admin/permission')->with('flash_message', 'Permission updated!');
@@ -203,10 +218,15 @@ class PermissionController extends Controller {
      */
     public function destroy($id) {
         if (Permission::destroy($id)) {
-            echo json_encode(array('status' => 'success', 'message' => 'Permission deleted successfully.'));
-        } else {
+             return response([
+          'data' => [
+            'message' => 'Permission deleted successfully.'
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+            //echo json_encode(array('status' => 'success', 'message' => 'Permission deleted successfully.'));
+        } /*else {
             echo json_encode(array('status' => 'error', 'message' => 'Failed deletion!'));
-        }
+        }*/
         //return redirect('admin/permission')->with('flash_message', 'Permission deleted!');
     }
 
@@ -232,6 +252,31 @@ class PermissionController extends Controller {
                 echo 'false';
             }
         }
+    }
+    
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_permission($request->id , $request->name));
+      }
+    }
+
+
+    //check shipment cterm code code already exists
+    private function validate_duplicate_permission($id , $name)
+    {
+      $permission = Permission::where('name','=',$name)->first();
+      if($permission == null){
+        return ['status' => 'success'];
+      }
+      else if($permission->id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Permission already exists'];
+      }
     }
 
 }

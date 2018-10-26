@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Core;
+namespace App\Http\Controllers\Org;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Core\Status;
+use App\Models\Org\ShipMode;
 use Exception;
 
-class StatusController extends Controller
+class ShipModeController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class StatusController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Color list
+    //get Season list
     public function index(Request $request)
     {
       /*$type = $request->type;
@@ -31,43 +31,54 @@ class StatusController extends Controller
         return response($this->autocomplete_search($search));
       }
       else {*/
-        $type = $request->type;
+        $active = $request->active;
+        $fields = $request->fields;
         return response([
-          'data' => $this->list($type)
+          'data' => $this->list($active , $fields)
         ]);
-    //  }
+      //}
     }
 
 
-    //create a Color
+    //create a Season
     public function store(Request $request)
     {
     }
 
 
-    //get a Color
+    //get a Season
     public function show($id)
     {
     }
 
 
-    //update a Color
+    //update a Season
     public function update(Request $request, $id)
     {
     }
 
 
-    //deactivate a Color
+    //deactivate a Season
     public function destroy($id)
     {
     }
 
 
     //get filtered fields only
-    private function list($type)
+    private function list($active = 0 , $fields = null)
     {
-        $query = Status::where('type', '=' , $type)->get();
-        return $query;
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = ShipMode::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = ShipMode::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
     }
 
 

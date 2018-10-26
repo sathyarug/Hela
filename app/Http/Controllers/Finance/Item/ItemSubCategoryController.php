@@ -24,13 +24,17 @@ class ItemSubCategoryController extends Controller
         {
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
-                $sub_category->category_code = $request->category_code;
+                $sub_category->category_id = $request->category_code;
                 $sub_category->subcategory_name = $request->subcategory_name;
                 $sub_category->is_inspectiion_allowed = $request->is_inspectiion_allowed;
                 $sub_category->is_display = $request->is_display;
             }
             else{
               $sub_category->fill($request->all());
+              $sub_category->category_id = $request->category_code;
+              $sub_category->is_inspectiion_allowed = $request->is_inspectiion_allowed;
+              $sub_category->is_display = $request->is_display;
+              $sub_category->status = 1;
               $sub_category->created_by = 1;
             }
             $result = $sub_category->saveOrFail();
@@ -54,7 +58,7 @@ class ItemSubCategoryController extends Controller
 
     public function get(Request $request){
         $sub_category_id = $request->subcategory_id;
-        $sub_category = SubCategory::find($sub_category_id);
+        $sub_category = SubCategory::select("*")->where("subcategory_id","=",$sub_category_id)->get();
         echo json_encode($sub_category);
     }
 

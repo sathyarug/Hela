@@ -110,8 +110,8 @@ Route::prefix('org/')->group(function(){
   Route::get('colors/validate' , 'Org\ColorController@validate_data');
   Route::apiResource('colors','Org\ColorController');
 
-  Route::get('stores/validate' , 'Org\StoreController@validate_data');
-  Route::apiResource('stores','Org\StoreController');
+  //Route::get('stores/validate' , 'Org\StoreController@validate_data');
+  //Route::apiResource('stores','Org\StoreController');
 
   Route::get('product-specification/validate' , 'Org\ProductSpecificationController@validate_data');
   Route::apiResource('product-specifications','Org\ProductSpecificationController');
@@ -126,6 +126,17 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 
 });
+
+
+  Route::apiResource('ship-modes','Org\ShipModeController');
+
+
+Route::prefix('items/')->group(function(){
+    Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
+    Route::apiResource('itemlists','itemCreationController');
+});
+
+
 
 
 Route::prefix('finance/')->group(function(){
@@ -157,25 +168,50 @@ Route::prefix('finance/')->group(function(){
 });
 
 
+Route::prefix('stores/')->group(function(){
+
+  Route::apiResource('po-load','stores\RollPlanController');
+  Route::apiResource('roll','stores\RollPlanController');
+
+});
+
 Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
-  Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+    Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+    Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
+    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+    Route::apiResource('get-style','Merchandising\StyleCreationController');
+    Route::apiResource('tna-master','Merchandising\TnaMasterController');
+    Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
+    Route::apiResource('color-options','Merchandising\ColorOptionController');
 
-  Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-
-  Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
-  Route::apiResource('color-options','Merchandising\ColorOptionController');
-
-  Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
-  Route::apiResource('cut-direction','Merchandising\CutDirectionController');
-
+    Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
+    Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
 
 });
 
 Route::prefix('admin/')->group(function(){
+  Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
+
+  Route::get('role/validate' , 'Admin\RoleController@validate_data');
+  Route::apiResource('role','Admin\RoleController');
+});
+
+Route::prefix('store/')->group(function(){
+
+  Route::auth();
+
+  Route::get('stores/validate' , 'Store\StoreController@validate_data');
+  Route::apiResource('stores','Store\StoreController');
+
+  Route::get('storebin/validate' , 'Store\StoreBinController@validate_data');
+  Route::apiResource('storebin','Store\StoreBinController');
+
+  Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
+  Route::apiResource('substore','Store\SubStoreController');
 });
 
 
