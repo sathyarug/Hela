@@ -113,6 +113,18 @@ Route::prefix('org/')->group(function(){
   Route::get('stores/validate' , 'Org\StoreController@validate_data');
   Route::apiResource('stores','Org\StoreController');
 
+  Route::get('product-specification/validate' , 'Org\ProductSpecificationController@validate_data');
+  Route::apiResource('product-specifications','Org\ProductSpecificationController');
+
+  Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
+  Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
+
+  Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
+  Route::apiResource('silhouettes','Org\SilhouetteController');
+
+  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+
 });
 
 
@@ -139,6 +151,9 @@ Route::prefix('finance/')->group(function(){
   Route::get('exchange-rates/validate' , 'Finance\ExchangeRateController@validate_data');
   Route::apiResource('exchange-rates','Finance\ExchangeRateController');
 
+  Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
+  Route::apiResource('transaction','Finance\TransactionController');
+
 });
 
 
@@ -148,6 +163,12 @@ Route::prefix('merchandising/')->group(function(){
   Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
 
   Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+
+  Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
+  Route::apiResource('color-options','Merchandising\ColorOptionController');
+
+  Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
+  Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
 
 
