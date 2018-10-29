@@ -17,7 +17,7 @@ class CustomerOrderDetailsController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->middleware('jwt.verify', ['except' => ['index','show']]);
     }
 
     //get customer list
@@ -50,10 +50,11 @@ class CustomerOrderDetailsController extends Controller
         $order_details->fill($request->all());
         //$order_details->status = 1;
         $order_details->save();
+        $order_details = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details->details_id);
 
         return response([ 'data' => [
           'message' => 'Customer order line was saved successfully',
-          'CustomerOrderDetails' => $order_details
+          'customerOrderDetails' => $order_details
           ]
         ], Response::HTTP_CREATED );
       }
@@ -68,46 +69,49 @@ class CustomerOrderDetailsController extends Controller
     //get a customer
     public function show($id)
     {
-      $customer = CustomerOrderDeails::find($id);
-      if($customer == null)
-        throw new ModelNotFoundException("Requested customer not found", 1);
+      $detail = CustomerOrderDetails::with(['order_country','order_location'])->find($id);
+      if($detail == null)
+        throw new ModelNotFoundException("Requested order details not found", 1);
       else
-        return response([ 'data' => $customer ]);
+        return response([ 'data' => $detail ]);
     }
 
 
     //update a customer
     public function update(Request $request, $id)
     {
-    /*  $customer = Customer::find($id);
-      if($customer->validate($request->all()))
-      {
-        $customer->fill($request->except('customer_code'));
-        $customer->save();
+        $order_details = CustomerOrderDetails::find($id);
+        if($order_details->validate($request->all()))
+        {
+          $order_details->fill($request->all());
+          //$order_details->status = 1;
+          $order_details->save();
+          $order_details = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details->details_id);
 
-        return response([ 'data' => [
-          'message' => 'Customer was updated successfully',
-          'customer' => $customer
-        ]]);
-      }
-      else
-      {
-        $errors = $customer->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }*/
+          return response([ 'data' => [
+            'message' => 'Customer order line was saved successfully',
+            'customerOrderDetails' => $order_details
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $order_details->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
 
     //deactivate a customer
     public function destroy($id)
     {
-      /*$customer = Customer::where('customer_id', $id)->update(['status' => 0]);
+      /*$customer = Customer::where('customer_id', $id)->update(['status' => 0]);*/
       return response([
         'data' => [
           'message' => 'Customer was deactivated successfully.',
-          'customer' => $customer
+          'customer' => null
         ]
-      ] , Response::HTTP_NO_CONTENT);*/
+      ] , Response::HTTP_NO_CONTENT);
     }
 
 
@@ -210,7 +214,7 @@ class CustomerOrderDetailsController extends Controller
 
 
     private function list(){
-      return CustomerOrderDetails::all();
+      return CustomerOrderDetails::with(['order_country','order_location'])->get();
     }
 
 

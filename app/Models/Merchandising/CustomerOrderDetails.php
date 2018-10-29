@@ -40,4 +40,22 @@ class CustomerOrderDetails extends BaseValidator
         parent::__construct();
     }
 
+    //default currency of the company
+		public function color()
+		{
+			 return $this->belongsTo('App\Models\Org\Color' , 'style_color')->select(['color_id','color_code']);
+		}
+
+    //country of the company
+		public function order_country()
+		{
+			 return $this->belongsTo('App\Models\Org\Country' , 'country');
+		}
+
+    //country of the company
+		public function order_location()
+		{
+			 return $this->belongsTo('App\Models\Org\Location\Location' , 'projection_location')->select(array('loc_id', 'loc_name'));;
+		}
+
 }

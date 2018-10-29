@@ -113,10 +113,12 @@ Route::prefix('org/')->group(function(){
   Route::get('stores/validate' , 'Org\StoreController@validate_data');
   Route::apiResource('stores','Org\StoreController');
 
+  Route::apiResource('ship-modes','Org\ShipModeController');
+
 });
 
 
-  Route::apiResource('ship-modes','Org\ShipModeController');
+
 
 
 Route::prefix('items/')->group(function(){

@@ -80,7 +80,7 @@ class LocationController extends Controller
     //get a Location
     public function show($id)
     {
-      $location = Location::find($id);
+      $location = Location::with(['country','currency','costCenters'])->find($id);
       if($location == null)
         throw new ModelNotFoundException("Requested location not found", 1);
       else
@@ -96,6 +96,16 @@ class LocationController extends Controller
       {
         $location->fill($request->except('loc_code'));
         $location->save();
+
+        DB::table('org_location_cost_centers')->where('loc_id', '=', $id)->delete();
+				$cost_centers = $request->get('cost_centers');
+				$save_cost_centers = array();
+				if($cost_centers != '') {
+		  		foreach($cost_centers as $cost_center)		{
+						array_push($save_cost_centers,CostCenter::find($cost_center['cost_center_id']));
+					}
+				}
+				$location->costCenters()->saveMany($save_cost_centers);
 
         return response([ 'data' => [
           'message' => 'Location was updated successfully',
