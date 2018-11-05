@@ -191,6 +191,9 @@ Route::prefix('store/')->group(function(){
   
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+  
+  Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
+  Route::apiResource('bin-config','Store\BinConfigController');
 });
 
 

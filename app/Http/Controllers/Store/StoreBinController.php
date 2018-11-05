@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Store\StoreBin;
+use App\Models\Finance\Item\Category;
 
 class StoreBinController extends Controller {
 
@@ -23,6 +24,15 @@ class StoreBinController extends Controller {
         } else if ($type == 'auto') {
             $search = $request->search;
             return response($this->autocomplete_search($search));
+        } else if ($type == 'getBins') {
+            $data = $request->all();
+            return response($this->getActiveBins($data));
+        } else if ($type == 'getCategory') {
+            $data = $request->all();
+            return response($this->getCategoryList($data)); 
+        } else if ($type == 'getItemCategory') {
+            $data = $request->all();
+            return response($this->getItemCategory($data['category_id']));    
         } else {
             $active = $request->active;
             $fields = $request->fields;
@@ -109,10 +119,10 @@ class StoreBinController extends Controller {
                 'store' => $storeBin
             ]
                 ], Response::HTTP_NO_CONTENT);
-    }
+        }
 
-    //get filtered fields only
-    private function list($active = 0, $fields = null) {
+        //get filtered fields only
+        private function list($active = 0, $fields = null) {
         $query = null;
         if ($fields == null || $fields == '') {
             $query = StoreBin::select('*');
@@ -179,6 +189,40 @@ class StoreBinController extends Controller {
         } else {
             return ['status' => 'error', 'message' => 'Bin already exists'];
         }
+    }
+
+    private function getActiveBins($data) {
+        $bin_list = StoreBin::select('org_store_bin.*', 'org_substore.substore_name', 'org_store.store_name','org_store_bin_allocation.allocation_id')
+            ->join('org_substore', 'org_substore.substore_id', '=', 'org_store_bin.substore_id')
+            ->join('org_store', 'org_store.store_id', '=', 'org_store_bin.store_id')
+            ->leftJoin('org_store_bin_allocation', 'org_store_bin_allocation.store_bin_id', '=', 'org_store_bin.store_bin_id')
+            ->where(
+            [
+                ['org_store_bin.status', '=', '1'],
+                ['org_substore.substore_id', '=', $data['substoreId']],
+                ['org_store.store_id', '=', $data['storeId']],
+            ])->get();
+        
+        $binArray= array();
+        foreach($bin_list as $bin) {
+            $binArray[$bin->store_bin_id] = $bin;
+        }
+        return [
+            "data" => array_values($binArray)
+        ];
+    }
+    
+    
+    private function getCategoryList() {
+        return Category::select('item_category.*')
+                ->where('item_category.status', '=', '1')
+                ->orderBy('item_category.category_name', 'ASC')->get();
+    }
+    
+    private function getItemCategory($categoryId) {
+        return [
+            "data" => Category::getItemListByCategory($categoryId)
+        ];
     }
 
 }
