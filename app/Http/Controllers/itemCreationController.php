@@ -157,10 +157,18 @@ class itemCreationController extends Controller
     public function SaveContentType(Request $request){
         
         $content_type = new ContentType();
-        $content_type->type_description = strtoupper($request->content_type);
+        $content_name = strtoupper($request->content_type);
+        $status = "";
         
-        $content_type->saveOrFail();
-        echo json_encode(array('status' => 'success'));         
+        if(ContentType::where('type_description','=',$content_name)->count()>0){
+            $status = "exist";
+        }else{
+            $content_type->type_description = $content_name;
+        
+            $content_type->saveOrFail();
+            $status = "success";
+        }
+        echo json_encode(array('status' => $status));         
         
     }
     
@@ -192,12 +200,23 @@ class itemCreationController extends Controller
     public function SavePropertyValue(Request $request){
         
         $propertyValueAssign = new PropertyValueAssign();
-        $propertyValueAssign->property_id = $request->propertyid;
-        $propertyValueAssign->assign_value = $request->propertyValue;
-        $propertyValueAssign->status = 1;
-        $propertyValueAssign->saveOrFail();
+        $status = '';
         
-        echo json_encode(array('status' => 'success'));
+        if($propertyValueAssign::where('property_id','=',$request->propertyid)->where('assign_value','=',$request->propertyValue)->count()>0){
+            $status = 'exist';
+        }else{
+            $propertyValueAssign->property_id = $request->propertyid;
+            $propertyValueAssign->assign_value = $request->propertyValue;
+            $propertyValueAssign->status = 1;
+            $propertyValueAssign->saveOrFail();
+            
+            $status = 'success';
+        }
+        
+        
+        
+        
+        echo json_encode(array('status' => $status));
     }   
     
     public function LoadPropertyValues(Request $request){

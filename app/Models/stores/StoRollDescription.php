@@ -5,17 +5,17 @@ namespace App\Models\stores;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class PoOrderType extends BaseValidator
+class StoRollDescription extends BaseValidator
 {
-    protected $table='po_order_type';
-    protected $primaryKey='po_type_id';
+    protected $table='sto_roll_description';
+    protected $primaryKey='id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-//    protected $fillable=[];
+ protected $fillable=['item_code','lot_no','roll_no','qty_yardage','comment'];
 
     protected $rules=array(
-        'po_status_name'=>'required'
+        'item_code'=>'required'
     );
 
     public function __construct() {

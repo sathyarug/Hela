@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Models\stores;
+namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
 class PoOrderHeader extends BaseValidator
 {
-    protected $table='po_order_header';
+    protected $table='merc_po_order_header';
     protected $primaryKey='po_id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
@@ -19,11 +19,16 @@ class PoOrderHeader extends BaseValidator
         'po_number'=>'required'
     );
 
-    public function user(){
-        return $this->belongsTo('App\Profile', 'user_id');
-    }
 
     public function __construct() {
         parent::__construct();
+    }
+
+    /*public function poDetails(){
+        return $this->hasMany(PoOrderDetails::class);
+    }*/
+
+    public function poDetails(){
+        return $this->belongsTo('App\Models\Merchandising\PoOrderDetails' , 'po_id');
     }
 }

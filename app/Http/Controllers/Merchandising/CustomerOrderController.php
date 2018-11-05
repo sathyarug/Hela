@@ -207,7 +207,7 @@ class CustomerOrderController extends Controller
     //search customer for autocomplete
     private function style_search($search)
   	{
-  		$style_lists = StyleCreation::select('style_id','style_no','customer_id')
+  		$style_lists = StyleCreation::select('style_id','style_no','style_description','customer_id')
   		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
   		return $style_lists;
   	}
@@ -216,7 +216,7 @@ class CustomerOrderController extends Controller
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
-      /*$start = $data['start'];
+      $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
@@ -224,16 +224,20 @@ class CustomerOrderController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $customer_list = Customer::select('*')
-      ->where('customer_code'  , 'like', $search.'%' )
-      ->orWhere('customer_name'  , 'like', $search.'%' )
-      ->orWhere('customer_short_name'  , 'like', $search.'%' )
+      $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
+      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
+      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
+      ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name','cust_division.division_description')
+      ->where('order_code'  , 'like', $search.'%' )
+      ->orWhere('order_company'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $customer_count = Customer::where('customer_code'  , 'like', $search.'%' )
-      ->orWhere('customer_name'  , 'like', $search.'%' )
-      ->orWhere('customer_short_name'  , 'like', $search.'%' )
+      $customer_count = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
+      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
+      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
+      ->where('order_code'  , 'like', $search.'%' )
+      ->orWhere('order_company'  , 'like', $search.'%' )
       ->count();
 
       return [
@@ -241,7 +245,7 @@ class CustomerOrderController extends Controller
           "recordsTotal" => $customer_count,
           "recordsFiltered" => $customer_count,
           "data" => $customer_list
-      ];*/
+      ];
     }
 
 }
