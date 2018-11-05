@@ -39,7 +39,6 @@ class UserController extends Controller {
 
     public function store(Request $request)
     {
-
         $data = request()->except(['_token']);
         $profile = new UsrProfile;
         $login = new User;

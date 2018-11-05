@@ -148,7 +148,9 @@ Route::prefix('finance/')->group(function(){
 Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
+  //Route::apiResource('loadPoLineData','Merchandising\PurchaseOrder');
 
+  Route::apiResource('save-grn-lines', 'stores\GrnController');
 });
 
 Route::prefix('merchandising/')->group(function(){
@@ -158,7 +160,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
     Route::apiResource('get-style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
-
+    Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
+    Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
 
 
 });
@@ -177,6 +180,7 @@ Route::prefix('core/')->group(function(){
   Route::apiResource('status','Core\StatusController');
 
 });
+
 
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
