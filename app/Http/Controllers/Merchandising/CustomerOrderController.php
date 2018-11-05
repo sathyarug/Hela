@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Customer;
-use App\Models\Org\Division;
-use App\Libraries\UniqueIdGenerator;
+use App\Models\Merchandising\CustomerOrder;
+//use App\Libraries\UniqueIdGenerator;
+use App\Models\Merchandising\StyleCreation;
 
 class CustomerOrderController extends Controller
 {
@@ -25,9 +25,9 @@ class CustomerOrderController extends Controller
     {
       //$id_generator = new UniqueIdGenerator();
       //echo $id_generator->generateCustomerOrderId('CUSTOMER_ORDER' , 1);
-      echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
-      /*$type = $request->type;
-      if($type == 'datatable')   {
+      //echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
+      $type = $request->type;
+      if($type == 'datatable') {
         $data = $request->all();
         return response($this->datatable_search($data));
       }
@@ -35,33 +35,37 @@ class CustomerOrderController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'style')    {
+        $search = $request->search;
+        return response($this->style_search($search));
+      }
       else{
         return response([]);
-      }*/
+      }
     }
 
 
     //create a customer
     public function store(Request $request)
     {
-      /*$customer = new Customer();
-      if($customer->validate($request->all()))
+      $order = new CustomerOrder();
+      if($order->validate($request->all()))
       {
-        $customer->fill($request->all());
-        $customer->status = 1;
-        $customer->save();
+        $order->fill($request->all());
+        //$order->status = 1;
+        $order->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was saved successfully',
-          'customer' => $customer
+          'message' => 'Customer order was saved successfully',
+          'customerOrder' => $order
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $customer->errors();// failure, get errors
+          $errors = $order->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }*/
+      }
     }
 
 
@@ -200,10 +204,19 @@ class CustomerOrderController extends Controller
   	}
 
 
+    //search customer for autocomplete
+    private function style_search($search)
+  	{
+  		$style_lists = StyleCreation::select('style_id','style_no','style_description','customer_id')
+  		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
+  		return $style_lists;
+  	}
+
+
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
-      /*$start = $data['start'];
+      $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
@@ -211,16 +224,20 @@ class CustomerOrderController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $customer_list = Customer::select('*')
-      ->where('customer_code'  , 'like', $search.'%' )
-      ->orWhere('customer_name'  , 'like', $search.'%' )
-      ->orWhere('customer_short_name'  , 'like', $search.'%' )
+      $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
+      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
+      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
+      ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name','cust_division.division_description')
+      ->where('order_code'  , 'like', $search.'%' )
+      ->orWhere('order_company'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $customer_count = Customer::where('customer_code'  , 'like', $search.'%' )
-      ->orWhere('customer_name'  , 'like', $search.'%' )
-      ->orWhere('customer_short_name'  , 'like', $search.'%' )
+      $customer_count = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
+      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
+      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
+      ->where('order_code'  , 'like', $search.'%' )
+      ->orWhere('order_company'  , 'like', $search.'%' )
       ->count();
 
       return [
@@ -228,7 +245,7 @@ class CustomerOrderController extends Controller
           "recordsTotal" => $customer_count,
           "recordsFiltered" => $customer_count,
           "data" => $customer_list
-      ];*/
+      ];
     }
 
 }

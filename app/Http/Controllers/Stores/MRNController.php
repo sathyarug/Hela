@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Org;
+namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Store;
-use Exception;
+use App\Models\Org\Location\Cluster;
 
-class StoreController extends Controller
+class ClusterController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +17,7 @@ class StoreController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Store list
+    //get Cluster list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +39,71 @@ class StoreController extends Controller
     }
 
 
-    //create a Store
+    //create a Cluster
     public function store(Request $request)
     {
-      $store = new Store();
-      if($store->validate($request->all()))
+      $cluster = new Cluster();
+      if($cluster->validate($request->all()))
       {
-        $store->fill($request->all());
-        $store->status = 1;
-        $store->save();
+        $cluster->fill($request->all());
+        $cluster->status = 1;
+        $cluster->save();
 
         return response([ 'data' => [
-          'message' => 'Store was saved successfully',
-          'store' => $store
+          'message' => 'Cluster was saved successfully',
+          'cluster' => $cluster
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $store->errors();// failure, get errors
+          $errors = $cluster->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Store
+    //get a Cluster
     public function show($id)
     {
-      $store = Store::find($id);
-      if($store == null)
-        throw new ModelNotFoundException("Requested store not found", 1);
+      $cluster = Cluster::find($id);
+      if($cluster == null)
+        throw new ModelNotFoundException("Requested cluster not found", 1);
       else
-        return response([ 'data' => $store ]);
+        return response([ 'data' => $cluster ]);
     }
 
 
-    //update a Store
+    //update a Cluster
     public function update(Request $request, $id)
     {
-      $store = Store::find($id);
-      if($store->validate($request->all()))
+      $cluster = Cluster::find($id);
+      if($cluster->validate($request->all()))
       {
-        $store->fill($request->except('store_name'));
-        $store->save();
+        $cluster->fill($request->except('group_code'));
+        $cluster->save();
 
         return response([ 'data' => [
-          'message' => 'Store was updated successfully',
-          'store' => $store
+          'message' => 'Cluster was updated successfully',
+          'cluster' => $cluster
         ]]);
       }
       else
       {
-        $errors = $store->errors();// failure, get errors
+        $errors = $cluster->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Store
+    //deactivate a Cluster
     public function destroy($id)
     {
-      $store = Store::where('store_id', $id)->update(['status' => 0]);
+      $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Store was deactivated successfully.',
-          'store' => $store
+          'message' => 'Cluster was deactivated successfully.',
+          'cluster' => $cluster
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +114,23 @@ class StoreController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->store_id , $request->store_name));
+        return response($this->validate_duplicate_code($request->group_id , $request->group_code));
       }
     }
 
 
-    //check Store code already exists
+    //check Cluster code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $store = Store::where('store_name','=',$code)->first();
-      if($store == null){
+      $cluster = Cluster::where('group_code','=',$code)->first();
+      if($cluster == null){
         return ['status' => 'success'];
       }
-      else if($store->store_id == $id){
+      else if($cluster->group_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Store code already exists'];
+        return ['status' => 'error','message' => 'Cluster code already exists'];
       }
     }
 
@@ -141,11 +140,11 @@ class StoreController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Store::select('*');
+        $query = Cluster::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Store::select($fields);
+        $query = Cluster::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +152,16 @@ class StoreController extends Controller
       return $query->get();
     }
 
-    //search Store for autocomplete
+    //search Cluster for autocomplete
     private function autocomplete_search($search)
   	{
-  		$store_lists = Store::select('store_id','store_name')
-  		->where([['store_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $store_lists;
+  		$cluster_lists = Cluster::select('group_id','group_name')
+  		->where([['group_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $cluster_lists;
   	}
 
 
-    //get searched Stores for datatable plugin format
+    //get searched Clusters for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,23 +172,25 @@ class StoreController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->select('org_store.*','org_location.loc_name')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+      $cluster_list = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+  		->select('org_group.*', 'org_source.source_name')
+  		->where('group_code','like',$search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->orWhere('source_name', 'like', $search.'%')
+  		->orderBy($order_column, $order_type)
+  		->offset($start)->limit($length)->get();
 
-      $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
-      ->count();
+  		$cluster_count = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+  		->where('group_code','like',$search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->orWhere('source_name', 'like', $search.'%')
+  		->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $store_count,
-          "recordsFiltered" => $store_count,
-          "data" => $store_list
+          "recordsTotal" => $cluster_count,
+          "recordsFiltered" => $cluster_count,
+          "data" => $cluster_list
       ];
     }
 

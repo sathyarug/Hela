@@ -145,16 +145,38 @@ class itempropertyController extends Controller
         echo json_encode($item_property);
     }
     
-    public function SavePropertyAssign(Request $request){
+    public function RemoveAssign(Request $request){
         
         $propperty_assign = new assign_property();
         
-        $propperty_assign->property_id = $request->property_id;
-        $propperty_assign->subcategory_id = $request->subcategory_code;
-        $propperty_assign->status = 1;
-        $propperty_assign->sequence_no = $request->sequence_no;
+        echo json_encode("Code : ".$request->sub_code);
         
-        $propperty_assign->saveOrFail();
+        $propperty_assign::where('subcategory_id',$request->sub_code)->delete();
+        
+        
+    }
+    
+    public function SavePropertyAssign(Request $request){
+        
+        $propperty_assign = new assign_property();        
+        
+        
+        $obj = assign_property::where('property_id',$request->property_id)->where('subcategory_id',$request->subcategory_code);
+        
+        if($obj->count()>0){
+             $obj->sequence_no = $request->sequence_no;
+             $obj->save();
+            
+        }else{
+            
+            $propperty_assign->property_id = $request->property_id;
+            $propperty_assign->subcategory_id = $request->subcategory_code;
+            $propperty_assign->status = 1;
+            $propperty_assign->sequence_no = $request->sequence_no;
+
+            $propperty_assign->saveOrFail();
+            
+        }
         
         echo json_encode(array('status' => 'success'));        
     }
@@ -174,5 +196,15 @@ class itempropertyController extends Controller
         $subcatcode = $request->subcategory_code;
         $objUnassignPropertiesBySubCat = $propperty_assign->LoadUnAssignPropertiesBySubCat($request);
         echo json_encode($objUnassignPropertiesBySubCat);
+    }
+    
+    public function CheckProperty(Request $request){
+        
+        $property_name = $request->property_name;
+        $recCount = itemproperty::where('property_name','=',$property_name)->count();
+        
+        echo json_encode(array('recordscount' => $recCount));
+        
+        
     }
 }
