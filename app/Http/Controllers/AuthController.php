@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
+use App\UsrProfile;
+
 class AuthController extends Controller
 {
     /**
@@ -75,11 +77,19 @@ class AuthController extends Controller
     */
    protected function respondWithToken($token)
    {
+       $user_id = auth()->user()->user_id;
+       $user = UsrProfile::find($user_id);
+       $user_data = [
+         'user_id' => $user->user_id,
+         'location' => $user->loc_id,
+         'first_name' => $user->first_name,
+         'last_name' => $user->last_name
+       ];
        return response()->json([
            'access_token' => $token,
            'token_type' => 'bearer',
-           'expires_in' => auth()->factory()->getTTL() * 60,
-           'user' => auth()->user()
+           'expires_in' => auth()->factory()->getTTL() * 360,
+           'user' => $user_data//auth()->user()
        ]);
    }
 
