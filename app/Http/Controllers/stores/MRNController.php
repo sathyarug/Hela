@@ -160,7 +160,7 @@ class ClusterController extends Controller
   		return $cluster_lists;
   	}
 
-
+      //
     //get searched Clusters for datatable plugin format
     private function datatable_search($data)
     {
