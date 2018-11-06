@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Store\StoreBin;
 use App\Models\Finance\Item\Category;
+use Illuminate\Support\Facades\DB;
 
 class StoreBinController extends Controller {
 
@@ -152,16 +153,34 @@ class StoreBinController extends Controller {
         $order = $data['order'][0];
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
-
+        
+        $payload = auth()->payload();
+        $locId = $payload->get('loc_id');
+        //print_r($payload); exit;
         $bin_list = StoreBin::select('org_store_bin.*', 'org_substore.substore_name', 'org_store.store_name')
                         ->join('org_substore', 'org_substore.substore_id', '=', 'org_store_bin.substore_id')
-                        ->join('org_store', 'org_store.store_id', '=', 'org_store_bin.store_id')
-                        ->where('store_bin_name', 'like', $search . '%')
+                        ->join('org_store',function($join) use ($locId)
+                        {
+                            $join->on('org_store.store_id', '=', 'org_store_bin.store_id');
+                            $join->on('org_store.loc_id', '=', DB::raw($locId) );
+                        })
+                                
+                        ->where([['store_bin_name', 'like', "%$search%"]])
                         ->orderBy($order_column, $order_type)
                         ->offset($start)->limit($length)->get();
 
-        $bin_count = StoreBin::where('store_bin_name', 'like', $search . '%')
-                ->count();
+        //$bin_count = StoreBin::where('store_bin_name', 'like', $search . '%')
+                //->count();
+        $bin_count =  StoreBin::select('org_store_bin.*', 'org_substore.substore_name', 'org_store.store_name')
+                        ->join('org_substore', 'org_substore.substore_id', '=', 'org_store_bin.substore_id')
+                        ->join('org_store',function($join) use ($locId)
+                        {
+                            $join->on('org_store.store_id', '=', 'org_store_bin.store_id');
+                            $join->on('org_store.loc_id', '=', DB::raw($locId) );
+                        })
+                                
+                        ->where([['store_bin_name', 'like', "%$search%"]])
+                        ->count();
 
         return [
             "draw" => $draw,

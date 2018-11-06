@@ -147,7 +147,8 @@ class StoreController extends Controller
         $fields = explode(',', $fields);
         $query = Store::select($fields);
         if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
+          $payload = auth()->payload();
+          $query->where([['status', '=', $active],['loc_id', '=', $payload->get('loc_id') ]]);
         }
       }
       return $query->get();
