@@ -54,7 +54,7 @@ class CompanyController extends Controller
         $result = $company->saveOrFail();
         $insertedId = $company->company_id;
 
-        /*DB::table('org_company_departments')->where('company_id', '=', $insertedId)->delete();
+        DB::table('org_company_departments')->where('company_id', '=', $insertedId)->delete();
   			$departments = $request->get('departments');
   			$save_departments = array();
   			if($departments != '') {
@@ -72,7 +72,7 @@ class CompanyController extends Controller
   					array_push($save_sections,Section::find($sec['section_id']));
   				}
   			}
-  			$company->sections()->saveMany($save_sections);*/
+  			$company->sections()->saveMany($save_sections);
 
         return response([ 'data' => [
           'message' => 'Company was saved successfully',
@@ -91,7 +91,7 @@ class CompanyController extends Controller
     //get a Company
     public function show($id)
     {
-      $company = Company::find($id);
+      $company = Company::with(['currency','country','sections','departments'])->find($id);
       if($company == null)
         throw new ModelNotFoundException("Requested company not found", 1);
       else
@@ -107,6 +107,26 @@ class CompanyController extends Controller
       {
         $company->fill($request->except('company_code'));
         $company->save();
+
+        DB::table('org_company_departments')->where('company_id', '=', $id)->delete();
+  			$departments = $request->get('departments');
+  			$save_departments = array();
+  			if($departments != '') {
+  	  		foreach($departments as $dep)		{
+  					array_push($save_departments,Department::find($dep['dep_id']));
+  				}
+  			}
+  			$company->departments()->saveMany($save_departments);
+
+        DB::table('org_company_sections')->where('company_id', '=', $id)->delete();
+  			$sections = $request->get('sections');
+  			$save_sections = array();
+  			if($sections != '') {
+  	  		foreach($sections as $sec)		{
+  					array_push($save_sections,Section::find($sec['section_id']));
+  				}
+  			}
+  			$company->sections()->saveMany($save_sections);
 
         return response([ 'data' => [
           'message' => 'Company was updated successfully',
