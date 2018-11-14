@@ -129,6 +129,14 @@ Route::prefix('org/')->group(function(){
 
 });
 
+Route::prefix('stores/')->group(function(){
+  Route::apiResource('generalpr','stores\GeneralPRController');
+  Route::apiResource('generalpr_details','stores\GeneralPRDetailController');
+  //Route::get('get_genpr','stores\GeneralPRController');
+										  
+																				
+  Route::apiResource('get_genpr','stores\GeneralPRController');
+});
 
 
 
@@ -167,6 +175,10 @@ Route::prefix('finance/')->group(function(){
   Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
   Route::apiResource('transaction','Finance\TransactionController');
 
+   Route::apiResource('mat_main','Finance\General_item\GenMatMainController');
+  Route::apiResource('mat_sub','Finance\General_item\GenMatSubController');
+  Route::apiResource('get_mat_sub','Finance\General_item\GenMatSubController');
+  Route::apiResource('load_mat_sub','Finance\General_item\GenMatSubController');
 });
 
 
