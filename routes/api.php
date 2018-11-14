@@ -119,8 +119,14 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
 
+  Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  Route::apiResource('features','Org\FeatureController');
+
   Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
   Route::apiResource('silhouettes','Org\SilhouetteController');
+
+  Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
+  Route::apiResource('garmentoptions','Org\GarmentOptionsController');
 
   Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
@@ -130,7 +136,18 @@ Route::prefix('org/')->group(function(){
 });
 
 
+Route::prefix('ie/')->group(function(){
 
+  Route::get('smvupdates/validate' , 'IE\SMVUpdateController@validate_data');
+  Route::get('smvupdates/divisions' , 'IE\SMVUpdateController@customer_divisions');
+  Route::put('smvupdates/updates' , 'IE\SMVUpdateController@update');
+  Route::apiResource('smvupdates','IE\SMVUpdateController');
+
+  Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
+  Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+
+
+});
 
 
 Route::prefix('items/')->group(function(){

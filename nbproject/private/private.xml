@@ -3,10 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Store/StoreController.php</file>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/AuthController.php</file>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Store/StoreBinController.php</file>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Admin/UserController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Org/ColorController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/BOMStageController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/public/css/core.css</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/routes/api.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Core/StatusController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/ColorOptionController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/public/assets/css/core.css</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Org/CustomerSizeGridController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Admin/PermissionController.php</file>
         </group>
     </open-files>
 </project-private>
