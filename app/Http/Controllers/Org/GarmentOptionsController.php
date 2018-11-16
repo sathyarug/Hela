@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Store;
+namespace App\Http\Controllers\Org;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Store\Store;
+use App\Models\Org\GarmentOptions;
 use Exception;
 
-class StoreController extends Controller
+class GarmentOptionsController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class StoreController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Store list
+    //get GarmentOptions list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class StoreController extends Controller
     }
 
 
-    //create a Store
+    //create a GarmentOptions
     public function store(Request $request)
     {
-      $store = new Store();
-      if($store->validate($request->all()))
+      $garmentoptions = new GarmentOptions();
+      if($garmentoptions->validate($request->all()))
       {
-        $store->fill($request->all());
-        $store->status = 1;
-        $store->save();
+        $garmentoptions->fill($request->all());
+        $garmentoptions->status = 1;
+        $garmentoptions->save();
 
         return response([ 'data' => [
-          'message' => 'Store was saved successfully',
-          'store' => $store
+          'message' => 'Garment Option was saved successfully',
+          'garmentoptions' => $garmentoptions
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $store->errors();// failure, get errors
+          $errors = $garmentoptions->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Store
+    //get a GarmentOptions
     public function show($id)
     {
-      $store = Store::find($id);
-      if($store == null)
-        throw new ModelNotFoundException("Requested store not found", 1);
+      $garmentoptions = GarmentOptions::find($id);
+      if($garmentoptions == null)
+        throw new ModelNotFoundException("Requested garment option not found", 1);
       else
-        return response([ 'data' => $store ]);
+        return response([ 'data' => $garmentoptions ]);
     }
 
 
-    //update a Store
+    //update a GarmentOptions
     public function update(Request $request, $id)
     {
-      $store = Store::find($id);
-      if($store->validate($request->all()))
+      $garmentoptions = GarmentOptions::find($id);
+      if($garmentoptions->validate($request->all()))
       {
-        $store->fill($request->except('store_name'));
-        $store->save();
+        $garmentoptions->fill($request->all());
+        $garmentoptions->save();
 
         return response([ 'data' => [
-          'message' => 'Store was updated successfully',
-          'store' => $store
+          'message' => 'Garment option was updated successfully',
+          'garmentoptions' => $garmentoptions
         ]]);
       }
       else
       {
-        $errors = $store->errors();// failure, get errors
+        $errors = $garmentoptions->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Store
+    //deactivate a GarmentOptions
     public function destroy($id)
     {
-      $store = Store::where('store_id', $id)->update(['status' => 0]);
+      $garmentoptions = GarmentOptions::where('garment_options_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Store was deactivated successfully.',
-          'store' => $store
+          'message' => 'Garment Option was deactivated successfully.',
+          'garnentoptions' => $garmentoptions
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class StoreController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->store_id , $request->store_name));
+        return response($this->validate_duplicate_code($request->garment_options_id , $request->garment_options_description));
       }
     }
 
 
-    //check Store code already exists
+    //check GarmentOptions code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $store = Store::where('store_name','=',$code)->first();
-      if($store == null){
+      $garmentoptions = GarmentOptions::where('garment_options_description','=',$code)->first();
+      if($garmentoptions == null){
         return ['status' => 'success'];
       }
-      else if($store->store_id == $id){
+      else if($garmentoptions->garment_options_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Store code already exists'];
+        return ['status' => 'error','message' => 'Garment option code already exists'];
       }
     }
 
@@ -141,29 +141,28 @@ class StoreController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Store::select('*');
+        $query = GarmentOptions::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Store::select($fields);
+        $query = GarmentOptions::select($fields);
         if($active != null && $active != ''){
-          $payload = auth()->payload();
-          $query->where([['status', '=', $active],['loc_id', '=', $payload->get('loc_id') ]]);
+          $query->where([['status', '=', $active]]);
         }
       }
       return $query->get();
     }
 
-    //search Store for autocomplete
+    //search GarmentOptions for autocomplete
     private function autocomplete_search($search)
   	{
-  		$store_lists = Store::select('store_id','store_name')
-  		->where([['store_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $store_lists;
+  		$garmentoptions_lists = GarmentOptions::select('garment_options_id','garment_options_description')
+  		->where([['garment_options_description', 'like', '%' . $search . '%']]) ->get();
+  		return $garmentoptions_lists;
   	}
 
 
-    //get searched Stores for datatable plugin format
+    //get searched GarmentOptions for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -174,23 +173,19 @@ class StoreController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->select('org_store.*','org_location.loc_name')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
+      $garmentoptions_list = GarmentOptions::select('*')
+      ->where('garment_options_description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
+      $garmentoptions_count = GarmentOptions::where('garment_options_description'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $store_count,
-          "recordsFiltered" => $store_count,
-          "data" => $store_list
+          "recordsTotal" => $garmentoptions_count,
+          "recordsFiltered" => $garmentoptions_count,
+          "data" => $garmentoptions_list
       ];
     }
 

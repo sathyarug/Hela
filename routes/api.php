@@ -113,10 +113,49 @@ Route::prefix('org/')->group(function(){
   //Route::get('stores/validate' , 'Org\StoreController@validate_data');
   //Route::apiResource('stores','Org\StoreController');
 
-});
+  Route::get('product-specification/validate' , 'Org\ProductSpecificationController@validate_data');
+  Route::apiResource('product-specifications','Org\ProductSpecificationController');
 
+  Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
+  Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
+
+  Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  Route::apiResource('features','Org\FeatureController');
+
+  Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
+  Route::apiResource('silhouettes','Org\SilhouetteController');
+
+  Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
+  Route::apiResource('garmentoptions','Org\GarmentOptionsController');
+
+  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
+
+});
+
+Route::prefix('stores/')->group(function(){
+  Route::apiResource('generalpr','stores\GeneralPRController');
+  Route::apiResource('generalpr_details','stores\GeneralPRDetailController');
+  //Route::get('get_genpr','stores\GeneralPRController');
+										  
+																				
+  Route::apiResource('get_genpr','stores\GeneralPRController');
+});
+
+Route::prefix('ie/')->group(function(){
+
+  Route::get('smvupdates/validate' , 'IE\SMVUpdateController@validate_data');
+  Route::get('smvupdates/divisions' , 'IE\SMVUpdateController@customer_divisions');
+  Route::put('smvupdates/updates' , 'IE\SMVUpdateController@update');
+  Route::apiResource('smvupdates','IE\SMVUpdateController');
+
+  Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
+  Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+
+
+});
 
 
 Route::prefix('items/')->group(function(){
@@ -150,6 +189,13 @@ Route::prefix('finance/')->group(function(){
   Route::get('exchange-rates/validate' , 'Finance\ExchangeRateController@validate_data');
   Route::apiResource('exchange-rates','Finance\ExchangeRateController');
 
+  Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
+  Route::apiResource('transaction','Finance\TransactionController');
+
+   Route::apiResource('mat_main','Finance\General_item\GenMatMainController');
+  Route::apiResource('mat_sub','Finance\General_item\GenMatSubController');
+  Route::apiResource('get_mat_sub','Finance\General_item\GenMatSubController');
+  Route::apiResource('load_mat_sub','Finance\General_item\GenMatSubController');
 });
 
 
@@ -170,6 +216,11 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('get-style','Merchandising\StyleCreationController');
     Route::apiResource('style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
+    Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
+    Route::apiResource('color-options','Merchandising\ColorOptionController');
+
+    Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
+    Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
 
 });
@@ -177,25 +228,31 @@ Route::prefix('merchandising/')->group(function(){
 Route::prefix('admin/')->group(function(){
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
-  
+
   Route::get('role/validate' , 'Admin\RoleController@validate_data');
   Route::apiResource('role','Admin\RoleController');
 });
 
 Route::prefix('store/')->group(function(){
-    
+
   Route::auth();
- 
+
   Route::get('stores/validate' , 'Store\StoreController@validate_data');
   Route::apiResource('stores','Store\StoreController');
-  
+
   Route::get('storebin/validate' , 'Store\StoreBinController@validate_data');
   Route::apiResource('storebin','Store\StoreBinController');
-  
+
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
 
+
     Route::apiResource('fabricInspection','Store\FabricInspectionController');
+
+  
+  Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
+  Route::apiResource('bin-config','Store\BinConfigController');
+
 });
 
 

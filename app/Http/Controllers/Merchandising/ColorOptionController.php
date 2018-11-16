@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Store;
+namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Store\Store;
+use App\Models\Merchandising\ColorOption;
 use Exception;
 
-class StoreController extends Controller
+class ColorOptionController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class StoreController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Store list
+    //get Origin Type list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class StoreController extends Controller
     }
 
 
-    //create a Store
+    //create a Origin Type
     public function store(Request $request)
     {
-      $store = new Store();
-      if($store->validate($request->all()))
+      $colorOption = new ColorOption;
+      if($colorOption->validate($request->all()))
       {
-        $store->fill($request->all());
-        $store->status = 1;
-        $store->save();
+        $colorOption->fill($request->all());
+        $colorOption->status = 1;
+        $colorOption->save();
 
         return response([ 'data' => [
-          'message' => 'Store was saved successfully',
-          'store' => $store
+          'message' => 'Color Option was saved successfully',
+          'originType' => $colorOption
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $store->errors();// failure, get errors
+          $errors = $colorOption->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Store
+    //get a Origin Type
     public function show($id)
     {
-      $store = Store::find($id);
-      if($store == null)
-        throw new ModelNotFoundException("Requested store not found", 1);
+      $colorOption = ColorOption::find($id);
+      if($colorOption == null)
+        throw new ModelNotFoundException("Requested Color Option not found", 1);
       else
-        return response([ 'data' => $store ]);
+        return response([ 'data' => $colorOption ]);
     }
 
 
-    //update a Store
+    //update a Origin Type
     public function update(Request $request, $id)
     {
-      $store = Store::find($id);
-      if($store->validate($request->all()))
+      $colorOption = ColorOption::find($id);
+      if($colorOption->validate($request->all()))
       {
-        $store->fill($request->except('store_name'));
-        $store->save();
+        $colorOption->fill($request->all());
+        $colorOption->save();
 
         return response([ 'data' => [
-          'message' => 'Store was updated successfully',
-          'store' => $store
+          'message' => 'Color Option was updated successfully',
+          'colorOption' => $colorOption
         ]]);
       }
       else
       {
-        $errors = $store->errors();// failure, get errors
+        $errors = $colorOption->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Store
+    //deactivate a Origin Type
     public function destroy($id)
     {
-      $store = Store::where('store_id', $id)->update(['status' => 0]);
+      $colorOption = ColorOption::where('col_opt_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Store was deactivated successfully.',
-          'store' => $store
+          'message' => 'Color Option was deactivated successfully.',
+          'colorOption' => $colorOption
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +115,23 @@ class StoreController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->store_id , $request->store_name));
+        return response($this->validate_duplicate_code($request->col_opt_id , $request->color_option));
       }
     }
 
 
-    //check Store code already exists
+    //check OriginType code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $store = Store::where('store_name','=',$code)->first();
-      if($store == null){
+      $colorOption = ColorOption::where('color_option','=',$code)->first();
+      if($colorOption == null){
         return ['status' => 'success'];
       }
-      else if($store->store_id == $id){
+      else if($colorOption->col_opt_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Store code already exists'];
+        return ['status' => 'error','message' => 'Color Option already exists'];
       }
     }
 
@@ -141,29 +141,28 @@ class StoreController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Store::select('*');
+        $query = ColorOption::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Store::select($fields);
+        $query =ColorOption::select($fields);
         if($active != null && $active != ''){
-          $payload = auth()->payload();
-          $query->where([['status', '=', $active],['loc_id', '=', $payload->get('loc_id') ]]);
+          $query->where([['status', '=', $active]]);
         }
       }
       return $query->get();
     }
 
-    //search Store for autocomplete
+    //search Origin Type for autocomplete
     private function autocomplete_search($search)
   	{
-  		$store_lists = Store::select('store_id','store_name')
-  		->where([['store_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $store_lists;
+  		$color_option_lists = ColorOption::select('col_opt_id','color_option')
+  		->where([['color_option', 'like', '%' . $search . '%'],]) ->get();
+  		return $color_option_lists;
   	}
 
 
-    //get searched Stores for datatable plugin format
+    //get searched OriginTypes for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -174,23 +173,18 @@ class StoreController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->select('org_store.*','org_location.loc_name')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
+      $color_option_lists =ColorOption::select('*')
+      ->where('color_option'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
-      ->count();
+    $color_option_count = ColorOption::where('color_option'  , 'like', $search.'%' )->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $store_count,
-          "recordsFiltered" => $store_count,
-          "data" => $store_list
+          "recordsTotal" => $color_option_count,
+          "recordsFiltered" =>$color_option_count,
+          "data" => $color_option_lists
       ];
     }
 

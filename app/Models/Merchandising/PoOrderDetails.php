@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Models\stores;
+namespace App\Models\Merchandising;
 
+use App\Http\Controllers\Merchandising\PurchaseOrder;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
 class PoOrderDetails extends BaseValidator
 {
-    protected $table='po_order_details';
+    protected $table='merc_po_order_details';
     protected $primaryKey='id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
@@ -18,11 +19,13 @@ class PoOrderDetails extends BaseValidator
         'po_id'=>'required'
     );
 
+
+
     public function __construct() {
         parent::__construct();
     }
 
-    public function PoOrderHeader(){
-        return $this->belongsTo('App\Models\stores\PoOrderHeader','po_id');
+    public function purchaseOrder(){
+        return $this->belongsTo(PurchaseOrder::class);
     }
 }

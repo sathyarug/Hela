@@ -237,6 +237,7 @@ class CustomerController extends Controller
 
 
 
+
 //    public function loadCustomer(Request $request) {
 //        	}
 //    print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;

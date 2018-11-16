@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
+use App\UsrProfile;
+
 class AuthController extends Controller
 {
     /**
@@ -26,7 +28,9 @@ class AuthController extends Controller
     {
         $credentials = request(['user_name', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        $customData = $this->get_user_from_username($credentials['user_name']);
+
+        if (! $token = auth()->claims($customData)->attempt($credentials)) {
             //return response()->json(['error' => 'Unauthorized'], 401);
               return response()->json(['error' => 'Unauthorized' , 'message' => 'Incorrect username or password'], 401);
         }
@@ -75,12 +79,29 @@ class AuthController extends Controller
     */
    protected function respondWithToken($token)
    {
+       $user_id = auth()->user()->user_id;
+       $user = UsrProfile::find($user_id);
+       $user_data = [
+         'user_id' => $user->user_id,
+         'location' => $user->loc_id,
+         'first_name' => $user->first_name,
+         'last_name' => $user->last_name
+       ];
        return response()->json([
            'access_token' => $token,
            'token_type' => 'bearer',
-           'expires_in' => auth()->factory()->getTTL() * 60,
-           'user' => auth()->user()
+           'expires_in' => auth()->factory()->getTTL() * 360,
+           'user' => $user_data//auth()->user()
        ]);
+   }
+
+   private function get_user_from_username($username){
+     $customData = UsrProfile::select('usr_profile.loc_id','usr_profile.dept_id')
+     ->join('usr_login','usr_login.user_id','=','usr_profile.user_id')
+     ->where('usr_login.user_name','=',$username)
+     ->first();
+     $customData = ($customData == null) ? [] : $customData->toArray();
+     return $customData;
    }
 
  }
