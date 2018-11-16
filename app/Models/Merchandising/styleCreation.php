@@ -37,4 +37,9 @@ class styleCreation extends BaseValidator {
         );
     }
 
+    //default currency of the company
+    public function currency()
+    {
+        return $this->belongsTo('App\Models\Finance\Customer' , 'customer_id');
+    }
 }

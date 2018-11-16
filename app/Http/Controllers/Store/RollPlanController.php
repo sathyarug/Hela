@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\stores;
+namespace App\Http\Controllers\Store;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -71,81 +71,70 @@ class RollPlanController extends Controller
 
     public function store(Request $request)
     {
-        $itemCode = $request['code'];
-       // $itemCode=($request->all())['roll_info'][0]['item_code'];
+        $itemCode=($request->all())['roll_info'][0]['item_code'];
 
         StoRollDescription::where('item_code', '=', $itemCode)->update(['status' => 0]);
 
-        if(count($request->all()['roll_info']) > 0){
+        $saveSuccess=0;$error=0;
+        $updateSuccess=0;
 
+        foreach ($request->all()['roll_info'] as $key => $value)
+        {
 
+       if($value['roll_id'] ==0) {
+           $rollDes = new StoRollDescription();
+           $fill = array(
+               'item_code' => $value['item_code'],
+               'lot_no' => $value['lot'],
+               'roll_no' => $value['roll'],
+               'qty_yardage' => $value['qty_y'],
+               'comment' => $value['comment']
+           );
 
-            $saveSuccess=0;$error=0;
-            $updateSuccess=0;
+           if ($rollDes->validate($fill)) {
+               $rollDes->fill($fill);
+                $rollDes->save();
+               $saveSuccess++;
+           } else {
+               $error++;
+              // $errors = $rollDes->errors();// failure, get errors
+              // return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+           }
 
-            foreach ($request->all()['roll_info'] as $key => $value)
-            {
+       }else{
+           $rollDes = StoRollDescription::find($value['roll_id']);
 
-                if($value['roll_id'] ==0) {
-                    $rollDes = new StoRollDescription();
-                    $fill = array(
-                        'item_code' => $value['item_code'],
-                        'lot_no' => $value['lot'],
-                        'roll_no' => $value['roll'],
-                        'qty_yardage' => $value['qty_y'],
-                        'comment' => $value['comment']
-                    );
+           $fill = array(
+               'item_code' => $value['item_code'],
+               'lot_no' => $value['lot'],
+               'roll_no' => $value['roll'],
+               'qty_yardage' => $value['qty_y'],
+               'status' => 1,
+               'comment' => $value['comment']
+           );
 
-                    if ($rollDes->validate($fill)) {
-                        $rollDes->fill($fill);
-                        $rollDes->save();
-                        $saveSuccess++;
-                    } else {
-                        $error++;
-                        // $errors = $rollDes->errors();// failure, get errors
-                        // return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-                    }
-
-                }else{
-                    $rollDes = StoRollDescription::find($value['roll_id']);
-
-                    $fill = array(
-                        'item_code' => $value['item_code'],
-                        'lot_no' => $value['lot'],
-                        'roll_no' => $value['roll'],
-                        'qty_yardage' => $value['qty_y'],
-                        'status' => 1,
-                        'comment' => $value['comment']
-                    );
-
-                    if ($rollDes->validate($fill)) {
+           if ($rollDes->validate($fill)) {
 //               dd($fill);
 //               $rollDes->fill($fill);
-                        $rollDes->item_code=$value['item_code'];
-                        $rollDes->lot_no=$value['lot'];
-                        $rollDes->roll_no=$value['roll'];
-                        $rollDes->qty_yardage=$value['qty_y'];
-                        $rollDes->status=1;
-                        $rollDes->comment=$value['comment'];
+               $rollDes->item_code=$value['item_code'];
+               $rollDes->lot_no=$value['lot'];
+               $rollDes->roll_no=$value['roll'];
+               $rollDes->qty_yardage=$value['qty_y'];
+               $rollDes->status=1;
+               $rollDes->comment=$value['comment'];
 
-                        $rollDes->save();
-                        $updateSuccess++;
-                    } else {
-                        $error++;
+               $rollDes->save();
+               $updateSuccess++;
+           } else {
+               $error++;
 //               $errors = $rollDes->errors();
 //               return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-                    }
+           }
 
-                }
-            }
-
-            return array('save'=>array('save'=>$saveSuccess,'error'=>$error),'update'=>array('save'=>$saveSuccess));
-
-        }else{
-
+       }
         }
 
-
+        return array('save'=>array('save'=>$saveSuccess,'error'=>$error),'update'=>array('save'=>$saveSuccess));
 
     }
 }

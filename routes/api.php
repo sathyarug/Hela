@@ -157,6 +157,7 @@ Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
   Route::apiResource('roll','stores\RollPlanController');
+  Route::apiResource('fabricInspection','stores\FabricInspectionController');
 
 });
 
@@ -167,6 +168,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
     Route::apiResource('get-style','Merchandising\StyleCreationController');
+    Route::apiResource('style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
 
 
@@ -192,6 +194,8 @@ Route::prefix('store/')->group(function(){
   
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+
+    Route::apiResource('fabricInspection','Store\FabricInspectionController');
 });
 
 
@@ -209,6 +213,7 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
   Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+  Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
   Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
 
