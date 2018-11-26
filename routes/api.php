@@ -85,6 +85,9 @@ Route::prefix('org/')->group(function(){
 
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
+  
+  Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
+  Route::apiResource('supplierslist','Org\SupplierController');
 
   Route::get('uom/validate' , 'Org\UOMController@validate_data');
   Route::apiResource('uom','Org\UOMController');
@@ -99,8 +102,8 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('divisions','Org\DivisionController');
 
   Route::get('seasons/validate' , 'Org\SeasonController@validate_data');
-  Route::apiResource('seasons','Org\SeasonController');
-
+  Route::apiResource('seasons','Org\SeasonController');   
+  
   Route::get('origin-types/validate' , 'Org\OriginTypeController@validate_data');
   Route::apiResource('origin-types','Org\OriginTypeController');
 
@@ -136,6 +139,10 @@ Route::prefix('org/')->group(function(){
 Route::prefix('items/')->group(function(){
     Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
     Route::apiResource('itemlists','itemCreationController');
+    
+    Route::get('itemlist/loadItemsbycat' , 'itemCreationController@GetItemListBySubCategory');
+    Route::apiResource('itemlist','itemCreationController');
+    
 });
 
 
@@ -190,7 +197,7 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
-
+    
 
 });
 
@@ -236,6 +243,25 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
 
   Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
+  
+  Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');  
+  Route::get('/loadStyleDetails','Merchandising\StyleCreationController@GetStyleDetails');  
+  
+  Route::get('/seasonlist' , 'Org\SeasonController@GetSeasonsList');
+  Route::apiResource('seasons','Org\SeasonController');
+  
+  Route::post('flashcosting/savecostingheader', 'Merchandising\Costing\Flash\FlashController@saveCostingHeader');
+  Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
+  
+  Route::post('flashcosting/confirmcosting', 'Merchandising\Costing\Flash\FlashController@confirmCostSheet');
+  Route::post('flashcosting/revisecosting', 'Merchandising\Costing\Flash\FlashController@reviseCostSheet');
+  
+  Route::get('flashcosting/listcosting', 'Merchandising\Costing\Flash\FlashController@ListingCostings');
+  Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
+  Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
+  
+  
+  
 
   /*Route::post('/sources','Test\SourceController@index');
 
