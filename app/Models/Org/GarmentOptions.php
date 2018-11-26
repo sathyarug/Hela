@@ -5,17 +5,17 @@ namespace App\Models\Org;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class Silhouette extends BaseValidator
+class GarmentOptions extends BaseValidator
 {
-    protected $table='product_silhouette';
-    protected $primaryKey='product_silhouette_id';
+    protected $table='org_garment_options';
+    protected $primaryKey='garment_options_id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['product_silhouette_description','product_silhouette_id'];
+    protected $fillable=['garment_options_description','garment_options_id'];
 
     protected $rules=array(
-        'product_silhouette_description'=>'required'
+        'garment_options_description'=>'required'
     );
 
     public function __construct() {
