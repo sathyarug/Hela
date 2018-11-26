@@ -174,6 +174,10 @@ Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
   Route::apiResource('roll','stores\RollPlanController');
+  Route::apiResource('grn', 'Store\GrnController');
+  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
+  Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
+    //Route::apiResource('substore','Store\SubStoreController');
 
 });
 
@@ -182,14 +186,15 @@ Route::prefix('merchandising/')->group(function(){
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
-    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-    Route::apiResource('get-style','Merchandising\StyleCreationController');
+    Route::apiResource('customer-order-types','Merchandising\CustomRoute::apiResource(\'save-grn-lines\', \'stores\GrnController\');roller');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
 
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
+    Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
+    Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
 
 
 });
@@ -214,6 +219,7 @@ Route::prefix('store/')->group(function(){
 
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+
 });
 
 
