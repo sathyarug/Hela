@@ -28,5 +28,23 @@ class Category extends BaseValidator
         );*/
     }
 
+    
+    static function getItemListByCategory($categoryId){
+        return Category::select(
+                'item_subcategory.subcategory_id',
+                'item_subcategory.subcategory_code', 
+                'item_subcategory.subcategory_name', 
+                'item_category.category_id', 
+                'item_category.category_code', 
+                'item_category.category_name'
+                )
+            ->join('item_subcategory', 'item_category.category_id', '=', 'item_subcategory.category_id')
+            ->where(
+            [
+                ['item_category.status', '=', '1'],
+                ['item_subcategory.status', '=', '1'],
+                ['item_category.category_id', '=', $categoryId ],
+            ])->get();
+    }
 
 }

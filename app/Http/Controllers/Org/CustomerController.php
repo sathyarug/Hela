@@ -16,12 +16,13 @@ use App\Currency;
 use App\Http\Resources\CustomerResource;
 
 
+
 class CustomerController extends Controller
 {
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+//      $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
     //get customer list
@@ -244,7 +245,6 @@ class CustomerController extends Controller
 
 
    public function loadCustomer(Request $request) {
-//        print_r(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());exit;
 
         try{
             echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
@@ -254,8 +254,28 @@ class CustomerController extends Controller
             // something went wrong whilst attempting to encode the token
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
-//        $customer_list = Customer::all();
-//        echo json_encode($customer_list);
    }
+
+    public function loadCustomerDivision(Request $request) {
+
+        $customer_id = $request->get('customer_id');
+
+        $divisions=DB::table('cust_customer')
+            ->join('org_customer_divisions', 'cust_customer.customer_id', '=', 'org_customer_divisions.customer_id')
+            ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
+            ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+            ->where('cust_customer.status','<>', 0)
+            ->where('cust_customer.customer_id','=',$customer_id)
+            ->get();
+//dd($data);
+//        $customer = Customer::find($customer_id);
+//        $divisions= $customer->divisions()->get();
+//        $data=array();
+//        foreach ($divisions as $division){
+//            array_push($data,$division);
+//        }
+        echo json_encode($divisions);
+
+    }
 
 }

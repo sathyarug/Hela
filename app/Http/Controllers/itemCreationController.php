@@ -23,12 +23,12 @@ class itemCreationController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['GetItemList']]);
+      $this->middleware('jwt.verify', ['except' => ['GetItemList', 'GetItemListBySubCategory']]);
     }
     
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
+        /*$keyword = $request->get('search');
         $perPage = 25;
 
         if (!empty($keyword)) {
@@ -44,6 +44,24 @@ class itemCreationController extends Controller
 
         //return view('item-creation.index', compact('itemcreation'));
         return view('item-creation.index',$data);
+         * 
+         */
+        $type = $request->type;
+        if($type == 'datatable')   {
+          $data = $request->all();
+          return response($this->datatable_search($data));
+        }
+        else if($type == 'auto')    {
+          $search = $request->search;
+          return response($this->autocomplete_search($search));
+        }
+        else {
+          $active = $request->active;
+          $fields = $request->fields;
+          return response([
+            'data' => $this->list($active , $fields)
+          ]);
+        }
     }    
        
     /**
@@ -133,6 +151,32 @@ class itemCreationController extends Controller
         itemCreation::destroy($id);
 
         return redirect('item-creation')->with('flash_message', 'itemCreation deleted!');
+    }
+    
+    private function datatable_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][1];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $item_list = itemCreation::select('*')
+      ->where('master_description'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $item_count = Season::where('master_description'  , 'like', $search.'%' )
+      ->count();
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $item_count,
+          "recordsFiltered" => $item_count,
+          "data" => $item_list
+      ];
     }
     
     public function GetMainCategory(){   
@@ -262,6 +306,14 @@ class itemCreationController extends Controller
         "data" => $rsItemList  
           
       ]; 
+        
+    }
+    
+    public function GetItemListBySubCategory(Request $request){
+        
+        $subCategoryCode = $request->subcatcode;
+        $StyleItemList = itemCreation::where('subcategory_id','=',$subCategoryCode)->get();
+        echo json_encode($StyleItemList);
         
     }
 }
