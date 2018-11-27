@@ -174,6 +174,9 @@ Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
   Route::apiResource('roll','stores\RollPlanController');
+  /********edited*/
+  Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
+  Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
 
 });
 

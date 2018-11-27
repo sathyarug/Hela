@@ -21,6 +21,6 @@ class Division extends BaseValidator
 
     public function __construct() {
         parent::__construct();
-    
+
     }
 }

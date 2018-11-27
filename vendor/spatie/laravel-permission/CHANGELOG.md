@@ -2,14 +2,35 @@
 
 All notable changes to `laravel-permission` will be documented in this file
 
+## 2.25.0 - 2018-11-07
+- A model's `roles` and `permissions` relations (respectively) are now automatically reloaded after an Assign/Remove role or Grant/Revoke of permissions. This means there's no longer a need to call `->fresh()` on the model if the only reason is to reload the role/permission relations. (That said, you may want to call it for other reasons.)
+- Added support for passing id to HasRole()
+
+## 2.24.0 - 2018-11-06
+- Fix operator used on RoleOrPermissionMiddleware, and avoid throwing PermissionDoesNotExist if invalid permission passed
+- Auto-reload model role relation after using AssignRole
+- Avoid empty permission creation when using the CreateRole command
+
+## 2.23.0 - 2018-10-15
+- Avoid unnecessary queries of user roles when fetching all permissions
+
+## 2.22.1 - 2018-10-15
+- Fix Lumen issue with Route helper added in 2.22.0
+
+## 2.22.0 - 2018-10-11
+- Added `Route::role()` and `Route::permission()` middleware helper functions
+- Added new `role_or_permission` middleware to allow specifying "or" combinations
+
+## 2.21.0 - 2018-09-29
+- Revert changes from 2.17.1 in order to support Lumen 5.7
 
 ## 2.20.0 - 2018-09-19
-- It will sync roles/permissions to models that are not persisted, by registering a `saved` callback.
+- It will sync roles/permissions to models that are not persisted, by registering a `saved` callback. 
 (It would previously throw an Integrity constraint violation QueryException on the pivot table insertion.)
 
 ## 2.19.2 - 2018-09-19
 - add `@elserole` directive:
- Usage:
+ Usage: 
 ```php
 @role('roleA')
  // user hasRole 'roleA'
@@ -29,7 +50,7 @@ All notable changes to `laravel-permission` will be documented in this file
 - Expanded CLI `permission:create-role` command to create optionally create-and-link permissions in one command. Also now no longer throws an error if the role already exists.
 
 ## 2.17.1 - 2018-08-28
-- Require laravel/framework instead of illuminate/* starting from ~5.4.0
+- Require laravel/framework instead of illuminate/* starting from ~5.4.0 
 - Removed old dependency for illuminate/database@~5.3.0 (Laravel 5.3 is not supported)
 
 ## 2.17.0 - 2018-08-24
@@ -52,7 +73,7 @@ All notable changes to `laravel-permission` will be documented in this file
 - added hasAllPermissions method
 
 ## 2.12.1 - 2018-04-23
-- Reverted 2.12.0. REVERTS: "Add ability to pass guard name to gate methods like can()". Requires reworking of guard handling if we're going to add this feature.
+- Reverted 2.12.0. REVERTS: "Add ability to pass guard name to gate methods like can()". Requires reworking of guard handling if we're going to add this feature. 
 
 ## 2.12.0 - 2018-04-22
 - Add ability to pass guard name to gate methods like can()
@@ -90,18 +111,18 @@ Changes related to throwing UnauthorizedException:
  - A configuration option may be set to include the list of required roles/permissions in the message
 
 ## 2.7.8 - 2018-01-02
-- REVERTED: Dynamic permission_id and role_id columns according to tables name
-NOTE: This Dynamic field naming was a breaking change, so we've removed it for now.
+- REVERTED: Dynamic permission_id and role_id columns according to tables name 
+NOTE: This Dynamic field naming was a breaking change, so we've removed it for now. 
 
 BEST NOT TO USE v2.7.7 if you've changed tablenames in the config file.
 
 ## 2.7.7 - 2017-12-31
 - updated `HasPermissions::getStoredPermission` to allow a collection to be returned, and to fix query when passing multiple permissions
-- Give and revoke multiple permissions
-- Dynamic permission_id and role_id columns according to tables name
-- Add findOrCreate function to Permission model
+- Give and revoke multiple permissions 
+- Dynamic permission_id and role_id columns according to tables name 
+- Add findOrCreate function to Permission model 
 - Improved Lumen support
-- Allow guard name to be null for find role by id
+- Allow guard name to be null for find role by id 
 
 ## 2.7.6 - 2017-11-27
 - added Lumen support
@@ -231,7 +252,7 @@ The 403 response is backward compatible
 
 ## 1.9.0 - 2017-02-20
 - add `log_registration_exception` in settings file
-- fix for ambiguous column name `id` when using the role scope
+- fix for ambiguous column name `id` when using the role scope 
 
 ## 1.8.0 - 2017-02-09
 - `hasDirectPermission` method is now public
@@ -297,7 +318,7 @@ The 403 response is backward compatible
 ## 1.1.0 - 2015-10-12
 
 ### Added
-- Blade directives
+- Blade directives 
 - `hasAllRoles()`- and `hasAnyRole()`-functions
 
 ## 1.0.2 - 2015-10-11

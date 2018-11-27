@@ -7,7 +7,7 @@ use App\BaseValidator;
 
 class Silhouette extends BaseValidator
 {
-    protected $table='product_Silhouette';
+    protected $table='product_silhouette';
     protected $primaryKey='product_silhouette_id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
