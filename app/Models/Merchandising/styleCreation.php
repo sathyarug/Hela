@@ -45,23 +45,14 @@ class styleCreation extends BaseValidator {
                     ->join('product_feature','product_feature.product_feature_id','=','style_creation.product_feature_id')
                     ->join('product_silhouette','product_silhouette.product_silhouette_id','=','style_creation.product_silhouette_id')
                     ->join('cust_division','cust_division.division_id','=','style_creation.division_id')
-                    ->select('style_creation.style_description','prod_category.prod_cat_description','cust_customer.customer_name','product_feature.product_feature_description','product_silhouette.product_silhouette_description','cust_division.division_description')
+                    ->select('style_creation.style_description','prod_category.prod_cat_description','cust_customer.customer_name','product_feature.product_feature_description','product_silhouette.product_silhouette_description','cust_division.division_description','style_creation.image')
                     ->get(); //->where('style_creation.style_id','=',$style_id)
     }
     
-    
-     public function customer()
-    {
-         return $this->belongsTo('App\Models\Org\Customer' , 'customer_id');
-    }
-    
-    public function division()
-    {
-         return $this->belongsTo('App\Models\Org\Division' , 'division_id');
-    }
-    
-    public function productType() {
-        return $this->belongsTo('App\Models\Org\ProductType' , 'pack_type_id');
-    }
 
+    //default currency of the company
+    public function currency()
+    {
+        return $this->belongsTo('App\Models\Finance\Customer' , 'customer_id');
+    }
 }

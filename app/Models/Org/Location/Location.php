@@ -46,7 +46,7 @@ class Location extends BaseValidator
 
   	public function __construct()
   	{
-      parent::__construct();    
+      parent::__construct();
   	}
 
 		//location company

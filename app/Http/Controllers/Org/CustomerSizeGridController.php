@@ -136,7 +136,7 @@ class CustomerSizeGridController extends Controller
     {
       $customerSizeGrid =CustomerSizeGrid :: where([['customer_id','=',$customer_name],['product_silhouette_id','=',$product_silhouette_description],['size_id','=',$size_name]])->first();
 
-      
+
       if($customerSizeGrid == null){
         echo json_encode(array('status' => 'success'));
       }

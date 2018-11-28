@@ -5,7 +5,13 @@ namespace App\Http\Controllers\Merchandising;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\styleCreation;
-
+use App\Models\Org\Customer;
+use App\Models\Merchandising\productFeature;
+use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Merchandising\ProductCategory;
+use App\Models\Merchandising\productType;
+use DB;
+//use Illuminate\Http\Response;
 
 class StyleCreationController extends Controller
 {
@@ -17,20 +23,61 @@ class StyleCreationController extends Controller
 
     //get customer list
     public function index(Request $request)
-    {//print_r('eeee');exit;
-        try{
-            echo json_encode(styleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
+    {
+        $type = $request->type;
+        if($type == 'datatable')   {
+            $data = $request->all();
+            return response($this->datatable_search($data));
+        }else{
+            try{
+                echo json_encode(styleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
+            }
+            catch (JWTException $e) {
+                // something went wrong whilst attempting to encode the token
+                return response()->json(['error' => 'could_not_create_token'], 500);
+            }
+
         }
-        catch (JWTException $e) {
-            // something went wrong whilst attempting to encode the token
-            return response()->json(['error' => 'could_not_create_token'], 500);
-        }
+
+    }
+
+    private function datatable_search($data)
+    {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
+
+        $section_list = styleCreation::select('*')
+            ->where('style_no'  , 'like', $search.'%' )
+            ->orWhere('style_description'  , 'like', $search.'%' )
+            ->orderBy('status',$order_column, $order_type)
+            ->offset($start)->limit($length)->get();
+
+        $section_count = styleCreation::where('style_no'  , 'like', $search.'%' )
+            ->orWhere('style_description'  , 'like', $search.'%' )
+            ->count();
+
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $section_count,
+            "recordsFiltered" => $section_count,
+            "data" => $section_list
+        ];
     }
 
     public function saveStyleCreation(Request $request) {
 //        $payload = $request->avatar;
 
-        $styleCreation = new styleCreation();
+        if($request->style_id != null){
+            $styleCreation = styleCreation::find($request->style_id);
+        }else{
+            $styleCreation = new styleCreation();
+        }
+
         if ($styleCreation->validate($request->all())) {
 
             $styleCreation->style_no =$request->style_no;
@@ -39,7 +86,7 @@ class StyleCreationController extends Controller
             $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
             $styleCreation->customer_id =$request->customer['customer_id'];
             $styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
-//            $styleCreation->division_id =$request->ProductType['pack_type_id'];
+            $styleCreation->division_id =$request->division['division_id'];
             $styleCreation->style_description =$request->style_description;
             $styleCreation->remark =$request->Remarks;
 
@@ -50,8 +97,12 @@ class StyleCreationController extends Controller
 
             $styleCreationUpdate->image =$styleCreation->style_id.'.png';
             $styleCreationUpdate->save();
+//            dd($request->avatarHidden );
 //            print_r($styleCreation->style_id);exit;
-            $this->saveImage($request->avatar['value'],$styleCreation->style_id);
+            if($request->avatarHidden !=null){
+                $this->saveImage($request->avatar['value'],$styleCreation->style_id);
+            }
+          //  $this->saveImage($request->avatar['value'],$styleCreation->style_id);
             echo json_encode(array('status' => 'success', 'message' => 'Customer details saved successfully.','image' =>$styleCreation->style_id.'.png'));
         } else {
             // failure, get errors
@@ -66,6 +117,12 @@ class StyleCreationController extends Controller
         if (!file_exists(public_path().'/assets/styleImage')) {
             mkdir(public_path().'/assets/styleImage', 0777, true);
         }
+
+        if (file_exists(public_path().'/assets/styleImage/'.$id.'.png')) {
+//            dd(public_path().'/assets/styleImage/'.$image);
+            rename(public_path().'/assets/styleImage/'.$id.'.png', public_path().'/assets/styleImage/'.strtotime("now").'_'.$id.'.png');
+        }
+//dd($id);
         $image = str_replace('data:image/png;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
         $imageName = $id.'.'.'png';
@@ -82,6 +139,54 @@ class StyleCreationController extends Controller
         $style_details = styleCreation::GetStyleDetails($request->style_id);
         echo json_encode($style_details);
         
+    }
+
+    //get a Section
+    public function show($id)
+    {
+        $style = styleCreation::find($id);
+
+        $customer = Customer::find($style['customer_id']);
+        $productFeature = productFeature::find($style['product_feature_id']);
+        $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
+        $ProductCategory = ProductCategory::find($style['product_category_id']);
+        $productType = productType::find($style['pack_type_id']);
+        $divisions=DB::table('org_customer_divisions')
+            ->join('cust_division', 'org_customer_divisions.customer_id', '=', 'cust_division.division_id')
+            ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+            ->where('org_customer_divisions.id','=',$style['division_id'])
+            ->get();
+//dd($divisions);
+        $style['customer']=$customer;
+        $style['product_feature']=$productFeature;
+        $style['ProductSilhouette']=$ProductSilhouette;
+        $style['ProductCategory']=$ProductCategory;
+        $style['productType']=$productType;
+        $style['division']=$divisions[0];
+
+
+//        dd($style);
+//
+//        foreach ($section AS $key=>$val){
+//            dd($val);
+//            //Customer::where('customer_id', '=', $request->search)->get()
+//        }
+        if($style == null)
+            throw new ModelNotFoundException("Requested section not found", 1);
+        else
+            return response([ 'data' => $style ]);
+    }
+
+    //deactivate a style
+    public function destroy($id)
+    {
+        $style = styleCreation::where('style_id', $id)->update(['status' => 0]);
+        return response([
+            'data' => [
+                'message' => 'Style was deactivated successfully.',
+                'style' => $style
+            ]
+        ] , Response::HTTP_NO_CONTENT);
     }
 
 }

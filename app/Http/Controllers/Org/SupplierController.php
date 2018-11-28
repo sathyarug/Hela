@@ -14,7 +14,7 @@ class SupplierController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->middleware('jwt.verify', ['except' => ['index','loadSuppliers']]);
     }
 
     //get Supplier list
@@ -170,5 +170,10 @@ class SupplierController extends Controller
           "data" => $supplier_list
       ];
     }
+    
+    public function loadSuppliers(){
+        $supplier_list = Supplier::all();
+        echo json_encode($supplier_list);
+    } 
 
 }
