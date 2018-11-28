@@ -3,10 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Store/StoreController.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/BulkCosting/BulkCostingController.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Models/Merchandising/BulkCosting.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Models/Merchandising/CustomerOrder.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/CustomerOrderController.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Models/Org/Customer.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/BaseValidator.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Models/Merchandising/styleCreation.php</file>
+            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Auth/LoginController.php</file>
             <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/AuthController.php</file>
             <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Store/StoreBinController.php</file>
-            <file>file:/F:/xampp/htdocs/surfacedev/app/Http/Controllers/Admin/UserController.php</file>
         </group>
     </open-files>
 </project-private>

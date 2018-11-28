@@ -25,15 +25,6 @@ class BinConfigController extends Controller {
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create() {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -84,51 +75,7 @@ class BinConfigController extends Controller {
                 'storeBin' => $binConfig
             ]
                 ], Response::HTTP_CREATED);
-        /* } else {
-          $errors = $binConfig->errors(); // failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-          } */
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id) {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id) {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id) {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id) {
-        //
+        
     }
 
     private function getBinData($binId) {
@@ -163,8 +110,6 @@ class BinConfigController extends Controller {
                 $allocatedArray[$aBin->item_subcategory_id]['item_subcategory_id'] = $aBin->item_subcategory_id;
             }
         }
-        //print_r($allocatedArray);
-        //return $allocatedArray;
 
         return [
             'data' => [

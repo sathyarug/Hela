@@ -191,6 +191,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
 });
 
