@@ -98,23 +98,29 @@ class TransactionController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->trans_id , $request->trans_code));
+
+        return response($this->validate_duplicate_code($request->trans_id , $request->trans_code,$request->trans_description));
       }
     }
 
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_code($id , $code)
-    {
-       $transaction =  Transaction::where('trans_code','=',$code)->first();
+
+      private function validate_duplicate_code($id , $code,$transDescription){
+        //echo $id;
+        //echo $code;
+        //echo $transDescription;
+       $transaction =Transaction::where([['trans_code','=',$code],['trans_description','=',$transDescription]])->first();
+       //dd($transaction);
+
       if( $transaction == null){
-        return ['status' => 'success'];
+      echo json_encode(array('status' => 'success'));
       }
       else if( $transaction->trans_id == $id){
-        return ['status' => 'success'];
+      echo json_encode(array('status' => 'success'));
       }
       else {
-        return ['status' => 'error','message' => 'Ship term code already exists'];
+      echo json_encode(array('status' => 'error','message' => 'Record already exists'));
       }
     }
 

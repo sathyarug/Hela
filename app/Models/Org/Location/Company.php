@@ -34,7 +34,7 @@ class Company extends BaseValidator
 
     	public function __construct()
     	{
-        parent::__construct();  
+        parent::__construct();
     	}
 
 			//departments belongs to the company

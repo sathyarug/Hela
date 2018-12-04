@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-
+//use Illuminate\Database\Eloquent\Model;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -11,6 +11,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
+
+        /*factory(App\Models\Org\Color::class,2000)->create();
+        factory(App\Models\Org\Customer::class,2000)->create();
+        factory(App\Models\Org\Location\Company::class,500)->create();
+        factory(App\Models\Org\Location\Cluster::class,500)->create();
+        factory(App\Models\Org\Location\Source::class,500)->create();
+        factory(App\Models\Org\Location\Source::class,500)->create();
+        factory(App\Models\Org\ProductSpecification::class,500)->create();
+        factory(App\Models\Org\Division::class,500)->create();
+        factory(App\Models\Org\Size::class,500)->create();
+        factory(App\Models\Merchandising\ColorOption::class,500)->create();
+        factory(App\Models\Merchandising\CutDirection::class,500)->create();
+        factory(App\Models\Org\UOM::class,500)->create();
+        factory(App\Models\Org\Cancellation\CancellationCategory::class,500)->create();
+        factory(App\Models\Org\Cancellation\CancellationReason::class,500)->create();*/
+      
+
+
+      /*  Model::ungard();
+          $this->call('ColorTableSeeder');
+
+
+        Model::regard();
+        */
     }
 }

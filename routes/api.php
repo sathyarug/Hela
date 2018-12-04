@@ -195,6 +195,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
 });
 
@@ -218,6 +220,9 @@ Route::prefix('store/')->group(function(){
 
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+  
+  Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
+  Route::apiResource('bin-config','Store\BinConfigController');
 });
 
 

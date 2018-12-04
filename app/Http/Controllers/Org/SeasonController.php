@@ -15,7 +15,7 @@ class SeasonController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->middleware('jwt.verify', ['except' => ['index','GetSeasonsList']]);
     }
 
     //get Season list
@@ -189,6 +189,13 @@ class SeasonController extends Controller
           "recordsFiltered" => $season_count,
           "data" => $season_list
       ];
+    }
+    
+    public function GetSeasonsList(){
+        
+        $seasons_list = Season::all();
+        echo json_encode($seasons_list);
+        
     }
 
 }
