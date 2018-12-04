@@ -181,7 +181,11 @@ Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+
+    Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
+
+    Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
     Route::apiResource('get-style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
