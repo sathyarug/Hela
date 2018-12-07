@@ -23,7 +23,7 @@ class itemCreationController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['GetItemList', 'GetItemListBySubCategory']]);
+      $this->middleware('jwt.verify', ['except' => ['GetItemList', 'GetItemListBySubCategory','GetItemDetailsByCode']]);
     }
     
     public function index(Request $request)
@@ -315,5 +315,11 @@ class itemCreationController extends Controller
         $StyleItemList = itemCreation::where('subcategory_id','=',$subCategoryCode)->get();
         echo json_encode($StyleItemList);
         
+    }
+    
+    public function GetItemDetailsByCode(Request $request){
+        
+        $ItemDetails = itemCreation::where('master_id','=',$request->item_code)->get();
+        echo json_encode($ItemDetails);
     }
 }
