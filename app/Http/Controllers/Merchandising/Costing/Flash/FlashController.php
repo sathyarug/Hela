@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Merchandising\Costing\Flash;
 
 use App\Models\Merchandising\Costing\Flash\cost_flash_header;
 use App\Models\Merchandising\Costing\Flash\cost_flash_details;
+use App\Models\Merchandising\Costing\Flash\his_cost_flash_header;
+use App\Models\Merchandising\Costing\Flash\his_cost_flash_details;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class FlashController extends Controller
 {
+       
+    
     /**
      * Display a listing of the resource.
      *
@@ -91,11 +95,18 @@ class FlashController extends Controller
             
             if(cost_flash_header::where("costing_id",$request->costing_id)->exists()){
                 
-                $costHeaderUpdate = cost_flash_header::where("costing_id",$request->costing_id)->first();
+                /*$costHeaderUpdate = cost_flash_header::where("costing_id",$request->costing_id)->first();
                 $costHeaderUpdate->update(["order_qty"=>$request->order_qty, "season_id"=>$request->season_id, "order_smv"=>$request->sewing_smv, 
                                            "order_fob"=>$request->order_fob, "order_eff"=>$request->order_eff,"packing_smv"=>$request->packing_smv, 
-                                           "labour_sub_cost"=>$request->labour_cost, "finance_cost" => $request->finance_cost, "corporate_cost" =>$request->corporate_cost,
-                                           "epm_rate"=>$request->epm, "netprofit"=>$request->np, "factory_cpm"=>$request->fac_cpm, "frontend_cpm"=>$request->front_cpm, "finance_rate"=>$request->fin_rate]);
+                                           "labour_sub_cost"=>$request->labour_cost, "finance_cost"=>$request->finance_cost, "corporate_cost"=>$request->corporate_cost,
+                                           "epm_rate"=>$request->epm, "netprofit"=>$request->np, "factory_cpm"=>$request->fac_cpm, "frontend_cpm"=>$request->front_cpm, "finance_rate"=>$request->fin_rate,
+                                           "sewing_smv"=>$request->sewing_smv]);*/
+                
+                cost_flash_header::where("costing_id",$request->costing_id)
+                                    ->update(['order_qty'=>$request->order_qty,'season_id'=>$request->season_id,'order_smv'=>$request->sewing_smv,'order_fob'=>$request->order_fob,'order_eff'=>$request->order_eff,
+                                              'packing_smv'=>$request->packing_smv,'labour_sub_cost'=>$request->labour_cost,'finance_cost'=>$request->finance_cost,'corporate_cost'=>$request->corporate_cost,
+                                              'epm_rate'=>$request->epm,'netprofit'=>$request->np,'factory_cpm'=>$request->fac_cpm,'frontend_cpm'=>$request->front_cpm,'finance_rate'=>$request->fin_rate,
+                                              'sewing_smv'=>$request->sewing_smv]);
             }else{
                 
                 $costingHeader = new cost_flash_header();        
@@ -121,9 +132,6 @@ class FlashController extends Controller
                 $costingHeader->saveOrFail();
                 
             }
-            
-            
-            
             //$status = $costingHeader->costing_id; //"success";
             $status = $request->costing_id; //"success";
             
@@ -134,6 +142,27 @@ class FlashController extends Controller
         echo json_encode(array('status' => $status));          
     }
     
+    public function setItemInactive(Request $request){
+        
+        try{
+            
+            /* Check whether costing id exist or not */
+            if(cost_flash_details::where("costing_id",$request->costing_id)->exists()){
+                
+                /* If exist set status to zero for all items */
+                $setInactiveStatus = cost_flash_details::where("costing_id",$request->costing_id)->first();
+                $setInactiveStatus->update(["status"=>0]);                
+            }
+            
+            $status = "success";
+            
+        } catch ( \Exception $ex) {
+            $status = "fail";
+        }
+        echo json_encode(array('status' => $status));
+        
+    }
+    
     public function saveCostingDetails(Request $request){
         
         try{
@@ -141,8 +170,9 @@ class FlashController extends Controller
             if(cost_flash_details::where("costing_id",$request->costing_id)->where("master_id",$request->item_code)->exists()){
                 
                 $costDetailsUpdate = cost_flash_details::where("costing_id",$request->costing_id)->where("master_id",$request->item_code)->first();
-                $costDetailsUpdate->update(["uom_id"=>$request->uom_id, "conpc"=>$request->con_pc, "unitprice"=>$request->unit_price, "wastage"=>$request->wastage,
-                                            "total_required_qty"=>$request->total_required_qty, "total_value"=>$request->total_value, "supplier_id"=>$request->supplier_id]);
+                $costDetailsUpdate->where("costing_id",$request->costing_id)->where("master_id",$request->item_code)->update(["uom_id"=>$request->uom_id, "conpc"=>$request->con_pc, "unitprice"=>$request->unit_price, "wastage"=>$request->wastage,
+                                            "total_required_qty"=>$request->total_required_qty, "total_value"=>$request->total_value, 
+                                            "supplier_id"=>$request->supplier_id, "status"=>1]);
                 
             }else{
                 
@@ -157,19 +187,16 @@ class FlashController extends Controller
                 $costingDetails->total_required_qty = $request->total_required_qty;
                 $costingDetails->total_value = $request->total_value;
                 $costingDetails->supplier_id = $request->supplier_id;
+                $costingDetails->status = 1;
                 $costingDetails->saveOrFail();
                 
             }
-            
-            
-            
              $status = "success";
             
             
         } catch ( \Exception $ex) {
             
             $status = "fail"; 
-
         }
         echo json_encode(array('status' => $status));        
     }
@@ -179,7 +206,9 @@ class FlashController extends Controller
         try{
             
             $costHeaderConfirm = cost_flash_header::where("costing_id",$request->costing_id)->first();
-            $costHeaderConfirm->update(["order_status"=>3, "confirm_at" => date("Y-m-d")]);
+            $revision_no = $costHeaderConfirm->approval_no;
+            $revision_no++;
+            $costHeaderConfirm->update(["order_status"=>3, "confirm_at" => date("Y-m-d"),"approval_no"=>$revision_no]);
             
             //DB::table('cost_flash_header')->where()->update(["confirm_at" => date("Y-m-d")]); 
             //echo $request->costing_id;
@@ -196,18 +225,98 @@ class FlashController extends Controller
     
     public function reviseCostSheet(Request $request){
         
-        try{
+        try{              
             
-            $costHeaderConfirm = cost_flash_header::where("costing_id",$request->costing_id)->first();
-            $costHeaderConfirm->update(["order_status"=>0, "revised_on" => date("Y-m-d")]);
+            //Before revise the costsheet save existing details to history table
+            // =================================================================          
+            $this->saveCostSheetDetailsToHistory($request->costing_id);
+            $costHeaderRevise = cost_flash_header::where("costing_id",$request->costing_id)->first();           
+            $costHeaderRevise->update(["order_status"=>0, "revised_on" => date("Y-m-d")]);
             
             $status = "success";
             
         } catch ( \Exception $ex) {
             $status = "fail";
-        }
+        }        
+        echo json_encode(array('status' => $status));         
+    }
+    
+    private function saveCostSheetDetailsToHistory($cost_id){
         
-        echo json_encode(array('status' => $status)); 
+        try{
+            
+            $historyCostHeader = new his_cost_flash_header();
+            
+            $costRevisionId = 0;
+            
+            $rsGetHistroyRevisionId = his_cost_flash_header::where('costing_id','=',$cost_id)->orderBy('history_id','desc')->first();
+            
+            if($rsGetHistroyRevisionId === null){
+                $costRevisionId = 1;
+            }else{
+                $costRevisionId = $rsGetHistroyRevisionId->revision_id;
+                $costRevisionId++;
+            } 
+            $costingHeaderDetails = cost_flash_header::where('costing_id','=',$cost_id)->get();
+            
+            foreach($costingHeaderDetails as $costHeader){
+                
+                $historyCostHeader->costing_id = $cost_id;
+                $historyCostHeader->style_id = $costHeader->style_id;
+                $historyCostHeader->order_qty = $costHeader->order_qty;
+                $historyCostHeader->order_status = $costHeader->order_status;
+                $historyCostHeader->approval_no = $costHeader->approval_no;
+                $historyCostHeader->revision_id = $costRevisionId;
+                $historyCostHeader->order_smv = $costHeader->order_smv;
+                $historyCostHeader->order_fob = $costHeader->order_fob;
+                $historyCostHeader->order_eff = $costHeader->order_eff;
+                $historyCostHeader->revised_by = $costHeader->revised_by;
+                $historyCostHeader->revised_on = $costHeader->revised_on;
+                $historyCostHeader->season_id = $costHeader->season_id;
+                $historyCostHeader->created_at = $costHeader->created_at;
+                $historyCostHeader->created_by = $costHeader->created_by;
+                $historyCostHeader->sewing_smv = $costHeader->sewing_smv;
+                $historyCostHeader->packing_smv = $costHeader->packing_smv;
+                $historyCostHeader->labour_sub_cost = $costHeader->labour_sub_cost;
+                $historyCostHeader->finance_cost = $costHeader->finance_cost;
+                $historyCostHeader->corporate_cost = $costHeader->corporate_cost;
+                $historyCostHeader->epm_rate = $costHeader->epm_rate;
+                $historyCostHeader->netprofit = $costHeader->netprofit;
+                $historyCostHeader->factory_cpm = $costHeader->factory_cpm;
+                $historyCostHeader->frontend_cpm = $costHeader->frontend_cpm;
+                $historyCostHeader->finance_rate = $costHeader->finance_rate;
+                $historyCostHeader->confirm_by = $costHeader->confirm_by;
+                $historyCostHeader->confirm_at = $costHeader->confirm_at;
+                $historyCostHeader->saveOrFail();
+            }
+            
+            $hisCostingId =  $historyCostHeader->history_id;
+            
+            // Save cost sheer history details
+            // ===============================
+            $costingLineDetails = cost_flash_details::where('costing_id','=',$cost_id)->get();            
+            
+            foreach($costingLineDetails as $costDetails){                
+                
+                $historyCostDetails = new his_cost_flash_details();                
+                $historyCostDetails->history_id = $hisCostingId;
+                $historyCostDetails->costing_id = $costDetails->costing_id;
+                $historyCostDetails->style_id = $costDetails->style_id;
+                $historyCostDetails->master_id = $costDetails->master_id;                
+                $historyCostDetails->uom_id = $costDetails->uom_id;                
+                $historyCostDetails->conpc = $costDetails->conpc;                
+                $historyCostDetails->unitprice = $costDetails->unitprice;                
+                $historyCostDetails->wastage = $costDetails->wastage;                
+                $historyCostDetails->required_qty = $costDetails->required_qty;                
+                $historyCostDetails->total_required_qty = $costDetails->total_required_qty;                
+                $historyCostDetails->total_value = $costDetails->total_value;                
+                $historyCostDetails->supplier_id = $costDetails->supplier_id;                
+                
+                $historyCostDetails->saveOrFail();
+            }          
+        } catch ( \Exception $ex) {
+           echo $ex;
+        }
         
     }
     
@@ -234,5 +343,18 @@ class FlashController extends Controller
         $costingLineDetails = new cost_flash_details();
         $rsCostingDetails = $costingLineDetails->getCostingLineDetails($request->costing_id);
         echo json_encode($rsCostingDetails);
+    }
+    
+    public function getCostingItems(Request $request){   
+        
+        
+        //$costingLineDetails = cost_flash_details::with(['supplier'])->where('costing_id',$request->costing_id)->where('cost_flash_details.master_id','=',$request->item_code)->get();
+        //echo json_encode($costingLineDetails);
+        
+        $costingLineDetails = new cost_flash_details();
+        $rsCostingDetails = $costingLineDetails->getCostingLineItems($request->costing_id, $request->item_code);
+        echo json_encode($rsCostingDetails);
+       
+        
     }
 }
