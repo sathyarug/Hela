@@ -149,7 +149,7 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
-});
+//});
 
 Route::prefix('stores/')->group(function(){
   Route::apiResource('generalpr','stores\GeneralPRController');
@@ -180,6 +180,9 @@ Route::prefix('items/')->group(function(){
     
     Route::get('itemlist/loadItemsbycat' , 'itemCreationController@GetItemListBySubCategory');
     Route::apiResource('itemlist','itemCreationController');
+    
+    Route::get('getitem/getItemByCode' , 'itemCreationController@GetItemDetailsByCode');
+    Route::apiResource('getitem','itemCreationController');
     
 });
 
@@ -308,11 +311,12 @@ Route::prefix('core/')->group(function(){
   
   Route::post('flashcosting/confirmcosting', 'Merchandising\Costing\Flash\FlashController@confirmCostSheet');
   Route::post('flashcosting/revisecosting', 'Merchandising\Costing\Flash\FlashController@reviseCostSheet');
+  Route::post('flashcosting/setinactive', 'Merchandising\Costing\Flash\FlashController@setItemInactive');
   
   Route::get('flashcosting/listcosting', 'Merchandising\Costing\Flash\FlashController@ListingCostings');
   Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
   Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
-  
+  Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashController@getCostingItems');
   
   
 
