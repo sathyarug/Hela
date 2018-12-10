@@ -167,7 +167,7 @@ Route::prefix('ie/')->group(function(){
 
   Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
   Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
-
+});
 
 Route::prefix('items/')->group(function(){
     Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
