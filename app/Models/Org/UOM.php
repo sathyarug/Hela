@@ -19,7 +19,7 @@ class UOM extends BaseValidator
         'uom_description' => 'required'
     );
 
-    public function __construct() {
+   public function __construct() {
         parent::__construct();
         $this->attributes = array(
             'updated_by' => 2//Session::get("user_id")

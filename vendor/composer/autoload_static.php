@@ -95,7 +95,7 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
             'Lcobucci\\JWT\\' => 13,
             'Laravel\\Tinker\\' => 15,
         ),
-        'J' => 
+        'J' =>
         array (
             'JakubOnderka\\PhpConsoleColor\\' => 29,
         ),
@@ -293,11 +293,11 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         array (
             0 => __DIR__ . '/..' . '/laravel/tinker/src',
         ),
-        'JakubOnderka\\PhpConsoleColor\\' => 
+        'JakubOnderka\\PhpConsoleColor\\' =>
         array (
             0 => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src',
         ),
-        'Illuminate\\' => 
+        'Illuminate\\' =>
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate',
         ),
@@ -398,10 +398,6 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
             array (
                 0 => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src',
             ),
-            'JakubOnderka\\PhpConsoleColor' =>
-            array (
-                0 => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src',
-            ),
         ),
         'D' =>
         array (
@@ -443,6 +439,7 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'App\\Http\\Controllers\\Finance\\Item\\ItemSubCategoryController' => __DIR__ . '/../..' . '/app/Http/Controllers/Finance/Item/ItemSubCategoryController.php',
         'App\\Http\\Controllers\\Finance\\ShipmentTermController' => __DIR__ . '/../..' . '/app/Http/Controllers/Finance/ShipmentTermController.php',
         'App\\Http\\Controllers\\Finance\\TransactionController' => __DIR__ . '/../..' . '/app/Http/Controllers/Finance/TransactionController.php',
+        'App\\Http\\Controllers\\GrnController' => __DIR__ . '/../..' . '/app/Http/Controllers/GrnController.php',
         'App\\Http\\Controllers\\MainClusterController' => __DIR__ . '/../..' . '/app/Http/Controllers/MainClusterController.php',
         'App\\Http\\Controllers\\MainLocationController' => __DIR__ . '/../..' . '/app/Http/Controllers/MainLocationController.php',
         'App\\Http\\Controllers\\MainSourceController' => __DIR__ . '/../..' . '/app/Http/Controllers/MainSourceController.php',
@@ -484,6 +481,13 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'App\\Http\\Controllers\\Org\\SilhouetteClassificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/SilhouetteClassificationController.php',
         'App\\Http\\Controllers\\Org\\SilhouetteController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/SilhouetteController.php',
         'App\\Http\\Controllers\\Org\\SizeController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/SizeController.php',
+        'App\\Http\\Controllers\\Org\\SupplierController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/SupplierController.php',
+        'App\\Http\\Controllers\\Org\\UomController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/UomController.php',
+        'App\\Http\\Controllers\\PaymentTermController' => __DIR__ . '/../..' . '/app/Http/Controllers/PaymentTermController.php',
+        'App\\Http\\Controllers\\Store\\StoreBinController' => __DIR__ . '/../..' . '/app/Http/Controllers/Store/StoreBinController.php',
+        'App\\Http\\Controllers\\Store\\StoreController' => __DIR__ . '/../..' . '/app/Http/Controllers/Store/StoreController.php',
+        'App\\Http\\Controllers\\Store\\SubStoreController' => __DIR__ . '/../..' . '/app/Http/Controllers/Store/SubStoreController.php',
+        'App\\Http\\Controllers\\Stores\\SupplierTolaranceController' => __DIR__ . '/../..' . '/app/Http/Controllers/Stores/SupplierTolaranceController.php',
         'App\\Http\\Controllers\\Org\\Store\\StoreBinController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/Store/StoreBinController.php',
         'App\\Http\\Controllers\\Org\\SupplierController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/SupplierController.php',
         'App\\Http\\Controllers\\Org\\UomController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/UomController.php',
@@ -501,8 +505,7 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'App\\Http\\Controllers\\customesizesController' => __DIR__ . '/../..' . '/app/Http/Controllers/Org/customesizesController.php',
         'App\\Http\\Controllers\\itemCreationController' => __DIR__ . '/../..' . '/app/Http/Controllers/itemCreationController.php',
         'App\\Http\\Controllers\\itempropertyController' => __DIR__ . '/../..' . '/app/Http/Controllers/itempropertyController.php',
-        'App\\Http\\Controllers\\stores\\GrnController' => __DIR__ . '/../..' . '/app/Http/Controllers/stores/GrnController.php',
-        'App\\Http\\Controllers\\stores\\RollPlanController' => __DIR__ . '/../..' . '/app/Http/Controllers/stores/RollPlanController.php',
+        'App\\Http\\Controllers\\stores\\RollPlanController' => __DIR__ . '/../..' . '/app/Http/Controllers/Stores/RollPlanController.php',
         'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Middleware\\CORS' => __DIR__ . '/../..' . '/app/Http/Middleware/CORS.php',
         'App\\Http\\Middleware\\EncryptCookies' => __DIR__ . '/../..' . '/app/Http/Middleware/EncryptCookies.php',
@@ -583,9 +586,14 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'App\\Models\\Org\\Store' => __DIR__ . '/../..' . '/app/Models/Org/Store.php',
         'App\\Models\\Org\\Store\\StoreBin' => __DIR__ . '/../..' . '/app/Models/Org/Store/StoreBin.php',
         'App\\Models\\Org\\Supplier' => __DIR__ . '/../..' . '/app/Models/Org/Supplier.php',
+        'App\\Models\\Org\\SupplierTolarance' => __DIR__ . '/../..' . '/app/Models/Org/SupplierTolarance.php',
         'App\\Models\\Org\\UOM' => __DIR__ . '/../..' . '/app/Models/Org/UOM.php',
         'App\\Models\\Store\\Store' => __DIR__ . '/../..' . '/app/Models/Store/Store.php',
         'App\\Models\\Store\\StoreBin' => __DIR__ . '/../..' . '/app/Models/Store/StoreBin.php',
+        'App\\Models\\Store\\SubStore' => __DIR__ . '/../..' . '/app/Models/Store/SubStore.php',
+        'App\\Models\\stores\\PoOrderDetails' => __DIR__ . '/../..' . '/app/Models/stores/PoOrderDetails.php',
+        'App\\Models\\stores\\PoOrderHeader' => __DIR__ . '/../..' . '/app/Models/stores/PoOrderHeader.php',
+        'App\\Models\\stores\\PoOrderType' => __DIR__ . '/../..' . '/app/Models/stores/PoOrderType.php',
         'App\\Models\\Store\\StoreBinAllocation' => __DIR__ . '/../..' . '/app/Models/Store/StoreBinAllocation.php',
         'App\\Models\\Store\\SubStore' => __DIR__ . '/../..' . '/app/Models/Store/SubStore.php',
         'App\\Models\\stores\\StoRollDescription' => __DIR__ . '/../..' . '/app/Models/stores/StoRollDescription.php',
@@ -627,6 +635,7 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'Collective\\Html\\HtmlBuilder' => __DIR__ . '/..' . '/laravelcollective/html/src/HtmlBuilder.php',
         'Collective\\Html\\HtmlFacade' => __DIR__ . '/..' . '/laravelcollective/html/src/HtmlFacade.php',
         'Collective\\Html\\HtmlServiceProvider' => __DIR__ . '/..' . '/laravelcollective/html/src/HtmlServiceProvider.php',
+        'ColorTableSeeder' => __DIR__ . '/../..' . '/database/seeds/ColorTableSeeder.php',
         'Cron\\AbstractField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/AbstractField.php',
         'Cron\\CronExpression' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/CronExpression.php',
         'Cron\\DayOfMonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/DayOfMonthField.php',
@@ -2553,6 +2562,7 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'Monolog\\Handler\\HandlerWrapper' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/HandlerWrapper.php',
         'Monolog\\Handler\\HipChatHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/HipChatHandler.php',
         'Monolog\\Handler\\IFTTTHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/IFTTTHandler.php',
+        'Monolog\\Handler\\InsightOpsHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/InsightOpsHandler.php',
         'Monolog\\Handler\\LogEntriesHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/LogEntriesHandler.php',
         'Monolog\\Handler\\LogglyHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/LogglyHandler.php',
         'Monolog\\Handler\\MailHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/MailHandler.php',
@@ -2591,11 +2601,15 @@ class ComposerStaticInitf04f11d995b60db9a6686bb32d64b5fd
         'Monolog\\Processor\\MemoryUsageProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/MemoryUsageProcessor.php',
         'Monolog\\Processor\\MercurialProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/MercurialProcessor.php',
         'Monolog\\Processor\\ProcessIdProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/ProcessIdProcessor.php',
+        'Monolog\\Processor\\ProcessorInterface' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/ProcessorInterface.php',
         'Monolog\\Processor\\PsrLogMessageProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/PsrLogMessageProcessor.php',
         'Monolog\\Processor\\TagProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/TagProcessor.php',
         'Monolog\\Processor\\UidProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/UidProcessor.php',
         'Monolog\\Processor\\WebProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/WebProcessor.php',
         'Monolog\\Registry' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Registry.php',
+        'Monolog\\ResettableInterface' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/ResettableInterface.php',
+        'Monolog\\SignalHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/SignalHandler.php',
+        'Monolog\\Utils' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Utils.php',
         'Namshi\\JOSE\\Base64\\Base64Encoder' => __DIR__ . '/..' . '/namshi/jose/src/Namshi/JOSE/Base64/Base64Encoder.php',
         'Namshi\\JOSE\\Base64\\Base64UrlSafeEncoder' => __DIR__ . '/..' . '/namshi/jose/src/Namshi/JOSE/Base64/Base64UrlSafeEncoder.php',
         'Namshi\\JOSE\\Base64\\Encoder' => __DIR__ . '/..' . '/namshi/jose/src/Namshi/JOSE/Base64/Encoder.php',
