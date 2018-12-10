@@ -136,7 +136,7 @@ class ClusterController extends Controller
 
 
     //get filtered fields only
-    private function list($active = 0 , $fields = null)
+    /*private function list($active = 0 , $fields = null)
     {
       $query = null;
       if($fields == null || $fields == '') {
@@ -150,7 +150,7 @@ class ClusterController extends Controller
         }
       }
       return $query->get();
-    }
+    }*/
 
     //search Cluster for autocomplete
     private function autocomplete_search($search)
