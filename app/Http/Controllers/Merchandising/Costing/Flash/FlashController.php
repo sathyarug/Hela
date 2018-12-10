@@ -103,7 +103,7 @@ class FlashController extends Controller
                                            "sewing_smv"=>$request->sewing_smv]);*/
                 
                 cost_flash_header::where("costing_id",$request->costing_id)
-                                    ->update(['order_qty'=>$request->order_qty,'season_id'=>$request->season_id,'order_smv'=>$request->sewing_smv,'order_fob'=>$request->order_fob,'order_eff'=>$request->order_eff,
+                                    ->update(['order_qty'=>$request->order_qty,'season_id'=>$request->season_id,'order_smv'=>$request->order_smv,'order_fob'=>$request->order_fob,'order_eff'=>$request->order_eff,
                                               'packing_smv'=>$request->packing_smv,'labour_sub_cost'=>$request->labour_cost,'finance_cost'=>$request->finance_cost,'corporate_cost'=>$request->corporate_cost,
                                               'epm_rate'=>$request->epm,'netprofit'=>$request->np,'factory_cpm'=>$request->fac_cpm,'frontend_cpm'=>$request->front_cpm,'finance_rate'=>$request->fin_rate,
                                               'sewing_smv'=>$request->sewing_smv]);
@@ -113,7 +113,7 @@ class FlashController extends Controller
                 $costingHeader->style_id = $request->style_code;        
                 $costingHeader->order_qty = $request->order_qty;        
                 $costingHeader->season_id = $request->season_id;        
-                $costingHeader->order_smv = $request->sewing_smv;        
+                $costingHeader->order_smv = $request->order_smv;        
                 $costingHeader->order_fob = $request->order_fob;        
                 $costingHeader->order_eff = $request->order_eff;        
                 $costingHeader->sewing_smv = $request->sewing_smv;        
