@@ -86,6 +86,9 @@ Route::prefix('org/')->group(function(){
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
 
+  Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
+  Route::apiResource('supplierslist','Org\SupplierController');
+
   Route::get('uom/validate' , 'Org\UOMController@validate_data');
   Route::apiResource('uom','Org\UOMController');
 
