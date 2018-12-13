@@ -86,6 +86,9 @@ Route::prefix('org/')->group(function(){
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
 
+  Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
+  Route::apiResource('supplierslist','Org\SupplierController');
+
   Route::get('uom/validate' , 'Org\UOMController@validate_data');
   Route::apiResource('uom','Org\UOMController');
 
@@ -130,12 +133,55 @@ Route::prefix('org/')->group(function(){
 });
 
 
+  Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
+  Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
+
+  Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  Route::apiResource('features','Org\FeatureController');
+
+  Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
+  Route::apiResource('silhouettes','Org\SilhouetteController');
+
+  Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
+  Route::apiResource('garmentoptions','Org\GarmentOptionsController');
+
+  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+
+  Route::apiResource('ship-modes','Org\ShipModeController');
+
+//});
+
+Route::prefix('stores/')->group(function(){
+  Route::apiResource('generalpr','stores\GeneralPRController');
+  Route::apiResource('generalpr_details','stores\GeneralPRDetailController');
+  //Route::get('get_genpr','stores\GeneralPRController');
 
 
+  Route::apiResource('get_genpr','stores\GeneralPRController');
+});
+
+Route::prefix('ie/')->group(function(){
+
+  Route::get('smvupdates/validate' , 'IE\SMVUpdateController@validate_data');
+  Route::get('smvupdates/divisions' , 'IE\SMVUpdateController@customer_divisions');
+  Route::put('smvupdates/updates' , 'IE\SMVUpdateController@update');
+  Route::apiResource('smvupdates','IE\SMVUpdateController');
+
+  Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
+  Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+});
 
 Route::prefix('items/')->group(function(){
     Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
     Route::apiResource('itemlists','itemCreationController');
+
+    Route::get('itemlist/loadItemsbycat' , 'itemCreationController@GetItemListBySubCategory');
+    Route::apiResource('itemlist','itemCreationController');
+
+    Route::get('getitem/getItemByCode' , 'itemCreationController@GetItemDetailsByCode');
+    Route::apiResource('getitem','itemCreationController');
+
 });
 
 
@@ -188,8 +234,13 @@ Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+
+    Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
-    Route::apiResource('customer-order-types','Merchandising\CustomRoute::apiResource(\'save-grn-lines\', \'stores\GrnController\');roller');
+
+    Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
+    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+    Route::apiResource('get-style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
@@ -201,6 +252,8 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
 
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
 });
 
@@ -225,6 +278,8 @@ Route::prefix('store/')->group(function(){
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
 
+  Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
+  Route::apiResource('bin-config','Store\BinConfigController');
 });
 
 
@@ -244,6 +299,26 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
 
   Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
+
+  Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');
+  Route::get('/loadStyleDetails','Merchandising\StyleCreationController@GetStyleDetails');
+
+  Route::get('/seasonlist' , 'Org\SeasonController@GetSeasonsList');
+  Route::apiResource('seasons','Org\SeasonController');
+
+  Route::post('flashcosting/savecostingheader', 'Merchandising\Costing\Flash\FlashController@saveCostingHeader');
+  Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
+
+  Route::post('flashcosting/confirmcosting', 'Merchandising\Costing\Flash\FlashController@confirmCostSheet');
+  Route::post('flashcosting/revisecosting', 'Merchandising\Costing\Flash\FlashController@reviseCostSheet');
+  Route::post('flashcosting/setinactive', 'Merchandising\Costing\Flash\FlashController@setItemInactive');
+
+  Route::get('flashcosting/listcosting', 'Merchandising\Costing\Flash\FlashController@ListingCostings');
+  Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
+  Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
+  Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashController@getCostingItems');
+
+
 
   /*Route::post('/sources','Test\SourceController@index');
 
