@@ -47,8 +47,6 @@ class GrnHeader extends Model
             ->get()
             ->toArray();
 
-        ///dd($grn); exit;
-
         return $grn;
     }
 

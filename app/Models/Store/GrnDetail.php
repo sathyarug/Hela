@@ -33,4 +33,15 @@ class GrnDetail extends Model
         parent::__construct();
     }
 
+    public static function getGrnLineDataWithBins($lineId){
+        $result = self::join('store_grn_header', 'store_grn_header.grn_id',   '=', 'store_grn_detail.grn_id')
+            ->join('store_stock_transaction', 'store_stock_transaction.doc_num', '=', 'store_grn_header.grn_id')
+            ->join('org_store_bin', 'org_store_bin.store_bin_id', '=', 'store_stock_transaction.bin')
+            ->where('store_grn_detail.id', '=', $lineId)
+            ->select('store_grn_header.grn_id', 'store_stock_transaction.qty', 'org_store_bin.store_bin_name', 'org_store_bin.store_bin_id')
+            //->groupBy('store_grn_detail.id')
+            ->get();
+        return $result;
+    }
+
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Store;
 
 use App\Libraries\UniqueIdGenerator;
+use App\Models\Store\Stock;
+use App\Models\Store\StockTransaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Store\GrnHeader;
@@ -70,9 +72,34 @@ class GrnController extends Controller
                  $grnDetails->save();
 
                  $i++;
+
+                 //Update Stock Transaction
+                 $st = StockTransaction::where('doc_num', $request['id'])->where('doc_type', 'GRN')->get();
+
+                 foreach($st as $stockTr){
+                     $stockTr->status = 'CONFIRM';
+                     $stockTr->main_store = 2;
+                     $stockTr->sub_store = 1;
+                     $stockTr->save();
+                 }
+
+                 // Update Stock
+                 $stock = Stock::where('item_code', $rec['item_code'])->where('location', 'GRN')->where('store', 'GRN')->where('sub_store', 'GRN')->get();
+
+                 if(!$stock){
+                     $stock = new Stock;
+                     $stock->item_code = $rec['item_code'];
+                     $stock->item_code = $rec['item_code'];
+                 }
+
+
+
+
              }
 
-             //Insert Stock Transaction
+
+
+
 
              //Update Stock
          }
@@ -185,16 +212,55 @@ class GrnController extends Controller
         ]);
     }
 
+    public function saveGrnBins(Request $request){
+
+        $grnData = GrnDetail::find($request->line_id);
+        foreach ($request->bin_list as $bin){
+            $stockTrrans = new StockTransaction;
+            $stockTrrans->bin = $bin['bin'];
+            $stockTrrans->qty = $bin['qty'];
+            $stockTrrans->so = $grnData->sc_no;
+            $stockTrrans->doc_type = 'GRN';
+            $stockTrrans->doc_num = $request->id;
+            $stockTrrans->item_code = $grnData->item_code;
+            $stockTrrans->size = $grnData->size;
+            $stockTrrans->color = $grnData->color;
+            $stockTrrans->uom = $grnData->uom;
+            $stockTrrans->location = 10;
+            $stockTrrans->created_by = 1000;
+            $stockTrrans->status = 'PENDING';
+            $stockTrrans->save();
+        }
+
+    }
+
     public function update(Request $request, $id)
     {
 
         dd($request);
     }
 
+    public function destroy($id)
+    {
+       GrnDetail::where('id',$id)->delete();
+
+    }
+
     public function getPoSCList(Request $request){
         dd($request);
         //echo 'xx';
         exit;
+    }
+
+    public function getAddedBins(Request $request){
+      //    dd($request);
+       $grnData = GrnDetail::getGrnLineDataWithBins($request->id);
+
+        return response([
+            'data' => $grnData
+        ]);
+        //$grnData = GrnDetail::where('id', $request->lineId)->first();
+        //dd($grnData);
     }
 
     public function loadAddedGrnLInes(Request $request){

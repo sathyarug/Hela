@@ -181,4 +181,13 @@ class StoreBinController extends Controller {
         }
     }
 
+    public function getBinListByLoc(Request $request){
+        $bin_list = StoreBin::select('store_bin_id', 'store_bin_name')->where('store_id', $request->id)->get();
+        //$bin_list = StoreBin::select('store_bin_id','store_bin_name')->where([['store_id', '=',  $request->id],])->get();
+        $bins = $bin_list->toArray();
+        return response([
+            'data' => $bins
+        ]);
+    }
+
 }

@@ -176,7 +176,10 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('roll','stores\RollPlanController');
   Route::apiResource('grn', 'Store\GrnController');
   Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
+  Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
+  Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
+  Route::get('loadAddedBins','Store\GrnController@getAddedBins');
     //Route::apiResource('substore','Store\SubStoreController');
 
 });
@@ -195,6 +198,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
+
+    Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
 
 
 });
