@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         $customData = $this->get_user_from_username($credentials['user_name']);
 
-        if (! $token = auth()->claims($customData)->attempt($credentials)) {
+        if (! $token = auth()->claims($customData)->setTTL(720)->attempt($credentials)) {
             //return response()->json(['error' => 'Unauthorized'], 401);
               return response()->json(['error' => 'Unauthorized' , 'message' => 'Incorrect username or password'], 401);
         }
@@ -67,7 +67,7 @@ class AuthController extends Controller
     */
    public function refresh()
    {
-       return $this->respondWithToken(auth()->refresh());
+       return $this->respondWithToken(auth()->setTTL(720)->refresh());
    }
 
    /**
@@ -90,7 +90,7 @@ class AuthController extends Controller
        return response()->json([
            'access_token' => $token,
            'token_type' => 'bearer',
-           'expires_in' => auth()->factory()->getTTL() * 360,
+           'expires_in' => auth()->factory()->getTTL(),
            'user' => $user_data//auth()->user()
        ]);
    }

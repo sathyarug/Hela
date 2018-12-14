@@ -171,8 +171,11 @@ class SupplierController extends Controller
       ];
     }
     
-    public function loadSuppliers(){
-        $supplier_list = Supplier::all();
+    public function loadSuppliers(Request $request){
+        $search = $request->search;       
+        //$supplier_list = Supplier::all();
+        $supplier_list = Supplier::select('supplier_id', 'supplier_code', 'supplier_name')
+                ->where('supplier_name'  , 'like', $search.'%')->get();
         echo json_encode($supplier_list);
     } 
 
