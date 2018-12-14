@@ -125,13 +125,15 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
   Route::apiResource('silhouettes','Org\SilhouetteController');
 
-  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::get('CustomerSizeGridControllerGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
   Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
   Route::apiResource('garmentoptions','Org\GarmentOptionsController');
 
+  Route::get('requestType/validate' , 'Org\RequestTypeController@validate_data');
+  Route::apiResource('requestType','Org\RequestTypeController');
 
 
   Route::apiResource('ship-modes','Org\ShipModeController');
@@ -217,6 +219,9 @@ Route::prefix('stores/')->group(function(){
   Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
   Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
   Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+  Route::apiResource('transfer-location','Stores\TransferLocationController');
+
 
 });
 
@@ -231,6 +236,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
+    Route::get('position/validate' , 'Merchandising\PositionController@validate_data');
+    Route::apiResource('position','Merchandising\PositionController');
 
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
