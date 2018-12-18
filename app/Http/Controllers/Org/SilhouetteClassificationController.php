@@ -104,20 +104,21 @@ class  SilhouetteClassificationController extends Controller
       }
     }
 
-//------not edited
-    //check shipment cterm code code already exists
+
+    //check silhouetteClassification already exists
     private function validate_duplicate_code($id , $code)
     {
-       $silhouetteClassification =SilhouetteClassification::where('sil_class_id','=',$code)->first();
-      if( $silhouetteClassification == null){
-        return ['status' => 'success'];
-      }
-      else if( $silhouetteClassification->sil_class_id == $id){
-        return ['status' => 'success'];
-      }
-      else {
-        return ['status' => 'error','message' => 'Ship term code already exists'];
-      }
+       $silhouetteClassification =SilhouetteClassification::where([['sil_class_description','=',$code]])->first();
+
+       if($silhouetteClassification == null){
+       echo json_encode(array('status' => 'success'));
+       }
+       else if($silhouetteClassification->sil_class_id== $id){
+       echo json_encode(array('status' => 'success'));
+       }
+       else {
+       echo json_encode(array('status' => 'error','message' => 'Record already exists'));
+       }
     }
 
 

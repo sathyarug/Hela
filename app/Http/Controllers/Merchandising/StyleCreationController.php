@@ -18,7 +18,7 @@ class StyleCreationController extends Controller
     public function __construct()
     {
         //add functions names to 'except' paramert to skip authentication
-        $this->middleware('jwt.verify', ['except' => ['index']]);
+        $this->middleware('jwt.verify', ['except' => ['index', 'loadStyles','GetStyleDetails']]);
     }
 
     //get customer list
@@ -128,6 +128,17 @@ class StyleCreationController extends Controller
         $imageName = $id.'.'.'png';
         \File::put(public_path().'/assets/styleImage/'.$imageName, base64_decode($image));
         return true;
+    }
+    
+    public function loadStyles(){
+        $style_list = styleCreation::all();
+        echo json_encode($style_list);
+    }
+    
+    public function GetStyleDetails(Request $request){       
+        $style_details = styleCreation::GetStyleDetails($request->style_id);
+        echo json_encode($style_details);
+        
     }
 
     //get a Section

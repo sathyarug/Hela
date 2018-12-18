@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Finance\Item\SubCategory;
 use App\Models\Finance\Item\Category;
+use Exception;
 
 class ItemSubCategoryController extends Controller
 {
@@ -87,16 +88,16 @@ class ItemSubCategoryController extends Controller
         $category_list = Category::all();
         echo json_encode($category_list);
     }
-    
+
     public function get_subcat_list_by_maincat(Request $request){
-        
+
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
         $sub_category = SubCategory::where('category_id','=',$request->category_id)->get();
-        echo json_encode($sub_category);        
+        echo json_encode($sub_category);
     }
-    
+
     public function LoadSubCategoryList(Request $request){
-        
+
         $data = $request->all();
         //$start = $data['start'];
         $length = $data['length'];
@@ -104,12 +105,12 @@ class ItemSubCategoryController extends Controller
         $search = $data['search']['value'];
         $order = $data['order'][0];
         $order_column = $data['columns'][$order['column']]['data'];
-        $order_type = $order['dir'];        
-        
+        $order_type = $order['dir'];
+
         $sub_category_list = SubCategory::GetSubCategoryList();
-        
+
         $subCategoryCount = SubCategory::GetSubCategoryCount();
-        
+
         echo json_encode(array(
             "draw" => $draw,
             "recordsTotal" => $subCategoryCount,

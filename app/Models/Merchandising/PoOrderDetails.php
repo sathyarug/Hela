@@ -19,8 +19,6 @@ class PoOrderDetails extends BaseValidator
         'po_id'=>'required'
     );
 
-
-
     public function __construct() {
         parent::__construct();
     }
