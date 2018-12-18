@@ -71,7 +71,7 @@ class StyleCreationController extends Controller
 
     public function saveStyleCreation(Request $request) {
 //        $payload = $request->avatar;
-
+//dd($request->ProductFeature);
         if($request->style_id != null){
             $styleCreation = styleCreation::find($request->style_id);
         }else{
@@ -83,7 +83,7 @@ class StyleCreationController extends Controller
             $styleCreation->style_no =$request->style_no;
             $styleCreation->product_feature_id =$request->ProductFeature['product_feature_id'];
             $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
-            $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
+//            $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
             $styleCreation->customer_id =$request->customer['customer_id'];
             $styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
             $styleCreation->division_id =$request->division['division_id'];
