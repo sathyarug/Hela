@@ -139,8 +139,8 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('generalpr','stores\GeneralPRController');
   Route::apiResource('generalpr_details','stores\GeneralPRDetailController');
   //Route::get('get_genpr','stores\GeneralPRController');
-										  
-																				
+
+
   Route::apiResource('get_genpr','stores\GeneralPRController');
 });
 
@@ -153,6 +153,9 @@ Route::prefix('ie/')->group(function(){
 
   Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
   Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+
+  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
+  Route::apiResource('servicetypes','IE\ServiceTypeController');
 
 
 });
@@ -249,7 +252,7 @@ Route::prefix('store/')->group(function(){
 
     Route::apiResource('fabricInspection','Store\FabricInspectionController');
 
-  
+
   Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
   Route::apiResource('bin-config','Store\BinConfigController');
 
@@ -272,7 +275,7 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
   Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
-  Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
+  Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 
   /*Route::post('/sources','Test\SourceController@index');
 
