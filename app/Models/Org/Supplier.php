@@ -30,7 +30,7 @@ class Supplier extends BaseValidator {
         /*'supplier_contact1' => 'required'*/
     );
 
-    public function __construct() {
+   public function __construct() {
         parent::__construct();
     }
 

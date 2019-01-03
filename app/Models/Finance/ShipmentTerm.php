@@ -19,7 +19,7 @@ class ShipmentTerm extends BaseValidator
         'ship_term_description' => 'required'
     );
 
-    public function __construct()
+  public function __construct()
     {
         parent::__construct();
         /*$this->attributes = array(

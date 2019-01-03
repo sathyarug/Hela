@@ -47,4 +47,20 @@ class CustomerOrder extends BaseValidator
     }
 
 
+		public function style()
+		{
+			 return $this->belongsTo('App\Models\Merchandising\styleCreation' , 'order_style')->select(['style_id','style_no','style_description']);
+		}
+
+    public function customer()
+		{
+			 return $this->belongsTo('App\Models\Org\Customer' , 'order_customer')
+          ->select(['customer_id','customer_code','customer_name'])->with(['divisions']);
+		}
+
+    /*public function order_type()
+		{
+			 return $this->belongsTo('App\Models\Merchandising\CustomerOrderType' , 'order_type')->select(['order_type_id','order_type']);
+		}*/
+
 }

@@ -26,6 +26,6 @@ class Transaction extends BaseValidator
             'updated_by' => 2//Session::get("user_id")
           );
     }
-
+    
 
 }

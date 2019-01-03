@@ -72,33 +72,33 @@ class CustomerOrderController extends Controller
     //get a customer
     public function show($id)
     {
-      /*$customer = Customer::with(['customerCountry','currency'])->find($id);
-      if($customer == null)
-        throw new ModelNotFoundException("Requested customer not found", 1);
+      $customerOrder = CustomerOrder::with(['style','customer'])->find($id);
+      if($customerOrder == null)
+        throw new ModelNotFoundException("Requested customer order not found", 1);
       else
-        return response([ 'data' => $customer ]);*/
+        return response([ 'data' => $customerOrder ]);
     }
 
 
     //update a customer
     public function update(Request $request, $id)
     {
-    /*  $customer = Customer::find($id);
-      if($customer->validate($request->all()))
+      $customerOrder = CustomerOrder::find($id);
+      if($customerOrder->validate($request->all()))
       {
-        $customer->fill($request->except('customer_code'));
-        $customer->save();
+        $customerOrder->fill($request->except('customer_code'));
+        $customerOrder->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was updated successfully',
-          'customer' => $customer
+          'message' => 'Customer order was updated successfully',
+          'customer' => $customerOrder
         ]]);
       }
       else
       {
-        $errors = $customer->errors();// failure, get errors
+        $errors = $customerOrder->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }*/
+      }
     }
 
 
@@ -227,7 +227,9 @@ class CustomerOrderController extends Controller
       $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
       ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
-      ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name','cust_division.division_description')
+      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
+      ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name',
+          'cust_division.division_description','merc_customer_order_type.order_type as order_type_name')
       ->where('order_code'  , 'like', $search.'%' )
       ->orWhere('order_company'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
@@ -235,6 +237,7 @@ class CustomerOrderController extends Controller
 
       $customer_count = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
+      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
       ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
       ->where('order_code'  , 'like', $search.'%' )
       ->orWhere('order_company'  , 'like', $search.'%' )

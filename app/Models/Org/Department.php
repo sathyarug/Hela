@@ -20,7 +20,7 @@ class Department extends BaseValidator
         'dep_name' => 'required'
     );
 
-    public function __construct() {
-        parent::__construct();      
+ public function __construct() {
+        parent::__construct();
     }
 }

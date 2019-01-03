@@ -14,7 +14,7 @@ class SupplierController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->middleware('jwt.verify', ['except' => ['index','loadSuppliers']]);
     }
 
     //get Supplier list
@@ -170,5 +170,13 @@ class SupplierController extends Controller
           "data" => $supplier_list
       ];
     }
+    
+    public function loadSuppliers(Request $request){
+        $search = $request->search;       
+        //$supplier_list = Supplier::all();
+        $supplier_list = Supplier::select('supplier_id', 'supplier_code', 'supplier_name')
+                ->where('supplier_name'  , 'like', $search.'%')->get();
+        echo json_encode($supplier_list);
+    } 
 
 }

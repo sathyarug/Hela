@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CustomerOrderDetails;
+use App\Models\Merchandising\CustomerOrderSize;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 
@@ -36,7 +37,8 @@ class CustomerOrderDetailsController extends Controller
         return response($this->autocomplete_search($search));
       }
       else{
-        return response(['data' => $this->list()]);
+        $order_id = $request->order_id;
+        return response(['data' => $this->list($order_id)]);
       }
     }
 
@@ -48,6 +50,9 @@ class CustomerOrderDetailsController extends Controller
       if($order_details->validate($request->all()))
       {
         $order_details->fill($request->all());
+        $order_details->version_no = 0;
+        $order_details->line_no = $this->get_next_line_no($order_details->order_id);
+        $order_details->type_created = 'CREATE';
         //$order_details->status = 1;
         $order_details->save();
         $order_details = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details->details_id);
@@ -81,16 +86,43 @@ class CustomerOrderDetailsController extends Controller
     public function update(Request $request, $id)
     {
         $order_details = CustomerOrderDetails::find($id);
+        $message = '';
+      //    echo json_encode($order_details);die();
         if($order_details->validate($request->all()))
         {
-          $order_details->fill($request->all());
-          //$order_details->status = 1;
-          $order_details->save();
-          $order_details = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details->details_id);
+
+          $order_details_new = new CustomerOrderDetails();
+          $order_details_new->fill($request->all());
+          $order_details_new->version_no = $order_details->version_no + 1;
+          $order_details_new->line_no = $order_details->line_no;
+          $order_details_new->type_created = $order_details->type_created;
+          $order_details_new->type_modified = $order_details->type_modified;
+          $order_details_new->save();
+
+          $balance = $order_details_new->planned_qty - $order_details->planned_qty;
+          if($order_details_new->order_qty == $order_details->order_qty){
+              $sizes = CustomerOrderSize::where('details_id','=',$order_details->details_id)->get();
+              foreach($sizes as $size){
+                $new_size = new CustomerOrderSize();
+                $new_size->details_id = $order_details_new->details_id;
+                $new_size->size_id = $size->size_id;
+                $new_size->order_qty = $size->order_qty;
+                $new_size->excess_presentage = $size->excess_presentage;
+                $new_size->planned_qty = $size->planned_qty;
+                $new_size->version_no = $size->version_no;
+                $new_size->line_no = $size->line_no;
+                $new_size->save();
+              }
+              $message = 'Customer order line was saved successfully';
+          }
+          else{
+              $message = 'Customer order line was saved successfully. But planned qty mismatch. Please enter size qty again.';
+          }
+          $order_details_new = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details_new->details_id);
 
           return response([ 'data' => [
-            'message' => 'Customer order line was saved successfully',
-            'customerOrderDetails' => $order_details
+            'message' => $message,
+            'customerOrderDetails' => $order_details_new
             ]
           ], Response::HTTP_CREATED );
         }
@@ -152,30 +184,86 @@ class CustomerOrderDetailsController extends Controller
 
     }
 
-    public function save_customer_divisions(Request $request)
+    public function split_delivery(Request $request)
     {
-      /*$customer_id = $request->get('customer_id');
-      $divisions = $request->get('divisions');
-      if($customer_id != '')
-      {
-        DB::table('org_customer_divisions')->where('customer_id', '=', $customer_id)->delete();
-        $customer = Customer::find($customer_id);
-        $save_divisions = array();
+      $split_count = $request->split_count;
+      $delivery_id = $request->delivery_id;
 
-        foreach($divisions as $devision)		{
-          array_push($save_divisions,Division::find($devision['division_id']));
+      $delivery = CustomerOrderDetails::find($delivery_id);
+      $excess_presentage = $delivery->excess_presentage;
+
+      $split_order_qty = ceil($delivery->order_qty / $split_count);
+      $split_plan_qty = ceil((($split_order_qty * $delivery->excess_presentage) / 100) + $split_order_qty);
+
+      $sizes = CustomerOrderSize::where('details_id','=',$delivery->details_id)->get();
+      //array($delivery->details_id));
+    //  $modified_sizes = [];
+      $new_delivery_ids = [];
+
+      for($x = 0 ; $x < $split_count ; $x++)
+      {
+        $delivery_new = new CustomerOrderDetails();
+        $delivery_new->order_id = $delivery['order_id'];
+        $delivery_new->style_color = $delivery['style_color'];
+        $delivery_new->pcd = $delivery['pcd'];
+        $delivery_new->rm_in_date = $delivery['rm_in_date'];
+        $delivery_new->po_no = $delivery['po_no'];
+        $delivery_new->planned_delivery_date = $delivery['planned_delivery_date'];
+        $delivery_new->projection_location = $delivery['projection_location'];
+        $delivery_new->fob = $delivery['fob'];
+        $delivery_new->country = $delivery['country'];
+        $delivery_new->excess_presentage = $delivery['excess_presentage'];
+        $delivery_new->ship_mode = $delivery['ship_mode'];
+        $delivery_new->delivery_status = $delivery['delivery_status'];
+        $delivery_new->order_qty = $split_order_qty;
+        $delivery_new->planned_qty = $split_plan_qty;
+        $delivery_new->line_no = $this->get_next_line_no($delivery->order_id);
+        $delivery_new->version_no = 0;
+        $delivery_new->parent_line_id = $delivery->details_id;
+        $delivery_new->parent_line_no = $delivery->line_no;
+        $delivery_new->type_created = 'GFS';
+        $delivery_new->save();
+
+        array_push($new_delivery_ids , $delivery_new->details_id);
+
+        foreach($sizes as $size){
+          $order_qty2 = $size->order_qty;
+        //  $excess_presentage = $size['excess_presentage'];
+          $split_order_qty2 = ceil($order_qty2 / $split_count);
+          $split_planned_qty2 = ceil((($split_order_qty2 * $excess_presentage) / 100) + $split_order_qty2);
+
+          $new_size = new CustomerOrderSize();
+          $new_size->details_id = $delivery_new->details_id;
+          $new_size->size_id = $size->size_id;
+          $new_size->order_qty = $split_order_qty2;
+          $new_size->excess_presentage = $excess_presentage;
+          $new_size->planned_qty = $split_planned_qty2;
+          $new_size->version_no = 0;
+          $new_size->line_no = 1;
+          $new_size->save();
+
         }
 
-        $customer->divisions()->saveMany($save_divisions);
-        return response([
-          'data' => [
-            'customer_id' => $customer_id
-          ]
-        ]);
       }
-      else {
-        throw new ModelNotFoundException("Requested customer not found", 1);
-      }*/
+
+      $new_delivery_ids_str = json_encode($new_delivery_ids);
+      $delivery->split_lines = $new_delivery_ids_str;
+      $delivery->delivery_status = 'CANCEL';
+      $delivery->type_modified = 'SPLIT';
+      $delivery->save();
+
+      return response([ 'data' => [
+        'message' => 'Delivery was splited successfully'/*,
+        'customerOrderDetails' => $order_details*/
+        ]
+      ], Response::HTTP_CREATED );
+
+    }
+
+
+    public function get_delivery_revisions(Request $request){
+        /*$delivery_id = $request->delivery_id;
+        $deliveries =*/
     }
 
 
@@ -213,8 +301,35 @@ class CustomerOrderDetailsController extends Controller
   	}
 
 
-    private function list(){
-      return CustomerOrderDetails::with(['order_country','order_location'])->get();
+    private function list($order_id){
+      /*$order_details = CustomerOrderDetails::join('org_color','merc_customer_order_details.style_color','=','org_color.color_id')
+      ->join('org_country','merc_customer_order_details.country','=','org_country.country_id')
+      ->join('org_location','merc_customer_order_details.projection_location','=','org_location.loc_id')
+      ->select('merc_customer_order_details.*','org_color.color_code','org_color.color_name','org_country.country_description','org_location.loc_name')
+      ->where('merc_customer_order_details.order_id','=',$order_id)
+      ->get();*/
+      /*$order_details = CustomerOrderDetails::with(['order_country','order_location'])
+      ->where('order_id','=',$order_id)
+      ->where('delivery_status' , '!=' , 'CANCEL')
+      ->where(function($q) use ($order_id) {
+        $q->where('version_no', function($q) use ($order_id)
+          {
+             $q->from('merc_customer_order_details')
+              ->selectRaw('MAX(version_no)')
+              ->where('order_id', '=', $order_id)
+          });
+      })
+      ->get();*/
+      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name
+       from merc_customer_order_details a
+      inner join org_country on a.country = org_country.country_id
+      inner join org_location on a.projection_location = org_location.loc_id
+      where
+      a.order_id = ? and
+      a.delivery_status != ? and
+      a.version_no = (select MAX(b.version_no) from merc_customer_order_details b where b.order_id = a.order_id and a.line_no=b.line_no)',
+      [$order_id , 'CANCEL']);
+      return $order_details;
     }
 
 
@@ -248,5 +363,21 @@ class CustomerOrderDetailsController extends Controller
           "data" => $customer_list
       ];*/
     }
+
+
+    //get searched customers for datatable plugin format
+    /*private function get_next_version_no($details_id)
+    {
+      $max_id = CustomerOrderSize::where('details_id','=',$details_id)->max('version_no');
+      return ($max_id + 1);
+    }*/
+
+
+    private function get_next_line_no($order_id)
+    {
+      $max_no = CustomerOrderDetails::where('order_id','=',$order_id)->max('line_no');
+      return ($max_no + 1);
+    }
+
 
 }
