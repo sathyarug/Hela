@@ -62,7 +62,7 @@ class  ProductSpecificationController extends Controller
         if($productSpecification == null)
           throw new ModelNotFoundException("Requested shipment term not found", 1);
         else
-          return response([ 'data' => $productSpecification ]);
+          return response([ 'data' => $productSpecification]);
     }
 
 
@@ -104,19 +104,19 @@ class  ProductSpecificationController extends Controller
       }
     }
 
-//------not edited
     //check shipment cterm code code already exists
     private function validate_duplicate_code($id , $code)
     {
-       $productSpecification =ProductSpecification::where('prod_cat_id','=',$code)->first();
+       $productSpecification = ProductSpecification::where([['prod_cat_description','=',$code]])->first();
+
       if( $productSpecification  == null){
-        return ['status' => 'success'];
+         echo json_encode(array('status' => 'success'));
       }
       else if( $productSpecification ->prod_cat_id == $id){
-        return ['status' => 'success'];
+         echo json_encode(array('status' => 'success'));
       }
       else {
-        return ['status' => 'error','message' => 'Ship term code already exists'];
+       echo json_encode(array('status' => 'error','message' => 'Record already exists'));
       }
     }
 

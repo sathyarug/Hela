@@ -222,6 +222,8 @@ Route::prefix('finance/')->group(function(){
 
   Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
   Route::apiResource('transaction','Finance\TransactionController');
+  //sub category duplication validate
+  Route::get('subcategory/validate' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
 
 });
 
