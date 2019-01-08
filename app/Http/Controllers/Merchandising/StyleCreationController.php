@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\styleCreation;
 use App\Models\Org\Customer;
+use App\Models\Org\Division;
 use App\Models\Merchandising\productFeature;
 use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\productType;
+use App\Models\Merchandising\StyleProductFeature;
 use DB;
 //use Illuminate\Http\Response;
 
@@ -71,17 +73,18 @@ class StyleCreationController extends Controller
 
     public function saveStyleCreation(Request $request) {
 //        $payload = $request->avatar;
-
         if($request->style_id != null){
             $styleCreation = styleCreation::find($request->style_id);
         }else{
             $styleCreation = new styleCreation();
         }
+        // echo "hello"; exit;
+
 
         if ($styleCreation->validate($request->all())) {
 
             $styleCreation->style_no =$request->style_no;
-            $styleCreation->product_feature_id =$request->ProductFeature['product_feature_id'];
+            // $styleCreation->product_feature_id =$request->ProductFeature['product_feature_id'];
             $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
             $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
             $styleCreation->customer_id =$request->customer['customer_id'];
@@ -99,9 +102,21 @@ class StyleCreationController extends Controller
             $styleCreationUpdate->save();
 //            dd($request->avatarHidden );
 //            print_r($styleCreation->style_id);exit;
+  // dd($request->ProductSilhouette['product_silhouette_id']);
             if($request->avatarHidden !=null){
                 $this->saveImage($request->avatar['value'],$styleCreation->style_id);
             }
+            $insertedId = $styleCreation->style_id;
+
+            DB::table('style_product_feature')->where('style_id', '=', $insertedId)->delete();
+    				$product_features = $request->get('ProductFeature');
+    				$save_product_features = array();
+    				if($product_features != '') {
+    		  		foreach($product_features as $product_feature)		{
+    						array_push($save_product_features,productFeature::find($product_feature['product_feature_id']));
+    					}
+    				}
+    				$styleCreation->productFeature()->saveMany($save_product_features);
           //  $this->saveImage($request->avatar['value'],$styleCreation->style_id);
             echo json_encode(array('status' => 'success', 'message' => 'Customer details saved successfully.','image' =>$styleCreation->style_id.'.png'));
         } else {
@@ -144,25 +159,34 @@ class StyleCreationController extends Controller
     //get a Section
     public function show($id)
     {
-        $style = styleCreation::find($id);
+        $style = styleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
-        $productFeature = productFeature::find($style['product_feature_id']);
+        // $productFeature = DB::table('style_product_feature')
+        //           ->join('product_feature', 'style_product_feature.product_feature_id', '=', 'product_feature.product_feature_id')
+        //           ->select('style_product_feature.id AS product_feature_id','product_feature.product_feature_description')
+        //           ->where('style_product_feature.id','=',$style['style_id'])
+        //           ->get();
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = productType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
-            ->join('cust_division', 'org_customer_divisions.customer_id', '=', 'cust_division.division_id')
-            ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
-            ->where('org_customer_divisions.id','=',$style['division_id'])
-            ->get();
-//dd($divisions);
+                  ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
+                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+                  ->where('org_customer_divisions.id','=',$style['division_id'])
+                  ->get();
+        // $avatarHidden = null;
+
+
+// dd($productFeature);
         $style['customer']=$customer;
-        $style['product_feature']=$productFeature;
+        // $style['product_feature']=$productFeature;
         $style['ProductSilhouette']=$ProductSilhouette;
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;
-        $style['division']=$divisions[0];
+        $style['division']=$divisions;
+        // $style['image']=$avatarHidden;
+
 
 
 //        dd($style);

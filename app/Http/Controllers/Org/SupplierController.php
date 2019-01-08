@@ -120,13 +120,13 @@ class SupplierController extends Controller
     {
       $supplier = Supplier::where('supplier_code','=',$code)->first();
       if($supplier == null){
-        return ['status' => 'success'];
+       echo json_encode(array('status' => 'success'));
       }
       else if($supplier->supplier_id == $id){
-        return ['status' => 'success'];
+         echo json_encode(array('status' => 'success'));
       }
       else {
-        return ['status' => 'error','message' => 'Supplier code already exists'];
+         echo json_encode(array('status' => 'error','message' => 'Supplier code already exists'));
       }
     }
 
@@ -170,10 +170,13 @@ class SupplierController extends Controller
           "data" => $supplier_list
       ];
     }
-    
-    public function loadSuppliers(){
-        $supplier_list = Supplier::all();
+
+    public function loadSuppliers(Request $request){
+        $search = $request->search;
+        //$supplier_list = Supplier::all();
+        $supplier_list = Supplier::select('supplier_id', 'supplier_code', 'supplier_name')
+                ->where('supplier_name'  , 'like', $search.'%')->get();
         echo json_encode($supplier_list);
-    } 
+    }
 
 }

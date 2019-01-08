@@ -16,10 +16,10 @@ class BaseValidator extends Model
         static::creating(function ($model) {
           $user = auth()->user();
 
-          //$model->created_by = $user->user_id;
-          //$model->updated_by = $user->user_id;
-          $model->created_by = 1;
-          $model->updated_by = 1;
+          $model->created_by = $user->user_id;
+          $model->updated_by = $user->user_id;
+          //$model->created_by = 1;
+          //$model->updated_by = 1;
 
         });
 

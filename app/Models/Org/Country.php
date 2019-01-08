@@ -21,6 +21,6 @@ class Country extends BaseValidator
 
     public function __construct()
     {
-        parent::__construct();    
+        parent::__construct();
     }
 }

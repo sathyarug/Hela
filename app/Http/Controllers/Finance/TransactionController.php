@@ -99,18 +99,18 @@ class TransactionController extends Controller
       if($for == 'duplicate')
       {
 
-        return response($this->validate_duplicate_code($request->trans_id , $request->trans_code,$request->trans_description));
+        return response($this->validate_duplicate_code($request->trans_id , $request->trans_code));
       }
     }
 
 
     //check shipment cterm code code already exists
 
-      private function validate_duplicate_code($id , $code,$transDescription){
+      private function validate_duplicate_code($id , $code){
         //echo $id;
         //echo $code;
         //echo $transDescription;
-       $transaction =Transaction::where([['trans_code','=',$code],['trans_description','=',$transDescription]])->first();
+       $transaction =Transaction::where('trans_code','=',$code)->first();
        //dd($transaction);
 
       if( $transaction == null){

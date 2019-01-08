@@ -52,6 +52,13 @@ class styleCreation extends BaseValidator {
         return $this->belongsTo('App\Models\Finance\Customer', 'customer_id');
     }
 
+    //Style Product Feature
+    public function productFeature()
+    {
+        return $this->belongsToMany('App\Models\Merchandising\productFeature','style_product_feature','style_id','product_feature_id')
+        ->withPivot('id');
+    }
+
     public function customer() {
         return $this->belongsTo('App\Models\Org\Customer', 'customer_id');
     }

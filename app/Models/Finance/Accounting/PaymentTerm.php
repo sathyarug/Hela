@@ -22,7 +22,7 @@ class PaymentTerm extends BaseValidator
 
     public function __construct()
     {
-        parent::__construct();      
+        parent::__construct();
     }
 
 
