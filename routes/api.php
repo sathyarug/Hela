@@ -256,19 +256,30 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
 
     Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
+
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-    Route::apiResource('get-style','Merchandising\StyleCreationController');
+
+    Route::apiResource('style','Merchandising\StyleCreationController');
+
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
+
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
+
     Route::get('position/validate' , 'Merchandising\PositionController@validate_data');
     Route::apiResource('position','Merchandising\PositionController');
 
+    Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
+    Route::apiResource('rounds','Merchandising\RoundController');
+
+    Route::get('bomstages/validate' , 'Merchandising\BOMStageController@validate_data');
+    Route::apiResource('bomstages','Merchandising\BOMStageController');
+
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
+
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
-
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
 
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
