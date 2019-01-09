@@ -51,8 +51,8 @@ class CustomerOrderController extends Controller
       $order = new CustomerOrder();
       if($order->validate($request->all()))
       {
-        $order->fill($request->all());
-        //$order->status = 1;
+        $order->fill($request->except(['order_status']));
+        $order->order_status = 'PLANNED';
         $order->save();
 
         return response([ 'data' => [
@@ -86,12 +86,12 @@ class CustomerOrderController extends Controller
       $customerOrder = CustomerOrder::find($id);
       if($customerOrder->validate($request->all()))
       {
-        $customerOrder->fill($request->except('customer_code'));
+        $customerOrder->fill($request->except(['customer_code','order_status']));
         $customerOrder->save();
 
         return response([ 'data' => [
           'message' => 'Customer order was updated successfully',
-          'customer' => $customerOrder
+          'customerOrder' => $customerOrder
         ]]);
       }
       else
@@ -228,8 +228,9 @@ class CustomerOrderController extends Controller
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
       ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
       ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
+      ->join('core_status', 'core_status.status', '=', 'merc_customer_order_header.order_status')
       ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name',
-          'cust_division.division_description','merc_customer_order_type.order_type as order_type_name')
+          'cust_division.division_description','merc_customer_order_type.order_type as order_type_name','core_status.color')
       ->where('order_code'  , 'like', $search.'%' )
       ->orWhere('order_company'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)

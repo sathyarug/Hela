@@ -222,6 +222,8 @@ Route::prefix('finance/')->group(function(){
 
   Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
   Route::apiResource('transaction','Finance\TransactionController');
+  //sub category duplication validate
+  Route::get('subcategory/validate' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
 
 });
 
@@ -253,6 +255,9 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
+    Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
+    Route::get('customer-order-details/revisions','Merchandising\CustomerOrderDetailsController@revisions');
+    Route::get('customer-order-details/origins','Merchandising\CustomerOrderDetailsController@origins');
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
 
     Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
@@ -288,11 +293,19 @@ Route::prefix('merchandising/')->group(function(){
 });
 
 Route::prefix('admin/')->group(function(){
+
+  Route::apiResource('users','Admin\UserController');
+
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
 
-  Route::get('role/validate' , 'Admin\RoleController@validate_data');
-  Route::apiResource('role','Admin\RoleController');
+  Route::get('roles/validate' , 'Admin\RoleController@validate_data');
+  Route::post('roles/change-role-permission','Admin\RoleController@change_role_permission');
+  Route::apiResource('roles','Admin\RoleController');
+
+  Route::apiResource('permission-categories','Admin\PermissionCategoryController');
+  Route::apiResource('permissions','Admin\PermissionController');
+
 });
 
 Route::prefix('store/')->group(function(){

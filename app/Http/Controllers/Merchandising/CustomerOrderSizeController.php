@@ -34,17 +34,30 @@ class CustomerOrderSizeController extends Controller
       $size = new CustomerOrderSize();
       if($size->validate($request->all()))
       {
-        $size->fill($request->all());
-        $size->version_no = 0;//$this->get_next_version_no($request->details_id);
-        $size->line_no = $this->get_next_line_no($request->details_id);
-        $size->save();
-        $size = CustomerOrderSize::with(['size'])->find($size->id);
+        $size_count = CustomerOrderSize::where('details_id', '=', $request->details_id)
+        ->where('size_id', '=', $request->size_id)
+        ->where('status','=',1)
+        ->count();
 
-        return response([ 'data' => [
-          'message' => 'Customer order size was saved successfully',
-          'customerOrderSize' => $size
-          ]
-        ], Response::HTTP_CREATED );
+        if($size_count > 0){
+          return response([ 'data' => [
+            'message' => 'Size already exists'
+            ]
+          ], Response::HTTP_UNPROCESSABLE_ENTITY );
+        }
+        else{
+          $size->fill($request->all());
+          $size->version_no = 0;//$this->get_next_version_no($request->details_id);
+          $size->line_no = $this->get_next_line_no($request->details_id);
+          $size->save();
+          $size = CustomerOrderSize::with(['size'])->find($size->id);
+
+          return response([ 'data' => [
+            'message' => 'Customer order size was saved successfully',
+            'customerOrderSize' => $size
+            ]
+          ], Response::HTTP_CREATED );
+        }
       }
       else
       {
@@ -94,14 +107,14 @@ class CustomerOrderSizeController extends Controller
     }
 
 
-    //deactivate a customer
+    //deactivate a customer order size
     public function destroy($id)
     {
-      /*$customer = Customer::where('customer_id', $id)->update(['status' => 0]);*/
+      CustomerOrderSize::where('id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Customer was deactivated successfully.',
-          'customer' => null
+          'message' => 'Size was removed successfully.',
+          'size' => null
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -190,7 +203,9 @@ class CustomerOrderSizeController extends Controller
       $results = DB::select('select a.*,s.size_name from merc_customer_order_size a
       INNER JOIN org_size s ON a.size_id = s.size_id where
       a.details_id = ? and
-      a.version_no = (select MAX(b.version_no) from merc_customer_order_size b where b.details_id=? and b.size_id=a.size_id GROUP BY b.size_id)',
+      a.status = 1 and
+      a.version_no = (select MAX(b.version_no) from merc_customer_order_size b where b.details_id=? and b.size_id=a.size_id GROUP BY b.size_id)
+      order by a.line_no',
       array($details_id , $details_id));
       //$order_sizes = CustomerOrderSize::with(['size'])->where('details_id','=',$details_id)->get();
       return $results;
