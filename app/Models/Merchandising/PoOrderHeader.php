@@ -4,6 +4,7 @@ namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
+use App\Libraries\UniqueIdGenerator;
 
 class PoOrderHeader extends BaseValidator
 {
@@ -12,11 +13,14 @@ class PoOrderHeader extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-//    protected $fillable=[];
+    protected $fillable=['po_type','po_sup_code','po_deli_loc','po_def_cur','po_status','order_type'];
 
     protected $rules=array(
         'po_type'=>'required',
-        'po_number'=>'required'
+        'po_sup_code' => 'required',
+        'po_deli_loc' => 'required',
+        'po_def_cur' => 'required',
+        'order_type' => 'required'
     );
 
 
@@ -24,22 +28,45 @@ class PoOrderHeader extends BaseValidator
         parent::__construct();
     }
 
-    /*public function poDetails(){
-        return $this->hasMany(PoOrderDetails::class);
-    }*/
+    public function currency()
+    {
+        return $this->belongsTo('App\Models\Finance\Currency' , 'po_def_cur');
+    }
+    
+    public function location()
+        {
+            return $this->belongsTo('App\Models\Org\Location\Location' , 'po_deli_loc');
+        }
+        
+        
+    public function supplier()
+        {
+            return $this->belongsTo('App\Models\Org\Supplier' , 'po_sup_code');
+        }
+
+
+    public static function boot()
+    {
+        static::creating(function ($model) {
+
+          if($model->po_type == 'Bulk'){$rep = 'B';}
+          elseif ($model->po_type == 'Sample') {$rep = 'S';} 
+          elseif ($model->po_type == 'Re-Order') {$rep = 'R';} 
+          $user = auth()->user();
+          $code = UniqueIdGenerator::generateUniqueId('PO_MANUAL' , $user->location);
+          $model->po_number = $rep.$code;
+          //$model->updated_by = $user->user_id;
+        });
+
+        /*static::updating(function ($model) {
+            $user = auth()->user();
+            $model->updated_by = $user->user_id;
+        });*/
+
+        parent::boot();
+    }
 
     public function poDetails(){
         return $this->belongsTo('App\Models\Merchandising\PoOrderDetails' , 'po_id');
-    }
-
-    public static function getPoLineData($request){
-        $podata = self::where('d.po_id', $request->id)
-            ->join("merc_po_order_details AS d", "merc_po_order_header.po_id", "=", "d.po_id")
-            ->join("item_master AS i", "i.master_id", "=", "d.item_code")
-            ->select("d.sc_no", "d.bpo", "d.colour", "d.size", "d.uom", "d.bal_qty", "d.id", "i.master_description")
-            ->get()
-            ->toArray();
-
-        return $podata;
     }
 }

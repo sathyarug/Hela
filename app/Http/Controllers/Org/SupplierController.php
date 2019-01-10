@@ -29,8 +29,12 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
-      else{
-        return response([]);
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
       }
     }
 
@@ -70,6 +74,22 @@ class SupplierController extends Controller
     }
 
 
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Supplier::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Supplier::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
+    }
+    
     //update a Supplier
     public function update(Request $request, $id)
     {
