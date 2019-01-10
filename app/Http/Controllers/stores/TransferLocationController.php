@@ -62,7 +62,7 @@ use App\Models\Finance\Item\SubCategory;
                          ->first();
 
 
-                          
+
                           return [
                             "styleFrom"=>$stylefrom,
                             "styleTo"=>$styleTo
