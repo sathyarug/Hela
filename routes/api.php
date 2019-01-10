@@ -290,6 +290,11 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
+    Route::apiResource('po-general','Merchandising\PurchaseOrderGeneralController');
+    Route::apiResource('po-general-details','Merchandising\PurchaseOrderGeneralDetailsController');
+
+    Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
+    Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 });
 
 Route::prefix('admin/')->group(function(){
