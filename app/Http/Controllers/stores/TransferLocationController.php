@@ -44,7 +44,7 @@ use App\Models\Finance\Item\SubCategory;
        return null;
      }
    }
-
+//
 
     private function styleFromSearch($searchFrom, $searchTo){
 
@@ -60,6 +60,7 @@ use App\Models\Finance\Item\SubCategory;
                          ->where('merc_customer_order_header.order_code','=',$searchTo)
                          ->where('style_creation.status','=',1)
                          ->first();
+
 
 
                           return [
