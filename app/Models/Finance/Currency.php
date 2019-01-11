@@ -20,9 +20,9 @@ class Currency extends BaseValidator
         'currency_description'  => 'required'
     );
 
-    public function __construct()
+   public function __construct()
     {
-        parent::__construct();    
+        parent::__construct();
     }
 
 

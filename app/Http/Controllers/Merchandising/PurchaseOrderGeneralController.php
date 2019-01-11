@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
-use App\Models\Merchandising\CustomerOrder;
+use App\Models\Merchandising\PurchaseOrderGeneral;
 //use App\Libraries\UniqueIdGenerator;
-use App\Models\Merchandising\StyleCreation;
+//use App\Models\Merchandising\StyleCreation;
 
-class CustomerOrderController extends Controller
+class PurchaseOrderGeneralController extends Controller
 {
     public function __construct()
     {
@@ -48,16 +48,17 @@ class CustomerOrderController extends Controller
     //create a customer
     public function store(Request $request)
     {
-      $order = new CustomerOrder();
+      $order = new PurchaseOrderGeneral();
       if($order->validate($request->all()))
       {
-        $order->fill($request->except(['order_status']));
-        $order->order_status = 'PLANNED';
+        $order->fill($request->all());
+        $order->po_status = 'PLANNED';
         $order->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order was saved successfully',
-          'customerOrder' => $order
+          'message' => 'Purchase order was saved successfully',
+          'savepo' => $order,
+          'status' => 'PLANNED'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -72,31 +73,31 @@ class CustomerOrderController extends Controller
     //get a customer
     public function show($id)
     {
-      $customerOrder = CustomerOrder::with(['style','customer'])->find($id);
-      if($customerOrder == null)
-        throw new ModelNotFoundException("Requested customer order not found", 1);
+      $customer = PurchaseOrderGeneral::with(['currency','location','supplier'])->find($id);
+      if($customer == null)
+        throw new ModelNotFoundException("Requested PO not found", 1);
       else
-        return response([ 'data' => $customerOrder ]);
+        return response([ 'data' => $customer ]);
     }
 
 
     //update a customer
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
-      $customerOrder = CustomerOrder::find($id);
-      if($customerOrder->validate($request->all()))
+      $pOrder = PurchaseOrderGeneral::find($id);
+      if($pOrder->validate($request->all()))
       {
-        $customerOrder->fill($request->except(['customer_code','order_status']));
-        $customerOrder->save();
+        $pOrder->fill($request->except('customer_code'));
+        $pOrder->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order was updated successfully',
-          'customerOrder' => $customerOrder
+          'message' => 'Purchase order was updated successfully',
+          'customer' => $pOrder
         ]]);
       }
       else
       {
-        $errors = $customerOrder->errors();// failure, get errors
+        $errors = $pOrder->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
@@ -207,9 +208,9 @@ class CustomerOrderController extends Controller
     //search customer for autocomplete
     private function style_search($search)
   	{
-  		$style_lists = StyleCreation::select('style_id','style_no','style_description','customer_id')
+  	/*	$style_lists = StyleCreation::select('style_id','style_no','customer_id')
   		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
-  		return $style_lists;
+  		return $style_lists;*/
   	}
 
 
@@ -224,24 +225,25 @@ class CustomerOrderController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
-      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
-      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
-      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
-      ->join('core_status', 'core_status.status', '=', 'merc_customer_order_header.order_status')
-      ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name',
-          'cust_division.division_description','merc_customer_order_type.order_type as order_type_name','core_status.color')
-      ->where('order_code'  , 'like', $search.'%' )
-      ->orWhere('order_company'  , 'like', $search.'%' )
+      $customer_list = PurchaseOrderGeneral::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_general_header.po_deli_loc')
+	  ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_general_header.po_sup_code')
+      ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_general_header.po_def_cur')
+	  ->select('merc_po_order_general_header.*','org_location.loc_name','org_supplier.supplier_name',
+          'fin_currency.currency_code')
+      ->where('po_number'  , 'like', $search.'%' )
+      ->orWhere('supplier_name'  , 'like', $search.'%' )
+      
+	  ->orWhere('loc_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $customer_count = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
-      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
-      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
-      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
-      ->where('order_code'  , 'like', $search.'%' )
-      ->orWhere('order_company'  , 'like', $search.'%' )
+      $customer_count = PurchaseOrderGeneral::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_general_header.po_deli_loc')
+	  ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_general_header.po_sup_code')
+      ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_general_header.po_def_cur')
+      ->where('po_number'  , 'like', $search.'%' )
+      ->orWhere('supplier_name'  , 'like', $search.'%' )
+
+	  ->orWhere('loc_name'  , 'like', $search.'%' )
       ->count();
 
       return [

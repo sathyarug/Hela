@@ -34,7 +34,7 @@ class ExchangeRate extends BaseValidator
         $this->attributes['valid_from'] = date('d F,Y', strtotime($value));
         return $this->attributes['valid_from'];
     }*/
-    
+
 
     //default currency of the exchange rate
 		public function currency()

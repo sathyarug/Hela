@@ -97,7 +97,7 @@ $factory->define(App\Models\Org\Location\Company::class, function (Faker $faker)
         'group_id' => $faker->numberBetween($min = 0, $max = 20),
         //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
         'company_name'=>$faker->company,
-        'company_name'=>$faker->company,
+        //'company_name'=>$faker->company,
         'company_address_1'=>$faker->address,
         'company_address_2'=>$faker->address,
         'city'=>$faker->city,
@@ -318,6 +318,251 @@ $factory->define(App\Models\Org\Cancellation\CancellationReason::class, function
         'reason_description'=> $faker->lexify('description test ???'),
         //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
         'reason_category'=> $faker->numberBetween($min = 0, $max = 20),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+$factory->define(App\Models\Org\Supplier::class, function (Faker $faker) {
+    return [
+
+        'supplier_code' => $faker->numerify('sup###'),
+        'supplier_name'=>$faker->company,
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'supplier_short_name'=> $faker->userName,
+        'type_of_service'=>$faker->numberBetween($min = 0, $max = 20),
+        'business_reg_no' => $faker->numerify('reg###'),
+        //'business_reg_date'
+        'supplier_address1'=>$faker->address,
+        'supplier_address2'=>$faker->address,
+        'supplier_city'=>$faker->city,
+        'supplier_postal_code'=>$faker->postcode,
+        'supplier_state'=>$faker->state,
+        'supplier_country'=>$faker->country,
+        'supplier_contact1'=>$faker->phoneNumber,
+        'supplier_contact2'=>$faker->phoneNumber,
+        'supplier_contact3'=>$faker->phoneNumber,
+        'supplier_email'=>$faker->email,
+        'supplier_map_location'=>$faker->latitude($min = -90, $max = 90),
+        'supplier_website'=>$faker->domainName,
+        'company_code'=>$faker->numerify('comp###'),
+        //'operation_start_date'$faker->numerify('comp###'),
+        'order_destination'=>$faker->city,
+        'currency'=>$faker->numberBetween($min = 0, $max = 20),
+        'boi_reg_no'=>$faker->numerify('boi_reg###'),
+        'order_destination'=>$faker->city,
+        //'boi_reg_date'
+        'vat_reg_no'=>$faker->numerify('vat_reg###'),
+        'svat_no'=>$faker->numerify('svat_reg###'),
+        'managing_director_name'=>$faker->name,
+        'managing_director_email'=>$faker->email,
+        'finance_director_name'=>$faker->name,
+        'finance_director_email'=>$faker->email,
+        'finance_director_contact'=>$faker->phoneNumber,
+        'additional_comments'=>$faker->realText($maxNbChars = 200, $indexSize = 2),
+        'ship_terms_agreed'=>$faker->numberBetween($min = 0, $max = 1),
+        'additional_comments'=>$faker->realText($maxNbChars = 200, $indexSize = 2),
+        'payemnt_terms'=>$faker->numberBetween($min = 0, $max = 20),
+        'payment_mode'=>$faker->numberBetween($min = 0, $max = 20),
+        'bank_acc_no'=>$faker->creditCardNumber,
+        'bank_name'=>$faker->domainWord,
+        'bank_branch' =>$faker->city,
+        'bank_code'=>$faker->numerify('bank_code###'),
+        'bank_swift' =>$faker->swiftBicNumber,
+        'bank_iban' =>$faker->swiftBicNumber,
+        'intermediary_bank_name'=>$faker->domainWord,
+        'intermediary_bank_address'=>$faker->address,
+        'intermediary_bank_contact'=>$faker->phoneNumber,
+        'buyer_posting_group'=>$faker->citySuffix,
+        'business_posting_group'=>$faker->citySuffix,
+        'approved_by'=>$faker->firstNameMale,
+        'system_updated_by'=>$faker->firstNameMale ,
+        'customer_creation_form'=>$faker->firstNameMale ,
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+$factory->define(App\Models\Org\Country::class, function (Faker $faker) {
+    return [
+
+        'country_code' => $faker->numerify('country###'),
+        'country_description'=> $faker->numerify('country###'),
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+
+$factory->define(App\Models\Finance\Accounting\PaymentTerm::class, function (Faker $faker) {
+    return [
+
+        'payment_code'  => $faker->numerify('payment###'),
+        'payment_description'=> $faker->numerify('Test payemnt Description###'),
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+
+
+$factory->define(App\Models\Finance\Accounting\PaymentMethod::class, function (Faker $faker) {
+    return [
+
+        'payment_method_code'  => $faker->numerify('paymentMethod###'),
+        'payment_method_description'=> $faker->numerify('Test payemnt Method Description###'),
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+
+$factory->define(App\Models\Finance\Accounting\CostCenter::class, function (Faker $faker) {
+    return [
+
+        'cost_center_code'  => $faker->numerify('center###'),
+        'loc_id'=>$faker->numberBetween($min = 0, $max = 20),
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'cost_center_name' => $faker->numerify('center name###'),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+$factory->define(App\Models\Finance\Currency::class, function (Faker $faker) {
+    return [
+
+        'currency_code'  => $faker->currencyCode,
+        'currency_description'=> $faker->numerify('Test currency Description###'),
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+
+$factory->define(App\Models\Org\OriginType::class, function (Faker $faker) {
+    return [
+
+        'origin_type'  => $faker->numerify('Test origin Type###'),
+      //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+$factory->define(App\Models\Finance\GoodsType::class, function (Faker $faker) {
+    return [
+
+        'goods_type_description'  => $faker->numerify('Test goods discription###'),
+      //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+$factory->define(App\Models\Finance\ShipmentTerm::class, function (Faker $faker) {
+    return [
+
+        'ship_term_code'  => $faker->numerify('TestCode###'),
+      //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'ship_term_description'=> $faker->numerify('test Ship term discription###'),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+$factory->define(App\Models\Finance\Transaction::class, function (Faker $faker) {
+    return [
+
+        'trans_code'  => $faker->numerify('testCode###'),
+        'trans_description'=> $faker->numerify('test trance description###'),
+      //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+$factory->define(App\Models\Finance\ExchangeRate::class, function (Faker $faker) {
+    return [
+
+        'currency'  => $faker->numberBetween($min = 1, $max = 20),
+        'rate'=> $faker->numberBetween($min = 1, $max = 20),
+        //'valid_from'
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+$factory->define(App\Models\Org\SupplierTolarance::class, function (Faker $faker) {
+    return [
+
+        'supplier_id'  => $faker->numberBetween($min = 1, $max = 10),
+        'category_id'  => $faker->numberBetween($min = 1, $max = 10),
+        'subcategory_id'=> $faker->numberBetween($min = 1, $max = 10),
+        'subcategory_id'=> $faker->numberBetween($min = 1, $max = 10),
+        'uom_id'=> $faker->numberBetween($min = 1, $max = 10),
+        'uom_id'=> $faker->numberBetween($min = 1, $max = 10),
+        'qty'=> $faker->numberBetween($min = 1000, $max = 1500),
+        'min'=> $faker->numberBetween($min = 1000, $max = 1500),
+        'max'=> $faker->numberBetween($min = 1000, $max = 1500),
+        'min_qty'=> $faker->numberBetween($min = 1000, $max = 1500),
+        'max_qty'=> $faker->numberBetween($min = 1000, $max = 1500),
+        //'valid_from'
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'created_by'=>rand(0,10),
+        //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
+        'updated_by'=>rand(0,10),
+        'status'=>rand(0,1),
+    ];
+});
+
+
+
+$factory->define(App\itemCreation::class, function (Faker $faker) {
+    return [
+
+        'subcategory_id'  => $faker->numberBetween($min = 1, $max = 10),
+        'master_code'  => $faker->numerify('testMasterCode###'),
+        'master_description'=> $faker->numerify('test description###'),
+        'uom_id'=> $faker->numberBetween($min = 1, $max = 10),
+        //'valid_from'
+        //'created_date'=>$faker=>dateTime($max = 'now', $timezone = null),
         'created_by'=>rand(0,10),
         //'updated_date'=>$faker=>dateTime($max = 'now', $timezone = null),
         'updated_by'=>rand(0,10),

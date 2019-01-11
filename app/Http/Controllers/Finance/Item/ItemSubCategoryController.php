@@ -68,10 +68,10 @@ class ItemSubCategoryController extends Controller
     {
         $count = SubCategory::where('subcategory_code','=',$request->subcategory_code)->count();
         if($count >= 1){
-              $msg = 'Sub category code already exists';
-              //return json_encode(array('status'=>"error"));
+              //$msg = 'Sub category code already exists';
+            $msg =array('status' => 'error','message' => 'Record already exists');
           }else{
-              $msg = true;
+        $msg = array('status' => 'success');
         }
         echo json_encode($msg);
     }

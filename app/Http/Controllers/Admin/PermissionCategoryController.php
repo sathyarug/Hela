@@ -10,10 +10,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Admin\Permission;
-//use Spatie\Permission\Models\Permission;
+use App\Models\Admin\PermissionCategory;
+//use Spatie\Permission\Models\PermissionCa;
 
-class PermissionController extends Controller {
+class PermissionCategoryController extends Controller {
 
     public function __construct() {
         //add functions names to 'except' paramert to skip authentication
@@ -29,51 +29,23 @@ class PermissionController extends Controller {
     public function index(Request $request)
     {
       $type = $request->type;
-
       if($type == 'datatable')   {
         $data = $request->all();
         return response($this->datatable_search($data));
       }
-      else if($type == 'category_permission'){
-        $category = $request->category;
-        return response([
-          'data' => $this->category_permissions($category)
-        ]);
-      }
-      else {
-      /*  $active = $request->active;
+      else if($type == 'all'){
         $fields = $request->fields;
         return response([
-          'data' => $this->list($active , $fields)
-        ]);*/
+          'data' => $this->list()
+        ]);
       }
     }
 
-
-
-
-    public function store(Request $request) {
-
-    }
-
-
-    public function show($id) {
-
-    }
-
-
-    public function update(Request $request, $id) {
-
-    }
-
-
-    public function destroy($id) {
-
-    }
-
-
-    private function category_permissions($category){
-      return Permission::where('category', '=' , $category)->get();
+      //get filtered fields only
+    private function list()
+    {
+      //  return PermissionCategory::with('permissions')->get();
+      return PermissionCategory::all();
     }
 
 
@@ -81,7 +53,7 @@ class PermissionController extends Controller {
     //get searched goods types for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
+      /*$start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
@@ -102,7 +74,32 @@ class PermissionController extends Controller {
           "recordsTotal" => $permission_count,
           "recordsFiltered" => $permission_count,
           "data" => $permission_list
-      ];
+      ];*/
     }
+
+
+    public function store(Request $request) {
+
+    }
+
+
+    public function show($id) {
+
+    }
+
+
+    public function edit($id) {
+
+    }
+
+    public function update(Request $request, $id) {
+
+    }
+
+
+    public function destroy($id) {
+
+    }
+
 
 }

@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
+//use Spatie\Permission\Models\Role;
+use App\Models\Admin\Role;
+use App\Models\Admin\Permission;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller {
-    
-    
+
+
       public function __construct() {
         //add functions names to 'except' paramert to skip authentication
         $this->middleware('jwt.verify', ['except' => ['index']]);
@@ -25,58 +28,29 @@ class RoleController extends Controller {
      *
      * @return \Illuminate\View\View
      */
-     public function index(Request $request) 
+     public function index(Request $request)
      {
-    
-        /* $keyword = $request->get('search');
-          $perPage = '';
-
-          if (!empty($keyword)) {
-          $role = Role::where('name', 'LIKE', "%$keyword%")
-          ->latest()->paginate($perPage);
-          } else {
-          $role = Role::latest()->paginate($perPage);
-          }
-          return view('admin.role.index', compact('role'));
-         */
-        // return view('admin.role.index');
-
-        /*$permissions = Permission::get()->pluck('name', 'name');
-        return view('admin.role.index', compact('permissions'));*/
         $type = $request->type;
-      
-      if($type == 'datatable')   {
-        $data = $request->all();
-        return response($this->datatable_search($data));
-      }
-      else if($type == 'auto')    {
-        $search = $request->search;
-        return response($this->autocomplete_search($search));
-      }
-     /* else if($type == 'getPermissionList') {
+        if($type == 'datatable') {
+          $data = $request->all();
+          return response($this->datatable_search($data));
+        }
+        else if($type == 'category_permissions')   {
+          $role = $request->role;
+          $category = $request->category;
           return response([
-            'data' => Permission::get()->pluck('name', 'name')->toArray()
-           ]);
-      }*/
-      else {
-        $active = $request->active;
-        $fields = $request->fields;
-        return response([
-          'data' => $this->list($active , $fields)
-        ]);
-      }
+            'data' => $this->category_permissions($role, $category)
+            ]);
+        }
+        else {
+        /*  $active = $request->active;
+          $fields = $request->fields;
+          return response([
+            'data' => $this->list($active , $fields)
+          ]);*/
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create() {
-        $permissions = Permission::get()->pluck('name', 'name');
-        return view('admin.role.create', compact('permissions'));
-        //return view('admin.role.form', compact('permissions'));
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -86,29 +60,24 @@ class RoleController extends Controller {
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request) {
-
-        $requestData = $request->except('permissions');
-        $permissions = $request->permissions;
-
-        $requestData['created_by'] = Auth::id();
-        $role = Role::create($requestData);
-        
-        $permissions = array_map('current', $permissions);
-        //print_r($permissions); exit;
-        if ($role) {
-            $role->givePermissionTo($permissions);
-        } else {
-            return response(['errors' => ['validationErrors' => 'Failed saving!' ]], Response::HTTP_UNPROCESSABLE_ENTITY);
-            //echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
-        }
+      $role = new Role();
+      if($role->validate($request->all()))
+      {
+        $role->fill($request->all());
+        $role->status = 1;
+        $role->save();
 
         return response([ 'data' => [
-          'message' => 'Permission saved successfully.'
+          'message' => 'Permission role was saved successfully',
+          'role' => $role
           ]
         ], Response::HTTP_CREATED );
-        //echo json_encode(array('status' => 'success', 'message' => 'Role saved successfully.'));
-
-        // return redirect('admin/role')->with('flash_message', 'Role added!');
+      }
+      else
+      {
+          $errors = $role->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
     }
 
     /**
@@ -121,26 +90,12 @@ class RoleController extends Controller {
     public function show($id) {
         $role = Role::findOrFail($id);
         $permissions = $role->permissions->pluck('name');
-        
+
         if($role == null)
           throw new ModelNotFoundException("Requested permission not found", 1);
         else
           return response([ 'data' => $role , 'permissions'=> $permissions ]);
         //return view('admin.role.show', compact('role', 'permissions'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
-     */
-    public function edit($id) {
-        $role = Role::findOrFail($id);
-        $permissions = Permission::get()->pluck('name', 'name');
-        //return view('admin.role.form', compact('role', 'permissions'));
-        return view('admin.role.edit', compact('role', 'permissions'));
     }
 
     /**
@@ -153,25 +108,22 @@ class RoleController extends Controller {
      */
     public function update(Request $request, $id) {
 
-        $requestData = $request->except('permissions');
-        $permissions = $request->permissions;
-        $requestData['updated_by'] = Auth::id();
+      $role = Role::find($id);
+      if($role->validate($request->all()))
+      {
+        $role->fill($request->all());
+        $role->save();
 
-        $role = Role::findOrFail($id);
-        if ($role) {
-            $role->update($requestData);
-            $role->syncPermissions($permissions);
-             return response([ 'data' => [
-            'message' => 'Role is updated successfully',
-            'role' => $role
-          ]]);
-           // echo json_encode(array('status' => 'success', 'message' => 'Role saved successfully.'));
-        } else {
-           // echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
-        }
-
-
-        //return redirect('admin/role')->with('flash_message', 'Role updated!');
+        return response([ 'data' => [
+          'message' => 'Role was updated successfully',
+          'role' => $role
+        ]]);
+      }
+      else
+      {
+        $errors = $role->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
     }
 
     /**
@@ -182,62 +134,53 @@ class RoleController extends Controller {
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id) {
-        
-        if (Role::destroy($id)) {
-             return response([
-            'data' => [
-              'message' => 'Permission deleted successfully.'
-            ]
-          ] , Response::HTTP_NO_CONTENT);
-        }
-             
-       /* if( Role::destroy($id) ) {
-           echo json_encode(array('status' => 'success', 'message' => 'Role deleted successfully.'));
-        } else {
-            echo json_encode(array('status' => 'error', 'message' => 'Failed deletion!'));
-        }*/
-
-       // return redirect('admin/role')->with('flash_message', 'Role deleted!');
+      $role = Role::where('role_id', $id)->update(['status' => 0]);
+      return response([
+        'data' => [
+          'message' => 'Role was deactivated successfully.',
+          'role' => $role
+        ]
+      ] , Response::HTTP_NO_CONTENT);
     }
 
-    public function getList() {
-        return datatables()->of(Role::all())->toJson();
-        //$role = Role::all()->toBase();
-        //echo json_encode($role);
+
+    private function category_permissions($role, $category){
+      if($role != 0){
+        return DB::select('select permission.*,(case when (permission_role_assign.role IS NULL) THEN  0 ELSE 1 END) as status from
+        permission left join permission_role_assign on permission.code = permission_role_assign.permission and permission_role_assign.role = ?
+        where permission.category = ?',
+        [$role , $category]);
+      }
+      else{
+        return Permission::where('category', '=' , $category)->get();
+      }
     }
 
-    public function checkName() {
 
-        if (Role::where('name', '=', Input::get('name') )->exists()) {
-                echo 'true';
-            } else {
-                echo 'false';
-            }
-            
-        /*$id = Input::get('id');
-        $name = Input::get('name');
+    public function change_role_permission(Request $request) {
+      $role_id = $request->role_id;
+      $permission_code = $request->permission;
+      $status = $request->status;
+      if($status == false){
+        DB::table('permission_role_assign')
+        ->where('role', '=', $role_id)
+        ->where('permission', '=', $permission_code)
+        ->delete();
+      }
+      else if($status == true){
+        DB::table('permission_role_assign')->insert([
+            ['role' => $role_id, 'permission' => $permission_code]
+        ]);
+      }
 
-
-        if ($id > 0) {
-            $count = Role::where([
-                            ['id', '!=', $id],
-                            ['name', '=', $name],
-                    ])->count();
-            if ($count == 1) {
-                echo 'true';
-            } else {
-                echo 'false';
-            }
-        } else {
-            if (Role::where('name', '=', $name)->exists()) {
-                echo 'true';
-            } else {
-                echo 'false';
-            }
-        }*/
+      return response([ 'data' => [
+       'message' => 'Status changed successfully',
+       'status' => $status
+      ]]);
     }
-    
-    
+
+
+
       //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
@@ -275,13 +218,13 @@ class RoleController extends Controller {
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
-      
+
       $role_list = Role::select('*')
-      ->where('name'  , 'like', $search.'%' )
+      ->where('role_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $role_count = Role::where('name'  , 'like', $search.'%' )
+      $role_count = Role::where('role_name'  , 'like', $search.'%' )
       ->count();
 
       return [
@@ -291,31 +234,31 @@ class RoleController extends Controller {
           "data" => $role_list
       ];
     }
-    
+
     //validate anything based on requirements
     public function validate_data(Request $request){
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_role($request->id , $request->name));
+        return response($this->validate_duplicate_role($request->role_id , $request->role_name));
       }
     }
 
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_role($id , $name)
+    private function validate_duplicate_role($role_id , $role_name)
     {
-      $role = Role::where('name','=',$name)->first();
+      $role = Role::where('role_name','=',$role_name)->first();
       if($role == null){
         return ['status' => 'success'];
       }
-      else if($role->id == $id){
+      else if($role->role_id == $role_id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Role already exists'];
+        return ['status' => 'error','message' => 'Role name already exists'];
       }
     }
-    
+
 
 }
