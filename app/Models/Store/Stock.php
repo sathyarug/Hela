@@ -29,10 +29,9 @@ class Stock extends Model
         parent::__construct();
     }
 
-    public static function getBinStock(){
-
-        $podata = Stock::where('store_stock.bin', 1)
-            ->join("item_master AS i", "i.master_id", "=", "store_stock.item_code")
+    public static function getBinStock($id){
+        $podata = Stock::where('store_stock.bin', $id)
+            ->join("item_master AS i", "i.master_id", "=", "store_stock.material_code")
             ->join("org_color AS c", "c.color_id", "=", "store_stock.color")
             ->join("org_size AS s", "s.size_id", "=", "store_stock.size")
             ->join("org_uom AS u", "u.uom_id", "=", "store_stock.uom")
@@ -42,6 +41,14 @@ class Stock extends Model
             ->toArray();
 
         return $podata;
+    }
+
+    public static function GetStockRecord($obj){
+        $users = DB::table(self::table)
+            ->select(DB::raw('count(*) as user_count, status'))
+            ->where('status', '<>', 1)
+            ->groupBy('status')
+            ->get();
     }
 
 }

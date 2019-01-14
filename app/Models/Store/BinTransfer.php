@@ -5,7 +5,7 @@ namespace App\Models\Store;
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
-class BinTransfer extends BaseValidator
+class BinTransfer extends Model
 {
     protected $table='store_bin_transfer_header';
     protected $primaryKey='id';
@@ -26,6 +26,10 @@ class BinTransfer extends BaseValidator
         parent::__construct();
     }
 
+    public function binTransferDetails(){
+        return $this->hasMany('App\Models\Store\BinTransferDetail', 'transfer_id');
+    }
+
     public static function getAddedBinStock($id){
 
         $data = self::where('store_bin_transfer_header.transfer_id', $id)
@@ -36,6 +40,16 @@ class BinTransfer extends BaseValidator
             ->join("org_uom AS u", "u.uom_id", "=", "d.uom")
             ->join("style_creation AS y", "y.style_id", "=", "d.style")
             ->select( "c.color_name","s.size_name", "u.uom_code", "i.master_description", "i.master_id", "d.qty", "y.style_no", "c.color_id", "s.size_id", "i.master_id", "u.uom_id", "y.style_id")
+            ->get()
+            ->toArray();
+
+        return $data;
+    }
+
+    public static function getBinTransferDeiatls($transferId){
+        $data = self::where('store_bin_transfer_header.transfer_id', $transferId)
+            ->join("store_bin_transfer_detail AS d", "store_bin_transfer_header.transfer_id", "=", "d.transfer_id")
+            ->select( "d.to_bin","d.from_bin", "d.style", "d.color", "d.size", "d.material_id", "d.qty", "d.uom", "d.transfer_id", "d.sub_store", "d.sub_store","d.from_bin","d.customer_po_id")
             ->get()
             ->toArray();
 

@@ -13,7 +13,7 @@ class BinTransferDetail extends Model
     //const UPDATED_AT='updated_date';
     //const CREATED_AT='created_date';
 
-    protected $fillable=['id','transfer_id','sub_store','from_bin','to_bin', 'qty'];
+    protected $fillable=['id','transfer_id','sub_store','from_bin','to_bin', 'qty', 'customer_po_id'];
 
     protected $rules=array(
         'sub_store'=>'required',

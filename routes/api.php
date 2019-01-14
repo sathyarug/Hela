@@ -244,6 +244,12 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
+  Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
+  Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
+  Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
+  Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
+  Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
