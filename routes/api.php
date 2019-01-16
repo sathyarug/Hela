@@ -244,6 +244,12 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
+  Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
+  Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
+  Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
+  Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
+  Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
@@ -294,6 +300,15 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
+    Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
+    Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
+    Route::apiResource('so-combine', 'Merchandising\CombineSOController');
+
+    Route::apiResource('po-general','Merchandising\PurchaseOrderGeneralController');
+    Route::apiResource('po-general-details','Merchandising\PurchaseOrderGeneralDetailsController');
+
+    Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
+    Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 });
 
 Route::prefix('admin/')->group(function(){

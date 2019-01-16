@@ -32,7 +32,7 @@ class GrnHeader extends Model
     }
 
     public function grnDetails(){
-        return $this->hasMany('App\Models\Store\GrnDetail', 'grn_id', 'grn_id');
+        return $this->hasMany('App\Models\Store\GrnDetail', 'transfer_id', 'transfer_id');
     }
 
     public static function getGrnLineData($request){

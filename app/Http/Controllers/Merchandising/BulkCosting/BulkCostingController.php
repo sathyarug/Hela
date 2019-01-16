@@ -108,6 +108,12 @@ class BulkCostingController extends Controller {
         echo 'Destroy';
     }
 
+    public function getCostingDataForCombine(Request $request){
+        return BulkCosting::getCostingAndStyleData($request->id);
+
+
+    }
+
     private function getSeasonList() {
         //return \App\Models\Org\Customer::getActiveCustomerList();
         return \App\Models\Org\Season::select('season_id', 'season_name')
@@ -145,5 +151,14 @@ class BulkCostingController extends Controller {
         $dataArr['stage'] = 'Bulk Costing';
         return $dataArr;
     }
+
+    public function getSOByStyle(Request $request){
+        $r = BulkCosting::getSoListByStyle($request->costingId);
+        return BulkCosting::getSoListByStyle($request->costingId);
+        //dd($soList);
+        //return BulkCosting::getCostingAndStyleData($request->id);
+    }
+
+
 
 }
