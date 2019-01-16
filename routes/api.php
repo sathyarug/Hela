@@ -139,6 +139,9 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
+  Route::get('designations/validate' , 'Org\DesignationController@validate_data');
+  Route::apiResource('designations','Org\DesignationController');
+
 
 });
 
