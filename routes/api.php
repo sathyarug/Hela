@@ -283,6 +283,10 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
+    Route::get('matsize/validate' , 'Merchandising\MaterialSizeController@validate_data');
+    Route::get('matsize/subcat', 'Merchandising\MaterialSizeController@get_sub_cat');
+    Route::apiResource('matsize','Merchandising\MaterialSizeController');
+
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
