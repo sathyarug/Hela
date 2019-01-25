@@ -125,6 +125,404 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
   Route::apiResource('silhouettes','Org\SilhouetteController');
 
+  Route::get('CustomerSizeGridControllerGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+  Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  Route::apiResource('features','Org\FeatureController');
+
+  Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
+  Route::apiResource('garmentoptions','Org\GarmentOptionsController');
+
+  Route::get('requestType/validate' , 'Org\RequestTypeController@validate_data');
+  Route::apiResource('requestType','Org\RequestTypeController');
+  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+
+  Route::apiResource('ship-modes','Org\ShipModeController');
+  Route::get('designations/validate' , 'Org\DesignationController@validate_data');
+  Route::apiResource('designations','Org\DesignationController');
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//});
+
+Route::prefix('stores/')->group(function(){
+  Route::apiResource('generalpr','stores\GeneralPRController');
+  Route::apiResource('generalpr_details','stores\GeneralPRDetailController');
+  //Route::get('get_genpr','stores\GeneralPRController');
+
+
+  Route::apiResource('get_genpr','stores\GeneralPRController');
+});
+
+Route::prefix('ie/')->group(function(){
+
+  Route::get('smvupdates/validate' , 'IE\SMVUpdateController@validate_data');
+  Route::get('smvupdates/divisions' , 'IE\SMVUpdateController@customer_divisions');
+  Route::put('smvupdates/updates' , 'IE\SMVUpdateController@update');
+  Route::apiResource('smvupdates','IE\SMVUpdateController');
+
+  Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
+  Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+
+  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
+  Route::apiResource('servicetypes','IE\ServiceTypeController');
+
+
+});
+
+Route::prefix('items/')->group(function(){
+    Route::get('itemlists/loadItemList' , 'itemCreationController@GetItemList');
+    Route::apiResource('itemlists','itemCreationController');
+
+    Route::get('itemlist/loadItemsbycat' , 'itemCreationController@GetItemListBySubCategory');
+    Route::apiResource('itemlist','itemCreationController');
+
+    Route::get('getitem/getItemByCode' , 'itemCreationController@GetItemDetailsByCode');
+    Route::apiResource('getitem','itemCreationController');
+
+});
+
+
+
+
+Route::prefix('finance/')->group(function(){
+
+  Route::get('goods-types/validate' , 'Finance\GoodsTypeController@validate_data');
+  Route::apiResource('goods-types','Finance\GoodsTypeController');
+
+  Route::get('ship-terms/validate' , 'Finance\ShipmentTermController@validate_data');
+  Route::apiResource('ship-terms','Finance\ShipmentTermController');
+
+  Route::get('accounting/payment-methods/validate' , 'Finance\Accounting\PaymentMethodController@validate_data');
+  Route::apiResource('accounting/payment-methods','Finance\Accounting\PaymentMethodController');
+
+  Route::get('accounting/payment-terms/validate' , 'Finance\Accounting\PaymentTermController@validate_data');
+  Route::apiResource('accounting/payment-terms','Finance\Accounting\PaymentTermController');
+
+  Route::get('accounting/cost-centers/validate' , 'Finance\Accounting\CostCenterController@validate_data');
+  Route::apiResource('accounting/cost-centers','Finance\Accounting\CostCenterController');
+
+  Route::get('currencies/validate' , 'Finance\CurrencyController@validate_data');
+  Route::apiResource('currencies','Finance\CurrencyController');
+
+  Route::get('exchange-rates/validate' , 'Finance\ExchangeRateController@validate_data');
+  Route::apiResource('exchange-rates','Finance\ExchangeRateController');
+
+  Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
+  Route::apiResource('transaction','Finance\TransactionController');
+  //sub category duplication validate
+  Route::get('subcategory/validate' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
+
+});
+
+
+Route::prefix('stores/')->group(function(){
+
+  Route::apiResource('po-load','stores\RollPlanController');
+  Route::apiResource('roll','stores\RollPlanController');
+  /********edited*/
+  Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
+  Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
+  Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+  Route::apiResource('transfer-location','Stores\TransferLocationController');
+  Route::apiResource('grn', 'Store\GrnController');
+  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
+  Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
+  Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
+  Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
+  Route::get('loadAddedBins','Store\GrnController@getAddedBins');
+  Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
+  Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
+  Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
+  Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
+  Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+    //Route::apiResource('substore','Store\SubStoreController');
+
+
+});
+
+Route::prefix('merchandising/')->group(function(){
+
+//  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
+    Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+
+    Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
+    Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
+    Route::get('customer-order-details/revisions','Merchandising\CustomerOrderDetailsController@revisions');
+    Route::get('customer-order-details/origins','Merchandising\CustomerOrderDetailsController@origins');
+    Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
+
+    Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
+
+    Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
+
+    Route::apiResource('style','Merchandising\StyleCreationController');
+
+    Route::apiResource('tna-master','Merchandising\TnaMasterController');
+
+    Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
+    Route::apiResource('color-options','Merchandising\ColorOptionController');
+
+    Route::get('position/validate' , 'Merchandising\PositionController@validate_data');
+    Route::apiResource('position','Merchandising\PositionController');
+
+    Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
+    Route::apiResource('rounds','Merchandising\RoundController');
+
+    Route::get('bomstages/validate' , 'Merchandising\BOMStageController@validate_data');
+    Route::apiResource('bomstages','Merchandising\BOMStageController');
+
+    Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
+    Route::apiResource('cut-direction','Merchandising\CutDirectionController');
+
+    Route::get('matsize/validate' , 'Merchandising\MaterialSizeController@validate_data');
+    Route::get('matsize/subcat', 'Merchandising\MaterialSizeController@get_sub_cat');
+    Route::apiResource('matsize','Merchandising\MaterialSizeController');
+
+    Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
+    Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
+    Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
+
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+
+    Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
+    Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
+    Route::apiResource('so-combine', 'Merchandising\CombineSOController');
+
+    Route::apiResource('po-general','Merchandising\PurchaseOrderGeneralController');
+    Route::apiResource('po-general-details','Merchandising\PurchaseOrderGeneralDetailsController');
+
+    Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
+    Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
+});
+
+Route::prefix('admin/')->group(function(){
+
+  Route::apiResource('users','Admin\UserController');
+
+  Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
+  Route::apiResource('permission','Admin\PermissionController');
+
+  Route::get('roles/validate' , 'Admin\RoleController@validate_data');
+  Route::post('roles/change-role-permission','Admin\RoleController@change_role_permission');
+  Route::apiResource('roles','Admin\RoleController');
+
+  Route::apiResource('permission-categories','Admin\PermissionCategoryController');
+  Route::apiResource('permissions','Admin\PermissionController');
+
+});
+
+Route::prefix('store/')->group(function(){
+
+  Route::auth();
+
+  Route::get('stores/validate' , 'Store\StoreController@validate_data');
+  Route::apiResource('stores','Store\StoreController');
+
+  Route::get('storebin/validate' , 'Store\StoreBinController@validate_data');
+  Route::apiResource('storebin','Store\StoreBinController');
+
+  Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
+  Route::apiResource('substore','Store\SubStoreController');
+
+
+    Route::apiResource('fabricInspection','Store\FabricInspectionController');
+
+
+  Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
+  Route::apiResource('bin-config','Store\BinConfigController');
+});
+
+
+Route::prefix('core/')->group(function(){
+
+  Route::apiResource('status','Core\StatusController');
+
+});
+
+//Route::group(['middleware' => ['jwt.auth']], function() {
+
+  Route::GET('/sources','Test\SourceController@index');
+  Route::GET('/getCustomer','Org\CustomerController@loadCustomer');
+  Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadProductCategory');
+  Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
+  Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
+  Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+
+  Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
+
+  Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');
+  Route::get('/loadStyleDetails','Merchandising\StyleCreationController@GetStyleDetails');
+
+  Route::get('/seasonlist' , 'Org\SeasonController@GetSeasonsList');
+  Route::apiResource('seasons','Org\SeasonController');
+
+  Route::post('flashcosting/savecostingheader', 'Merchandising\Costing\Flash\FlashController@saveCostingHeader');
+  Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
+
+  Route::post('flashcosting/confirmcosting', 'Merchandising\Costing\Flash\FlashController@confirmCostSheet');
+  Route::post('flashcosting/revisecosting', 'Merchandising\Costing\Flash\FlashController@reviseCostSheet');
+  Route::post('flashcosting/setinactive', 'Merchandising\Costing\Flash\FlashController@setItemInactive');
+
+  Route::get('flashcosting/listcosting', 'Merchandising\Costing\Flash\FlashController@ListingCostings');
+  Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
+  Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
+  Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashController@getCostingItems');
+
+
+
+  /*Route::post('/sources','Test\SourceController@index');
+
+    Route::get('logout', 'AuthController@logout');
+    Route::get('test', function(){
+        return response()->json(['foo'=>'bar']);
+    });*/
+//});
+<?php
+
+use Illuminate\Http\Request;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});*/
+
+/*
+routing responses and codes
+...................................................
+HTTP_OK = 200;
+HTTP_CREATED = 201;
+HTTP_NO_CONTENT = 204;
+HTTP_BAD_REQUEST = 400;
+HTTP_UNAUTHORIZED = 401;
+HTTP_NOT_FOUND = 404;
+HTTP_METHOD_NOT_ALLOWED = 405;
+HTTP_CONFLICT = 409;
+HTTP_INTERNAL_SERVER_ERROR = 500;
+*/
+
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
+
+    Route::post('login', 'AuthController@login');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::post('me', 'AuthController@me');
+
+});
+
+//org routing.................................
+
+/*
+GET|HEAD  | api/countries  | countries.index    | App\Http\Controllers\Org\CountryController@index
+POST      | api/countries | countries.store    | App\Http\Controllers\Org\CountryController@store
+PUT|PATCH | api/countries/{country}  | countries.update   | App\Http\Controllers\Org\CountryController@update
+GET|HEAD  | api/countries/{country}  | countries.show     | App\Http\Controllers\Org\CountryController@show
+DELETE    | api/countries/{country}  | countries.destroy  | App\Http\Controllers\Org\CountryController@destroy */
+Route::prefix('org/')->group(function(){
+
+  Route::get('countries/validate' , 'Org\CountryController@validate_data');
+  Route::apiResource('countries','Org\CountryController');
+
+  Route::get('sections/validate' , 'Org\SectionController@validate_data');
+  Route::apiResource('sections','Org\SectionController');
+
+  Route::get('departments/validate' , 'Org\DepartmentController@validate_data');
+  Route::apiResource('departments','Org\DepartmentController');
+
+  Route::get('sources/validate' , 'Org\Location\SourceController@validate_data');
+  Route::apiResource('sources','Org\Location\SourceController');
+
+  Route::get('clusters/validate' , 'Org\Location\ClusterController@validate_data');
+  Route::apiResource('clusters','Org\Location\ClusterController');
+
+  Route::get('companies/validate' , 'Org\Location\CompanyController@validate_data');
+  Route::apiResource('companies','Org\Location\CompanyController');
+
+  Route::get('locations/validate' , 'Org\Location\LocationController@validate_data');
+  Route::apiResource('locations','Org\Location\LocationController');
+
+  Route::apiResource('location-types','Org\LocationTypeController');
+  Route::apiResource('property-types','Org\PropertyTypeController');
+
+  Route::get('customers/validate' , 'Org\CustomerController@validate_data');
+  Route::get('customers/divisions' , 'Org\CustomerController@customer_divisions');
+  Route::put('customers/divisions' , 'Org\CustomerController@save_customer_divisions');
+  Route::apiResource('customers','Org\CustomerController');
+
+  Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
+  Route::apiResource('suppliers','Org\SupplierController');
+
+  Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
+  Route::apiResource('supplierslist','Org\SupplierController');
+
+  Route::get('uom/validate' , 'Org\UOMController@validate_data');
+  Route::apiResource('uom','Org\UOMController');
+
+  Route::get('cancellation-categories/validate' , 'Org\Cancellation\CancellationCategoryController@validate_data');
+  Route::apiResource('cancellation-categories','Org\Cancellation\CancellationCategoryController');
+
+  Route::get('cancellation-reasons/validate' , 'Org\Cancellation\CancellationReasonController@validate_data');
+  Route::apiResource('cancellation-reasons','Org\Cancellation\CancellationReasonController');
+
+  Route::get('divisions/validate' , 'Org\DivisionController@validate_data');
+  Route::apiResource('divisions','Org\DivisionController');
+
+  Route::get('seasons/validate' , 'Org\SeasonController@validate_data');
+  Route::apiResource('seasons','Org\SeasonController');
+
+  Route::get('origin-types/validate' , 'Org\OriginTypeController@validate_data');
+  Route::apiResource('origin-types','Org\OriginTypeController');
+
+  Route::get('sizes/validate' , 'Org\SizeController@validate_data');
+  Route::apiResource('sizes','Org\SizeController');
+
+  Route::get('colors/validate' , 'Org\ColorController@validate_data');
+  Route::apiResource('colors','Org\ColorController');
+
+  //Route::get('stores/validate' , 'Org\StoreController@validate_data');
+  //Route::apiResource('stores','Org\StoreController');
+
+  Route::get('product-specification/validate' , 'Org\ProductSpecificationController@validate_data');
+  Route::apiResource('product-specifications','Org\ProductSpecificationController');
+
+  Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
+  Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
+
+  Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
+  Route::apiResource('silhouettes','Org\SilhouetteController');
+
   Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 

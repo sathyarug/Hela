@@ -10,7 +10,8 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
+use App\Models\Admin\Permission;
+//use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller {
 
@@ -24,53 +25,57 @@ class PermissionController extends Controller {
      *
      * @return \Illuminate\View\View
      */
-    
+
     public function index(Request $request)
     {
       $type = $request->type;
-      
+
       if($type == 'datatable')   {
         $data = $request->all();
         return response($this->datatable_search($data));
       }
-      else if($type == 'auto')    {
-        $search = $request->search;
-        return response($this->autocomplete_search($search));
+      else if($type == 'category_permission'){
+        $category = $request->category;
+        return response([
+          'data' => $this->category_permissions($category)
+        ]);
       }
       else {
-        $active = $request->active;
+      /*  $active = $request->active;
         $fields = $request->fields;
         return response([
           'data' => $this->list($active , $fields)
-        ]);
+        ]);*/
       }
-    }
-    
-      //get filtered fields only
-    private function list($active = 0 , $fields = null)
-    {
-      $query = null;
-      if($fields == null || $fields == '') {
-        $query = Permission::select('*');
-      }
-      else{
-        $fields = explode(',', $fields);
-        $query = Permission::select($fields);
-        /*if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
-        }*/
-      }
-      return $query->get();
     }
 
 
-    //search goods types for autocomplete
-    private function autocomplete_search($search)
-  	{
-  		$permission_list = Permission::select('id','name')
-  		->where([['name', 'like', '%' . $search . '%'],]) ->get();
-  		return $permission_list;
-  	}
+
+
+    public function store(Request $request) {
+
+    }
+
+
+    public function show($id) {
+
+    }
+
+
+    public function update(Request $request, $id) {
+
+    }
+
+
+    public function destroy($id) {
+
+    }
+
+
+    private function category_permissions($category){
+      return Permission::where('category', '=' , $category)->get();
+    }
+
 
 
     //get searched goods types for datatable plugin format
@@ -83,7 +88,7 @@ class PermissionController extends Controller {
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
-      
+
       $permission_list = Permission::select('*')
       ->where('name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
@@ -98,185 +103,6 @@ class PermissionController extends Controller {
           "recordsFiltered" => $permission_count,
           "data" => $permission_list
       ];
-    }
-    
-   /* public function index(Request $request) {*/
-        /* $keyword = $request->get('search');
-          $perPage = 25;
-
-          if (!empty($keyword)) {
-          $permission = Permission::where('name', 'LIKE', "%$keyword%")
-          ->latest()->paginate($perPage);
-          } else {
-          $permission = Permission::latest()->paginate($perPage);
-          } */
-
-      /*  //return view('admin.permission.index', compact('permission'));
-        return view('admin.permission.index');
-    }*/
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create() {
-        //return view('admin.permission.create');
-        return view('admin.permission.edit');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function store(Request $request) {
-
-        $requestData = $request->all();
-        $requestData['created_by'] = 1; //Auth::id();
-
-        if (Permission::create($requestData)) {
-            
-            return response([ 'data' => [
-          'message' => 'Permission saved successfully.'
-          ]
-        ], Response::HTTP_CREATED );
-            //echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
-        } else {
-            return response(['errors' => ['validationErrors' => 'Failed saving!' ]], Response::HTTP_UNPROCESSABLE_ENTITY);
-            //echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
-        }
-
-        //return redirect('admin/permission')->with('flash_message', 'Permission added!');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
-     */
-    public function show($id) {
-        $permission = Permission::findOrFail($id);
-        //return view('admin.permission.show', compact('permission'));
-        if($permission == null)
-          throw new ModelNotFoundException("Requested permission not found", 1);
-        else
-          return response([ 'data' => $permission ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
-     */
-    public function edit($id) {
-        $permission = Permission::findOrFail($id);
-        return view('admin.permission.edit', compact('permission'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function update(Request $request, $id) {
-
-        $requestData = $request->all();
-        $requestData['updated_by'] = Auth::id();
-
-        $permission = Permission::findOrFail($id);
-
-        if ($permission) {
-            $permission->update($requestData);
-            return response([ 'data' => [
-            'message' => 'Permission is updated successfully',
-            'permission' => $permission
-          ]]);
-           // echo json_encode(array('status' => 'success', 'message' => 'Permission saved successfully.'));
-        } else {
-           // echo json_encode(array('status' => 'error', 'message' => 'Failed saving!'));
-        }
-
-        //return redirect('admin/permission')->with('flash_message', 'Permission updated!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function destroy($id) {
-        if (Permission::destroy($id)) {
-             return response([
-          'data' => [
-            'message' => 'Permission deleted successfully.'
-          ]
-        ] , Response::HTTP_NO_CONTENT);
-            //echo json_encode(array('status' => 'success', 'message' => 'Permission deleted successfully.'));
-        } /*else {
-            echo json_encode(array('status' => 'error', 'message' => 'Failed deletion!'));
-        }*/
-        //return redirect('admin/permission')->with('flash_message', 'Permission deleted!');
-    }
-
-    public function getList() {
-        return datatables()->of(Permission::all())->toJson();
-    }
-
-    public function checkName() {
-        $id = Input::get('id');
-        $name = Input::get('name');
-
-
-        if ($id) {
-            if (Permission::where([['name', '=', $name], ['id', '<>', $id]])->exists()) {
-                echo 'true';
-            } else {
-                echo 'false';
-            }
-        } else {
-            if (Permission::where('name', '=', $name)->exists()) {
-                echo 'true';
-            } else {
-                echo 'false';
-            }
-        }
-    }
-    
-    //validate anything based on requirements
-    public function validate_data(Request $request){
-      $for = $request->for;
-      if($for == 'duplicate')
-      {
-        return response($this->validate_duplicate_permission($request->id , $request->name));
-      }
-    }
-
-
-    //check shipment cterm code code already exists
-    private function validate_duplicate_permission($id , $name)
-    {
-      $permission = Permission::where('name','=',$name)->first();
-      if($permission == null){
-        return ['status' => 'success'];
-      }
-      else if($permission->id == $id){
-        return ['status' => 'success'];
-      }
-      else {
-        return ['status' => 'error','message' => 'Permission already exists'];
-      }
     }
 
 }

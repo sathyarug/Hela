@@ -30,10 +30,10 @@ class StoreBinController extends Controller {
             return response($this->getActiveBins($data));
         } else if ($type == 'getCategory') {
             $data = $request->all();
-            return response($this->getCategoryList($data)); 
+            return response($this->getCategoryList($data));
         } else if ($type == 'getItemCategory') {
             $data = $request->all();
-            return response($this->getItemCategory($data['category_id']));    
+            return response($this->getItemCategory($data['category_id']));
         } else {
             $active = $request->active;
             $fields = $request->fields;
@@ -120,10 +120,10 @@ class StoreBinController extends Controller {
                 'store' => $storeBin
             ]
                 ], Response::HTTP_NO_CONTENT);
-        }
+    }
 
-        //get filtered fields only
-        private function list($active = 0, $fields = null) {
+    //get filtered fields only
+    private function list($active = 0, $fields = null) {
         $query = null;
         if ($fields == null || $fields == '') {
             $query = StoreBin::select('*');
@@ -153,7 +153,7 @@ class StoreBinController extends Controller {
         $order = $data['order'][0];
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
-        
+
         $payload = auth()->payload();
         $locId = $payload->get('loc_id');
         //print_r($payload); exit;
@@ -164,7 +164,7 @@ class StoreBinController extends Controller {
                             $join->on('org_store.store_id', '=', 'org_store_bin.store_id');
                             $join->on('org_store.loc_id', '=', DB::raw($locId) );
                         })
-                                
+
                         ->where([['store_bin_name', 'like', "%$search%"]])
                         ->orderBy($order_column, $order_type)
                         ->offset($start)->limit($length)->get();
@@ -178,7 +178,7 @@ class StoreBinController extends Controller {
                             $join->on('org_store.store_id', '=', 'org_store_bin.store_id');
                             $join->on('org_store.loc_id', '=', DB::raw($locId) );
                         })
-                                
+
                         ->where([['store_bin_name', 'like', "%$search%"]])
                         ->count();
 
@@ -210,6 +210,15 @@ class StoreBinController extends Controller {
         }
     }
 
+    public function getBinListByLoc(Request $request){
+        $bin_list = StoreBin::select('store_bin_id', 'store_bin_name')->where('store_id', $request->id)->get();
+        //$bin_list = StoreBin::select('store_bin_id','store_bin_name')->where([['store_id', '=',  $request->id],])->get();
+        $bins = $bin_list->toArray();
+        return response([
+            'data' => $bins
+        ]);
+    }
+
     private function getActiveBins($data) {
         $bin_list = StoreBin::select('org_store_bin.*', 'org_substore.substore_name', 'org_store.store_name','org_store_bin_allocation.allocation_id')
             ->join('org_substore', 'org_substore.substore_id', '=', 'org_store_bin.substore_id')
@@ -221,7 +230,7 @@ class StoreBinController extends Controller {
                 ['org_substore.substore_id', '=', $data['substoreId']],
                 ['org_store.store_id', '=', $data['storeId']],
             ])->get();
-        
+
         $binArray= array();
         foreach($bin_list as $bin) {
             $binArray[$bin->store_bin_id] = $bin;
@@ -230,14 +239,14 @@ class StoreBinController extends Controller {
             "data" => array_values($binArray)
         ];
     }
-    
-    
+
+
     private function getCategoryList() {
         return Category::select('item_category.*')
                 ->where('item_category.status', '=', '1')
                 ->orderBy('item_category.category_name', 'ASC')->get();
     }
-    
+
     private function getItemCategory($categoryId) {
         return [
             "data" => Category::getItemListByCategory($categoryId)

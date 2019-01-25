@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Store\SubStore;
+use App\Models\Store\StoreBin;
+use App\Models\Store\Stock;
 
 class SubStoreController extends Controller
 {
@@ -175,5 +177,15 @@ class SubStoreController extends Controller
         } else {
             return ['status' => 'error', 'message' => 'Sub store already exists'];
         }
+    }
+
+    public function getSubStoreList(){
+        return SubStore::select('substore_id', 'substore_name')
+            ->where([['status', '=', 1],])->get();
+    }
+
+    public function getSubStoreBinList(){
+        return StoreBin::select('store_bin_id', 'store_bin_name')
+            ->where([['status', '=', 1],])->get();
     }
 }

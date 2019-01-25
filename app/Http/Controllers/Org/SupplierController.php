@@ -29,8 +29,12 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
-      else{
-        return response([]);
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
       }
     }
 
@@ -70,6 +74,22 @@ class SupplierController extends Controller
     }
 
 
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = Supplier::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query = Supplier::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
+    }
+    
     //update a Supplier
     public function update(Request $request, $id)
     {
@@ -120,13 +140,13 @@ class SupplierController extends Controller
     {
       $supplier = Supplier::where('supplier_code','=',$code)->first();
       if($supplier == null){
-        return ['status' => 'success'];
+       echo json_encode(array('status' => 'success'));
       }
       else if($supplier->supplier_id == $id){
-        return ['status' => 'success'];
+         echo json_encode(array('status' => 'success'));
       }
       else {
-        return ['status' => 'error','message' => 'Supplier code already exists'];
+         echo json_encode(array('status' => 'error','message' => 'Supplier code already exists'));
       }
     }
 
@@ -170,13 +190,13 @@ class SupplierController extends Controller
           "data" => $supplier_list
       ];
     }
-    
+
     public function loadSuppliers(Request $request){
-        $search = $request->search;       
+        $search = $request->search;
         //$supplier_list = Supplier::all();
         $supplier_list = Supplier::select('supplier_id', 'supplier_code', 'supplier_name')
                 ->where('supplier_name'  , 'like', $search.'%')->get();
         echo json_encode($supplier_list);
-    } 
+    }
 
 }

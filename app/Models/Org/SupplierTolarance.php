@@ -27,7 +27,7 @@ class SupplierTolarance extends BaseValidator
           );
     }
 
-  /*  public function supplier()
+   public function supplier()
 		{
 			 return $this->belongsTo('App\Models\Org\supplier' , 'supplier_id')->select(['supplier_id','supplier_name']);
 		}
@@ -35,5 +35,5 @@ class SupplierTolarance extends BaseValidator
     {
        return $this->belongsTo('App\Models\Finance\Item\Category' , 'supplier_id')->select(['supplier_id','supplier_name']);
     }
-*/
+
 }

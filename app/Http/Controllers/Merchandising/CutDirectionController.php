@@ -97,16 +97,16 @@ class CutDirectionController extends Controller{
     $for = $request->for;
     if($for == 'duplicate')
     {
-      return response($this->validate_duplicate_code($request->cut_dir_id , $request->cut_dir_description, $request->cd_acronyms));
+      return response($this->validate_duplicate_code($request->cut_dir_id , $request->cut_dir_description));
     }
   }
 
 
   //check shipment cterm code code already exists
-  private function validate_duplicate_code($id ,$description, $code)
+  private function validate_duplicate_code($id ,$description)
   {
-     $cutDirection =  CutDirection::where('cut_dir_description','=',$description)
-                                    ->where('cd_acronyms','=',$code)->first();
+     $cutDirection =  CutDirection::where('cut_dir_description','=',$description)->first();
+                                    //>where('cd_acronyms','=',$code)->first();
 
     if( $cutDirection == null){
       return ['status' => 'success'];
