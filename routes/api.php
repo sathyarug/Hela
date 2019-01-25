@@ -244,6 +244,25 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
+    //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
+    Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
+    Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
+
+    Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
+    Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
+    Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
+
+    Route::get('bom/rmdetails','Merchandising\BomController@getCostingRMDetails');
+    Route::get('bom/bomlist','Merchandising\BomController@ListBOMS');
+    Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
+    Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
+    Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+
+    Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
+    Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
+    Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
+    
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -306,8 +325,6 @@ Route::prefix('core/')->group(function(){
   Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
   Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
   Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashController@getCostingItems');
-  
-  
 
   /*Route::post('/sources','Test\SourceController@index');
 
