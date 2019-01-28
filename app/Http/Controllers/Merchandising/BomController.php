@@ -147,7 +147,7 @@ class BomController extends Controller
 
         $bomDeatils = new bom_details();
         $bomDeatils->bom_id = $request->bomid;
-        $bomDeatils->item_code = $request->itemcode;
+        $bomDeatils->master_id = $request->itemcode;
         $bomDeatils->item_color =  $request->itemcolor;
         $bomDeatils->uom_id = $request->uomid;
         $bomDeatils->unit_price = $request->unitprice;
