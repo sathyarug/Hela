@@ -36,6 +36,10 @@ class CustomerOrderDetailsController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'style_colors')  {
+        $style = $request->style;
+        return response(['data' => $this->style_colors($style)]);
+      }
       else{
         $order_id = $request->order_id;
         return response(['data' => $this->list($order_id)]);
@@ -465,6 +469,15 @@ class CustomerOrderDetailsController extends Controller
       order by a.line_no',
       [$order_id , 'CANCEL']);
       return $order_details;
+    }
+
+
+    private function style_colors($style){
+      $colors = DB::select("SELECT costing_bulk_feature_details.color_ID, org_color.color_code,org_color.color_name FROM costing_bulk_feature_details
+          INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
+          INNER JOIN org_color ON costing_bulk_feature_details.color_ID = org_color.color_id
+          WHERE costing_bulk.style_id = ?",[$style]);
+      return $colors;
     }
 
 

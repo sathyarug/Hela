@@ -284,6 +284,10 @@ Route::prefix('merchandising/')->group(function(){
 
 Route::prefix('admin/')->group(function(){
 
+  Route::get('users/roles','Admin\UserController@roles');
+  Route::post('users/roles','Admin\UserController@save_roles');
+  Route::get('users/locations','Admin\UserController@locations');
+  Route::post('users/locations','Admin\UserController@save_locations');
   Route::apiResource('users','Admin\UserController');
 
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
@@ -323,6 +327,15 @@ Route::prefix('store/')->group(function(){
 Route::prefix('core/')->group(function(){
 
   Route::apiResource('status','Core\StatusController');
+
+});
+
+
+Route::prefix('app/')->group(function(){
+
+  Route::GET('menus','App\MenuController@index');
+
+  Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });
 

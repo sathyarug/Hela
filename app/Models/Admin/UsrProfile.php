@@ -14,6 +14,8 @@ class UsrProfile extends BaseValidator
         'joined_date', 'mobile_no', 'email', 'emp_number', 'loc_id', 'dept_id', 'desig_id', 'cost_center_id', 'resign_date', 'reporting_level_1',
         'reporting_level_2'
     ];
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
 
     protected $dates = [
         'created_at',
@@ -31,7 +33,7 @@ class UsrProfile extends BaseValidator
         'first_name' => 'required',
         'last_name' => 'required',
         'emp_number' => 'required',
-        'email' => 'required',
+        /*'email' => 'required',*/
         'gender' => 'required'
 
     );
@@ -46,6 +48,18 @@ class UsrProfile extends BaseValidator
 
     public function setResignDateAttribute($value){
         $this->attributes['resign_date'] = date('Y-m-d', strtotime($value));
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany('App\Models\Admin\Role','user_roles','user_id','role_id')
+        ->withPivot('loc_id');
+    }
+
+    public function locations()
+    {
+        return $this->belongsToMany('App\Models\Org\Location\Location','user_locations','user_id','loc_id');
+        //->withPivot('id');
     }
 
 
