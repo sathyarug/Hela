@@ -276,9 +276,7 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-
-    Route::apiResource('style','Merchandising\StyleCreationController');
-
+    Route::apiResource('get-style','Merchandising\StyleCreationController');
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
