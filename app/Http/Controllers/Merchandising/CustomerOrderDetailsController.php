@@ -23,7 +23,7 @@ class CustomerOrderDetailsController extends Controller
 
     //get customer list
     public function index(Request $request)
-    {
+    { 
       //$id_generator = new UniqueIdGenerator();
       //echo $id_generator->generateCustomerOrderDetailsId('CUSTOMER_ORDER' , 1);
       //echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
