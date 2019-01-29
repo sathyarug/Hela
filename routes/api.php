@@ -113,8 +113,8 @@ Route::prefix('org/')->group(function(){
   Route::get('colors/validate' , 'Org\ColorController@validate_data');
   Route::apiResource('colors','Org\ColorController');
 
-  //Route::get('stores/validate' , 'Org\StoreController@validate_data');
-  //Route::apiResource('stores','Org\StoreController');
+  Route::get('stores/validate' , 'Store\StoreController@validate_data');
+  Route::apiResource('stores','Store\StoreController');
 
   Route::get('product-specification/validate' , 'Org\ProductSpecificationController@validate_data');
   Route::apiResource('product-specifications','Org\ProductSpecificationController');

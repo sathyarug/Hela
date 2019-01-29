@@ -10,6 +10,7 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Merchandising\styleCreation;
 use App\Models\Finance\Item\SubCategory;
+use App\Models\Store\Stock;
 
 
 
@@ -33,6 +34,11 @@ use App\Models\Finance\Item\SubCategory;
        $searchFrom = $request->searchFrom;
        $searchTo=$request->searchTo;
        return response($this->styleFromSearch($searchFrom, $searchTo));
+     }
+     else if($type=='loadDetails'){
+       $style=$request->style_id;
+       return response($this->tabaleLoad($style));
+
      }
      else if ($type == 'auto')    {
        $search = $request->search;
@@ -71,6 +77,21 @@ use App\Models\Finance\Item\SubCategory;
 
 
                             }
+
+
+                      private function tabaleLoad($style){
+
+                        $details=Stock::join('style_creation','store_stock.style_id','=','style_creation.style_id')
+                                        ->select('*')
+                                        ->where('style_creation.style_no','=',$style)->get();
+                                        return $details;
+
+
+
+
+
+
+                      }
 
 
  }
