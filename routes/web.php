@@ -24,6 +24,8 @@ Route::get('select-location', 'Auth\LoginController@selectLocation');
 
 Route::POST('loginWithLoc', 'Auth\LoginController@loginWithLoc');
 
+Route::GET('menus','App\MenuController@index');
+
 
 Route::get('/recover', function () {
     return view('recover');
@@ -373,7 +375,7 @@ Route::post('itemproperty/save-assign', 'itempropertyController@SavePropertyAssi
 Route::get('itemproperty/load-assign-properties', 'itempropertyController@LoadAssignProperties');
 Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUnAssignPropertiesBySubCat');
 Route::get('itemproperty/check_property','itempropertyController@CheckProperty');
-Route::post('itemproperty/delete-assign', 'itempropertyController@RemoveAssign');  
+Route::post('itemproperty/delete-assign', 'itempropertyController@RemoveAssign');
 
 Route::post('itemCreation/saveContent','itemCreationController@SaveContentType');
 Route::post('itemCreation/saveComposition','itemCreationController@SaveCompositions');
@@ -381,19 +383,19 @@ Route::post('itemCreation/savePropertyValue','itemCreationController@SavePropert
 Route::get('itemCreation/loadContent','itemCreationController@LoadContentType');
 Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositions');
 Route::get('itemCreation/loadPropertyValue','itemCreationController@LoadPropertyValues');
-Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');  
+Route::get('itemCreation/get-maincat', 'itemCreationController@GetMainCategoryByCode');
 Route::post('itemCreation/saveItem','itemCreationController@store');
-Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');  
+Route::get('itemCreation/check-item', 'itemCreationController@CheckItemExist');
 
 
-Route::prefix('finance/item/')->group(function(){    
+Route::prefix('finance/item/')->group(function(){
     Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
     Route::get('maincategorylist','Finance\Item\ItemSubCategoryController@get_category_list');
     Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
     Route::get('get','Finance\Item\ItemSubCategoryController@get');
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
     Route::get('get-subcatby-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
-    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');   
+    Route::get('get-maincat', 'Finance\Item\ItemSubCategoryController@get_subcat_list_by_maincat');
 });
 
 Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
