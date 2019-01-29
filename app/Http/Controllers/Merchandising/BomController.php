@@ -243,4 +243,15 @@ class BomController extends Controller
 
         echo json_encode($result);
     }
+    
+    public function getColorWiseDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColors($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+        echo json_encode($result);        
+    }
 }
