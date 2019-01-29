@@ -306,15 +306,25 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
-    Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
-    Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
-    Route::apiResource('so-combine', 'Merchandising\CombineSOController');
+    //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
+    Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
+    Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
 
-    Route::apiResource('po-general','Merchandising\PurchaseOrderGeneralController');
-    Route::apiResource('po-general-details','Merchandising\PurchaseOrderGeneralDetailsController');
+    Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
+    Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
+    Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
 
-    Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
-    Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
+    Route::get('bom/rmdetails','Merchandising\BomController@getCostingRMDetails');
+    Route::get('bom/bomlist','Merchandising\BomController@ListBOMS');
+    Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
+    Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
+    Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+
+    Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
+    Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
+    Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
+    
+
 });
 
 Route::prefix('admin/')->group(function(){
