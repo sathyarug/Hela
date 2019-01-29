@@ -257,6 +257,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
     Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
     Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+    Route::get('bom/colorwise','Merchandising\BomController@getColorWiseDetails');
 
     Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
