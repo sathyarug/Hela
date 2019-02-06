@@ -152,7 +152,7 @@ class BulkCostingController extends Controller {
 
     private function getCostSheetListing($styleId){
 
-        $bulkHeaderData = BulkCosting::select("*")
+        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(seq_id,6,'0') AS CostingNo"))
                             ->where('style_id','=',$styleId)->get();
 
         return $bulkHeaderData;
