@@ -10,6 +10,7 @@ use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\BOMSOAllocation;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class BomController extends Controller
@@ -192,7 +193,7 @@ class BomController extends Controller
     public function ListBOMS(Request $request){
         try{
 
-            $result = BOMHeader::where("costing_id",$request->costing_id)->get();
+            $result = BOMHeader::select(DB::raw("*, CONCAT('B',LPAD(bom_id,6,'0')) AS BomNo"))->where("costing_id",$request->costing_id)->get();
         }catch( \Exception $ex){
             $result = "fail";
         }
