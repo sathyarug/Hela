@@ -42,9 +42,11 @@ class bom_details extends Model
                   ->leftJoin('org_supplier','org_supplier.supplier_id','=','bom_details.supplier_id')
                   ->join('costing_bulk_details',function($join){
                     $join->on('costing_bulk_details.bulkheader_id','=','bom_header.costing_id')
-                         ->on('costing_bulk_details.item_id','=','bom_details.master_id');                         
-                    })                                  
-                  ->select('item_master.master_id','item_master.master_description','bom_details.artical_no','org_color.color_name','org_size.size_name','org_uom.uom_description','org_uom.uom_id','bom_details.conpc','bom_details.item_wastage','bom_details.unit_price','bom_details.total_qty','bom_details.total_value','org_color.color_id','costing_bulk_details.moq','costing_bulk_details.mcq','org_size.size_id','org_supplier.supplier_name','org_supplier.supplier_id')
+                         ->on('costing_bulk_details.item_id','=','bom_details.master_id');                       
+                    })                               
+                  ->leftJoin('merc_color_options','merc_color_options.col_opt_id','=','costing_bulk_details.color_type_id')
+                  ->leftJoin('merc_cut_direction','merc_cut_direction.cut_dir_id','=','costing_bulk_details.cut_dir_id')  
+                  ->select('item_master.master_id','item_master.master_description','bom_details.artical_no','org_color.color_name','org_size.size_name','org_uom.uom_description','org_uom.uom_id','bom_details.conpc','bom_details.item_wastage','bom_details.unit_price','bom_details.total_qty','bom_details.total_value','org_color.color_id','costing_bulk_details.moq','costing_bulk_details.mcq','org_size.size_id','org_supplier.supplier_name','org_supplier.supplier_id','merc_color_options.color_option','merc_cut_direction.cut_dir_description')
                   ->where('bom_details.bom_id',$bomId)->get();
 
 
