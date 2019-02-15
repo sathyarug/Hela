@@ -225,6 +225,13 @@ Route::prefix('finance/')->group(function(){
   //sub category duplication validate
   Route::get('subcategory/validate' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
 
+  Route::get('currencies/validate' , 'Finance\CurrencyController@validate_data');
+  Route::apiResource('currencies','Finance\CurrencyController');
+
+  Route::apiResource('finCost','Finance\Cost\FinanceCostController');
+
+  Route::apiResource('finCostHis','Finance\Cost\FinanceCostHistoryController');
+  Route::put('finCostHis/updates' , 'Finance\Cost\FinanceCostHistoryController@update');
 });
 
 
@@ -339,6 +346,9 @@ Route::prefix('store/')->group(function(){
 
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+
+  Route::get('mat-trans-in/validate' , 'Store\MaterialTransferInController@validate_data');
+  Route::apiResource('mat-trans-in','Store\MaterialTransferInController');
 
 
     Route::apiResource('fabricInspection','Store\FabricInspectionController');
