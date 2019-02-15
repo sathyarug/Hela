@@ -22,8 +22,10 @@ class User extends BaseValidator
     protected $fillable = [
         'user_name', 'email', 'password',
     ];
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
 
-    public $timestamps = false;
+  //  public $timestamps = false;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -38,4 +40,17 @@ class User extends BaseValidator
         'user_name' => 'required',
         'password' => 'required'
     );
+
+    public function roles()
+    {
+        return $this->belongsToMany('App\Models\Admin\Role','user_roles','user_id','role_id')
+        ->withPivot('loc_id');
+    }
+
+    public function locations()
+    {
+        return $this->belongsToMany('App\Models\Org\Location\Location','user_locations','user_id','loc_id');
+        //->withPivot('id');
+    }
+
 }

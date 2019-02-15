@@ -27,6 +27,10 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
+        }elseif($type == 'getCostListing'){
+            return response($this->getCostSheetListing($request->style_id));
+        } elseif($type == 'getCostingHeader'){
+            return response($this->getCostingHeaderDetails($request->costing_id));
         }
     }
 
@@ -108,12 +112,6 @@ class BulkCostingController extends Controller {
         echo 'Destroy';
     }
 
-    public function getCostingDataForCombine(Request $request){
-        return BulkCosting::getCostingAndStyleData($request->id);
-
-
-    }
-
     private function getSeasonList() {
         //return \App\Models\Org\Customer::getActiveCustomerList();
         return \App\Models\Org\Season::select('season_id', 'season_name')
@@ -152,13 +150,27 @@ class BulkCostingController extends Controller {
         return $dataArr;
     }
 
-    public function getSOByStyle(Request $request){
-        $r = BulkCosting::getSoListByStyle($request->costingId);
-        return BulkCosting::getSoListByStyle($request->costingId);
-        //dd($soList);
-        //return BulkCosting::getCostingAndStyleData($request->id);
+    private function getCostSheetListing($styleId){
+
+        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(seq_id,6,'0') AS CostingNo"))
+                            ->where('style_id','=',$styleId)->get();
+
+        return $bulkHeaderData;
     }
 
+    private function getCostingHeaderDetails($costingId){
 
+       /* $costingHeader = BulkCosting::select("*")
+                            ->where('bulk_costing_id','=',$costingId)->get();*/
+                            
+        $costingHeader = \DB::table('costing_bulk')
+                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
+                            ->select('costing_bulk.*','org_season.season_name') 
+                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->get();             
+
+        return $costingHeader;
+
+    }
 
 }

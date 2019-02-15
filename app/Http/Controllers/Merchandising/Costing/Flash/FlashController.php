@@ -107,6 +107,7 @@ class FlashController extends Controller
                                               'packing_smv'=>$request->packing_smv,'labour_sub_cost'=>$request->labour_cost,'finance_cost'=>$request->finance_cost,'corporate_cost'=>$request->corporate_cost,
                                               'epm_rate'=>$request->epm,'netprofit'=>$request->np,'factory_cpm'=>$request->fac_cpm,'frontend_cpm'=>$request->front_cpm,'finance_rate'=>$request->fin_rate,
                                               'sewing_smv'=>$request->sewing_smv]);
+                $status = $request->costing_id;
             }else{
                 
                 $costingHeader = new cost_flash_header();        
@@ -131,11 +132,9 @@ class FlashController extends Controller
 
                 $costingHeader->saveOrFail();
                 
+                $status = $costingHeader->costing_id;                
             }
-            //$status = $costingHeader->costing_id; //"success";
-            $status = $request->costing_id; //"success";
-            
-            
+                      
         } catch ( \Exception $ex) {
             $status = "fail";    
         }
