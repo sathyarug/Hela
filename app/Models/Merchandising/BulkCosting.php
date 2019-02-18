@@ -28,18 +28,18 @@ class BulkCosting extends BaseValidator {
        // 'division_id' => 'required'
     );
     
-    public static function boot()
-    {
-        static::creating(function ($model) {
-          $payload = auth()->payload();
-          
-          $code = UniqueIdGenerator::generateUniqueId('BULK_COSTING' , $payload->get('loc_id') );
-          $model->seq_id = $code;
-        });
-
-
-        parent::boot();
-    }
+//    public static function boot()
+//    {
+//        static::creating(function ($model) {
+//          $payload = auth()->payload();
+//
+//          $code = UniqueIdGenerator::generateUniqueId('BULK_COSTING' , $payload->get('loc_id') );
+//          $model->seq_id = $code;
+//        });
+//
+//
+//        parent::boot();
+//    }
 
    
 
