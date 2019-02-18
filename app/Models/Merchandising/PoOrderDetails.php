@@ -13,11 +13,13 @@ class PoOrderDetails extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-//    protected $fillable=['po_id'];
+    protected $fillable=['po_no','item_code','unit_price','uom','req_qty','deli_date','remarks','status','tot_qty','sc_no','style','colour','size'];
 
     protected $rules=array(
-        'po_id'=>'required'
+        'po_no'=>'required'
     );
+
+
 
     public function __construct() {
         parent::__construct();

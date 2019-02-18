@@ -18,7 +18,7 @@ class PurchaseOrder extends Controller
      */
     public function index()
     {
-            echo 'ssss';
+
     }
 
     /**

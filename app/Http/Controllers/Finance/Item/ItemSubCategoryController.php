@@ -68,10 +68,10 @@ class ItemSubCategoryController extends Controller
     {
         $count = SubCategory::where('subcategory_code','=',$request->subcategory_code)->count();
         if($count >= 1){
-              $msg = 'Sub category code already exists';
-              //return json_encode(array('status'=>"error"));
+              //$msg = 'Sub category code already exists';
+            $msg =array('status' => 'error','message' => 'Record already exists');
           }else{
-              $msg = true;
+        $msg = array('status' => 'success');
         }
         echo json_encode($msg);
     }
@@ -90,7 +90,7 @@ class ItemSubCategoryController extends Controller
     }
 
     public function get_subcat_list_by_maincat(Request $request){
-
+      
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
         $sub_category = SubCategory::where('category_id','=',$request->category_id)->get();
         echo json_encode($sub_category);
