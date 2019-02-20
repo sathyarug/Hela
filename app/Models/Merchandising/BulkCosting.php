@@ -38,7 +38,14 @@ class BulkCosting extends BaseValidator {
           $model->seq_id = $code;
         });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+
+        parent::boot();
+    }
+>>>>>>> parent of f1ff7700... costing no 1
 
 
         parent::boot();
