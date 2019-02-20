@@ -125,33 +125,21 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
   Route::apiResource('silhouettes','Org\SilhouetteController');
 
-  Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+  Route::get('CustomerSizeGridControllerGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
-
-  Route::apiResource('ship-modes','Org\ShipModeController');
-
-});
-
-
-  Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
-  Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
-
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
-
-  Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
-  Route::apiResource('silhouettes','Org\SilhouetteController');
 
   Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
   Route::apiResource('garmentoptions','Org\GarmentOptionsController');
 
+  Route::get('requestType/validate' , 'Org\RequestTypeController@validate_data');
+  Route::apiResource('requestType','Org\RequestTypeController');
   Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
-<<<<<<< HEAD:routes/api.php.bak
-=======
 });
 
 
@@ -167,7 +155,6 @@ Route::prefix('org/')->group(function(){
 
 
 
->>>>>>> parent of f1ff7700... costing no 1:routes/api.php
 //});
 
 Route::prefix('stores/')->group(function(){
@@ -188,6 +175,11 @@ Route::prefix('ie/')->group(function(){
 
   Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
   Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
+
+  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
+  Route::apiResource('servicetypes','IE\ServiceTypeController');
+
+
 });
 
 Route::prefix('items/')->group(function(){
@@ -230,7 +222,16 @@ Route::prefix('finance/')->group(function(){
 
   Route::get('transaction/validate' , 'Finance\TransactionController@validate_data');
   Route::apiResource('transaction','Finance\TransactionController');
+  //sub category duplication validate
+  Route::get('subcategory/validate' , 'Finance\Item\ItemSubCategoryController@check_sub_category_code');
 
+  Route::get('currencies/validate' , 'Finance\CurrencyController@validate_data');
+  Route::apiResource('currencies','Finance\CurrencyController');
+
+  Route::apiResource('finCost','Finance\Cost\FinanceCostController');
+
+  Route::apiResource('finCostHis','Finance\Cost\FinanceCostHistoryController');
+  Route::put('finCostHis/updates' , 'Finance\Cost\FinanceCostHistoryController@update');
 });
 
 
@@ -238,6 +239,26 @@ Route::prefix('stores/')->group(function(){
 
   Route::apiResource('po-load','stores\RollPlanController');
   Route::apiResource('roll','stores\RollPlanController');
+  /********edited*/
+  Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
+  Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
+  Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+  Route::apiResource('transfer-location','Stores\TransferLocationController');
+  Route::apiResource('grn', 'Store\GrnController');
+  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
+  Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
+  Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
+  Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
+  Route::get('loadAddedBins','Store\GrnController@getAddedBins');
+  Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
+  Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
+  Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
+  Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
+  Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+    //Route::apiResource('substore','Store\SubStoreController');
+
 
 });
 
@@ -247,59 +268,70 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
+    Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
+    Route::get('customer-order-details/revisions','Merchandising\CustomerOrderDetailsController@revisions');
+    Route::get('customer-order-details/origins','Merchandising\CustomerOrderDetailsController@origins');
     Route::apiResource('customer-order-details','Merchandising\CustomerOrderDetailsController');
 
     Route::apiResource('customer-order-sizes','Merchandising\CustomerOrderSizeController');
+
     Route::apiResource('customer-order-types','Merchandising\CustomerOrderTypeController');
-    Route::apiResource('get-style','Merchandising\StyleCreationController');
+
+    Route::apiResource('style','Merchandising\StyleCreationController');
+
     Route::apiResource('tna-master','Merchandising\TnaMasterController');
+
     Route::get('color-options/validate' , 'Merchandising\ColorOptionController@validate_data');
     Route::apiResource('color-options','Merchandising\ColorOptionController');
+
+    Route::get('position/validate' , 'Merchandising\PositionController@validate_data');
+    Route::apiResource('position','Merchandising\PositionController');
+
+    Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
+    Route::apiResource('rounds','Merchandising\RoundController');
+
+    Route::get('bomstages/validate' , 'Merchandising\BOMStageController@validate_data');
+    Route::apiResource('bomstages','Merchandising\BOMStageController');
 
     Route::get('cut-direction/validate' , 'Merchandising\CutDirectionController@validate_data');
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
 
-    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
-    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+    Route::get('matsize/validate' , 'Merchandising\MaterialSizeController@validate_data');
+    Route::get('matsize/subcat', 'Merchandising\MaterialSizeController@get_sub_cat');
+    Route::apiResource('matsize','Merchandising\MaterialSizeController');
 
-    //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
-    Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
-    Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
-
-<<<<<<< HEAD:routes/api.php.bak
-    Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
-    Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
-    Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
-
-    Route::get('bom/rmdetails','Merchandising\BomController@getCostingRMDetails');
-    Route::get('bom/bomlist','Merchandising\BomController@ListBOMS');
-    Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
-    Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
-    Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
-
-    Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
-    Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
-    Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
-
-=======
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
-
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
-
 
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
->>>>>>> parent of f1ff7700... costing no 1:routes/api.php
 
+    Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
+    Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
+    Route::apiResource('so-combine', 'Merchandising\CombineSOController');
+
+    Route::apiResource('po-general','Merchandising\PurchaseOrderGeneralController');
+    Route::apiResource('po-general-details','Merchandising\PurchaseOrderGeneralDetailsController');
+
+    Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
+    Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 });
 
 Route::prefix('admin/')->group(function(){
+
+  Route::apiResource('users','Admin\UserController');
+
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
   Route::apiResource('permission','Admin\PermissionController');
 
-  Route::get('role/validate' , 'Admin\RoleController@validate_data');
-  Route::apiResource('role','Admin\RoleController');
+  Route::get('roles/validate' , 'Admin\RoleController@validate_data');
+  Route::post('roles/change-role-permission','Admin\RoleController@change_role_permission');
+  Route::apiResource('roles','Admin\RoleController');
+
+  Route::apiResource('permission-categories','Admin\PermissionCategoryController');
+  Route::apiResource('permissions','Admin\PermissionController');
+
 });
 
 Route::prefix('store/')->group(function(){
@@ -314,6 +346,13 @@ Route::prefix('store/')->group(function(){
 
   Route::get('substore/validate' , 'Store\SubStoreController@validate_data');
   Route::apiResource('substore','Store\SubStoreController');
+
+  Route::get('mat-trans-in/validate' , 'Store\MaterialTransferInController@validate_data');
+  Route::apiResource('mat-trans-in','Store\MaterialTransferInController');
+
+
+    Route::apiResource('fabricInspection','Store\FabricInspectionController');
+
 
   Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
   Route::apiResource('bin-config','Store\BinConfigController');
@@ -335,7 +374,7 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
 
-  Route::POST('/style-creation.save','Merchandising\styleCreationController@saveStyleCreation');
+  Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 
   Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');
   Route::get('/loadStyleDetails','Merchandising\StyleCreationController@GetStyleDetails');
@@ -354,6 +393,8 @@ Route::prefix('core/')->group(function(){
   Route::get('flashcosting/listcostingheader', 'Merchandising\Costing\Flash\FlashController@getCostingHeader');
   Route::get('flashcosting/listcostinglines', 'Merchandising\Costing\Flash\FlashController@getCostingLines');
   Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashController@getCostingItems');
+
+
 
   /*Route::post('/sources','Test\SourceController@index');
 
