@@ -37,6 +37,13 @@ class BulkCosting extends BaseValidator {
           $code = UniqueIdGenerator::generateUniqueId('BULK_COSTING' , $payload->get('loc_id') );
           $model->seq_id = $code;
         });
+<<<<<<< HEAD
+=======
+
+
+        parent::boot();
+    }
+>>>>>>> parent of f1ff7700... costing no 1
 
 
         parent::boot();
