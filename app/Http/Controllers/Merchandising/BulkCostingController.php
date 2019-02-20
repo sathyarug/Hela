@@ -27,6 +27,8 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
+        } elseif($type == 'auto'){
+            return response($this->getComponetData($request->style_id));
         }
     }
 
@@ -50,17 +52,17 @@ class BulkCostingController extends Controller {
         if ($model->validate($request->all())) {
             $model->fill($request->all());
             $model->status = 1;
-            
+
             $payload = auth()->payload();
             $model->user_loc_id = $payload->get('loc_id');
-            
+
             $model->save();
 
             return response(['data' => [
-                    'message' => 'Costing is saved successfully',
-                    'bulkCostin' => $model
-                ]
-                    ], Response::HTTP_CREATED);
+                'message' => 'Costing is saved successfully',
+                'bulkCostin' => $model
+            ]
+            ], Response::HTTP_CREATED);
         } else {
             $errors = $model->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -111,17 +113,17 @@ class BulkCostingController extends Controller {
     private function getSeasonList() {
         //return \App\Models\Org\Customer::getActiveCustomerList();
         return \App\Models\Org\Season::select('season_id', 'season_name')
-                        ->where([['status', '=', 1]])->get();
+            ->where([['status', '=', 1]])->get();
     }
 
     private function getColorType() {
         return \App\Models\Merchandising\ColorOption::select('col_opt_id', 'color_option')
-                        ->where([['status', '=', 1]])->get();
+            ->where([['status', '=', 1]])->get();
     }
 
     private function getStyleList($search) {
         return \App\Models\Merchandising\styleCreation::select('style_id', 'style_no')
-                        ->where([['style_no', 'like', '%' . $search . '%'],])->get();
+            ->where([['style_no', 'like', '%' . $search . '%'],])->get();
     }
 
     private function getStyleData($style_id) {
@@ -144,6 +146,10 @@ class BulkCostingController extends Controller {
         $dataArr['country'] = $country->country_description;
         $dataArr['stage'] = 'Bulk Costing';
         return $dataArr;
+    }
+
+    private function getComponetData($style_id){
+        return \App\Models\Merchandising\styleCreation::find($style_id);
     }
 
 }
