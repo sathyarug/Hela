@@ -2,6 +2,7 @@ var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var role_tbl;
 
 $(function () {
+<<<<<<< HEAD
     /*var validator = app_form_validator('#role_form', {
      
      submitHandler: function () {
@@ -61,6 +62,8 @@ $(function () {
 
 // Main Cluster Codes ====================================================================================
 
+=======
+>>>>>>> origin/master
 
     role_tbl = $('#role_tbl').DataTable({
         autoWidth: false,
@@ -91,6 +94,7 @@ $(function () {
     });
 
 });
+<<<<<<< HEAD
 /*
  function edit_role(id) {
  $('#show_role').modal('show');
@@ -111,6 +115,9 @@ $(function () {
  });
  }*/
 /**/
+=======
+
+>>>>>>> origin/master
 
 function addEditRole(id) {
     if (id == 0) {
@@ -128,7 +135,32 @@ function addEditRole(id) {
     });
 }
 
+<<<<<<< HEAD
 
+=======
+function add_edit_role() {
+    $.ajax({
+        url: $("#role_form").attr('action'),
+        async: false,
+        type: "POST",
+        data: $("#role_form").serialize(),
+        dataType: "json",
+        success: function (res)
+        {
+            if (res.status === 'success')
+            {
+                app_alert('success', res.message);
+                $('#show_role').modal('toggle');
+                role_tbl.ajax.reload(null, false); // reload datatabe
+
+            } else {
+                app_alert('error', res.message);
+            }
+
+        }
+    });
+}
+>>>>>>> origin/master
 
 function delete_role(id) {
     swal({
@@ -154,7 +186,11 @@ function delete_role(id) {
                             if (res.status === 'success')
                             {
                                 app_alert('success', res.message);
+<<<<<<< HEAD
                                 role_tbl.ajax.reload();
+=======
+                                role_tbl.ajax.reload(null, false);
+>>>>>>> origin/master
                             } else {
                                 app_alert('error', res.message);
                             }
@@ -172,6 +208,7 @@ function delete_role(id) {
             });
 
 }
+<<<<<<< HEAD
 /*
  function delete_role() {
  $.ajax({
@@ -194,3 +231,5 @@ function delete_role(id) {
  }
  });
  }*/
+=======
+>>>>>>> origin/master

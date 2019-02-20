@@ -12,11 +12,25 @@ function addEditSupplier(id) {
     $('#show_supplier .modal-body').html("Loading...");
     $('#show_supplier').modal();
 
+<<<<<<< HEAD
     $("#show_supplier .modal-content").load("/supplier/loadAddOrEdit"+action, function (responseTxt, statusTxt, xhr) {
         if (statusTxt == "success") {
             $('.modal-backdrop').resize();
         }
     });
+=======
+        submitHandler: function () {
+            try {
+                save_supplier();
+                // $("#frm_supplier :input").val('');
+                validator.resetForm();
+            } catch (e) {
+                console.log(e);
+                return false;
+            }
+            return false;
+        },
+>>>>>>> origin/master
 
 }
 $(function () {
@@ -31,9 +45,102 @@ $(function () {
 
 
 
+<<<<<<< HEAD
+=======
+
+    });
+>>>>>>> origin/master
 
 
+    $('#supplier_tbl').on('click','i',function(){
+        var ele = $(this);
+        if(ele.attr('data-action') === 'EDIT'){
+            supplier_edit(ele.attr('data-id'));
+        }
+        else if(ele.attr('data-action') === 'DELETE'){
+            supplier_delete(ele.attr('data-id'));
+        }
+    });
 
+
+<<<<<<< HEAD
+    function supplier_delete(_id){
+
+        swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this supplier information!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm){
+                if (isConfirm) {
+
+                    $.ajax({
+                        url : 'supplier/delete',
+                        type : 'get',
+                        data : {'id' : _id},
+                        success : function(res){
+                            var data = JSON.parse(res);
+                            swal({
+                                title: "Deleted!",
+                                text: "supplier has been deleted.",
+                                confirmButtonColor: "#66BB6A",
+                                type: "success"
+                            });
+                            var tbl = $('#supplier_tbl').dataTable();
+                            tbl.fnClearTable();
+                            tbl.fnDraw();
+
+                        }
+                    });
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+
+=======
+    function supplier_edit(_id){
+
+        $('#show_supplier').modal('show');
+        $('#frm_supplier')[0].reset();
+        validator.resetForm();
+
+        $.ajax({
+            url : 'supplier/edit',
+            type : 'get',
+            data : {'id' : _id},
+            success : function(res){
+                var data = JSON.parse(res);
+                //alert(data);
+                $('#supplier_hid').val(data['supplier_id']);
+                $("input[name~='supplier_code']").val(data['supplier_code']);
+                $("input[name~='supplier_name']").val(data['supplier_name']);
+                $("input[name~='supplier_city']").val(data['supplier_city']);
+                $("input[name~='supplier_address1']").val(data['supplier_address1']);
+                $("input[name~='supplier_address2']").val(data['supplier_address2']);
+                $("input[name~='supplier_phone']").val(data['supplier_phone']);
+                $("input[name~='supplier_fax']").val(data['supplier_fax']);
+                $("input[name~='supplier_email']").val(data['supplier_email']);
+
+                // $("select[name='supplier_country_id']").select2("val", data['supplier_country_id']);
+                // $('#source-name').val(data['source_name']);
+                $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
+            }
+        });
+
+    }
 
     function supplier_delete(_id){
 
@@ -81,6 +188,7 @@ $(function () {
                 }
             });
 
+>>>>>>> origin/master
     }
 
     supplier_tbl = $('#supplier_tbl').DataTable({
@@ -158,5 +266,15 @@ function save_supplier() {
 
         }})
 
+<<<<<<< HEAD
 
+=======
+    function reload_table()
+    {
+        // // var dataSet2 = get_cluster_list();
+        // var tbl = $('#cluster_tbl').dataTable();
+        supplier_tbl.fnClearTable();
+        supplier_tbl.fnDraw();
+    }
+>>>>>>> origin/master
 }

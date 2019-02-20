@@ -9,8 +9,13 @@
 
             submitHandler: function () {
                 try {
+<<<<<<< HEAD
                     edit_role();
                     validator.resetForm();
+=======
+                   // edit_role();
+                   add_edit_role();
+>>>>>>> origin/master
                 } catch (e) {
                     console.log(e);
                     return false;
@@ -22,6 +27,7 @@
 
     });
 
+<<<<<<< HEAD
     function edit_role() {
         $.ajax({
             url: $("#role_form").attr('action'),
@@ -46,6 +52,9 @@
     }
 
 </script>
+=======
+ </script>
+>>>>>>> origin/master
 
 {!! Form::model($role, [
 'method' => 'POST',

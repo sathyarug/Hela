@@ -11,7 +11,12 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
+<<<<<<< HEAD
                 
+=======
+                <th>Status</th>
+                <th>Section</th>
+>>>>>>> origin/master
                 <th>Cluster Code</th> 
                 <th>Company Code</th>
                 <th>Company Name</th> 
@@ -31,7 +36,11 @@
                 <th>Vat Reg Num</th>
                 <th>Tax Code</th>    
                 <th>Company Logo</th>                                        
+<<<<<<< HEAD
                 <th>Status</th>
+=======
+                
+>>>>>>> origin/master
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>
@@ -65,7 +74,11 @@
                     <fieldset class="content-group">
 
                         <div class=" col-md-12">
+<<<<<<< HEAD
                          <div class=" col-md-4">
+=======
+                           <div class=" col-md-4">
+>>>>>>> origin/master
 
                             <label>Select Main Cluster <span class="text-danger">*</span>:</label>
                             <select class="select-search input-xxs" name="group_id" id="main_cluster">
@@ -173,6 +186,7 @@
                         </div>
 
                         <div class=" col-md-12">
+<<<<<<< HEAD
                            <label>Company Logo :</label>
                            <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
 
@@ -185,6 +199,20 @@
                </div>
 
                <div class="modal-footer">
+=======
+                         <label>Company Logo :</label>
+                         <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
+
+                     </div>
+
+
+                 </fieldset>
+
+
+             </div>
+
+             <div class="modal-footer">
+>>>>>>> origin/master
                 <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>            
                 <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save-3">
                     <b><i class="icon-floppy-disk"></i></b> Save</button>
@@ -193,4 +221,49 @@
             </form>
         </div>
     </div>
+<<<<<<< HEAD
 </div> 
+=======
+</div>
+
+
+<!-- popup -->
+<div id="show_section" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal form-validate-jquery" action="#" id="section_form">
+
+                <div class="modal-header  bg-teal-300">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h5 class="modal-title">Add Main section</h5>
+                </div>
+
+                <div class="modal-body">
+                    {{csrf_field()}}
+                    
+                    <input type="hidden" name="company_id" id="company_id" class="form-control input-xxs">
+
+                    <div class=" col-md-12">
+
+                    <fieldset class="content-group">
+                       <label>Multiple select <span class="text-danger">*</span> :</label>
+                       <select multiple="multiple" class="select-multiple"  name="sec_mulname[]" id="sec_mulname">
+                       </select>
+
+                    </fieldset>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>                                
+                    <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save-5">
+                        <b><i class="icon-floppy-disk"></i></b> Save</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+>>>>>>> origin/master

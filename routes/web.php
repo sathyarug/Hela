@@ -128,6 +128,7 @@ Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodControll
 
 Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
 
+<<<<<<< HEAD
 Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
 
 Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
@@ -153,6 +154,38 @@ Route::post('origin-type-save','Org\OriginTypeController@save');
 Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
 Route::get('origin-type-get','Org\OriginTypeController@get');
 Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
+=======
+Route::get('add_location', function () { return view('org/location/add_location'); });
+
+Route::post('Mainsource.postdata','Org\Location\MainSourceController@postdata');
+Route::get('Mainsource.loaddata','Org\Location\MainSourceController@loaddata');
+Route::get('Mainsource.check_code','Org\Location\MainSourceController@check_code');
+Route::get('Mainsource.edit','Org\Location\MainSourceController@edit');
+Route::get('Mainsource.delete','Org\Location\MainSourceController@delete');
+Route::get('Mainsource.load_list','Org\Location\MainSourceController@select_Source_list');
+
+Route::get('Maincluster.loaddata','Org\Location\MainClusterController@loaddata');
+Route::get('Maincluster.check_code','Org\Location\MainClusterController@check_code');
+Route::post('Maincluster.postdata','Org\Location\MainClusterController@postdata');
+Route::get('Maincluster.edit','Org\Location\MainClusterController@edit');
+Route::get('Maincluster.delete','Org\Location\MainClusterController@delete');
+
+Route::get('Mainlocation.loaddata','Org\Location\MainLocationController@loaddata');
+Route::get('Mainlocation.load_list','Org\Location\MainLocationController@select_loc_list');
+Route::get('Mainlocation.load_currency','Org\Location\MainLocationController@load_currency');
+Route::get('Mainlocation.load_country','Org\Location\MainLocationController@load_country');
+Route::get('Mainlocation.check_code','Org\Location\MainLocationController@check_code');
+Route::post('Mainlocation.postdata','Org\Location\MainLocationController@postdata');
+Route::get('Mainlocation.edit','Org\Location\MainLocationController@edit');
+Route::get('Mainlocation.delete','Org\Location\MainLocationController@delete');
+
+Route::get('MainSubLocation.loaddata','Org\Location\MainSubLocationController@loaddata');
+Route::get('MainSubLocation.load_list','Org\Location\MainSubLocationController@load_list');
+Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@check_code');
+Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
+Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
+Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
+>>>>>>> origin/master
 
 // add location
 
@@ -191,6 +224,7 @@ Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@dele
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
+<<<<<<< HEAD
 //Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
 Route::get('supplier/loadAddOrEdit', 'SupplierController@loadAddEditSupplier');
 Route::get('supplier/delete', 'SupplierController@deleteSupplier');
@@ -212,3 +246,18 @@ Route::get('OrgStores.delete','OrgStoresController@delete');
 Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
 Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
 Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
+=======
+
+
+Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
+Route::post('admin/permission/getList', 'Admin\\PermissionController@getList');
+Route::post('admin/permission/{id}', 'Admin\\PermissionController@update');
+Route::delete('admin/permission/{id}', 'Admin\\PermissionController@destroy');
+Route::resource('admin/permission', 'Admin\\PermissionController');
+
+Route::get('admin/role/checkName', 'Admin\\RoleController@checkName');
+Route::post('admin/role/getList', 'Admin\\RoleController@getList');
+Route::post('admin/role/{id}', 'Admin\\RoleController@update');
+Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
+Route::resource('admin/role', 'Admin\\RoleController');
+>>>>>>> origin/master

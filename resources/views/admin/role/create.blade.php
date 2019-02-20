@@ -9,9 +9,14 @@
 
             submitHandler: function () {
                 try {
+<<<<<<< HEAD
                     save_role();
                     $("#role_form :input").val('');
                     validator.resetForm();
+=======
+                    //save_role();
+                    add_edit_role();
+>>>>>>> origin/master
                 } catch (e) {
                     console.log(e);
                     return false;
@@ -51,7 +56,11 @@
 
     });
 
+<<<<<<< HEAD
     function save_role() {
+=======
+   /* function save_role() {
+>>>>>>> origin/master
         $.ajax({
             url: $("#role_form").attr('action'),
             async: false,
@@ -64,14 +73,22 @@
                 {
                     app_alert('success', res.message);
                     $('#show_role').modal('toggle');
+<<<<<<< HEAD
                     role_tbl.ajax.reload(); // reload datatabe
+=======
+                    role_tbl.ajax.reload(null, false); // reload datatabe
+>>>>>>> origin/master
 
                 } else {
                     app_alert('error', res.message);
                 }
             }
         });
+<<<<<<< HEAD
     }
+=======
+    }*/
+>>>>>>> origin/master
 
 </script>
 
