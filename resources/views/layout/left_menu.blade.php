@@ -143,9 +143,14 @@
                                 <a href="#">Company</a>
                                 <ul>
 
+<<<<<<< HEAD
                                     <li @yield('m_add_location')><a href="{{url('/add_location')}}">Location</a></li>
 <<<<<<< HEAD
 =======
+=======
+                                    <li @yield('m_add_location')><a href="{{url('/location')}}">Location</a></li>
+                                    <li @yield('m_add_dep')><a href="{{url('/department')}}">Department</a></li>
+>>>>>>> origin/master
                                     <li @yield('m_add_stores')><a href="{{url('/add_stores')}}">Stores</a></li>
 >>>>>>> origin/master
                                     <li @yield('m_add_country')><a href="{{url('/add_country')}}">Country</a></li>
@@ -159,6 +164,13 @@
 =======
                                     <li @yield('m_cancellation_category')><a href="add_category">Cancellation Category</a></li>
                                     <li @yield('m_cancellation_reason')><a href="add_reason">Cancellation Reason</a></li>
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
+                                    <li @yield('m_add_product_type')><a href="add_product_type">Product Type</a></li>
+                                    <li @yield('m_add_sample_stage')><a href="add_sample_stage">Sample Stage</a></li>
+                                    <li @yield('m_buyer_creation')><a href="create_customer">Customer Creation</a></li>
+                                    <li @yield('m_add_custome_sizes')><a href="{{url('/customesizes/')}}">Custome Sizes</a></li>
 >>>>>>> origin/master
                                     <!-- <li><a href="add_location">Main Sourse</a></li>
                                     <li><a href="layout_navbar_sidebar_fixed.html">Company Group</a></li>
@@ -191,9 +203,18 @@
                             <li>
                                 <a href="#">Accounting</a>
                                 <ul>
-                                    <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
-
+                                  <li @yield('m_accrules')><a href="accounting-rules">Accounting Rules</a></li>
                                 </ul>
+                            </li>
+                            <li><a href="{{url('/supplier')}}">supplier</a></li>
+                            <li>
+                                <a href="#">Style Item Creation</a>
+                                <ul>
+                                  <li @yield('m_item')><a href="item">Item Creation Wizard</a></li>   
+                                  <li @yield('m_item')><a href="itemproperty">Item Property Assign</a></li>
+                                  <li @yield('m_item')><a href="item">Sub Category</a></li>
+                                </ul>
+                                
                             </li>
 
 <<<<<<< HEAD
@@ -208,7 +229,6 @@
 =======
 >>>>>>> origin/master
 
-                            
 
 
                         </ul>

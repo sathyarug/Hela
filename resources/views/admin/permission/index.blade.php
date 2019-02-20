@@ -1,8 +1,12 @@
+
+
+
 @extends('layout.main')
 @section('title') Permission @endsection
 @section('m_permission') class = 'active' @endsection
 
 @section('body')
+
 <div class="page-header page-header-default ">
 
 
@@ -32,6 +36,7 @@
         </ul>
     </div>
 </div>
+
 <!-- /page header -->
 <div class="content">
     <div class="row">
@@ -101,6 +106,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('javascripy') 

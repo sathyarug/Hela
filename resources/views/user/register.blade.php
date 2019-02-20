@@ -96,7 +96,7 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('date_of_birth', 'Date of Birth', array('class' => 'control-label text-semibold pickadate-year')) }}
-                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs pickadate-accessibility'))  }}
+                                                {{ Form::text('date_of_birth','', array('class' => 'form-control input-xxs pickadate'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -153,25 +153,41 @@
 
                                                 {{ Form::label('loc_id', 'Location', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
+<<<<<<< HEAD
                                                 {{ Form::select('loc_id',array('' => 'Please Select') + $data['location'], null,  array('class' => 'form-control input-xxs select'))  }}
+=======
+                                                {{ Form::select('loc_id',array('' => '[Select]') + $data['location'], null,  array('class' => 'form-control input-xxs select'))  }}
+>>>>>>> origin/master
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('dept_id', 'Department', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
+<<<<<<< HEAD
                                                 {{ Form::select('dept_id', array('' => 'Please Select') + $data['dept'], null, array('class' => 'form-control input-xxs select'))  }}
+=======
+                                                {{ Form::select('dept_id', array('' => '[Select]') + $data['dept'], null, array('class' => 'form-control input-xxs select'))  }}
+>>>>>>> origin/master
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('cost_center_id', 'Cost Center', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
+<<<<<<< HEAD
                                                 {{ Form::select('cost_center_id', array('' => 'Please Select') + $data['costCtr'], null, array('class' => 'form-control input-xxs select'))  }}
+=======
+                                                {{ Form::select('cost_center_id', array('' => '[Select]') + $data['costCtr'], null, array('class' => 'form-control input-xxs select'))  }}
+>>>>>>> origin/master
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('desig_id', 'Designation', array('class' => 'control-label text-semibold')) }}
                                                 <span class="text-danger">*</span>
+<<<<<<< HEAD
                                                 {{ Form::select('desig_id', array('' => 'Please Select') + $data['desg'], null, array('class' => 'form-control input-xxs select'))  }}
+=======
+                                                {{ Form::select('desig_id', array('' => '[Select]') + $data['desg'], null, array('class' => 'form-control input-xxs select'))  }}
+>>>>>>> origin/master
                                             </div>
 
                                             <div class="form-group col-md-4">
@@ -185,12 +201,12 @@
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('immediate', 'Immediate Report', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('immediate', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('immediate', array('' => '[Search and Select]'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
 
                                             <div class="form-group col-md-4">
                                                 {{ Form::label('alternative', 'Alternative Report', array('class' => 'control-label text-semibold')) }}
-                                                {{ Form::select('alternative', array('' => ''), null, array('class' => 'form-control input-xxs select'))  }}
+                                                {{ Form::select('alternative', array('' => '[Search and Select]'), null, array('class' => 'form-control input-xxs select'))  }}
                                             </div>
                                             <br clear="all">
 
@@ -259,28 +275,30 @@
 @section('javascripy')
 
     <!-- Select with search -->
-    <script type="text/javascript" src="assets/js/core/libraries/jquery_ui/interactions.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/forms/selects/select2.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/form_select2.js"></script>
-    <!-- /Select with search -->
+    <script type="text/javascript" src="{{ URL::asset('assets/js/core/libraries/jquery_ui/interactions.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/selects/select2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/form_select2.js') }}"></script>
+
 
     <!-- picker_date -->
-    <script type="text/javascript" src="assets/js/plugins/notifications/jgrowl.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/ui/moment/moment.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/daterangepicker.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/anytime.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.date.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/picker.time.js"></script>
-    <script type="text/javascript" src="assets/js/plugins/pickers/pickadate/legacy.js"></script>
-    <script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/notifications/jgrowl.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/ui/moment/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/daterangepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/anytime.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.date.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/picker.time.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/pickers/pickadate/legacy.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/picker_date.js') }}"></script>
+
     <!-- /picker_date -->
 
     <!-- Content loading -->
-    <script type="text/javascript" src="assets/js/plugins/loaders/progressbar.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/loaders/progressbar.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/pages/components_loaders.js') }}"></script>
     <!-- /Content loading -->
 
+<<<<<<< HEAD
     <script type="text/javascript" src="assets/js/plugins/forms/validation/validate.min.js"></script>
     <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
     <script type="text/javascript" src="assets/js/pages/picker_date.js"></script>
@@ -311,6 +329,12 @@
 
 
     </script>
+=======
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/forms/validation/validate.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('assets/js/plugins/notifications/sweet_alert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('js/application.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::asset('js/admin/user.js') }}"></script>
+>>>>>>> origin/master
 
 @endsection
 
