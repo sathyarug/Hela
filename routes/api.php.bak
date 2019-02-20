@@ -150,6 +150,24 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
+<<<<<<< HEAD:routes/api.php.bak
+=======
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> parent of f1ff7700... costing no 1:routes/api.php
 //});
 
 Route::prefix('stores/')->group(function(){
@@ -248,6 +266,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
 
+<<<<<<< HEAD:routes/api.php.bak
     Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
     Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
     Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
@@ -262,6 +281,16 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
     Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
 
+=======
+    Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
+    Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
+
+    Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
+
+
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+>>>>>>> parent of f1ff7700... costing no 1:routes/api.php
 
 });
 
