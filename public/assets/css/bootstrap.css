@@ -2273,7 +2273,7 @@ th {
 .table > thead > tr > td,
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
-  padding: 12px 20px;
+  padding: 5px 20px;
   line-height: 1.5384616;
   vertical-align: top;
   border-top: 1px solid #ddd;
@@ -3448,8 +3448,8 @@ fieldset[disabled] .btn-link:focus {
 }
 .btn-xs,
 .btn-group-xs > .btn {
-  padding: 5px 10px;
-  font-size: 10px;
+  padding: 3px 10px;
+  font-size: 12px;
   line-height: 1.6666667;
   border-radius: 2px;
 }

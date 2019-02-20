@@ -18,6 +18,7 @@
  *  Latest update: May 25, 2015
  *
  * ---------------------------------------------------------------------------- */
+
 @font-face {
   font-family: 'Glyphicons Halflings';
   src: url('../css/icons/glyphicons/glyphicons-halflings-regular.eot');
@@ -1055,6 +1056,7 @@ legend .control-arrow:hover {
 }
 label {
   margin-bottom: 1px;
+  margin-top: 5px;
   font-weight: 400;
 }
 select[multiple],
@@ -1275,9 +1277,9 @@ select.input-xs {
 
 
 .input-xxs {
-  height: 22px;
-  padding: 5px 10px;
-  font-size: 12px;
+  height: 23px;
+  padding: 2px 10px;
+  font-size: 11px;
   line-height: 1.6666667;
   border-radius: 2px;
 }
@@ -3412,7 +3414,7 @@ li + .dropdown-header.highlight,
 }
 .navbar-brand > img {
   margin-top: 2px;
-  height: 16px;
+  height: 18px;
 }
 .navbar-nav {
   margin: 0;
