@@ -286,7 +286,10 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('position/validate' , 'Merchandising\PositionController@validate_data');
     Route::apiResource('position','Merchandising\PositionController');
-
+  
+    Route::get('style/validate' , 'Merchandising\StyleCreationController@validate_data');
+    Route::apiResource('style','Merchandising\StyleCreationController');  
+    
     Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
     Route::apiResource('rounds','Merchandising\RoundController');
 
