@@ -42,6 +42,7 @@ class BulkCosting extends BaseValidator {
         parent::boot();
     }
 
+<<<<<<< HEAD
     public static function getCostingAndStyleData($id){
 
          $result = self::join('style_creation', 'style_creation.style_id',   '=', 'costing_bulk.style_id')
@@ -68,5 +69,8 @@ class BulkCosting extends BaseValidator {
     }
 
 
+=======
+   
+>>>>>>> parent of f1ff7700... costing no 1
 
 }

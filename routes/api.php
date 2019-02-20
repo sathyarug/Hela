@@ -145,6 +145,7 @@ Route::prefix('org/')->group(function(){
 <<<<<<< HEAD
 });
 
+<<<<<<< HEAD
 =======
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
@@ -170,6 +171,7 @@ Route::prefix('org/')->group(function(){
 <<<<<<< HEAD
 >>>>>>> cf2d079044d8001383bba148df74413f7b10e072
 =======
+=======
 
 
 
@@ -179,8 +181,21 @@ Route::prefix('org/')->group(function(){
 
 
 
+>>>>>>> parent of f1ff7700... costing no 1
 
 
+
+
+<<<<<<< HEAD
+
+
+
+
+
+
+
+>>>>>>> parent of f1ff7700... costing no 1
+=======
 >>>>>>> parent of f1ff7700... costing no 1
 //});
 
@@ -346,6 +361,7 @@ Route::prefix('merchandising/')->group(function(){
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
     Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
 
@@ -381,6 +397,8 @@ Route::prefix('merchandising/')->group(function(){
 >>>>>>> cf2d079044d8001383bba148df74413f7b10e072
 
 
+=======
+>>>>>>> parent of f1ff7700... costing no 1
 =======
 >>>>>>> parent of f1ff7700... costing no 1
 });
