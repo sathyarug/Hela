@@ -71,7 +71,6 @@ Route::get('costing', function () {
 
 
 //Season module
-<<<<<<< HEAD
 Route::get('add_season','SeasonController@index');
 Route::get('check_season_code','SeasonController@checkCode');
 Route::get('get_all_season','SeasonController@loadData');
@@ -94,7 +93,7 @@ Route::get('get_all_section','SectionController@loadData');
 Route::post('save_section','SectionController@saveSection');
 Route::get('edit_section','SectionController@edit');
 Route::get('delete_section','SectionController@delete');
-=======
+
 Route::prefix('org/season/')->group(function () {
   Route::get('add_season','SeasonController@index');
   Route::get('check-code','SeasonController@check_code');
@@ -172,16 +171,16 @@ Route::get('create_style', 'Org\DesignAndStyleController@index');
 //Item Creation
 Route::get('create_item', 'Org\ItemController@index');
 
->>>>>>> origin/master
+
 //GRN module
 Route::get('grn_details', 'GrnController@grnDetails');
 
 //User Management
-<<<<<<< HEAD
+
 Route::get('register', 'Admin\\UserController@register');
 Route::post('register-user', 'Admin\\UserController@store');
 Route::get('validate-empno', 'Admin\\UserController@validateEmpNo');
-=======
+
 Route::get('admin/register', 'Admin\\UserController@register');
 Route::get('admin/user', 'Admin\\UserController@user');
 Route::post('admin/register-user', 'Admin\\UserController@store');
@@ -189,7 +188,7 @@ Route::get('admin/validate-empno', 'Admin\\UserController@validateEmpNo');
 Route::get('admin/validate-username', 'Admin\\UserController@validateUserName');
 Route::get('admin/load-report-levels', 'Admin\\UserController@loadReportLevels');
 Route::post('admin/get-user-list', 'Admin\\UserController@getUserList');
->>>>>>> origin/master
+
 
 
 //currency routes
@@ -205,7 +204,7 @@ Route::get('accounting-rules', function () { return view('finance/accounting/acc
 Route::get('accounting-rules', function () { return view('finance/accounting/accounting_rules'); });
 
 //payment term routes
-<<<<<<< HEAD
+
 //Route::get('payment-term.new','PaymentTermController@new_payment_term');
 Route::get('payment-term-check-code','Finance\Accounting\PaymentTermController@check_perment_term_code');
 
@@ -222,7 +221,7 @@ Route::get('payment-method-check-code','Finance\Accounting\PaymentMethodControll
 
 Route::post('payment-method.save','Finance\Accounting\PaymentMethodController@save');
 
-<<<<<<< HEAD
+
 Route::get('payment-method.get_payment_method_list','Finance\Accounting\PaymentMethodController@get_payment_method_list');
 
 Route::get('payment-method.get','Finance\Accounting\PaymentMethodController@get_payment_method');
@@ -238,7 +237,7 @@ Route::post('cost-center.save','Finance\Accounting\CostCenterController@save');
 Route::get('cost-center.get_list','Finance\Accounting\CostCenterController@get_list');
 
 Route::get('cost-center.get','Finance\Accounting\CostCenterController@get');
-=======
+
 //Route::get('payment-term.new','Finance\Accounting\PaymentTermController@new_payment_term');
 /*Route::get('finance/accounting/payment-term/check-code','Finance\Accounting\PaymentTermController@check_code');
 Route::post('finance/accounting/payment-term/save','Finance\Accounting\PaymentTermController@save');
@@ -262,11 +261,11 @@ Route::get('finance/accounting/cost-center/list','Finance\Accounting\CostCenterC
 Route::get('finance/accounting/cost-center/get','Finance\Accounting\CostCenterController@get');
 Route::get('finance/accounting/cost-center/change-status','Finance\Accounting\CostCenterController@change_status');
 Route::get('finance/accounting/cost-center/active_list','Finance\Accounting\CostCenterController@get_active_list');*/
->>>>>>> origin/master
+
 
 Route::get('cost-center-change-status','Finance\Accounting\CostCenterController@change_status');
 
-<<<<<<< HEAD
+
 //origin type routes
 Route::get('origin-type-new','Org\OriginTypeController@new');
 Route::get('origin-type-check-code','Org\OriginTypeController@check_origin_type');
@@ -274,7 +273,7 @@ Route::post('origin-type-save','Org\OriginTypeController@save');
 Route::get('origin-type-get-list','Org\OriginTypeController@get_list');
 Route::get('origin-type-get','Org\OriginTypeController@get');
 Route::get('origin-type-change-status','Org\OriginTypeController@change_status');
-=======
+
 Route::get('add_location', function () { return view('org/location/add_location'); });
 
 Route::post('Mainsource.postdata','Org\Location\MainSourceController@postdata');
@@ -305,7 +304,7 @@ Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@
 Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
 Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
 Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
->>>>>>> origin/master
+
 
 // add location
 
@@ -339,7 +338,7 @@ Route::get('MainSubLocation.check_code','Org\Location\MainSubLocationController@
 Route::post('MainSubLocation.postdata','Org\Location\MainSubLocationController@postdata');
 Route::get('MainSubLocation.edit','Org\Location\MainSubLocationController@edit');
 Route::get('MainSubLocation.delete','Org\Location\MainSubLocationController@delete');
-=======
+
 //Route::get('add_location', function () { return view('org/location/add_location'); });
 //Source routes
 /*Route::post('org/source/save','Org\Location\SourceController@save');
@@ -436,13 +435,13 @@ Route::get('org/department/check-code','Org\DepartmentController@check_code');
 Route::get('org/department/list','Org\DepartmentController@loaddata');
 Route::get('org/department/get','Org\DepartmentController@edit');
 Route::get('org/department/change-status','Org\DepartmentController@delete');*/
->>>>>>> origin/master
+
 
 // supplier
 Route::get('supplier', 'SupplierController@view');
 Route::post('supplier/getList', 'SupplierController@getList');
 Route::post('supplier/save', 'SupplierController@saveSupplier');
-<<<<<<< HEAD
+
 //Route::get('supplier/edit', 'SupplierController@loadEditSupplier');
 Route::get('supplier/loadAddOrEdit', 'SupplierController@loadAddEditSupplier');
 Route::get('supplier/delete', 'SupplierController@deleteSupplier');
@@ -464,7 +463,7 @@ Route::get('OrgStores.delete','OrgStoresController@delete');
 Route::get('OrgStores.check_Store_Name','OrgStoresController@check_Store_Name');
 Route::get('OrgStores.load_fac_locations','OrgStoresController@load_fac_locations');
 Route::get('OrgStores.load_fac_section','OrgStoresController@load_fac_section');
-=======
+
 
 
 Route::get('admin/permission/checkName', 'Admin\\PermissionController@checkName');
@@ -478,9 +477,8 @@ Route::post('admin/role/getList', 'Admin\\RoleController@getList');
 Route::post('admin/role/{id}', 'Admin\\RoleController@update');
 Route::delete('admin/role/{id}', 'Admin\\RoleController@destroy');
 Route::resource('admin/role', 'Admin\\RoleController');
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
+
+
 
 // Stores module
 Route::get('add_stores', function () { return view('add_stores/add_stores'); });
@@ -572,4 +570,4 @@ Route::prefix('finance/item/')->group(function(){
 
 Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
 /* */
->>>>>>> origin/master
+

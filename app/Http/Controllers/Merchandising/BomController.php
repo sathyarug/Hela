@@ -255,4 +255,15 @@ class BomController extends Controller
         }
         echo json_encode($result);        
     }
+    
+    public function getRatioDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColorsAndSizes($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+        echo json_encode($result);        
+    }
 }

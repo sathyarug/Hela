@@ -4,17 +4,13 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-<<<<<<< HEAD
-
-class User extends Authenticatable
-=======
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 
 //class User extends BaseValidator
 Class User extends Authenticatable implements JWTSubject
->>>>>>> origin/master
+
 {
     use Notifiable;
 
@@ -37,8 +33,7 @@ Class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password', 'remember_token',
     ];
-<<<<<<< HEAD
-=======
+
 
     protected $rules = array(
         'user_name' => 'required',
@@ -67,5 +62,5 @@ Class User extends Authenticatable implements JWTSubject
     }
 
 
->>>>>>> origin/master
+
 }
