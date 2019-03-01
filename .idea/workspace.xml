@@ -44,7 +44,7 @@
       <file leaf-file-name="TnaMasterController.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Merchandising/TnaMasterController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
+            <state relative-caret-position="2000">
               <caret line="80" column="21" lean-forward="false" selection-start-line="80" selection-start-column="8" selection-end-line="80" selection-end-column="21" />
               <folding>
                 <element signature="e#54#82#0#PHP" expanded="true" />
@@ -356,12 +356,12 @@
       <workItem from="1538107515832" duration="6693000" />
       <workItem from="1538367103177" duration="17969000" />
       <workItem from="1538454156717" duration="2880000" />
-      <workItem from="1551421578918" duration="62000" />
+      <workItem from="1551421578918" duration="935000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="385388000" />
+    <option name="totallyTimeSpent" value="386261000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-11" y="0" width="1924" height="1046" extended-state="0" />
@@ -741,7 +741,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Merchandising/TnaMasterController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
+        <state relative-caret-position="2000">
           <caret line="80" column="21" lean-forward="false" selection-start-line="80" selection-start-column="8" selection-end-line="80" selection-end-column="21" />
           <folding>
             <element signature="e#54#82#0#PHP" expanded="true" />

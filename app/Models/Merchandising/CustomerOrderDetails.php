@@ -94,22 +94,9 @@ class CustomerOrderDetails extends BaseValidator
                 ->where('merc_customer_order_header.order_id',$orderId)
                 ->where('merc_customer_order_details.delivery_status','RELEASED')
                 ->groupBy('org_color.color_id','org_color.color_name')
-                ->get();        
-        
-    }
-    
-    public function getCustomerColorsAndSizes($orderId){
-        
-        return DB::table('merc_customer_order_details')
-                ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
-                ->join('merc_customer_order_size','merc_customer_order_size.details_id','merc_customer_order_details.details_id')
-                ->join('org_size','org_size.size_id','merc_customer_order_size.size_id')
-                ->join('org_color','merc_customer_order_details.style_color','org_color.color_id')
-                ->select(DB::raw("org_color.color_name,Sum(merc_customer_order_details.order_qty) AS RatioQty, org_color.color_id, org_size.size_name, org_size.size_id"))
-                ->where('merc_customer_order_header.order_id',$orderId)
-                ->where('merc_customer_order_details.delivery_status','RELEASED')
-                ->groupBy('org_color.color_id','org_color.color_name','org_size.size_name','org_size.size_id')
                 ->get();
+                
+        
     }
 
 
