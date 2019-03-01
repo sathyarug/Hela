@@ -85,6 +85,7 @@ Route::prefix('org/')->group(function(){
 
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
+  Route::post('suppliers/load_currency','Org\SupplierController@load_currency');
 
   Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
   Route::apiResource('supplierslist','Org\SupplierController');
@@ -139,6 +140,9 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
+
+  Route::get('PoType/validate' , 'Org\PoTypeController@validate_data');
+  Route::apiResource('PoType','Org\PoTypeController');
 
 });
 
@@ -295,6 +299,13 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
     Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
+
+    Route::post('po-manual-details/load_bom_Details','Merchandising\PurchaseOrderManualController@load_bom_Details');
+    Route::post('po-manual-details/load_reqline','Merchandising\PurchaseOrderManualController@load_reqline');
+    Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
+
+    Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
+
 });
 
 Route::prefix('admin/')->group(function(){

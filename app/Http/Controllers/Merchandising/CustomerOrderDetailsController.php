@@ -420,9 +420,9 @@ class CustomerOrderDetailsController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		/*$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $customer_lists;*/
+  		$co_lists = CustomerOrderDetails::select('order_id','po_no')
+  		->where([['po_no', 'like', '%'.$search.'%'],])->distinct()->get();
+  		return $co_lists;
   	}
 
 
