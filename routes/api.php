@@ -312,6 +312,9 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
+    Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
+    Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
+
     Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
     Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
     Route::apiResource('so-combine', 'Merchandising\CombineSOController');
