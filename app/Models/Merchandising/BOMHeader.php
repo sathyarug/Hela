@@ -18,7 +18,7 @@ class BOMHeader extends Model
     * The database primary key value.
     *
     * @var string
-    */    
+    */
     protected $primaryKey = 'bom_id';
 
     /**
@@ -35,10 +35,10 @@ class BOMHeader extends Model
 
         return DB::table('merc_customer_order_details')->select(DB::raw("SUM(order_qty) AS Order_Qty"))
               ->join('bom_so_allocation','bom_so_allocation.order_id','merc_customer_order_details.order_id')
-              ->join('bom_header','bom_header.bom_id','bom_so_allocation.bom_id')         
+              ->join('bom_header','bom_header.bom_id','bom_so_allocation.bom_id')
               ->where('bom_header.bom_id','=',$bomID)
               ->where('delivery_status','RELEASED')->get();
-             
+
 
     }
 }

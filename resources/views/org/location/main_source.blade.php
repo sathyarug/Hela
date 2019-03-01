@@ -10,11 +10,17 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
+<<<<<<< HEAD
+                <th>Source Code</th>
+                <th>Source Name</th>
+                <th>Status</th>                                                
+=======
                 <th>Status</th> 
                 <th>Source Code</th>
                 <th>Source Name</th>
                 
                                                                
+>>>>>>> origin/master
 
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
@@ -31,13 +37,19 @@
 
 <!-- popup -->
  <div id="show_source" class="modal fade">
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/master
         <div class="modal-dialog">
             <div class="modal-content">
                 <form class="form-horizontal form-validate-jquery" action="#" id="source_form">
 
                     <div class="modal-header  bg-teal-300">
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/master
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h5 class="modal-title">Add Main Sourse</h5>
                     </div>
@@ -65,10 +77,15 @@
                     </div>
 
                     <div class="modal-footer">
+<<<<<<< HEAD
+         
+                        <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>                                
+=======
 
          
                         <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>                                
 
+>>>>>>> origin/master
                         <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save">
                             <b><i class="icon-floppy-disk"></i></b> Save</button>
 

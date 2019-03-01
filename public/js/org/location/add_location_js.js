@@ -133,6 +133,12 @@ $(document).ready(function(){
    
  }
 },
+<<<<<<< HEAD
+{ data: "source_code" },
+{ data: "source_name" },
+
+=======
+>>>>>>> origin/master
 {
     'data' : function(_data){
        if (_data['status'] == '1'){
@@ -142,8 +148,19 @@ $(document).ready(function(){
        }
    }
 },
+<<<<<<< HEAD
+
+<<<<<<< HEAD
+=======
+{ data: "source_code" },
+{ data: "source_name" },
+
+
+>>>>>>> origin/master
+=======
 { data: "source_code" },
 { data: "source_name" }
+>>>>>>> origin/master
 
 
 ],
@@ -216,7 +233,11 @@ function source_edit(_id){
             var data = JSON.parse(res);
             //alert(data);
             $('#source_hid').val(data['source_id']);
+<<<<<<< HEAD
+            $('#source-code').val(data['source_code']);
+=======
             $('#source-code').val(data['source_code']).prop('disabled', true);
+>>>>>>> origin/master
             $('#source-name').val(data['source_name']);
             $('#btn-save').html('<b><i class="icon-pencil"></i></b> Update');
         }
@@ -398,6 +419,12 @@ TABLE2 = $('#cluster_tbl').DataTable({
 
     }
 },
+<<<<<<< HEAD
+{ data: "group_code" },
+{ data: "source_code" },
+{ data: "group_name" },
+=======
+>>>>>>> origin/master
 {
     'data' : function(_data){
        if (_data['status'] == '1'){
@@ -407,10 +434,13 @@ TABLE2 = $('#cluster_tbl').DataTable({
        }
    }
 },
+<<<<<<< HEAD
+=======
 { data: "group_code" },
 { data: "source_code" },
 { data: "group_name" },
 
+>>>>>>> origin/master
 
 ],
 columnDefs: [{ 
@@ -485,7 +515,11 @@ function cluster_edit(_id){
             $('#main_source').append(loadsource).trigger('change');
 
             $('#cluster_hid').val(data[0]['group_id']);
+<<<<<<< HEAD
+            $('#cluster_code').val(data[0]['group_code']);
+=======
             $('#cluster_code').val(data[0]['group_code']).prop('disabled', true);
+>>>>>>> origin/master
             $('#cluster_name').val(data[0]['group_name']);
             $('#btn-save-2').html('<b><i class="icon-pencil"></i></b> Update');
         }
@@ -769,6 +803,9 @@ messages: {
      }
     }
 },
+<<<<<<< HEAD
+
+=======
 {
     'data' : function(_data){
        if (_data['status'] == '1'){
@@ -783,8 +820,14 @@ messages: {
       
 //            return '<td><i class="icon-plus22" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="Sec_popup" data-id="'+_data['company_id']+'"></i></td>';
       
+<<<<<<< HEAD
+   }
+},
+>>>>>>> origin/master
+=======
 //    }
 // },
+>>>>>>> origin/master
 { data: "group_code" },
 { data: "company_code" },
 { data: "company_name" },
@@ -805,7 +848,19 @@ messages: {
 { data: "tax_code" },
 { data: "company_logo" },
 
+<<<<<<< HEAD
+{
+    'data' : function(_data){
+       if (_data['status'] == '1'){
+           return '<td><span class="label label-success">Active</span></td>';
+       }else{
+           return '<td><span class="label label-default">Inactive</span></td>';   
+       }
+   }
+},
+=======
 
+>>>>>>> origin/master
 
 ],
 columnDefs: [{ 
@@ -949,7 +1004,19 @@ $('#location_tbl').on('click','i',function(){
     else if(ele.attr('data-action') === 'DELETE'){
         location_delete(ele.attr('data-id'));
     }
+<<<<<<< HEAD
+<<<<<<< HEAD
+});
+
+
+=======
+    else if(ele.attr('data-action') === 'Sec_popup'){
+        location_load_sec(ele.attr('data-id'));
+        //alert(ele.attr('data-id'));
+    }
+=======
     
+>>>>>>> origin/master
 });
 
 
@@ -1012,6 +1079,7 @@ $('#sel_depart').select2({
 
 
 
+>>>>>>> origin/master
 function location_edit(_id){ 
 
  $('#show_location').modal('show');
@@ -1046,6 +1114,28 @@ function location_edit(_id){
         $('#fin_month').append(loadfinmonth).trigger('change');
         $('#ctry_code').append(loadcountry).trigger('change');
         $('#def_curr').append(loadcurrency).trigger('change');
+<<<<<<< HEAD
+
+        $('#location_hid').val(data[0]['company_id']);
+<<<<<<< HEAD
+        $('#company_code').val(data[0]['company_code']);
+=======
+        $('#company_code').val(data[0]['company_code']).prop('disabled', true);
+>>>>>>> origin/master
+        $('#company_name').val(data[0]['company_name']);
+        $('#company_ad1').val(data[0]['company_address_1']);
+        $('#company_ad2').val(data[0]['company_address_2']);
+        $('#company_city').val(data[0]['city']);
+        $('#com_regnum').val(data[0]['company_reg_no']);
+        $('#contact_1').val(data[0]['company_contact_1']);
+        $('#contact_2').val(data[0]['company_contact_2']);
+        $('#con_fax').val(data[0]['company_fax']);
+        $('#com_email').val(data[0]['company_email']);
+        $('#com_web').val(data[0]['company_web']);
+        $('#com_remak').val(data[0]['company_remarks']);
+        $('#vat_regnum').val(data[0]['vat_reg_no']);
+        $('#tax_code').val(data[0]['tax_code']);
+=======
         
         $('#location_hid').val(data.com_hed[0]['company_id']);
         $('#company_code').val(data.com_hed[0]['company_code']).prop('disabled', true);
@@ -1062,6 +1152,7 @@ function location_edit(_id){
         $('#com_remak').val(data.com_hed[0]['company_remarks']);
         $('#vat_regnum').val(data.com_hed[0]['vat_reg_no']);
         $('#tax_code').val(data.com_hed[0]['tax_code']);
+>>>>>>> origin/master
 
         $('#btn-save-3').html('<b><i class="icon-pencil"></i></b> Update');
     }
@@ -1303,6 +1394,8 @@ TABLE4 = $('#sub_location_tbl').DataTable({
      }
     }
 },
+<<<<<<< HEAD
+=======
 {
     'data' : function(_data){
        if (_data['status'] == '1'){
@@ -1312,6 +1405,7 @@ TABLE4 = $('#sub_location_tbl').DataTable({
        }
    }
 },
+>>>>>>> origin/master
 { data: "loc_code" },
 { data: "company_name" },
 { data: "loc_name" },
@@ -1326,7 +1420,19 @@ TABLE4 = $('#sub_location_tbl').DataTable({
 { data: "loc_web" },
 { data: "time_zone" },
 { data: "currency_code" },
+<<<<<<< HEAD
+{
+    'data' : function(_data){
+       if (_data['status'] == '1'){
+           return '<td><span class="label label-success">Active</span></td>';
+       }else{
+           return '<td><span class="label label-default">Inactive</span></td>';   
+       }
+   }
+},
+=======
 
+>>>>>>> origin/master
 
 ],
 columnDefs: [{ 
@@ -1415,6 +1521,24 @@ $("#type_center").empty().trigger('change')
         $('#loc_type').append(loadismanu).trigger('change');
         $('#country_code').append(loadcountry).trigger('change');
         $('#currency_code').append(loadcurrency).trigger('change');
+<<<<<<< HEAD
+
+        $('#sub_location_hid').val(data[0]['loc_id']);
+<<<<<<< HEAD
+        $('#loc_code').val(data[0]['loc_code']);
+=======
+        $('#loc_code').val(data[0]['loc_code']).prop('disabled', true);
+>>>>>>> origin/master
+        $('#loc_name').val(data[0]['loc_name']);
+        $('#loc_address_1').val(data[0]['loc_address_1']);
+        $('#loc_address_2').val(data[0]['loc_address_2']);
+        $('#city').val(data[0]['city']);
+        $('#loc_phone').val(data[0]['loc_phone']);
+        $('#loc_fax').val(data[0]['loc_fax']);
+        $('#loc_email').val(data[0]['loc_email']);
+        $('#loc_web').val(data[0]['loc_web']);
+        $('#time_zone').val(data[0]['time_zone']);
+=======
         $('#type_of_loc').append(loadloctype).trigger('change');
         $('#type_property').append(loadproperty).trigger('change');
  
@@ -1436,6 +1560,7 @@ $("#type_center").empty().trigger('change')
         $('#latitude').val(data.sl_hd[0]['latitude']);
         $('#longitude').val(data.sl_hd[0]['longitude']);
         $('#opr_start_date').val(data.sl_hd[0]['opr_start_date']);
+>>>>>>> origin/master
         
         $('#btn-save-4').html('<b><i class="icon-pencil"></i></b> Update');
     }

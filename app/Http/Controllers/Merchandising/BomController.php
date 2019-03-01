@@ -10,6 +10,7 @@ use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\BOMSOAllocation;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class BomController extends Controller
@@ -90,25 +91,23 @@ class BomController extends Controller
         //
     }
 
-    public function getCustOrders(){
+    public function getCustOrders(Request $request){
 
         $customerOrder = new CustomerOrder();
-        $rsCustOrderList = $customerOrder->getCustomerOrders();
+        $rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId);
 
         echo json_encode($rsCustOrderList);
 
     }
 
-    public function getAssignCustOrders(){
+    public function getAssignCustOrders(Request $request){
 
         $customerOrder = new CustomerOrder();
-        $rsCustOrderList = $customerOrder->getAssignCustomerOrders();
+        $rsCustOrderList = $customerOrder->getAssignCustomerOrders($request->costingId);
 
         echo json_encode($rsCustOrderList);
 
     }
-
-    
 
     public function getCustomerOrderQty(Request $request){
 
@@ -120,7 +119,7 @@ class BomController extends Controller
 
     public function getCostingRMDetails(Request $request){
         $bulkCostingDetails = new BulkCostingDetails();
-        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);        
+        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);
 
         echo json_encode($rsRMDetails);
     }
@@ -138,9 +137,9 @@ class BomController extends Controller
             $bomID = $bomHeader->bom_id;
 
         }catch ( \Exception $ex) {
-            
-            $bomID = "fail"; 
-        }        
+
+            $bomID = "fail";
+        }
 
         echo json_encode(array('bomid'=>$bomID));
     }
@@ -149,7 +148,7 @@ class BomController extends Controller
 
         $bomDeatils = new bom_details();
         $bomDeatils->bom_id = $request->bomid;
-        $bomDeatils->item_code = $request->itemcode;
+        $bomDeatils->master_id = $request->itemcode;
         $bomDeatils->item_color =  $request->itemcolor;
         $bomDeatils->uom_id = $request->uomid;
         $bomDeatils->unit_price = $request->unitprice;
@@ -159,6 +158,7 @@ class BomController extends Controller
         $bomDeatils->artical_no = $request->articalno;
         $bomDeatils->status = 1;
         $bomDeatils->bal_qty = $request->totreqqty;
+        $bomDeatils->item_size = $request->itemsize;
 
         $bomDeatils->saveOrFail();
     }
@@ -178,9 +178,9 @@ class BomController extends Controller
             $status = "success";
 
         }catch ( \Exception $ex) {
-            
-            $status = "fail"; 
-        }  
+
+            $status = "fail";
+        }
         echo json_encode(array('status'=>$status));
     }
 
@@ -193,7 +193,7 @@ class BomController extends Controller
     public function ListBOMS(Request $request){
         try{
 
-            $result = BOMHeader::where("costing_id",$request->costing_id)->get();
+            $result = BOMHeader::select(DB::raw("*, CONCAT('B',LPAD(bom_id,6,'0')) AS BomNo"))->where("costing_id",$request->costing_id)->get();
         }catch( \Exception $ex){
             $result = "fail";
         }
@@ -224,9 +224,46 @@ class BomController extends Controller
             $result = $bomDeatils->GetBOMDetails($request->bomId);
 
         }catch ( \Exception $ex){
-            $result = "fail";
+            $result = $ex->getMessage();
         }
 
+        echo json_encode($result);
+    }
+
+    public function getSizeWiseDetails(Request $request){
+
+        try{
+
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerOrderSizes($request->orderId);
+
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+
+        echo json_encode($result);
+    }
+
+    public function getColorWiseDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColors($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+        echo json_encode($result);
+    }
+
+    public function getRatioDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColorsAndSizes($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
         echo json_encode($result);
     }
 }

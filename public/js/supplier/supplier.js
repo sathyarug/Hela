@@ -1,11 +1,24 @@
 var X_CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var supplier_tbl;
 
-$(function () {
 
+function addEditSupplier(id) {
+    if (id == 0) {
+        action = '';
+    } else {
+        action = '?id='+id ;
+    }
 
-    var validator = app_form_validator('#frm_supplier', {
+    $('#show_supplier .modal-body').html("Loading...");
+    $('#show_supplier').modal();
 
+<<<<<<< HEAD
+    $("#show_supplier .modal-content").load("/supplier/loadAddOrEdit"+action, function (responseTxt, statusTxt, xhr) {
+        if (statusTxt == "success") {
+            $('.modal-backdrop').resize();
+        }
+    });
+=======
         submitHandler: function () {
             try {
                 save_supplier();
@@ -17,42 +30,26 @@ $(function () {
             }
             return false;
         },
+>>>>>>> origin/master
 
-        rules: {
+}
+$(function () {
 
-            // Supplier_code: {
-            //  required: true,
-            //  minlength: 4,
-            //  },
-            // supplier_name: {
-            //  required: true,
-            //  minlength: 4
-            //  },
 
-        },
-        messages: {
-             // source_code: {
-             // remote: jQuery.validator.format('')
-             // },
 
-        }
-    });
 
 
     $('select').select2();
 
 
 
-    $('#add_data').click(function () {
-        //
-        $('#show_supplier').modal('show');
-        $('#show_supplier')[0].reset();
-        validator.resetForm();
-        $('#btn-save').html('<b><i class="icon-floppy-disk"></i></b> Save');
 
 
+<<<<<<< HEAD
+=======
 
     });
+>>>>>>> origin/master
 
 
     $('#supplier_tbl').on('click','i',function(){
@@ -66,6 +63,54 @@ $(function () {
     });
 
 
+<<<<<<< HEAD
+    function supplier_delete(_id){
+
+        swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this supplier information!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm){
+                if (isConfirm) {
+
+                    $.ajax({
+                        url : 'supplier/delete',
+                        type : 'get',
+                        data : {'id' : _id},
+                        success : function(res){
+                            var data = JSON.parse(res);
+                            swal({
+                                title: "Deleted!",
+                                text: "supplier has been deleted.",
+                                confirmButtonColor: "#66BB6A",
+                                type: "success"
+                            });
+                            var tbl = $('#supplier_tbl').dataTable();
+                            tbl.fnClearTable();
+                            tbl.fnDraw();
+
+                        }
+                    });
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+
+=======
     function supplier_edit(_id){
 
         $('#show_supplier').modal('show');
@@ -143,6 +188,7 @@ $(function () {
                 }
             });
 
+>>>>>>> origin/master
     }
 
     supplier_tbl = $('#supplier_tbl').DataTable({
@@ -157,7 +203,7 @@ $(function () {
         columns: [
             {data: "supplier_id",
                 render: function (data) {
-                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" data-id="' + data + '">\n\
+                    var str = '<i class="icon-pencil" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer;margin-right:3px" data-action="EDIT" onclick="addEditSupplier((' + data + '))" data-id="' + data + '">\n\
         </i>  <i class="icon-bin" style="border-style:solid; border-width: 1px;padding:2px;cursor:pointer" data-action="DELETE" data-id="' + data + '"></i>';
                     return str;
                 }
@@ -220,6 +266,9 @@ function save_supplier() {
 
         }})
 
+<<<<<<< HEAD
+
+=======
     function reload_table()
     {
         // // var dataSet2 = get_cluster_list();
@@ -227,4 +276,5 @@ function save_supplier() {
         supplier_tbl.fnClearTable();
         supplier_tbl.fnDraw();
     }
+>>>>>>> origin/master
 }
