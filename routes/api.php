@@ -290,6 +290,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('cut-direction','Merchandising\CutDirectionController');
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
+    Route::get('load-po-header-data','Merchandising\PurchaseOrder@getPoHeaderData');
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
 
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
