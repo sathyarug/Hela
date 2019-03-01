@@ -3,6 +3,7 @@
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 use App\BaseValidator;
 use App\Libraries\UniqueIdGenerator;
@@ -56,6 +57,60 @@ class CustomerOrderDetails extends BaseValidator
 		public function order_location()
 		{
 			 return $this->belongsTo('App\Models\Org\Location\Location' , 'projection_location')->select(array('loc_id', 'loc_name'));;
-		}
+    }
+    
+    //get order quantity from order id
+    public function getCustomerOrderQty($orderId){
+
+      return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
+              ->where('order_id','=',$orderId)
+              ->where('delivery_status','RELEASED')
+              ->groupBy('order_id')->get();
+      
+    }
+
+    //get cutomer order sizes and quantities
+
+    public function getCustomerOrderSizes($orderId){
+
+      return DB::table('merc_customer_order_details')
+                ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
+                ->join('merc_customer_order_size','merc_customer_order_size.details_id','merc_customer_order_details.details_id')
+                ->join('org_size','org_size.size_id','merc_customer_order_size.size_id')
+                ->select(DB::raw("org_size.size_name, SUM(merc_customer_order_size.order_qty) AS SizeQty,org_size.size_id"))
+                ->where('merc_customer_order_header.order_id',$orderId)
+                ->where('merc_customer_order_details.delivery_status','RELEASED')
+                ->groupBy('org_size.size_id','org_size.size_name')
+                ->get();
+
+    }
+    
+    public function getCustomerColors($orderId){
+        
+        return DB::table('merc_customer_order_details')
+                ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
+                ->join('org_color','merc_customer_order_details.style_color','org_color.color_id')
+                ->select(DB::raw("org_color.color_name,Sum(merc_customer_order_details.order_qty) AS ColorQty, org_color.color_id"))
+                ->where('merc_customer_order_header.order_id',$orderId)
+                ->where('merc_customer_order_details.delivery_status','RELEASED')
+                ->groupBy('org_color.color_id','org_color.color_name')
+                ->get();        
+        
+    }
+    
+    public function getCustomerColorsAndSizes($orderId){
+        
+        return DB::table('merc_customer_order_details')
+                ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
+                ->join('merc_customer_order_size','merc_customer_order_size.details_id','merc_customer_order_details.details_id')
+                ->join('org_size','org_size.size_id','merc_customer_order_size.size_id')
+                ->join('org_color','merc_customer_order_details.style_color','org_color.color_id')
+                ->select(DB::raw("org_color.color_name,Sum(merc_customer_order_details.order_qty) AS RatioQty, org_color.color_id, org_size.size_name, org_size.size_id"))
+                ->where('merc_customer_order_header.order_id',$orderId)
+                ->where('merc_customer_order_details.delivery_status','RELEASED')
+                ->groupBy('org_color.color_id','org_color.color_name','org_size.size_name','org_size.size_id')
+                ->get();
+    }
+
 
 }

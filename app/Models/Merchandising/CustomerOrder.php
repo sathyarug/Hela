@@ -3,6 +3,7 @@
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 use App\BaseValidator;
 use App\Libraries\UniqueIdGenerator;
@@ -21,7 +22,7 @@ class CustomerOrder extends BaseValidator
         'order_customer'=>'required',
         'order_division' => 'required',
         'order_type' => 'required',
-        /*'order_status' => 'required'*/
+        'order_status' => 'required'
     );
 
     public function __construct() {
@@ -56,7 +57,35 @@ class CustomerOrder extends BaseValidator
 		{
 			 return $this->belongsTo('App\Models\Org\Customer' , 'order_customer')
           ->select(['customer_id','customer_code','customer_name'])->with(['divisions']);
-		}
+        }
+        
+
+    public function getCustomerOrders($costingId){
+
+        return DB::table('merc_customer_order_header')
+                 ->join('merc_customer_order_details','merc_customer_order_details.order_id','merc_customer_order_header.order_id')
+                 ->join('merc_costing_so_combine','merc_costing_so_combine.details_id','merc_customer_order_details.details_id')
+                 ->join('costing_bulk','costing_bulk.bulk_costing_id','merc_costing_so_combine.costing_id')
+                 ->select('merc_customer_order_header.order_id', 'merc_customer_order_header.order_code')
+                 ->where('costing_bulk.bulk_costing_id','=',$costingId)
+                 ->where('merc_customer_order_details.delivery_status','=','RELEASED')
+                 ->whereNotIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
+                 ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code')->get();
+    }
+
+    public function getAssignCustomerOrders($costingId){
+
+        return DB::table('merc_customer_order_header')
+                 ->join('merc_customer_order_details','merc_customer_order_details.order_id','merc_customer_order_header.order_id')
+                 ->join('merc_costing_so_combine','merc_costing_so_combine.details_id','merc_customer_order_details.details_id')
+                 ->join('costing_bulk','costing_bulk.bulk_costing_id','merc_costing_so_combine.costing_id')
+                 ->select('merc_customer_order_header.order_id', 'merc_customer_order_header.order_code')
+                 ->where('costing_bulk.bulk_costing_id','=',$costingId)
+                 ->where('merc_customer_order_details.delivery_status','=','RELEASED')
+                 ->whereIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
+                 ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code')->get();
+
+    }
 
     /*public function order_type()
 		{

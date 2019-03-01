@@ -86,6 +86,7 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <!--<form class="form-horizontal form-validate-jquery" action="#" id="role_form">-->
+<<<<<<< HEAD
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -96,6 +97,18 @@
 
             <div class="modal-body"> </div>
 
+=======
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Role</h5>
+            </div>
+
+
+
+            <div class="modal-body"> </div>
+
+>>>>>>> origin/master
             <div class="modal-footer">
                 <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Cancel</button>                               
                 <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save" ><b><i class="icon-floppy-disk"></i></b> Save</button>

@@ -11,7 +11,11 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
+<<<<<<< HEAD
+                
+=======
                 <th>Status</th>
+>>>>>>> origin/master
                 <th>Location Code</th> 
                 <th>Company Code</th>
                 <th>Location Name</th> 
@@ -26,7 +30,11 @@
                 <th>Web #</th>
                 <th>Time zone</th>   
                 <th>Currency Code</th>                     
+<<<<<<< HEAD
+                <th>Status</th>
+=======
                 
+>>>>>>> origin/master
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>

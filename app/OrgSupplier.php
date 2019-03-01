@@ -11,11 +11,19 @@ class OrgSupplier extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
+<<<<<<< HEAD
+    protected $fillable = ['supplier_code','payment_code','payment_mode_id','supplier_name','supplier_address1','supplier_address2','supplier_city'
+    ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email','contact_person','default_currency_code','supplier_tolerance','vat_reg_no','origin'];
+
+//    protected $fillable = ['supplier_code','payment_code','supplier_name','supplier_address1','supplier_address2','supplier_city'
+//        ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email'];
+=======
 //    protected $fillable = ['supplier_code','payment_code','payment_mode_id','supplier_name','supplier_address1','supplier_address2','supplier_city'
 //    ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email','contact_person','default_currency_code','supplier_tolerance'];
 
     protected $fillable = ['supplier_code','payment_code','supplier_name','supplier_address1','supplier_address2','supplier_city'
         ,'supplier_country_id','supplier_phone','supplier_fax','supplier_email'];
+>>>>>>> origin/master
 
 
     protected $rules = array(
@@ -28,7 +36,13 @@ class OrgSupplier extends BaseValidator
         'supplier_country_id'  => 'required',
        'supplier_email'  => 'required|email',
         'supplier_phone'  => 'required',
+<<<<<<< HEAD
+        'default_currency_code'  => 'required',
+        'vat_reg_no'  => 'required',
+        'origin'  => 'required',
+=======
 //        'default_currency_code'  => 'required',
+>>>>>>> origin/master
     );
     
     public function __construct()

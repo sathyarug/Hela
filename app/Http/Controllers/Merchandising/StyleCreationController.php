@@ -152,16 +152,16 @@ class StyleCreationController extends Controller
         \File::put(public_path().'/assets/styleImage/'.$imageName, base64_decode($image));
         return true;
     }
-    
+
     public function loadStyles(){
         $style_list = styleCreation::all();
         echo json_encode($style_list);
     }
-    
-    public function GetStyleDetails(Request $request){       
+
+    public function GetStyleDetails(Request $request){
         $style_details = styleCreation::GetStyleDetails($request->style_id);
         echo json_encode($style_details);
-        
+
     }
 
     //get a Section
