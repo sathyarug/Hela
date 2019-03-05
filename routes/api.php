@@ -85,6 +85,7 @@ Route::prefix('org/')->group(function(){
 
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
+  Route::post('suppliers/load_currency','Org\SupplierController@load_currency');
 
   Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
   Route::apiResource('supplierslist','Org\SupplierController');
@@ -142,8 +143,18 @@ Route::prefix('org/')->group(function(){
   Route::get('designations/validate' , 'Org\DesignationController@validate_data');
   Route::apiResource('designations','Org\DesignationController');
 
+  Route::get('PoType/validate' , 'Org\PoTypeController@validate_data');
+  Route::apiResource('PoType','Org\PoTypeController');
+
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
+
+});
+
+
+
+
+
 
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
@@ -325,6 +336,11 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
     Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 
+    Route::post('po-manual-details/load_bom_Details','Merchandising\PurchaseOrderManualController@load_bom_Details');
+    Route::post('po-manual-details/load_reqline','Merchandising\PurchaseOrderManualController@load_reqline');
+    Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
+
+    Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');

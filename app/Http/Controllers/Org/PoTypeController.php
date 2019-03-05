@@ -7,10 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\Division;
+use App\Models\Org\PoTypes;
 use Exception;
 
-class DivisionController extends Controller
+class PoTypeController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class DivisionController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Division list
+    //get Color list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +40,71 @@ class DivisionController extends Controller
     }
 
 
-    //create a Division
+    //create a Color
     public function store(Request $request)
     {
-      $division = new Division();
-      if($division->validate($request->all()))
+      $potyp = new PoTypes();
+      if($potyp->validate($request->all()))
       {
-        $division->fill($request->all());
-        $division->status = 1;
-        $division->save();
+        $potyp->fill($request->all());
+        $potyp->status = 1;
+        $potyp->save();
 
         return response([ 'data' => [
-          'message' => 'Division was saved successfully',
-          'Division' => $division
+          'message' => 'Color was saved successfully',
+          'color' => $potyp
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $division->errors();// failure, get errors
+          $errors = $potyp->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Division
+    //get a Color
     public function show($id)
     {
-      $division = Division::find($id);
-      if($division == null)
-        throw new ModelNotFoundException("Requested division not found", 1);
+      $potyp = PoTypes::find($id);
+      if($potyp == null)
+        throw new ModelNotFoundException("Requested color not found", 1);
       else
-        return response([ 'data' => $division ]);
+        return response([ 'data' => $potyp ]);
     }
 
 
-    //update a Division
+    //update a Color
     public function update(Request $request, $id)
     {
-      $division = Division::find($id);
-      if($division->validate($request->all()))
+      $potyp = PoTypes::find($id);
+      if($potyp->validate($request->all()))
       {
-        $division->fill($request->except('division_code'));
-        $division->save();
+        $potyp->fill($request->except('color_code'));
+        $potyp->save();
 
         return response([ 'data' => [
-          'message' => 'Division was updated successfully',
-          'division' => $division
+          'message' => 'Color was updated successfully',
+          'color' => $potyp
         ]]);
       }
       else
       {
-        $errors = $division->errors();// failure, get errors
+        $errors = $color->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Division
+    //deactivate a Color
     public function destroy($id)
     {
-      $division = Division::where('division_id', $id)->update(['status' => 0]);
+      $potyp = PoTypes::where('color_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Division was deactivated successfully.',
-          'division' => $division
+          'message' => 'Color was deactivated successfully.',
+          'color' => $potyp
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,24 +115,24 @@ class DivisionController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->division_id , $request->division_code));
+        return response($this->validate_duplicate_code($request->color_id , $request->color_code));
       }
     }
 
 
-    //check Division code already exists
+    //check Color code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $division = Division::where('division_code','=',$code)->first();
-      if($division == null){
+      /*$color = PoTypes::where('color_code','=',$code)->first();
+      if($color == null){
         return ['status' => 'success'];
       }
-      else if($division->division_id == $id){
+      else if($color->color_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Division code already exists'];
-      }
+        return ['status' => 'error','message' => 'Color code already exists'];
+      }*/
     }
 
 
@@ -141,11 +141,11 @@ class DivisionController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Division::select('*');
+        $query = PoTypes::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Division::select($fields);
+        $query = PoTypes::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,19 +153,19 @@ class DivisionController extends Controller
       return $query->get();
     }
 
-    //search Division for autocomplete
+    //search Color for autocomplete
     private function autocomplete_search($search)
   	{
-  		$division_lists = Division::select('division_id','division_description')
-  		->where([['division_description', 'like', '%' . $search . '%'],]) ->get();
-  		return $division_lists;
+  		$potyp = PoTypes::select('po_id','po_type','process_type')
+  		->where([['po_type', 'like', '%' . $search . '%'],]) ->get();
+  		return $potyp;
   	}
 
 
-    //get searched Divisions for datatable plugin format
+    //get searched Colors for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
+    /*  $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
@@ -173,22 +173,22 @@ class DivisionController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $division_list = Division::select('*')
-      ->where('division_code'  , 'like', $search.'%' )
-      ->orWhere('division_description'  , 'like', $search.'%' )
+      $color_list = Color::select('*')
+      ->where('color_code'  , 'like', $search.'%' )
+      ->orWhere('Color_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $division_count = Division::where('division_code'  , 'like', $search.'%' )
-      ->orWhere('division_description'  , 'like', $search.'%' )
+      $color_count = Color::where('color_code'  , 'like', $search.'%' )
+      ->orWhere('color_name'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $division_count,
-          "recordsFiltered" => $division_count,
-          "data" => $division_list
-      ];
+          "recordsTotal" => $color_count,
+          "recordsFiltered" => $color_count,
+          "data" => $color_list
+      ];*/
     }
 
 }

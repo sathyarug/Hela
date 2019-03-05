@@ -119,7 +119,7 @@ class BomController extends Controller
 
     public function getCostingRMDetails(Request $request){
         $bulkCostingDetails = new BulkCostingDetails();
-        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);        
+        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);
 
         echo json_encode($rsRMDetails);
     }
@@ -137,9 +137,9 @@ class BomController extends Controller
             $bomID = $bomHeader->bom_id;
 
         }catch ( \Exception $ex) {
-            
-            $bomID = "fail"; 
-        }        
+
+            $bomID = "fail";
+        }
 
         echo json_encode(array('bomid'=>$bomID));
     }
@@ -178,9 +178,9 @@ class BomController extends Controller
             $status = "success";
 
         }catch ( \Exception $ex) {
-            
-            $status = "fail"; 
-        }  
+
+            $status = "fail";
+        }
         echo json_encode(array('status'=>$status));
     }
 
@@ -244,7 +244,7 @@ class BomController extends Controller
 
         echo json_encode($result);
     }
-    
+
     public function getColorWiseDetails(Request $request){
         try{
             $customerOrderDetails = new CustomerOrderDetails();
@@ -253,9 +253,9 @@ class BomController extends Controller
         }catch( \Exception $ex){
             $result = $ex->getMessage();
         }
-        echo json_encode($result);        
+        echo json_encode($result);
     }
-    
+
     public function getRatioDetails(Request $request){
         try{
             $customerOrderDetails = new CustomerOrderDetails();
@@ -264,6 +264,6 @@ class BomController extends Controller
         }catch( \Exception $ex){
             $result = $ex->getMessage();
         }
-        echo json_encode($result);        
+        echo json_encode($result);
     }
 }
