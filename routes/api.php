@@ -85,6 +85,7 @@ Route::prefix('org/')->group(function(){
 
   Route::get('suppliers/validate' , 'Org\SupplierController@validate_data');
   Route::apiResource('suppliers','Org\SupplierController');
+  Route::post('suppliers/load_currency','Org\SupplierController@load_currency');
 
   Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
   Route::apiResource('supplierslist','Org\SupplierController');
@@ -141,6 +142,9 @@ Route::prefix('org/')->group(function(){
   Route::apiResource('ship-modes','Org\ShipModeController');
   Route::get('designations/validate' , 'Org\DesignationController@validate_data');
   Route::apiResource('designations','Org\DesignationController');
+
+  Route::get('PoType/validate' , 'Org\PoTypeController@validate_data');
+  Route::apiResource('PoType','Org\PoTypeController');
 
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
@@ -312,6 +316,9 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
+    Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
+    Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
+
     Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
     Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
     Route::apiResource('so-combine', 'Merchandising\CombineSOController');
@@ -322,6 +329,11 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
     Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 
+    Route::post('po-manual-details/load_bom_Details','Merchandising\PurchaseOrderManualController@load_bom_Details');
+    Route::post('po-manual-details/load_reqline','Merchandising\PurchaseOrderManualController@load_reqline');
+    Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
+
+    Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
@@ -349,6 +361,7 @@ Route::prefix('admin/')->group(function(){
   Route::post('users/roles','Admin\UserController@save_roles');
   Route::get('users/locations','Admin\UserController@locations');
   Route::post('users/locations','Admin\UserController@save_locations');
+  Route::get('users/user-assigned-locations','Admin\UserController@user_assigned_locations');
   Route::apiResource('users','Admin\UserController');
 
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
@@ -398,7 +411,8 @@ Route::prefix('core/')->group(function(){
 Route::prefix('app/')->group(function(){
 
   Route::GET('menus','App\MenuController@index');
-
+  Route::POST('search','App\SearchController@index');
+  Route::POST('required-permissions','App\PermissionController@get_required_permissions');
   Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });

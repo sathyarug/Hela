@@ -19,13 +19,13 @@ class itemCreationController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['GetItemList', 'GetItemListBySubCategory','GetItemDetailsByCode']]);
     }
-    
+
     public function index(Request $request)
     {
         /*$keyword = $request->get('search');
@@ -37,14 +37,14 @@ class itemCreationController extends Controller
         } else {
             $itemcreation = itemCreation::latest()->paginate($perPage);
         }
-        
+
         $data = array(
           'categories' => Category::all()
         );
 
         //return view('item-creation.index', compact('itemcreation'));
         return view('item-creation.index',$data);
-         * 
+         *
          */
         $type = $request->type;
         if($type == 'datatable')   {
@@ -62,8 +62,8 @@ class itemCreationController extends Controller
             'data' => $this->list($active , $fields)
           ]);
         }
-    }    
-       
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -83,14 +83,26 @@ class itemCreationController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $requestData = $request->all();
-        
+
         itemCreation::create($requestData);
 
         //return redirect('item-creation')->with('flash_message', 'itemCreation added!');
         echo json_encode(array('status' => 'success'));
     }
+
+
+    //search itemmaster for autocomplete
+    private function autocomplete_search($search)
+  	{
+  		$master_lists = itemCreation::select('master_id','master_description')
+  		->where([['master_description', 'like', '%' . $search . '%'],]) ->get();
+  		return $master_lists;
+  	}
+
+
+
 
     /**
      * Display the specified resource.
@@ -130,9 +142,9 @@ class itemCreationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
         $requestData = $request->all();
-        
+
         $itemcreation = itemCreation::findOrFail($id);
         $itemcreation->update($requestData);
 
@@ -152,7 +164,7 @@ class itemCreationController extends Controller
 
         return redirect('item-creation')->with('flash_message', 'itemCreation deleted!');
     }
-    
+
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -178,74 +190,74 @@ class itemCreationController extends Controller
           "data" => $item_list
       ];
     }
-    
-    public function GetMainCategory(){   
-        
+
+    public function GetMainCategory(){
+
         $mainCategory = Category::all()->pluck('category_id', 'category_name');
-        
+
         return json_encode($mainCategory);
     }
-    
+
     public function GetMainCategoryByCode(Request $request){
-        
+
         $objMainCategory = new Category();
-        
+
         $category_id = $request->categoryId;
-        
+
         $mainCategory = $objMainCategory->where('category_id','=',$category_id)->get();
-        
+
         return json_encode($mainCategory);
-        
+
     }
-    
+
     public function SaveContentType(Request $request){
-        
+
         $content_type = new ContentType();
         $content_name = strtoupper($request->content_type);
         $status = "";
-        
+
         if(ContentType::where('type_description','=',$content_name)->count()>0){
             $status = "exist";
         }else{
             $content_type->type_description = $content_name;
-        
+
             $content_type->saveOrFail();
             $status = "success";
         }
-        echo json_encode(array('status' => $status));         
-        
+        echo json_encode(array('status' => $status));
+
     }
-    
+
     public function LoadContentType(){
-        
+
         $content_type = new ContentType();
         $objContentType = $content_type->get();
-        
+
         echo json_encode($objContentType);
-        
+
     }
-    
+
     public function SaveCompositions(Request $request){
         $compositions_type = new Composition();
         $compositions_type->content_description = $request->comp_description;
         $compositions_type->saveOrFail();
-        
+
         echo json_encode(array('status' => 'success'));
-        
+
     }
-    
+
     public function LoadCompositions(){
         $compositions_type = new Composition();
         $objCompositions = $compositions_type->get();
-        
+
         echo json_encode($objCompositions);
     }
-    
+
     public function SavePropertyValue(Request $request){
-        
+
         $propertyValueAssign = new PropertyValueAssign();
         $status = '';
-        
+
         if($propertyValueAssign::where('property_id','=',$request->propertyid)->where('assign_value','=',$request->propertyValue)->count()>0){
             $status = 'exist';
         }else{
@@ -253,37 +265,37 @@ class itemCreationController extends Controller
             $propertyValueAssign->assign_value = $request->propertyValue;
             $propertyValueAssign->status = 1;
             $propertyValueAssign->saveOrFail();
-            
+
             $status = 'success';
         }
-        
-        
-        
-        
+
+
+
+
         echo json_encode(array('status' => $status));
-    }   
-    
+    }
+
     public function LoadPropertyValues(Request $request){
-        
+
         $propertyValues = new PropertyValueAssign();
         $objPropertyValue = $propertyValues->where('property_id','=',$request->property_id)->get();
-        
+
         echo json_encode($objPropertyValue);
-        
+
     }
-    
+
     public function CheckItemExist(Request $request){
-        
-        $item_desc = $request->master_description;  
+
+        $item_desc = $request->master_description;
         $rowCount = itemCreation::where('master_description','=',$item_desc)->count();
-        
+
         echo json_encode(array('recordscount' => $rowCount));
-        
-        
+
+
     }
-    
+
     public function GetItemList(Request $data){
-        
+
       $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
@@ -291,34 +303,34 @@ class itemCreationController extends Controller
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
-        
+
       $itemCreationModel = new itemCreation();
       $rsItemList = $itemCreationModel->LoadItems();
-      
+
       $countItems = $itemCreationModel->LoadItems()->count();
-        
+
       //echo json_encode($rsItemList);
-      
+
       return[
         "draw" => $draw,
         "recordsTotal" => $countItems,
         "recordsFiltered" => $countItems,
-        "data" => $rsItemList  
-          
-      ]; 
-        
+        "data" => $rsItemList
+
+      ];
+
     }
-    
+
     public function GetItemListBySubCategory(Request $request){
-        
+
         $subCategoryCode = $request->subcatcode;
         $StyleItemList = itemCreation::where('subcategory_id','=',$subCategoryCode)->get();
         echo json_encode($StyleItemList);
-        
+
     }
-    
+
     public function GetItemDetailsByCode(Request $request){
-        
+
         $ItemDetails = itemCreation::where('master_id','=',$request->item_code)->get();
         echo json_encode($ItemDetails);
     }

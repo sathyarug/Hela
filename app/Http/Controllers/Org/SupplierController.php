@@ -29,6 +29,10 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'currency')    {
+        $search = $request->search;
+        return response($this->currency_search($search));
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -89,7 +93,7 @@ class SupplierController extends Controller
       }
       return $query->get();
     }
-    
+
     //update a Supplier
     public function update(Request $request, $id)
     {
@@ -197,6 +201,33 @@ class SupplierController extends Controller
         $supplier_list = Supplier::select('supplier_id', 'supplier_code', 'supplier_name')
                 ->where('supplier_name'  , 'like', $search.'%')->get();
         echo json_encode($supplier_list);
+    }
+
+    private function currency_search($search)
+  	{
+  		$sup_lists = Supplier::select('supplier_id','supplier_name','currency','payment_mode','payemnt_terms','ship_terms_agreed')
+  		->where([['supplier_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $sup_lists;
+  	}
+
+    public function load_currency(Request $request)
+  	{
+        $curid = $request->curid;
+        //print_r($curid);
+
+       $supplier = Supplier::join('fin_currency', 'fin_currency.currency_id', '=', 'org_supplier.currency')
+	     ->join('fin_payment_method', 'fin_payment_method.payment_method_id', '=', 'org_supplier.payment_mode')
+       ->join('fin_payment_term', 'fin_payment_term.payment_term_id', '=', 'org_supplier.payemnt_terms')
+       ->join('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'org_supplier.ship_terms_agreed')
+	     ->select('org_supplier.*','fin_currency.*','fin_payment_method.*','fin_payment_term.*','fin_shipment_term.*')
+       ->where('fin_currency.currency_id', '=', $curid )
+       ->get();
+
+       return response([ 'data' => [
+         'currency' => $supplier
+         ]
+       ], Response::HTTP_CREATED );
+        //return response([ 'data' => $supplier ]);
     }
 
 }

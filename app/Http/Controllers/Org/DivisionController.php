@@ -156,8 +156,8 @@ class DivisionController extends Controller
     //search Division for autocomplete
     private function autocomplete_search($search)
   	{
-  		$division_lists = Division::select('division_id','division_name')
-  		->where([['division_name', 'like', '%' . $search . '%'],]) ->get();
+  		$division_lists = Division::select('division_id','division_description')
+  		->where([['division_description', 'like', '%' . $search . '%'],]) ->get();
   		return $division_lists;
   	}
 

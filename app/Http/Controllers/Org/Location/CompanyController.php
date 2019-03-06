@@ -200,8 +200,8 @@ class CompanyController extends Controller
     //search Company for autocomplete
     private function autocomplete_search($search)
   	{
-  		$company_lists = Company::select('company_id','comapny_name')
-  		->where([['comapny_name', 'like', '%' . $search . '%'],]) ->get();
+  		$company_lists = Company::select('company_id','company_name')
+  		->where([['company_name', 'like', '%' . $search . '%'],]) ->get();
   		return $company_lists;
   	}
 
