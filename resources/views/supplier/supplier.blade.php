@@ -68,8 +68,9 @@
                                 <div class="col-md-12">
 
                                     <div class="text-right">
-                                        <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs"
-                                                id="add_data"><b><i class="icon-plus3"></i></b>Add New</button>
+                                        <button type="button" class="btn bg-teal-400 btn-labeled btn-primary btn-xs" onclick="addEditSupplier(0)"><b><i class="icon-plus3"></i></b>Add New</button>
+                                        {{--<button type="button"  class="btn bg-teal-400 btn-labeled btn-primary btn-xs"--}}
+                                                {{--id="add_data"><b><i class="icon-plus3"></i></b>Add New</button>--}}
                                     </div>
 
 
@@ -101,6 +102,9 @@
                                 <div id="show_supplier" class="modal fade">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
+<<<<<<< HEAD
+
+=======
                                             <form class="form-horizontal form-validate-jquery" action="#" id="frm_supplier">
                                                 <input type="hidden" value="0" name="supplier_hid" id="supplier_hid" class="form-control input-xxs">
 
@@ -231,6 +235,7 @@
 
                                                 </div>
                                             </form>
+>>>>>>> origin/master
                                         </div>
                                     </div>
                                 </div>

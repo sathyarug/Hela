@@ -23,7 +23,7 @@ class CustomerOrderDetailsController extends Controller
 
     //get customer list
     public function index(Request $request)
-    {
+    { 
       //$id_generator = new UniqueIdGenerator();
       //echo $id_generator->generateCustomerOrderDetailsId('CUSTOMER_ORDER' , 1);
       //echo UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , 2 , 'FDN');
@@ -35,6 +35,10 @@ class CustomerOrderDetailsController extends Controller
       else if($type == 'auto')  {
         $search = $request->search;
         return response($this->autocomplete_search($search));
+      }
+      else if($type == 'style_colors')  {
+        $style = $request->style;
+        return response(['data' => $this->style_colors($style)]);
       }
       else{
         $order_id = $request->order_id;
@@ -420,9 +424,9 @@ class CustomerOrderDetailsController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		/*$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $customer_lists;*/
+  		$co_lists = CustomerOrderDetails::select('order_id','po_no')
+  		->where([['po_no', 'like', '%'.$search.'%'],])->distinct()->get();
+  		return $co_lists;
   	}
 
 
@@ -465,6 +469,15 @@ class CustomerOrderDetailsController extends Controller
       order by a.line_no',
       [$order_id , 'CANCEL']);
       return $order_details;
+    }
+
+
+    private function style_colors($style){
+      $colors = DB::select("SELECT costing_bulk_feature_details.color_ID, org_color.color_code,org_color.color_name FROM costing_bulk_feature_details
+          INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
+          INNER JOIN org_color ON costing_bulk_feature_details.color_ID = org_color.color_id
+          WHERE costing_bulk.style_id = ?",[$style]);
+      return $colors;
     }
 
 

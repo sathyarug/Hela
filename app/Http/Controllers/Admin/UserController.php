@@ -7,17 +7,47 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Location;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Models\Admin\UsrProfile;
 use App\Models\Admin\User;
 use App\Models\Admin\UsrDepartment;
 use App\Models\Admin\UsrDesignation;
+use App\Models\Admin\Role;
+use App\Models\Org\Location\Location;
 
 class UserController extends Controller {
 
-    public function register(){
+  public function __construct()
+  {
+    //add functions names to 'except' paramert to skip authentication
+    $this->middleware('jwt.verify', ['except' => ['index']]);
+  }
+
+  //get user list
+  public function index(Request $request)
+  {
+    $type = $request->type;
+    if($type == 'datatable')   {
+      $data = $request->all();
+      return response($this->datatable_search($data));
+    }
+    else if($type == 'auto')    {
+      $search = $request->search;
+      return response($this->autocomplete_search($search));
+    }
+    else {
+      $active = $request->active;
+      $fields = $request->fields;
+      return response([
+        'data' => $this->list($active , $fields)
+      ]);
+    }
+  }
+
+    /*public function register(){
         $location = App\OrgLocation::pluck('loc_name', 'loc_id')->toArray();
         $dept = UsrDepartment::pluck('dept_name', 'dept_id')->toArray();
         $costCtr = CostCenter::pluck('cost_center_code', 'cost_center_id')->toArray();
@@ -31,35 +61,56 @@ class UserController extends Controller {
         ];
 
         return view('/user/register')->with('data', $data);
-    }
+    }*/
 
-    public function user(){
+  /*  public function user(){
         return view('/user/user');
-    }
+    }*/
 
     public function store(Request $request)
     {
-        $data = request()->except(['_token']);
-        $profile = new UsrProfile;
-        $login = new User;
+    //  $data = request()->except(['_token']);
+      $profile = new UsrProfile;
+      $login = new User;
 
-        $profile->fill($request->all());
+      if($profile->validate($request->all()))
+      {
+        $profile->fill($request->except(['username', 'password']));
+        $profile->status = 1;
+        $profile->save();
 
-        $login->user_name = $request->user_name;
-        $login->password = Hash::make($request->password);
-
-        if ($profile->validate($request->all()) && $login->validate($request->all())) {
-            $profile->save();
-
-            //Adding user id user login table
-            $login->user_id = $profile->user_id;
-            $login->save();
-            return redirect()->route('admin/user');
-        }else{
-           $errors = $profile->errors_tostring();
-           return $errors;
+        if($profile->user_id > 0 && $request->user_name != null && $request->password != null){
+          $login->user_id = $profile->user_id;
+          $login->user_name = $request->user_name;
+          $login->password = Hash::make($request->password);
+          $login->save();
         }
+
+        return response([ 'data' => [
+          'message' => 'User profile was saved successfully',
+          'user_profile' => $profile,
+          'user' => $login
+          ]
+        ], Response::HTTP_CREATED );
+      }
+      else
+      {
+          $errors = $color->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
     }
+
+
+    //get a Company
+    public function show($id)
+    {
+      $user = UsrProfile::find($id);
+      if($user == null)
+        throw new ModelNotFoundException("Requested user not found", 1);
+      else
+        return response([ 'data' => $user ]);
+    }
+
 
     public function validateUserName(Request $request){
         $user = User::where('user_name',Input::get('user_name'))->first();
@@ -87,7 +138,7 @@ class UserController extends Controller {
         echo json_encode($posts);
 
     }
-    
+
     public function getUserList() {
         //UsrProfile::all()->sortByDesc("created_at")->sortByDesc("status")
 
@@ -102,6 +153,170 @@ class UserController extends Controller {
 
 
 }
-    
+
+
+  public function roles(Request $request){
+    $type = $request->type;
+    $user_id = $request->user_id;
+    $location = $request->location;
+
+    if($type == 'assigned')
+    {
+      $assigned = Role::select('role_id','role_name')
+      ->whereIn('role_id' , function($selected) use ($user_id, $location){
+          $selected->select('role_id')
+          ->from('user_roles')
+          ->where('user_id', $user_id)
+          ->where('loc_id', $location);
+      })->get();
+      return response([ 'data' => $assigned]);
+    }
+    else if($type == 'not_assigned')
+    {
+      $notAssigned = Role::select('role_id','role_name')
+      ->whereNotIn('role_id' , function($notSelected) use ($user_id, $location){
+          $notSelected->select('role_id')
+          ->from('user_roles')
+          ->where('user_id', $user_id)
+          ->where('loc_id', $location);
+      })->get();
+      return response([ 'data' => $notAssigned]);
+    }
+  }
+
+
+  public function save_roles(Request $request)
+  {
+    $user_id = $request->get('user_id');
+    $loc_id = $request->get('loc_id');
+    $roles = $request->get('roles');
+    if($user_id != '')
+    {
+      DB::table('user_roles')
+      ->where('user_id', '=', $user_id)
+      ->where('loc_id', '=', $loc_id)
+      ->delete();
+      $user = UsrProfile::find($user_id);
+      $save_roles = array();
+
+      foreach($roles as $role)		{
+        //array_push($save_roles, Role::find($role['role_id']));
+        $user->roles()->save(Role::find($role['role_id']),['loc_id' => $loc_id]);
+      }
+
+      //$user->roles()->saveMany($save_roles,['loc_id' => $loc_id]);
+      return response([
+        'data' => [
+          'user_id' => $user_id
+        ]
+      ]);
+    }
+    else {
+      throw new ModelNotFoundException("Requested user not found", 1);
+    }
+  }
+
+
+  public function locations(Request $request){
+    $type = $request->type;
+    $user_id = $request->user_id;
+
+    if($type == 'assigned')
+    {
+      $assigned = Location::select('loc_id','loc_name')
+      ->whereIn('loc_id' , function($selected) use ($user_id){
+          $selected->select('loc_id')
+          ->from('user_locations')
+          ->where('user_id', $user_id);
+      })->get();
+      return response([ 'data' => $assigned]);
+    }
+    else if($type == 'not_assigned')
+    {
+      $notAssigned = Location::select('loc_id','loc_name')
+      ->whereNotIn('loc_id' , function($notSelected) use ($user_id){
+          $notSelected->select('loc_id')
+          ->from('user_locations')
+          ->where('user_id', $user_id);
+      })->get();
+      return response([ 'data' => $notAssigned]);
+    }
+  }
+
+
+  public function save_locations(Request $request)
+  {
+    $user_id = $request->get('user_id');
+    $locations = $request->get('locations');
+    if($user_id != '')
+    {
+      DB::table('user_locations')->where('user_id', '=', $user_id)->delete();
+      $user = UsrProfile::find($user_id);
+      $save_locations = array();
+
+      foreach($locations as $location)		{
+        array_push($save_locations, Location::find($location['loc_id']));
+      }
+
+      $user->locations()->saveMany($save_locations);
+      return response([
+        'data' => [
+          'user_id' => $user_id
+        ]
+      ]);
+    }
+    else {
+      throw new ModelNotFoundException("Requested user not found", 1);
+    }
+  }
+
+
+  public function user_assigned_locations(){
+    $user_id = auth()->user()->user_id;
+    $locations = DB::select("SELECT user_locations.*, org_location.loc_code, org_location.loc_name FROM user_locations
+      INNER JOIN org_location ON org_location.loc_id = user_locations.loc_id WHERE user_locations.user_id = ?" , [$user_id]);
+    return response([
+      'data' => $locations
+    ]);
+  }
+
+
+
+  //get searched Colors for datatable plugin format
+  private function datatable_search($data)
+  {
+    $start = $data['start'];
+    $length = $data['length'];
+    $draw = $data['draw'];
+    $search = $data['search']['value'];
+    $order = $data['order'][0];
+    $order_column = $data['columns'][$order['column']]['data'];
+    $order_type = $order['dir'];
+
+    $user_list = UsrProfile::join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
+    ->join('org_departments', 'usr_profile.dept_id', '=', 'org_departments.dep_id')
+    //->join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
+    ->select('usr_profile.*','org_location.loc_name','org_departments.dep_name')
+    ->where('first_name'  , 'like', $search.'%' )
+    ->orWhere('last_name'  , 'like', $search.'%' )
+    ->orWhere('emp_number'  , 'like', $search.'%' )
+    ->orderBy($order_column, $order_type)
+    ->offset($start)->limit($length)->get();
+
+    $user_count = UsrProfile::join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
+    ->join('org_departments', 'usr_profile.dept_id', '=', 'org_departments.dep_id')
+    ->where('first_name'  , 'like', $search.'%' )
+    ->orWhere('last_name'  , 'like', $search.'%' )
+    ->orWhere('emp_number'  , 'like', $search.'%' )
+    ->count();
+
+    return [
+        "draw" => $draw,
+        "recordsTotal" => $user_count,
+        "recordsFiltered" => $user_count,
+        "data" => $user_list
+    ];
+  }
+
 
 }

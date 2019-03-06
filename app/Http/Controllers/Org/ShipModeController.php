@@ -21,7 +21,7 @@ class ShipModeController extends Controller
     //get Season list
     public function index(Request $request)
     {
-      /*$type = $request->type;
+      $type = $request->type;
       if($type == 'datatable')   {
         $data = $request->all();
         return response($this->datatable_search($data));
@@ -30,7 +30,7 @@ class ShipModeController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
-      else {*/
+      else {
         $active = $request->active;
         $fields = $request->fields;
         return response([
@@ -38,6 +38,8 @@ class ShipModeController extends Controller
         ]);
       //}
     }
+
+  }
 
 
     //create a Season
@@ -55,6 +57,13 @@ class ShipModeController extends Controller
     //update a Season
     public function update(Request $request, $id)
     {
+    }
+
+    private function autocomplete_search($search)
+    {
+      $company_lists = ShipMode::select('ship_mode')
+      ->where([['ship_mode', 'like', '%' . $search . '%'],]) ->get();
+      return $company_lists;
     }
 
 

@@ -11,7 +11,15 @@
         <thead>
             <tr>
                 <th class="text-center">Action</th>
+<<<<<<< HEAD
+                
+=======
                 <th>Status</th>
+<<<<<<< HEAD
+                <th>Section</th>
+>>>>>>> origin/master
+=======
+>>>>>>> origin/master
                 <th>Cluster Code</th> 
                 <th>Company Code</th>
                 <th>Company Name</th> 
@@ -31,7 +39,11 @@
                 <th>Vat Reg Num</th>
                 <th>Tax Code</th>    
                 <th>Company Logo</th>                                        
+<<<<<<< HEAD
+                <th>Status</th>
+=======
                 
+>>>>>>> origin/master
                 <!-- <th class="text-center">Actions</th> -->
             </tr>
         </thead>
@@ -65,7 +77,11 @@
                     <fieldset class="content-group">
 
                         <div class=" col-md-12">
+<<<<<<< HEAD
+                         <div class=" col-md-4">
+=======
                            <div class=" col-md-4">
+>>>>>>> origin/master
 
                             <label>Select Main Cluster <span class="text-danger">*</span>:</label>
                             <select class="select-search input-xxs" name="group_id" id="main_cluster">
@@ -171,9 +187,28 @@
                                 <option value="March to April">March to April</option>
                             </select>
                         </div>
+<<<<<<< HEAD
+
+                        <div class=" col-md-12">
+<<<<<<< HEAD
+                           <label>Company Logo :</label>
+                           <input type="file" class="form-control file-styled" name="company_logo" id="company_logo">
+
+                       </div>
+
+
+                   </fieldset>
+
+
+               </div>
+
+               <div class="modal-footer">
+=======
+=======
                     </div>
 <div class=" col-md-12">    
                         <div class=" col-md-6">
+>>>>>>> origin/master
                          <label>Company Logo :</label>
                          <input type="file" class="form-control file-styled input-xxs" name="company_logo" id="company_logo">
 
@@ -200,6 +235,7 @@
              </div>
 
              <div class="modal-footer">
+>>>>>>> origin/master
                 <button type="button" class="btn bg-teal-400 btn-labeled btn-danger btn-xs" data-dismiss="modal"><b><i class="icon-cross"></i></b> Close</button>            
                 <button type="submit" class="btn bg-teal-400 btn-labeled btn-success btn-xs" id="btn-save-3">
                     <b><i class="icon-floppy-disk"></i></b> Save</button>
@@ -208,6 +244,9 @@
             </form>
         </div>
     </div>
+<<<<<<< HEAD
+</div> 
+=======
 </div>
 
 
@@ -249,4 +288,9 @@
                 </form>
             </div>
         </div>
+<<<<<<< HEAD
+    </div>
+>>>>>>> origin/master
+=======
     </div> -->
+>>>>>>> origin/master

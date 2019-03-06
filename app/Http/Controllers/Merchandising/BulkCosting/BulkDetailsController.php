@@ -304,6 +304,7 @@ class BulkDetailsController extends Controller
         $model->bulkheader_id=$modelOld->bulkheader_id;
         $model->article_no=$modelOld->article_no;
         $model->color_id=$modelOld->color_id;
+        $model->color_type_id=$modelOld->color_type_id;
         $model->main_item=$modelOld->main_item;
         $model->supplier_id=$modelOld->supplier_id;
         $model->position=$modelOld->position;
@@ -321,6 +322,7 @@ class BulkDetailsController extends Controller
         $model->calculate_by_deliverywise=$modelOld->calculate_by_deliverywise;
         $model->surcharge=$modelOld->surcharge;
         $model->total_cost=$modelOld->total_cost;
+        $model->order_type=$modelOld->order_type;
         $model->shipping_terms=$modelOld->shipping_terms;
         $model->lead_time=$modelOld->lead_time;
         $model->country_of_origin=$modelOld->country_of_origin;
@@ -375,8 +377,26 @@ class BulkDetailsController extends Controller
         $style = \App\Models\Merchandising\styleCreation::find($hader->style_id);
         $color=\App\Models\Org\Color::find($blkFeature->color_ID);
         $component=\App\Models\Org\Component::find($blkFeature->component_id);
-
-       return (array('style'=>$style->style_no,'component'=>$component->product_component_description,'color'=>$color->color_name));
+        $sumStyleSmv=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->sum('smv_value');
+        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->where('feature_id', $blkFeature->component_id)->sum('smv_value');
+        $financeCost=\App\Models\finance\Cost\FinanceCost::first();
+        $cpmData=\App\Models\ie\ProductCMP::where('style_id', $hader->style_id)->pluck('cpm')->toArray();
+        $cpm=0;
+        if(isset($cpmData[0])){
+        $cpm= $cpmData[0];
+        }
+//        print_r($cpm);exit;
+       return (array('style'=>$style->style_no,
+           'component'=>$component->product_component_description,
+           'color'=>$color->color_name,
+           'styleSmv'=>$sumStyleSmv,
+           'styleSmvComp'=>$sumStyleSmvComp,
+           'finance_cost'=>$financeCost->finance_cost,
+           'cpmfront_end'=>$financeCost->cpmfront_end,
+           'cpum'=>$financeCost->cpum,
+           'cpm'=>$cpm,
+           'fob'=>(float)$hader->fob
+       ));
     }
 
     public  function loadItemAccordingCategory($tem){
@@ -417,8 +437,8 @@ class BulkDetailsController extends Controller
             'unit_price'=>0,
             'wastage'=>'',
             'gross_consumption'=>0,
-            'freight_charges'=>'',
-            'finance_charges'=>'',
+            'freight_charges'=>0,
+            'finance_charges'=>0,
             'moq'=>'',
             'mcq'=>'',
             'OrderType'=>'',

@@ -162,11 +162,14 @@
 <script type="text/javascript" src="assets/js/plugins/notifications/sweet_alert.min.js"></script>
 <script type="text/javascript">
     $('.select-search').select2();
+<<<<<<< HEAD:resources/views/org/location/add_location.blade.php
+=======
 
     $(".select-multiple").select2({
         tags: true
     });
 
+>>>>>>> origin/master:resources/views/org/location/add_location.blade.php
 </script>
 
 @endsection

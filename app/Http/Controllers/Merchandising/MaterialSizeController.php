@@ -52,6 +52,7 @@ class MaterialSizeController extends Controller
         $matsize->fill($request->all());
         $matsize->status = 1;
         $matsize->po_status = 0;
+        $matsize->division_id = -1;
         $matsize->save();
 
         return response([ 'data' => [
@@ -104,7 +105,7 @@ class MaterialSizeController extends Controller
     //deactivate a Feature
     public function destroy($id)
     {
-      $matsize = MaterialSize::where('mat_size_id', $id)->update(['status' => 0]);
+      $matsize = MaterialSize::where('size_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
           'message' => 'Material Size was deactivated successfully.',
@@ -119,7 +120,7 @@ class MaterialSizeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->mat_size_id,$request->category_name,$request
+        return response($this->validate_duplicate_code($request->size_id,$request->category_name,$request
         ->subcategory_name));
       }
     }
@@ -132,7 +133,7 @@ class MaterialSizeController extends Controller
       if($matsize == null){
         echo json_encode(array('status' => 'success'));
       }
-      else if($matsize->mat_size_id == $id){
+      else if($matsize->size_id == $id){
         echo json_encode(array('status' => 'success'));
       }
       else {
@@ -161,9 +162,9 @@ class MaterialSizeController extends Controller
     //search Size for autocomplete
     private function autocomplete_search($search)
   	{
-  		$matsize_lists = MaterialSize::join('item_category', 'merc_mat_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'merc_mat_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('merc_mat_size.*','item_subcategory.subcategory_name','item_category.category_name')
+  		$matsize_lists = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
                       ->where([['item_category.category_name', 'like', '%' . $search . '%']]) ->get();
   	                   return $matsize_lists;
   	}
@@ -191,17 +192,17 @@ class MaterialSizeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $matsize_list = MaterialSize::join('item_category', 'merc_mat_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'merc_mat_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('merc_mat_size.*','item_subcategory.subcategory_name','item_category.category_name')
+      $matsize_list = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
                       ->where('item_category.category_name'  , 'like', $search.'%' )
                       ->orwhere('item_subcategory.subcategory_name', 'like', $search.'%')
                       ->orderBy($order_column, $order_type)
                       ->offset($start)->limit($length)->get();
 
-      $matsize_count = MaterialSize::join('item_category', 'merc_mat_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'merc_mat_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('merc_mat_size.*','item_subcategory.subcategory_name','item_category.category_name')
+      $matsize_count = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
                       ->where('item_category.category_name'  , 'like', $search.'%' )
                       ->count();
 

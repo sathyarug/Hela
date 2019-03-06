@@ -10,6 +10,7 @@ use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\BOMSOAllocation;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class BomController extends Controller
@@ -118,7 +119,7 @@ class BomController extends Controller
 
     public function getCostingRMDetails(Request $request){
         $bulkCostingDetails = new BulkCostingDetails();
-        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);        
+        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);
 
         echo json_encode($rsRMDetails);
     }
@@ -136,9 +137,9 @@ class BomController extends Controller
             $bomID = $bomHeader->bom_id;
 
         }catch ( \Exception $ex) {
-            
-            $bomID = "fail"; 
-        }        
+
+            $bomID = "fail";
+        }
 
         echo json_encode(array('bomid'=>$bomID));
     }
@@ -177,9 +178,9 @@ class BomController extends Controller
             $status = "success";
 
         }catch ( \Exception $ex) {
-            
-            $status = "fail"; 
-        }  
+
+            $status = "fail";
+        }
         echo json_encode(array('status'=>$status));
     }
 
@@ -192,7 +193,7 @@ class BomController extends Controller
     public function ListBOMS(Request $request){
         try{
 
-            $result = BOMHeader::where("costing_id",$request->costing_id)->get();
+            $result = BOMHeader::select(DB::raw("*, CONCAT('B',LPAD(bom_id,6,'0')) AS BomNo"))->where("costing_id",$request->costing_id)->get();
         }catch( \Exception $ex){
             $result = "fail";
         }
@@ -241,6 +242,28 @@ class BomController extends Controller
             $result = $ex->getMessage();
         }
 
+        echo json_encode($result);
+    }
+
+    public function getColorWiseDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColors($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+        echo json_encode($result);
+    }
+
+    public function getRatioDetails(Request $request){
+        try{
+            $customerOrderDetails = new CustomerOrderDetails();
+            $result = $customerOrderDetails->getCustomerColorsAndSizes($request->orderId);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
         echo json_encode($result);
     }
 }

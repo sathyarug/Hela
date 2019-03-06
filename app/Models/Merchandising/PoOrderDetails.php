@@ -15,6 +15,7 @@ class PoOrderDetails extends BaseValidator
 
     protected $fillable=['po_no','item_code','unit_price','uom','req_qty','deli_date','remarks','status','tot_qty','sc_no','style','colour','size'];
 
+    
     protected $rules=array(
         'po_no'=>'required'
     );
@@ -23,6 +24,11 @@ class PoOrderDetails extends BaseValidator
 
     public function __construct() {
         parent::__construct();
+    }
+
+    public function setDiliveryDateAttribute($value)
+		{
+    	$this->attributes['deli_date'] = date('Y-m-d', strtotime($value));
     }
 
     public function purchaseOrder(){

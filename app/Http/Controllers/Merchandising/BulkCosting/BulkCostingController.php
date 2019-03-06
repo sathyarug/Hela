@@ -64,7 +64,6 @@ class BulkCostingController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-//print_r($request->bom_stage['bom_stage_id']);exit;
         if($request->bulk_header !=0){
             $model = BulkCosting::find($request->bulk_header);
         }else{
@@ -91,7 +90,7 @@ class BulkCostingController extends Controller {
 
             $model->status = 1;
 
-
+//            print_r($request->all());exit;
             $model->save();
             return response(['data' => [
                     'message' => 'Costing is saved successfully',
@@ -135,76 +134,82 @@ class BulkCostingController extends Controller {
 
         $modelOld = BulkCostingFeatureDetails::find($id);
 
+
+        $styleFeatures=BulkCostingFeatureDetails::where('style_feature_id',$modelOld->style_feature_id)->where('feature_id',$modelOld->feature_id)->where('status',1)->get()->toArray();
+
         $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id',$modelOld->feature_id)->where('status',1)->get()->toArray();
 
-//print_r($featureList);exit;
         foreach ($featureList AS $feature ){
-    $chrck=BulkCostingFeatureDetails::where('feature_id',$feature['product_feature_id'])->where('component_id',$feature['product_component_id'])->get()->toArray();
-//            print_r( count($chrck));
-                }
-//       exit;
+        $chrck=BulkCostingFeatureDetails::where('style_feature_id',$modelOld->style_feature_id)->where('feature_id',$feature['product_feature_id'])->where('component_id',$feature['product_component_id'])->get()->toArray();
+
+            if( count($chrck)== 0){
+                return 0;
+            }
+
+       }
 
         $productFeatureList = new StyleProductFeature();
-        $productFeatureList->style_id=$request->style_id;
-        $productFeatureList->product_feature_id=$modelOld->feature_id;
+        $productFeatureList->style_id = $request->style_id;
+        $productFeatureList->product_feature_id = $modelOld->feature_id;
         $productFeatureList->save();
 
+        foreach ($styleFeatures AS $styleFeature) {
 
+           $model = new BulkCostingFeatureDetails();
 
-        $model = new BulkCostingFeatureDetails();
+           $model->style_feature_id = $productFeatureList->id;
+           $model->feature_id = $styleFeature['feature_id'];
+           $model->component_id = $styleFeature['component_id'];
+           $model->bulkheader_id = $styleFeature['bulkheader_id'];
+           $model->surcharge = $styleFeature['surcharge'];
+           $model->color_ID = $styleFeature['color_ID'];
+           $model->season_id = $styleFeature['season_id'];
+           $model->col_opt_id = $styleFeature['col_opt_id'];
+           $model->bom_stage = $styleFeature['bom_stage'];
+           $model->mcq = $styleFeature['mcq'];
+           $model->combo_code = $styleFeature['combo_code'];
+           $model->save();
 
-        $model->style_feature_id=$productFeatureList->id;
-        $model->feature_id=$modelOld->feature_id;
-        $model->component_id=$modelOld->component_id;
-        $model->bulkheader_id=$modelOld->bulkheader_id;
-        $model->surcharge=$modelOld->surcharge;
-        $model->color_ID=$modelOld->color_ID;
-        $model->season_id=$modelOld->season_id;
-        $model->col_opt_id=$modelOld->col_opt_id;
-        $model->bom_stage=$modelOld->bom_stage;
-        $model->mcq=$modelOld->mcq;
-        $model->combo_code=$modelOld->combo_code;
-        $model->save();
+           $itemList = BulkCostingDetails::select('*')
+               ->where([['bulkheader_id', '=', $styleFeature['blk_feature_id']], ['status', '=', 1]])->get();
 
-        $itemList= BulkCostingDetails::select('*')
-            ->where([['bulkheader_id', '=',  $modelOld->blk_feature_id ],['status', '=',  1 ]])->get();
+           foreach ($itemList AS $item) {
+               $BulkCostingDetails = new BulkCostingDetails();
 
-        foreach ($itemList AS $item){
-            $BulkCostingDetails = new BulkCostingDetails();
+               $BulkCostingDetails->bulkheader_id = $model->blk_feature_id;
+               $BulkCostingDetails->article_no = $item->article_no;
+               $BulkCostingDetails->color_id = $item->color_id;
+               $BulkCostingDetails->color_type_id = $item->color_type_id;
+               $BulkCostingDetails->code = $item->code;
+               $BulkCostingDetails->main_item = $item->main_item;
+               $BulkCostingDetails->supplier_id = $item->supplier_id;
+               $BulkCostingDetails->position = $item->position;
+               $BulkCostingDetails->measurement = $item->measurement;
+               $BulkCostingDetails->process_option = $item->process_option;
+               $BulkCostingDetails->uom_id = $item->uom_id;
+               $BulkCostingDetails->net_consumption = $item->net_consumption;
+               $BulkCostingDetails->unit_price = $item->unit_price;
+               $BulkCostingDetails->wastage = $item->wastage;
+               $BulkCostingDetails->gross_consumption = $item->gross_consumption;
+               $BulkCostingDetails->freight_charges = $item->freight_charges;
+               $BulkCostingDetails->finance_charges = $item->finance_charges;
+               $BulkCostingDetails->mcq = $item->mcq;
+               $BulkCostingDetails->moq = $item->moq;
+               $BulkCostingDetails->calculate_by_deliverywise = $item->calculate_by_deliverywise;
+               $BulkCostingDetails->order_type = $item->order_type;
+               $BulkCostingDetails->surcharge = $item->surcharge;
+               $BulkCostingDetails->total_cost = $item->total_cost;
+               $BulkCostingDetails->shipping_terms = $item->shipping_terms;
+               $BulkCostingDetails->lead_time = $item->lead_time;
+               $BulkCostingDetails->country_of_origin = $item->country_of_origin;
+               $BulkCostingDetails->comments = $item->comments;
 
-            $BulkCostingDetails->bulkheader_id = $model->blk_feature_id;
-            $BulkCostingDetails->article_no = $item->article_no;
-            $BulkCostingDetails->color_id = $item->color_id;
-            $BulkCostingDetails->color_type_id = $item->color_type_id;
-            $BulkCostingDetails->code = $item->code;
-            $BulkCostingDetails->main_item = $item->main_item;
-            $BulkCostingDetails->supplier_id = $item->supplier_id;
-            $BulkCostingDetails->position = $item->position;
-            $BulkCostingDetails->measurement = $item->measurement;
-            $BulkCostingDetails->process_option = $item->process_option;
-            $BulkCostingDetails->uom_id = $item->uom_id;
-            $BulkCostingDetails->net_consumption = $item->net_consumption;
-            $BulkCostingDetails->unit_price = $item->unit_price;
-            $BulkCostingDetails->wastage = $item->wastage;
-            $BulkCostingDetails->gross_consumption = $item->gross_consumption;
-            $BulkCostingDetails->freight_charges = $item->freight_charges;
-            $BulkCostingDetails->finance_charges = $item->finance_charges;
-            $BulkCostingDetails->mcq = $item->mcq;
-            $BulkCostingDetails->moq = $item->moq;
-            $BulkCostingDetails->calculate_by_deliverywise = $item->calculate_by_deliverywise;
-            $BulkCostingDetails->order_type = $item->order_type;
-            $BulkCostingDetails->surcharge = $item->surcharge;
-            $BulkCostingDetails->total_cost = $item->total_cost;
-            $BulkCostingDetails->shipping_terms = $item->shipping_terms;
-            $BulkCostingDetails->lead_time = $item->lead_time;
-            $BulkCostingDetails->country_of_origin = $item->country_of_origin;
-            $BulkCostingDetails->comments = $item->comments;
+               $BulkCostingDetails->save();
 
-            $BulkCostingDetails->save();
-
-        }
+           }
+       }
         $data=array('blkNo'=>$model->bulkheader_id,'bom'=>$model->bom_stage,'season'=>$model->season_id,'colType'=>$model->col_opt_id);
-         return $this->getFinishGood($request->style_id,$modelOld->bulkheader_id);
+         return $this->getFinishGood($request->style_id,$data);
 
     }
 
@@ -264,22 +269,29 @@ class BulkCostingController extends Controller {
         $dataArr['country'] = $country->country_description;
 //        $dataArr['stage'] = '';
 
+        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->first();
+//        print_r($sumStyleSmvComp->created_date);exit;
+
         if(count($hader)>0){
             $hader[0]['pcd']=date_format(date_create($hader[0]['pcd']),"m/d/Y");
             $dataArr['blk_hader'] = $hader[0];
 
         }else{
+            $financeCost=\App\Models\finance\Cost\FinanceCost::first();
+
             $dataArr['blk_hader']['updated_date']='';
             $dataArr['blk_hader']['total_cost']='';
             $dataArr['blk_hader']['season_id']='';
             $dataArr['blk_hader']['color_type_id']='';
             $dataArr['blk_hader']['created_date']='';
-            $dataArr['blk_hader']['cost_per_std_min']='';
+            $dataArr['blk_hader']['cost_per_std_min']=$financeCost->cpmfront_end;
             $dataArr['blk_hader']['epm']='';
             $dataArr['blk_hader']['np_margin']='';
             $dataArr['blk_hader']['plan_efficiency']='';
             $dataArr['blk_hader']['bulk_costing_id']='';
             $dataArr['blk_hader']['pcd']='';
+            $dataArr['blk_hader']['finance_charges']=$financeCost->finance_cost;
+            $dataArr['blk_hader']['cost_per_min']=$financeCost->cpum;
         }
 
 
@@ -331,7 +343,6 @@ class BulkCostingController extends Controller {
 
                 }
                 if(isset($blkCostFea->blk_feature_id)){
-
                     $blkHeadId=$blkCostFea->blk_feature_id;
                 }
 

@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\PoOrderHeader;
 //use App\Libraries\UniqueIdGenerator;
-//use App\Models\Merchandising\StyleCreation;
+use App\Models\Merchandising\bom_details;
+use App\Models\Merchandising\PurchaseReqLines;
 
 class PurchaseOrderManualController extends Controller
 {
@@ -92,7 +93,8 @@ class PurchaseOrderManualController extends Controller
 
         return response([ 'data' => [
           'message' => 'Purchase order was updated successfully',
-          'customer' => $pOrder
+          'customer' => $pOrder,
+          'savepo' => $pOrder
         ]]);
       }
       else
@@ -232,7 +234,7 @@ class PurchaseOrderManualController extends Controller
           'fin_currency.currency_code')
       ->where('po_number'  , 'like', $search.'%' )
       ->orWhere('supplier_name'  , 'like', $search.'%' )
-      
+
 	  ->orWhere('loc_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
@@ -253,5 +255,126 @@ class PurchaseOrderManualController extends Controller
           "data" => $customer_list
       ];
     }
+
+
+    public function load_bom_Details(Request $request)
+  	{
+    //$customer_name = $data['customer_name'];
+    $customer_name = $request->customer['customer_name'];
+    //print_r($customer_name);
+
+    $load_list = DB::select("select B.*, MCD.*, OU.uom_code, OS.size_name, OC.color_name, IM.master_description,
+        SU.supplier_name, CUS.customer_name,CUS.customer_code,
+        ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD WHERE MPD.sc_no =  B.bom_id ) AS req_qty,
+        org_location.loc_name,
+        (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
+        merc_po_order_details AS MPOD WHERE MPOD.sc_no = B.bom_id ) AS po_nos
+        FROM
+        bom_details AS B
+        INNER JOIN merc_costing_so_combine AS MC ON B.combine_id = MC.comb_id
+        INNER JOIN merc_customer_order_details AS MCD ON MC.details_id = MCD.details_id
+        INNER JOIN merc_customer_order_header AS MCH ON MCH.order_id = MCD.order_id
+        INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
+        INNER JOIN org_size AS OS ON B.item_size = OS.size_id
+        INNER JOIN org_color AS OC ON B.item_color = OC.color_id
+        INNER JOIN item_master AS IM ON B.master_id = IM.master_id
+        INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
+        INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
+        INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
+        WHERE
+        CUS.customer_name LIKE '%$customer_name%' GROUP BY B.bom_id ");
+
+       //return $customer_list;
+       return response([ 'data' => [
+         'load_list' => $load_list,
+         'count' => sizeof($load_list)
+         ]
+       ], Response::HTTP_CREATED );
+
+  	}
+
+
+    public function merge_save(Request $request){
+      $lines = $request->lines;
+    //  print_r($lines[0]['bom_id']);
+      if($lines != null && sizeof($lines) >= 1){
+
+        $max_no = PurchaseReqLines::max('merge_no');
+        $max_no = $max_no + 1;
+
+        for($x = 0 ; $x < sizeof($lines) ; $x++){
+        $temp_line = new PurchaseReqLines();
+
+        $temp_line->bom_id = $lines[$x]['bom_id'];
+        $temp_line->order_id = $lines[$x]['order_id'];
+        $temp_line->cpo_no = $lines[$x]['po_no'];
+        $temp_line->merge_no = $max_no;
+        $temp_line->item_code = $lines[$x]['master_id'];
+        $temp_line->item_desc = $lines[$x]['master_description'];
+        $temp_line->item_color = $lines[$x]['item_color'];
+        $temp_line->color_name = $lines[$x]['color_name'];
+        $temp_line->item_size = $lines[$x]['item_size'];
+        $temp_line->size_name = $lines[$x]['size_name'];
+        $temp_line->uom_id = $lines[$x]['uom_id'];
+        $temp_line->uom_code = $lines[$x]['uom_code'];
+        $temp_line->supplier_id = $lines[$x]['supplier_id'];
+        $temp_line->supplier_name = $lines[$x]['supplier_name'];
+        $temp_line->unit_price = $lines[$x]['unit_price'];
+        $temp_line->total_qty = $lines[$x]['total_qty'];
+        $temp_line->moq = '0';
+        $temp_line->mcq = '0';
+        $temp_line->bal_order = $lines[$x]['bal_oder'];;
+        $temp_line->po_qty = $lines[$x]['req_qty'];;
+        $temp_line->status = '';
+
+        $temp_line->save();
+
+        }
+
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Lines were merged successfully.',
+            'merge_no' => $max_no
+          ]
+        ] , 200);
+
+      }
+
+    }
+
+
+    public function load_reqline(Request $request)
+  	{
+        $prl_id = $request->prl_id;
+
+      $load_list = PurchaseReqLines::join('bom_details', 'bom_details.bom_id', '=', 'merc_purchase_req_lines.bom_id')
+       ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
+	     ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+       ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
+       ->join('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
+       ->join('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
+	     ->select('item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*')
+       ->where('merge_no'  , '=', $prl_id )
+      // ->orWhere('supplier_name'  , 'like', $search.'%' )
+	    // ->orWhere('loc_name'  , 'like', $search.'%' )
+       //->groupBy('merc_costing_so_combine.comb_id')
+       //->distinct()
+       ->get();
+
+       //return $customer_list;
+       return response([ 'data' => [
+         'load_list' => $load_list,
+         'prl_id' => $prl_id,
+         'count' => sizeof($load_list)
+         ]
+       ], Response::HTTP_CREATED );
+
+  	}
+
+
+
+
 
 }

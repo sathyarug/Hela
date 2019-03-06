@@ -23,7 +23,7 @@ class PurchaseOrderManualDetailsController extends Controller
     //get customer list
     public function index(Request $request)
     {
-      
+
       $type = $request->type;
       if($type == 'datatable') {
         $data = $request->all();
@@ -68,7 +68,7 @@ class PurchaseOrderManualDetailsController extends Controller
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
-	
+
 	private function get_next_line_no($po)
     {
       $max_no = PoOrderDetails::where('po_no','=',$po)->max('line_no');
@@ -253,6 +253,48 @@ class PurchaseOrderManualDetailsController extends Controller
           "recordsFiltered" => $customer_count,
           "data" => $customer_list
       ];*/
+    }
+
+
+    public function save_line_details(Request $request){
+      $lines = $request->lines;
+      $formData = $request->formData;
+      $po = $formData['po_number'];
+    //  print_r($lines[0]['bom_id']);
+      if($lines != null && sizeof($lines) >= 1){
+
+        for($x = 0 ; $x < sizeof($lines) ; $x++){
+        $po_details = new PoOrderDetails();
+
+        $po_details->po_no = $formData['po_number'];
+        $po_details->sc_no = $lines[$x]['bom_id'];
+        $po_details->line_no = $this->get_next_line_no($po);
+        $po_details->item_code = $lines[$x]['master_id'];
+        $po_details->style = $lines[$x]['master_id'];
+        $po_details->colour = $lines[$x]['color_id'];
+        $po_details->size = $lines[$x]['size_id'];
+        $po_details->unit_price = $lines[$x]['unit_price'];
+        $po_details->uom = $lines[$x]['uom_id'];
+        $po_details->req_qty = $lines[$x]['tra_qty'];
+        $po_details->deli_date = $formData['delivery_date'];
+        $po_details->tot_qty = $lines[$x]['value_sum'];
+        $po_details->remarks = '';
+        $po_details->status = 'PLANNED';
+
+
+        $po_details->save();
+
+        }
+
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Saved successfully.'
+          ]
+        ] , 200);
+
+      }
+
     }
 
 }
