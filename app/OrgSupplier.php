@@ -30,7 +30,7 @@ class OrgSupplier extends BaseValidator
         'supplier_phone'  => 'required',
 //        'default_currency_code'  => 'required',
     );
-    
+
     public function __construct()
     {
         parent::__construct();

@@ -10,6 +10,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 //class User extends BaseValidator
 Class User extends Authenticatable implements JWTSubject
+
 {
     use Notifiable;
 
@@ -21,10 +22,8 @@ Class User extends Authenticatable implements JWTSubject
     protected $table = 'usr_login';
     protected $primaryKey = 'user_id';
     protected $fillable = [
-        'user_name', 'email', 'password',
+        'name', 'email', 'password',
     ];
-
-    public $timestamps = false;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -32,8 +31,9 @@ Class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password'
+        'password', 'remember_token',
     ];
+
 
     protected $rules = array(
         'user_name' => 'required',
@@ -60,6 +60,7 @@ Class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
 
 
 }

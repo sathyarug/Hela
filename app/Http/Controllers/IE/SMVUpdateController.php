@@ -140,31 +140,7 @@ class SMVUpdateController extends Controller
     //
     // }
 
-    // public function save_customer_divisions(Request $request)
-    // {
-    //   $customer_id = $request->get('customer_id');
-    //   $divisions = $request->get('divisions');
-    //   if($customer_id != '')
-    //   {
-    //     DB::table('org_customer_divisions')->where('customer_id', '=', $customer_id)->delete();
-    //     $customer = Customer::find($customer_id);
-    //     $save_divisions = array();
-    //
-    //     foreach($divisions as $devision)		{
-    //       array_push($save_divisions,Division::find($devision['division_id']));
-    //     }
-    //
-    //     $customer->divisions()->saveMany($save_divisions);
-    //     return response([
-    //       'data' => [
-    //         'customer_id' => $customer_id
-    //       ]
-    //     ]);
-    //   }
-    //   else {
-    //     throw new ModelNotFoundException("Requested customer not found", 1);
-    //   }
-    // }
+  
 
 
     //check SMVUpdate already exists

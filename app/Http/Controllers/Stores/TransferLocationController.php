@@ -94,4 +94,19 @@ use App\Models\Store\Stock;
                       }
 
 
+                      private function tabaleLoad($style){
+
+                        $details=Stock::join('style_creation','store_stock.style_id','=','style_creation.style_id')
+                                        ->select('*')
+                                        ->where('style_creation.style_no','=',$style)->get();
+                                        return $details;
+
+
+
+
+
+
+                      }
+
+
  }
