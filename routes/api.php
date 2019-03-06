@@ -89,8 +89,8 @@ Route::prefix('org/')->group(function(){
   Route::get('supplierslist/loadsuppliers' , 'Org\SupplierController@loadSuppliers');
   Route::apiResource('supplierslist','Org\SupplierController');
 
-  Route::get('uom/validate' , 'Org\UOMController@validate_data');
-  Route::apiResource('uom','Org\UOMController');
+  Route::get('uom/validate' , 'Org\UomController@validate_data');
+  Route::apiResource('uom','Org\UomController');
 
   Route::get('cancellation-categories/validate' , 'Org\Cancellation\CancellationCategoryController@validate_data');
   Route::apiResource('cancellation-categories','Org\Cancellation\CancellationCategoryController');
@@ -186,6 +186,8 @@ Route::prefix('ie/')->group(function(){
 
   Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
   Route::apiResource('servicetypes','IE\ServiceTypeController');
+  Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+  Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
 });
@@ -245,6 +247,7 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
   Route::apiResource('fabricInspection','stores\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+  Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
   Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
@@ -315,6 +318,12 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
     Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
+    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+
+    Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
+    Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -369,6 +378,7 @@ Route::prefix('core/')->group(function(){
   Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
   Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+  //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
   Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 
