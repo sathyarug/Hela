@@ -323,6 +323,7 @@ Route::prefix('admin/')->group(function(){
   Route::post('users/roles','Admin\UserController@save_roles');
   Route::get('users/locations','Admin\UserController@locations');
   Route::post('users/locations','Admin\UserController@save_locations');
+  Route::get('users/user-assigned-locations','Admin\UserController@user_assigned_locations');
   Route::apiResource('users','Admin\UserController');
 
   Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
@@ -369,7 +370,8 @@ Route::prefix('core/')->group(function(){
 Route::prefix('app/')->group(function(){
 
   Route::GET('menus','App\MenuController@index');
-
+  Route::POST('search','App\SearchController@index');
+  Route::POST('required-permissions','App\PermissionController@get_required_permissions');
   Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });

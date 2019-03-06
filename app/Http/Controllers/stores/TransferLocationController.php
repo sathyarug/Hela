@@ -22,7 +22,7 @@ use App\Models\Store\Stock;
    {
      //add functions names to 'except' paramert to skip authentication
      $this->middleware('jwt.verify', ['except' => ['index']]);
-   }
+   } 
 
 
    //get customer size list
