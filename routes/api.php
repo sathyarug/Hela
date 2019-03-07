@@ -263,6 +263,8 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
   Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
   Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+
+  Route::post('load-stock-for-mrn','Store\StockController@searchStock');
     //Route::apiResource('substore','Store\SubStoreController');
 
 

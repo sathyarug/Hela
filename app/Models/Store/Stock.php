@@ -51,4 +51,21 @@ class Stock extends Model
             ->get();
     }
 
+    public static function getCurrentStockOfLoc(){
+        $stockData = self::where('store_stock.location', 2)
+            ->join("item_master AS i", "i.master_id", "=", "store_stock.material_code")
+            ->join("org_color AS c", "c.color_id", "=", "store_stock.color")
+            ->join("org_size AS s", "s.size_id", "=", "store_stock.size")
+            ->join("org_uom AS u", "u.uom_id", "=", "store_stock.uom")
+            ->join("style_creation AS y", "y.style_id", "=", "store_stock.style_id")
+            ->join("merc_customer_order_details AS d", "d.details_id", "=", "store_stock.customer_po_id")
+            ->groupBy('store_stock.style_id', 'store_stock.customer_po_id', 'store_stock.size', 'store_stock.color', 'store_stock.material_code', 'store_stock.style_id')
+           // ->select("i.master_id", "i.master_description",  "c.color_name","s.size_name", "u.uom_code", "d.po_no", "y.style_no")
+            ->selectRaw('i.master_id, i.master_description, c.color_name, s.size_name, u.uom_code, d.po_no, y.style_no,  sum(store_stock.total_qty) as qty')
+            ->get()
+            ->toArray();
+
+        return $stockData;
+    }
+
 }

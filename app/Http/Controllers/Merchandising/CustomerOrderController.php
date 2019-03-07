@@ -38,8 +38,13 @@ class CustomerOrderController extends Controller
       else if($type == 'style')    {
         $search = $request->search;
         return response($this->style_search($search));
-      }
-      else{
+      }elseif($type == 'select')   {
+          $active = $request->active;
+          $fields = $request->fields;
+          return response([
+              'data' => $this->list($active , $fields)
+          ]);
+      }else{
         return response([]);
       }
     }
@@ -101,6 +106,24 @@ class CustomerOrderController extends Controller
       }
     }
 
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+        $query = null;
+        if($fields == null || $fields == '') {
+            $query = CustomerOrder::select('*');
+        }
+        else{
+            $fields = explode(',', $fields);
+            $query = CustomerOrder::select($fields);
+            if($active != null && $active != ''){
+                $payload = auth()->payload();
+                $query->where([['order_status', '=', $active]]);
+            }
+        }
+        return $query->get();
+    }
 
     //deactivate a customer
     public function destroy($id)
