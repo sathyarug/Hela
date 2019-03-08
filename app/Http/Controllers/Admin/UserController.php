@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Models\Admin\UsrProfile;
@@ -268,6 +269,17 @@ class UserController extends Controller {
       throw new ModelNotFoundException("Requested user not found", 1);
     }
   }
+
+
+  public function user_assigned_locations(){
+    $user_id = auth()->user()->user_id;
+    $locations = DB::select("SELECT user_locations.*, org_location.loc_code, org_location.loc_name FROM user_locations
+      INNER JOIN org_location ON org_location.loc_id = user_locations.loc_id WHERE user_locations.user_id = ?" , [$user_id]);
+    return response([
+      'data' => $locations
+    ]);
+  }
+
 
 
   //get searched Colors for datatable plugin format
