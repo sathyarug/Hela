@@ -263,19 +263,25 @@ class CustomerController extends Controller
         $divisions=DB::table('cust_customer')
             ->join('org_customer_divisions', 'cust_customer.customer_id', '=', 'org_customer_divisions.customer_id')
             ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
-            ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+            ->select('org_customer_divisions.id AS division_id','cust_division.division_description')
             ->where('cust_customer.status','<>', 0)
             ->where('cust_customer.customer_id','=',$customer_id)
-            ->get();
-//dd($data);
+            ->get()->toArray();
+        $data=array();
+        foreach ($divisions as $division){
+            array_push($data,$division);
+        }
+        echo json_encode($data);
+
+    }
 //        $customer = Customer::find($customer_id);
 //        $divisions= $customer->divisions()->get();
 //        $data=array();
 //        foreach ($divisions as $division){
 //            array_push($data,$division);
 //        }
-        echo json_encode($divisions);
+//        echo json_encode($divisions);
 
-    }
+//    }
 
 }
