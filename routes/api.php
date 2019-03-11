@@ -432,7 +432,7 @@ Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadPr
 Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
 Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
 Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
-//Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
+Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
 Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 
