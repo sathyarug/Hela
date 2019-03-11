@@ -267,6 +267,7 @@ class CustomerController extends Controller
             ->where('cust_customer.status','<>', 0)
             ->where('cust_customer.customer_id','=',$customer_id)
             ->get()->toArray();
+//        print_r($divisions);exit;
         $data=array();
         foreach ($divisions as $division){
             array_push($data,$division);
