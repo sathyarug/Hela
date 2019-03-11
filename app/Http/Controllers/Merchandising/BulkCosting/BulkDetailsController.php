@@ -72,6 +72,7 @@ class BulkDetailsController extends Controller
         }
 
 
+
         if ($model->validate($request->all())) {
 
             $master= \App\itemCreation::Where('master_description',$request->main_item_description)->get();
@@ -80,13 +81,19 @@ class BulkDetailsController extends Controller
             $supplier= \App\Models\Org\Supplier::where('supplier_name',$request->supplier )->get();
             $serviceType= \App\Models\IE\ServiceType::where('service_type_description',$request->process_options )->get();
             $umo= \App\Models\Org\UOM::where('uom_code',$request->uom )->get();
-            $color=\App\Models\Org\Color::where('color_name',$request->color )->get();
+            if(isset($request->color)){
+                $color=\App\Models\Org\Color::where('color_name',$request->color )->get();
+            }else{
+                $color[0]['color_id']='';
+            }
+
             $contry=\App\Models\Org\Country::where('country_description',$request->country_of_origin )->get();
-            $colorType=\App\Models\Merchandising\ColorOption::Where('color_option',$request->color_type)->get();
 
-            $colorType=\App\Models\Merchandising\ColorOption::Where('color_option',$request->color_type)->get();
-
-//            print_r($request->OrderType);exit;
+            if(isset($request->color_type)){
+                $colorType=\App\Models\Merchandising\ColorOption::Where('color_option',$request->color_type)->get();
+            }else{
+                $colorType[0]['col_opt_id']='';
+            }
 
             $orderType=0;
             if($request->OrderType == 'color wise'){

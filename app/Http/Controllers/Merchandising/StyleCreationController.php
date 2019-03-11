@@ -180,7 +180,7 @@ class StyleCreationController extends Controller
         $productType = productType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
                   ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
-                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code','cust_division.division_description')
                   ->where('org_customer_divisions.id','=',$style['division_id'])
                   ->get();
         // $avatarHidden = null;
