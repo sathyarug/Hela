@@ -134,7 +134,6 @@ Route::prefix('org/')->group(function(){
     Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
     Route::apiResource('garmentoptions','Org\GarmentOptionsController');
 
-<<<<<<< HEAD
     Route::get('requestType/validate' , 'Org\RequestTypeController@validate_data');
     Route::apiResource('requestType','Org\RequestTypeController');
     Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
@@ -158,7 +157,7 @@ Route::prefix('org/')->group(function(){
 
     Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
     Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
-=======
+
   Route::get('requestType/validate' , 'Org\RequestTypeController@validate_data');
   Route::apiResource('requestType','Org\RequestTypeController');
   Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
@@ -176,7 +175,6 @@ Route::prefix('org/')->group(function(){
 
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
 
     Route::apiResource('ship-modes','Org\ShipModeController');
 
@@ -205,15 +203,15 @@ Route::prefix('ie/')->group(function(){
     Route::apiResource('smvupdatehistories','IE\SMVUpdateHistoryController');
     Route::put('smvupdatehistories/updates' , 'IE\SMVUpdateHistoryController@update');
 
-<<<<<<< HEAD
+
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
-=======
+
   Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
   Route::apiResource('servicetypes','IE\ServiceTypeController');
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
+
 
 
 });
@@ -271,7 +269,6 @@ Route::prefix('finance/')->group(function(){
 
 Route::prefix('stores/')->group(function(){
 
-<<<<<<< HEAD
     Route::apiResource('po-load','stores\RollPlanController');
     Route::apiResource('roll','stores\RollPlanController');
     /********edited*/
@@ -292,7 +289,7 @@ Route::prefix('stores/')->group(function(){
     Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
     Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
     Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
-=======
+
   Route::apiResource('po-load','stores\RollPlanController');
   Route::apiResource('roll','stores\RollPlanController');
   /********edited*/
@@ -314,7 +311,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
   Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
   Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
+
     //Route::apiResource('substore','Store\SubStoreController');
 
 
@@ -379,8 +376,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
-<<<<<<< HEAD
-=======
+
     Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
     Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
     Route::post('po-manual-details/load_bom_Details','Merchandising\PurchaseOrderManualController@load_bom_Details');
@@ -388,7 +384,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
 
     Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
+
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
@@ -412,20 +408,20 @@ Route::prefix('merchandising/')->group(function(){
 
 Route::prefix('admin/')->group(function(){
 
-<<<<<<< HEAD
+
     Route::get('users/roles','Admin\UserController@roles');
     Route::post('users/roles','Admin\UserController@save_roles');
     Route::get('users/locations','Admin\UserController@locations');
     Route::post('users/locations','Admin\UserController@save_locations');
     Route::apiResource('users','Admin\UserController');
-=======
+
   Route::get('users/roles','Admin\UserController@roles');
   Route::post('users/roles','Admin\UserController@save_roles');
   Route::get('users/locations','Admin\UserController@locations');
   Route::post('users/locations','Admin\UserController@save_locations');
   Route::get('users/user-assigned-locations','Admin\UserController@user_assigned_locations');
   Route::apiResource('users','Admin\UserController');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
+
 
     Route::get('permission/validate' , 'Admin\PermissionController@validate_data');
     Route::apiResource('permission','Admin\PermissionController');
@@ -473,29 +469,29 @@ Route::prefix('core/')->group(function(){
 
 Route::prefix('app/')->group(function(){
 
-<<<<<<< HEAD
+
     Route::GET('menus','App\MenuController@index');
 
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
-=======
+
   Route::GET('menus','App\MenuController@index');
   Route::POST('search','App\SearchController@index');
   Route::POST('required-permissions','App\PermissionController@get_required_permissions');
   Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
+
 
 });
 
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
-<<<<<<< HEAD
+
 Route::GET('/sources','Test\SourceController@index');
 Route::GET('/getCustomer','Org\CustomerController@loadCustomer');
 Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadProductCategory');
 Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
 Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
 Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
-=======
+
   Route::GET('/sources','Test\SourceController@index');
   Route::GET('/getCustomer','Org\CustomerController@loadCustomer');
   Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadProductCategory');
@@ -503,7 +499,6 @@ Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@lo
   Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
   Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
   //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
->>>>>>> 8abc20a14372d41e331bfd8835352bc2fbae5c1b
 
 Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 
