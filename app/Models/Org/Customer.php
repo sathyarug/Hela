@@ -79,7 +79,7 @@ class Customer extends BaseValidator {
         return $this->belongsToMany('App\Models\Org\Division','org_customer_divisions','customer_id','division_id')
         ->withPivot('id');
     }
-    
+
     static function getActiveCustomerList() {
         return Customer::select('*')
                 ->where('status', '=', '1')

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Merchandising;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CostingSOCombine;
+use App\Models\Merchandising\BulkCosting;
+use App\Models\Merchandising\BulkCostingDetails;
+use DB;
 
 class CombineSOController extends Controller
 {
@@ -13,9 +16,16 @@ class CombineSOController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $type = $request->type;
+        if ($type == 'getCostingsForCombine'){
+            $styleId = $request->style_id;
+            $fields = $request->fields;
+            return response([
+                'data' => $this->getCostingDataByStyle($styleId, $fields)
+            ]);
+        }
     }
 
     /**
@@ -26,15 +36,28 @@ class CombineSOController extends Controller
      */
     public function store(Request $request)
     {
+        $maxCmb = DB::table('merc_costing_so_combine')->where('costing_id', $request->costing_id)->max('comb_id');
+        $comId = $maxCmb +1;
+
         foreach ($request->soList as $item) {
-            $modal = new CostingSOCombine;
-            $modal->costing_id = 1;
-            $modal->color = $item['color_id'];
-            $modal->details_id = $item['details_id'];
-            $modal->qty = $item['qty'];
-            $modal->comb_id = 1;
-            $modal->created_by = 58814;
-            $modal->save();
+            // Check SO already combined
+            $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]]);
+            if($chkCmb){
+                echo 'already combined.';
+                return;
+            }
+
+            if($item['item_select'] == 1) {
+                $modal = new CostingSOCombine;
+                $modal->costing_id = $request->costing_id;
+                $modal->color = $item['color_id'];
+                $modal->details_id = $item['details_id'];
+                $modal->qty = $item['qty'];
+                $modal->comb_id = $comId;
+                $modal->created_by = 58814;
+                $modal->updated_by = 58814;
+                $modal->save();
+            }
         }
     }
 
@@ -70,5 +93,13 @@ class CombineSOController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    //get filtered fields only
+    private function getCostingDataByStyle($styleId , $fields = null)
+    {
+        $fields = explode(',', $fields);
+        return BulkCosting::getCostingCombineData($styleId);
+
     }
 }
