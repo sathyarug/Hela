@@ -8,6 +8,7 @@ use App\Models\Merchandising\CostingSOCombine;
 use App\Models\Merchandising\BulkCosting;
 use App\Models\Merchandising\BulkCostingDetails;
 use DB;
+use Illuminate\Http\Response;
 
 class CombineSOController extends Controller
 {
@@ -39,12 +40,15 @@ class CombineSOController extends Controller
         $maxCmb = DB::table('merc_costing_so_combine')->where('costing_id', $request->costing_id)->max('comb_id');
         $comId = $maxCmb +1;
 
+        $errors = '';
+
         foreach ($request->soList as $item) {
             // Check SO already combined
             $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]]);
             if($chkCmb){
-                echo 'already combined.';
-                return;
+
+                $errors = 'already combined.';
+                break;
             }
 
             if($item['item_select'] == 1) {
@@ -59,6 +63,8 @@ class CombineSOController extends Controller
                 $modal->save();
             }
         }
+
+        return response(['errors' => ['validationErrors' => $errors]], 200);
     }
 
     /**

@@ -45,6 +45,18 @@ class CustomerOrderController extends Controller
           'data' => $this->get_search_fields()
         ]);
       }
+      else if($type == 'customer_orders_for_style'){
+          return response([
+              'data' => $this->getCustomerOrdersForStyle()
+          ]);
+      }
+      elseif($type == 'select') {
+          $active = $request->active;
+          $fields = $request->fields;
+          return response([
+              'data' => $this->list($active, $fields)
+          ]);
+      }
       else{
         return response([]);
       }
@@ -304,6 +316,35 @@ class CustomerOrderController extends Controller
         ]
       ];
 
+    }
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+        $query = null;
+        if($fields == null || $fields == '') {
+            $query = CustomerOrder::select('*');
+        }
+        else{
+            $fields = explode(',', $fields);
+            $query = CustomerOrder::select($fields);
+            if($active != null && $active != ''){
+                $payload = auth()->payload();
+                $query->where([['order_status', '=', $active]]);
+            }
+        }
+        return $query->get();
+    }
+
+    private function getCustomerOrdersForStyle(){
+        $cusOrder = CustomerOrder::join('merc_customer_order_details', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+            ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
+            ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
+            ->select('merc_customer_order_details.details_id','org_color.color_name','org_country.country_description','merc_customer_order_details.order_qty', 'org_color.color_id', 'merc_customer_order_header.order_code' )
+            ->where('merc_customer_order_header.order_style', '=', 1)
+            ->get()
+            ->toArray();
+        return $cusOrder;
     }
 
 
