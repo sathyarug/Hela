@@ -137,6 +137,10 @@ class BulkDetailsController extends Controller
 
 
             $model->save();
+
+            $ItemCode=\App\Models\Org\ItemCode::where('item_id',$model->main_item )->where('color_id',$model->color_id )->where('size_id',$model->color_id )->get();
+            print_r($ItemCode);exit;
+
             return response(['data' => [
                 'message' => 'Costing is saved successfully',
                 'bulkCostin' => $model,

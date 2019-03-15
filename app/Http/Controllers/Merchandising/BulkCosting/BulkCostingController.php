@@ -309,6 +309,7 @@ class BulkCostingController extends Controller {
         foreach ($productFeatureList AS $productFeature){
 
             $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id', $productFeature['product_feature_id'])->where('status',1)->get()->toArray();
+//print_r($featureList);exit;
 
             foreach ($featureList As $feature){
                 $surcharge=false;
