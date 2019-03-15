@@ -67,6 +67,19 @@ class BulkCosting extends BaseValidator {
                 ->get();
     }
 
+    public static function getCostingCombineData($styleId){
+        //return BulkCosting::select('costing_bulk_feature_details.bulkheader_id', 'style_creation.style_no',  'style_creation.style_id', 'merc_bom_stage.bom_stage_description', DB::raw("(GROUP_CONCAT(merc_costing_so_combine.details_id SEPARATOR ',')) as so"))
+        return BulkCosting::select('costing_bulk_feature_details.bulkheader_id', 'style_creation.style_no',  'style_creation.style_id', 'merc_bom_stage.bom_stage_description', 'merc_costing_so_combine.details_id')
+            ->join('costing_bulk_feature_details', 'costing_bulk_feature_details.bulkheader_id', '=', 'costing_bulk.bulk_costing_id')
+            ->join('style_creation', 'style_creation.style_id', '=', 'costing_bulk.style_id')
+            ->leftJoin('merc_costing_so_combine', 'merc_costing_so_combine.costing_id', '=', 'costing_bulk.bulk_costing_id')
+            ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing_bulk_feature_details.bom_stage')
+            ->where(([['costing_bulk.status', '=', 1],['costing_bulk.style_id', '=', $styleId]]))
+            ->groupBy('costing_bulk_feature_details.bulkheader_id', 'costing_bulk_feature_details.bulkheader_id', 'merc_costing_so_combine.details_id')
+            ->get()
+            ->toArray();
+
+    }
 
 
 }

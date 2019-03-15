@@ -13,7 +13,7 @@ class Customer extends BaseValidator {
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['customer_code', 'customer_name', 'customer_short_name', 'type_of_service', 'business_reg_no', 'business_reg_date', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal_code', 'customer_state', 'customer_county', 'customer_contact1', 'customer_contact2',
+    protected $fillable = ['customer_code', 'customer_name', 'customer_short_name', 'type_of_service', 'business_reg_no', 'business_reg_date', 'customer_address1', 'customer_address2', 'customer_city', 'customer_postal_code', 'customer_state', 'customer_country', 'customer_contact1', 'customer_contact2',
         'customer_contact3', 'customer_email', 'customer_map_location', 'customer_website', 'company_code', 'operation_start_date', 'order_destination', 'currency', 'boi_reg_no', 'boi_reg_date', 'vat_reg_no', 'svat_no', 'managing_director_name', 'managing_director_email', 'finance_director_name', 'finance_director_email',
         'finance_director_contact', 'additional_comments', 'ship_terms_agreed', 'payemnt_terms', 'payment_mode', 'bank_acc_no', 'bank_name', 'bank_branch', 'bank_code', 'bank_swift', 'bank_iban', 'bank_contact', 'intermediary_bank_name', 'intermediary_bank_address', 'intermediary_bank_contact', 'buyer_posting_group',
         'business_posting_group', 'approved_by', 'system_updated_by', 'customer_creation_form','customer_country', 'status'];
