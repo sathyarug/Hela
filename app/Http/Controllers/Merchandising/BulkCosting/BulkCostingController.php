@@ -248,7 +248,7 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
        
 
         $dataArr['style_remark'] = $styleData->remark;
