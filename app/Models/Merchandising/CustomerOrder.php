@@ -21,8 +21,8 @@ class CustomerOrder extends BaseValidator
         'order_style'=>'required',
         'order_customer'=>'required',
         'order_division' => 'required',
-        'order_type' => 'required',
-        'order_status' => 'required'
+        'order_type' => 'required'
+        //'order_status' => 'required'
     );
 
     public function __construct() {
