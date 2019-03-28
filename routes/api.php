@@ -126,7 +126,7 @@ Route::prefix('org/')->group(function(){
     Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
     Route::apiResource('silhouettes','Org\SilhouetteController');
 
-    Route::get('CustomerSizeGridControllerGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+    Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
     Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
     Route::get('features/validate' , 'Org\FeatureController@validate_data');
     Route::apiResource('features','Org\FeatureController');
@@ -215,8 +215,8 @@ Route::prefix('ie/')->group(function(){
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
-    Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
-    Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+    //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+    //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
 });
@@ -318,6 +318,10 @@ Route::prefix('stores/')->group(function(){
     Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
     Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
     Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+
+    //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+    //Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
+    Route::apiResource('material-trasnsfer','Stores\MaterialTransferController');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
@@ -559,4 +563,3 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
   //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
-

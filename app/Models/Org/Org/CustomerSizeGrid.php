@@ -27,9 +27,9 @@ class CustomerSizeGrid extends BaseValidator{
   public function __construct()
   {
       parent::__construct();
-      $this->attributes = array(
+      /*$this->attributes = array(
           'updated_by' => 2//Session::get("user_id")
-        );
+        );*/
   }
   public function customer(){
     return $this->belongsTo('App\Models\Org\Customer','customer_id');
