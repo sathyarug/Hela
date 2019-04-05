@@ -47,7 +47,7 @@ class CombineSOController extends Controller
             $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]]);
             if($chkCmb){
 
-                $errors = 'already combined.';
+                $errors = 'Already combined';
                 break;
             }
 
