@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Cluster;
 
-class ClusterController extends Controller
+class MRNController extends Controller
 {
     public function __construct()
     {
@@ -42,97 +42,37 @@ class ClusterController extends Controller
     //create a Cluster
     public function store(Request $request)
     {
-      $cluster = new Cluster();
-      if($cluster->validate($request->all()))
-      {
-        $cluster->fill($request->all());
-        $cluster->status = 1;
-        $cluster->save();
 
-        return response([ 'data' => [
-          'message' => 'Cluster was saved successfully',
-          'cluster' => $cluster
-          ]
-        ], Response::HTTP_CREATED );
-      }
-      else
-      {
-          $errors = $cluster->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
     }
 
 
     //get a Cluster
     public function show($id)
     {
-      $cluster = Cluster::find($id);
-      if($cluster == null)
-        throw new ModelNotFoundException("Requested cluster not found", 1);
-      else
-        return response([ 'data' => $cluster ]);
+
     }
 
 
     //update a Cluster
     public function update(Request $request, $id)
     {
-      $cluster = Cluster::find($id);
-      if($cluster->validate($request->all()))
-      {
-        $cluster->fill($request->except('group_code'));
-        $cluster->save();
 
-        return response([ 'data' => [
-          'message' => 'Cluster was updated successfully',
-          'cluster' => $cluster
-        ]]);
-      }
-      else
-      {
-        $errors = $cluster->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
     }
 
 
     //deactivate a Cluster
     public function destroy($id)
     {
-      $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Cluster was deactivated successfully.',
-          'cluster' => $cluster
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+
     }
 
 
     //validate anything based on requirements
     public function validate_data(Request $request){
-      $for = $request->for;
-      if($for == 'duplicate')
-      {
-        return response($this->validate_duplicate_code($request->group_id , $request->group_code));
-      }
+
     }
 
 
-    //check Cluster code already exists
-    private function validate_duplicate_code($id , $code)
-    {
-      $cluster = Cluster::where('group_code','=',$code)->first();
-      if($cluster == null){
-        return ['status' => 'success'];
-      }
-      else if($cluster->group_id == $id){
-        return ['status' => 'success'];
-      }
-      else {
-        return ['status' => 'error','message' => 'Cluster code already exists'];
-      }
-    }
 
 
     //get filtered fields only
@@ -140,11 +80,11 @@ class ClusterController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Cluster::select('*');
+        $query = Mrn::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = Cluster::select($fields);
+        $query = MRNHeader::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -152,13 +92,7 @@ class ClusterController extends Controller
       return $query->get();
     }
 
-    //search Cluster for autocomplete
-    private function autocomplete_search($search)
-  	{
-  		$cluster_lists = Cluster::select('group_id','group_name')
-  		->where([['group_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $cluster_lists;
-  	}
+
 
 
     //get searched Clusters for datatable plugin format

@@ -478,6 +478,8 @@ Route::prefix('store/')->group(function(){
 
     Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
     Route::apiResource('bin-config','Store\BinConfigController');
+
+    Route::apiResource('mrn','Store\MrnController');
 });
 
 
