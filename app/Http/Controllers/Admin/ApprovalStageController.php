@@ -6,15 +6,15 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 //use Spatie\Permission\Models\Role;
-use App\Models\Admin\Role;
-use App\Models\Admin\Permission;
+use App\Models\Admin\ApprovalStage;
+use App\Models\Admin\UsrProfile;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 
-class RoleController extends Controller {
+class ApprovalStageController extends Controller {
 
 
       public function __construct() {
@@ -35,7 +35,7 @@ class RoleController extends Controller {
           $data = $request->all();
           return response($this->datatable_search($data));
         }
-        else if($type == 'category_permissions')   {
+        else if($type == 'approval_users')   {
           $role = $request->role;
           $category = $request->category;
           return response([
@@ -60,22 +60,30 @@ class RoleController extends Controller {
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request) {
-      $role = new Role();
-      if($role->validate($request->all()))
+      $approval_stage = new ApprovalStage();
+      if($approval_stage->validate($request->formData))
       {
-        $role->fill($request->all());
-        $role->status = 1;
-        $role->save();
+        $approval_stage->fill($request->formData);
+        $approval_stage->save();
+
+        $users = $request->approvalUsers;
+        for($x = 0 ; $x < sizeof($users) ; $x++) {
+          DB::table('app_approval_stage_users')->insert([
+            'stage_id' =>$approval_stage->stage_id,
+            'user_id' => $users[$x]['user_id'],
+            'approval_order' => ($x + 1)
+          ]);
+        }
 
         return response([ 'data' => [
-          'message' => 'Permission role was saved successfully',
-          'role' => $role
+          'message' => 'Approval stage was saved successfully',
+          'approval_stage' => $approval_stage
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $role->errors();// failure, get errors
+          $errors = $approval_stage->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
@@ -88,13 +96,19 @@ class RoleController extends Controller {
      * @return \Illuminate\View\View
      */
     public function show($id) {
-        $role = Role::findOrFail($id);
-        $permissions = $role->permissions->pluck('name');
-
-        if($role == null)
+        $spproval_stage = ApprovalStage::findOrFail($id);
+        $users = [];
+        if($spproval_stage == null)
           throw new ModelNotFoundException("Requested permission not found", 1);
-        else
-          return response([ 'data' => $role , 'permissions'=> $permissions ]);
+        else{
+          $users = UsrProfile::select('usr_profile.user_id','usr_profile.first_name','usr_profile.last_name','usr_profile.email','app_approval_stage_users.approval_order')
+          ->join('app_approval_stage_users','app_approval_stage_users.user_id','=','usr_profile.user_id')
+          ->where('app_approval_stage_users.stage_id' , '=', $id )
+          ->orderBy('app_approval_stage_users.approval_order')
+          ->get();
+
+          return response([ 'approval_stage' => $spproval_stage , 'users'=> $users ]);
+        }
         //return view('admin.role.show', compact('role', 'permissions'));
     }
 
@@ -108,20 +122,31 @@ class RoleController extends Controller {
      */
     public function update(Request $request, $id) {
 
-      $role = Role::find($id);
-      if($role->validate($request->all()))
+      $approval_stage = ApprovalStage::find($id);
+      if($approval_stage->validate($request->formData))
       {
-        $role->fill($request->all());
-        $role->save();
+        $approval_stage->fill($request->formData);
+        $approval_stage->save();
+
+        DB::table('app_approval_stage_users')->where('stage_id', '=', $approval_stage->stage_id)->delete();
+
+        $users = $request->approvalUsers;
+        for($x = 0 ; $x < sizeof($users) ; $x++) {
+          DB::table('app_approval_stage_users')->insert([
+            'stage_id' =>$approval_stage->stage_id,
+            'user_id' => $users[$x]['user_id'],
+            'approval_order' => ($x + 1)
+          ]);
+        }
 
         return response([ 'data' => [
-          'message' => 'Role was updated successfully',
-          'role' => $role
+          'message' => 'Approval stage was updated successfully',
+          'approval_stage' => $approval_stage
         ]]);
       }
       else
       {
-        $errors = $role->errors();// failure, get errors
+        $errors = $approval_stage->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
@@ -134,53 +159,13 @@ class RoleController extends Controller {
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id) {
-      $role = Role::where('role_id', $id)->update(['status' => 0]);
+      $stage = ApprovalStage::where('stage_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Role was deactivated successfully.',
-          'role' => $role
+          'message' => 'Approval stage was deactivated successfully.',
+          'role' => $stage
         ]
       ] , Response::HTTP_NO_CONTENT);
-    }
-
-
-    private function category_permissions($role, $category){
-      if($role != 0){
-        return DB::select('select permission.*,(case when (permission_role_assign.role IS NULL) THEN  0 ELSE 1 END) as status from
-        permission left join permission_role_assign on permission.code = permission_role_assign.permission and permission_role_assign.role = ?
-        where permission.category = ?',
-        [$role , $category]);
-      }
-      else{
-        return Permission::where('category', '=' , $category)->get();
-      }
-    }
-
-
-    public function change_role_permission(Request $request) {
-      $role_id = $request->role_id;
-      $permission_code = $request->permission;
-      $status = $request->status;
-      $response_message = '';
-
-      if($status == false){
-        DB::table('permission_role_assign')
-        ->where('role', '=', $role_id)
-        ->where('permission', '=', $permission_code)
-        ->delete();
-        $response_message = 'Permission ('.$permission_code.') was removed';
-      }
-      else if($status == true){
-        DB::table('permission_role_assign')->insert([
-            ['role' => $role_id, 'permission' => $permission_code]
-        ]);        
-        $response_message = 'Permission ('.$permission_code.') was assigned';
-      }
-
-      return response([ 'data' => [
-       'message' => $response_message,
-       'status' => $status
-      ]]);
     }
 
 
@@ -223,19 +208,19 @@ class RoleController extends Controller {
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $role_list = Role::select('*')
-      ->where('role_name'  , 'like', $search.'%' )
+      $stage_list = ApprovalStage::select('*')
+      ->where('stage_name'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $role_count = Role::where('role_name'  , 'like', $search.'%' )
+      $stage_count = ApprovalStage::where('stage_name'  , 'like', $search.'%' )
       ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $role_count,
-          "recordsFiltered" => $role_count,
-          "data" => $role_list
+          "recordsTotal" => $stage_count,
+          "recordsFiltered" => $stage_count,
+          "data" => $stage_list
       ];
     }
 
@@ -244,23 +229,23 @@ class RoleController extends Controller {
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_role($request->role_id , $request->role_name));
+        return response($this->validate_duplicate_role($request->stage_id , $request->stage_name));
       }
     }
 
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_role($role_id , $role_name)
+    private function validate_duplicate_role($stage_id , $stage_name)
     {
-      $role = Role::where('role_name','=',$role_name)->first();
-      if($role == null){
+      $spproval_stage = ApprovalStage::where('stage_name','=',$stage_name)->first();
+      if($spproval_stage == null){
         return ['status' => 'success'];
       }
-      else if($role->role_id == $role_id){
+      else if($spproval_stage->stage_id == $stage_id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Role name already exists'];
+        return ['status' => 'error','message' => 'Stage name already exists'];
       }
     }
 

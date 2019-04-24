@@ -22,22 +22,25 @@ class MenuController extends Controller
     public function index(Request $request)
     {
         auth()->payload()->get('loc_id');
+        $user_id = auth()->user()->user_id;
       /*  $menus = DB::select('select * from app_menu where level = 1');
         $level = 2;
         foreach ($menus as $row) {
           $menus2 = "select * from app_menu where level = 1"
         }*/
         return response([
-          'data' => $this->get_menus()
+          'data' => $this->get_menus(null, $user_id)
         ]);
     }
 
-    function get_menus($menu = null) {
+    function get_menus($menu = null, $user_id) {
       if($menu == null){
         $menus = DB::select('select * from app_menu where level = ?' , [1]);
       }
       else{
-        $menus = DB::select('select * from app_menu where parent_menu = ?' , [$menu->code]);
+        $menus = DB::select('select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND usr_login_permission.permission_code=app_menu.permission)) >= 1' , [$menu->code, $user_id]);
         $menu->sub_menus = $menus;
       }
 
@@ -47,7 +50,7 @@ class MenuController extends Controller
       } else {
         // continue the recursion
         foreach($menus as $row){
-          $this->get_menus($row);
+          $this->get_menus($row, $user_id);
         }
     }
     return $menus;

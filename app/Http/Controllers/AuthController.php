@@ -32,12 +32,20 @@ class AuthController extends Controller
 
         $customData = $this->get_user_from_username($credentials['user_name']);
 
-        if (! $token = auth()->claims($customData)->setTTL(720)->attempt($credentials)) {
+        if (!$token = auth()->claims($customData)->setTTL(720)->attempt($credentials)) {
             //return response()->json(['error' => 'Unauthorized'], 401);
               return response()->json(['error' => 'Unauthorized' , 'message' => 'Incorrect username or password'], 401);
         }
-        $this->store_load_permissions($customData['user_id'], $customData['loc_id']);
-        return $this->respondWithToken($token);
+        else{
+          if($customData['loc_id'] != 0){
+            $this->store_load_permissions($customData['user_id'], $customData['loc_id']);
+            return $this->respondWithToken($token, $customData['loc_id']);
+          }
+          else{
+            return response()->json(['error' => 'Unauthorized' , 'message' => 'No location assigned for user'], 401);
+          }
+        }
+
     }
 
     /**
@@ -75,7 +83,8 @@ class AuthController extends Controller
      $user->loc_id = $loc_id;
      $user = $user->toArray();
      // $customData = $this->get_user_from_username($credentials['user_name']);
-       return $this->respondWithTokenRefresh(auth()->claims($user)->setTTL(720)->refresh(), $loc_id);
+     $this->store_load_permissions($user['user_id'], $loc_id);
+     return $this->respondWithTokenRefresh(auth()->claims($user)->setTTL(720)->refresh(), $loc_id);
    }
 
    /**
@@ -85,21 +94,25 @@ class AuthController extends Controller
     *
     * @return \Illuminate\Http\JsonResponse
     */
-   protected function respondWithToken($token)
+   protected function respondWithToken($token, $location)
    {
        $user_id = auth()->user()->user_id;
        $user = UsrProfile::find($user_id);
        $user_data = [
          'user_id' => $user->user_id,
-         'location' => $user->loc_id,
+         'location' => $location,
          'first_name' => $user->first_name,
          'last_name' => $user->last_name
        ];
+
+       $permissions = DB::table('usr_login_permission')->where('user_id' , '=', $user_id)->pluck('permission_code');
+
        return response()->json([
            'access_token' => $token,
            'token_type' => 'bearer',
            'expires_in' => auth()->factory()->getTTL(),
-           'user' => $user_data//auth()->user()
+           'user' => $user_data,//auth()->user()
+           'permissions' => $permissions
        ]);
    }
 
@@ -114,21 +127,33 @@ class AuthController extends Controller
          'first_name' => $user->first_name,
          'last_name' => $user->last_name
        ];
+
+       $permissions = DB::table('usr_login_permission')->where('user_id' , '=', $user_id)->pluck('permission_code');
+
        return response()->json([
            'access_token' => $token,
            'token_type' => 'bearer',
            'expires_in' => auth()->factory()->getTTL(),
-           'user' => $user_data//auth()->user()
+           'user' => $user_data,//auth()->user()
+           'permissions' => $permissions
        ]);
    }
 
 
    private function get_user_from_username($username){
-     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.loc_id','usr_profile.dept_id')
+     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.dept_id')
      ->join('usr_login','usr_login.user_id','=','usr_profile.user_id')
      ->where('usr_login.user_name','=',$username)
      ->first();
      $customData = ($customData == null) ? [] : $customData->toArray();
+
+     $default_location = DB::table('user_locations')->where('user_id' , '=', $customData['user_id'])->first();
+     if($default_location != null){
+      $customData['loc_id'] = $default_location->loc_id;
+     }
+     else{
+         $customData['loc_id'] = 0;
+     }
      return $customData;
    }
 
