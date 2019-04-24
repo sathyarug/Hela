@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Section;
+use App\Libraries\AppAuthorize;
 
 class SectionController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Section list
@@ -23,7 +27,7 @@ class SectionController extends Controller
       $type = $request->type;
       if($type == 'datatable')   {
         $data = $request->all();
-        return response($this->datatable_search($data));
+        $this->datatable_search($data);
       }
       else if($type == 'auto')    {
         $search = $request->search;
@@ -42,23 +46,29 @@ class SectionController extends Controller
     //create a Section
     public function store(Request $request)
     {
-      $section = new Section();
-      if($section->validate($request->all()))
+      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
       {
-        $section->fill($request->all());
-        $section->status = 1;
-        $section->save();
+          $section = new Section();
+          if($section->validate($request->all()))
+          {
+            $section->fill($request->all());
+            $section->status = 1;
+            $section->save();
 
-        return response([ 'data' => [
-          'message' => 'Section was saved successfully',
-          'section' => $section
-          ]
-        ], Response::HTTP_CREATED );
+            return response([ 'data' => [
+              'message' => 'Section was saved successfully',
+              'section' => $section
+              ]
+            ], Response::HTTP_CREATED );
+          }
+          else
+          {
+              $errors = $section->errors();// failure, get errors
+              return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          }
       }
-      else
-      {
-          $errors = $section->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else {
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -66,32 +76,44 @@ class SectionController extends Controller
     //get a Section
     public function show($id)
     {
-      $section = Section::find($id);
-      if($section == null)
-        throw new ModelNotFoundException("Requested section not found", 1);
-      else
-        return response([ 'data' => $section ]);
+      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
+      {
+        $section = Section::find($id);
+        if($section == null)
+          throw new ModelNotFoundException("Requested section not found", 1);
+        else
+          return response([ 'data' => $section ]);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Section
     public function update(Request $request, $id)
     {
-      $section = Section::find($id);
-      if($section->validate($request->all()))
+      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
       {
-        $section->fill($request->except('section_code'));
-        $section->save();
+        $section = Section::find($id);
+        if($section->validate($request->all()))
+        {
+          $section->fill($request->except('section_code'));
+          $section->save();
 
-        return response([ 'data' => [
-          'message' => 'Section was updated successfully',
-          'section' => $section
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Section was updated successfully',
+            'section' => $section
+          ]]);
+        }
+        else
+        {
+          $errors = $section->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $section->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else {
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -99,13 +121,19 @@ class SectionController extends Controller
     //deactivate a Section
     public function destroy($id)
     {
-      $section = Section::where('section_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Section was deactivated successfully.',
-          'section' => $section
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
+      {
+        $section = Section::where('section_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Section was deactivated successfully.',
+            'section' => $section
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,30 +193,36 @@ class SectionController extends Controller
     //get searched Sections for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $section_list = Section::select('*')
-      ->where('section_code'  , 'like', $search.'%' )
-      ->orWhere('section_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $section_list = Section::select('*')
+        ->where('section_code'  , 'like', $search.'%' )
+        ->orWhere('section_name'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $section_count = Section::where('section_code'  , 'like', $search.'%' )
-      ->orWhere('section_name'  , 'like', $search.'%' )
-      ->count();
+        $section_count = Section::where('section_code'  , 'like', $search.'%' )
+        ->orWhere('section_name'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $section_count,
-          "recordsFiltered" => $section_count,
-          "data" => $section_list
-      ];
-    }
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $section_count,
+            "recordsFiltered" => $section_count,
+            "data" => $section_list
+        ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
+  }
 
 }
