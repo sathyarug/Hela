@@ -166,6 +166,7 @@ class SectionController extends Controller
     //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
+        $fields = "section_name,section_id";
       $query = null;
       if($fields == null || $fields == '') {
         $query = Section::select('*');

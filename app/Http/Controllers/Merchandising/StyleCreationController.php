@@ -27,10 +27,18 @@ class StyleCreationController extends Controller
     public function index(Request $request)
     {
         $type = $request->type;
-        if($type == 'datatable')   {
+
+        if($type == 'datatable') {
             $data = $request->all();
             return response($this->datatable_search($data));
+        }elseif($type == 'select')   {
+            $active = $request->active;
+            $fields = $request->fields;
+            return response([
+                'data' => $this->list($active , $fields)
+            ]);
         }else{
+
             try{
                 echo json_encode(styleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
             }
@@ -172,7 +180,7 @@ class StyleCreationController extends Controller
         $productType = productType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
                   ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
-                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code')
+                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code','cust_division.division_description')
                   ->where('org_customer_divisions.id','=',$style['division_id'])
                   ->get();
         // $avatarHidden = null;
@@ -199,6 +207,24 @@ class StyleCreationController extends Controller
             throw new ModelNotFoundException("Requested section not found", 1);
         else
             return response([ 'data' => $style ]);
+    }
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+        $query = null;
+        if($fields == null || $fields == '') {
+            $query = styleCreation::select('*');
+        }
+        else{
+            $fields = explode(',', $fields);
+            $query = styleCreation::select($fields);
+            if($active != null && $active != ''){
+                $payload = auth()->payload();
+                $query->where([['status', '=', $active]]);
+            }
+        }
+        return $query->get();
     }
 
     //deactivate a style

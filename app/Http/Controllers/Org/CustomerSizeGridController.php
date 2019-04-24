@@ -100,6 +100,7 @@ class CustomerSizeGridController extends Controller
       //get customer size grid
       public function show($id)
       {
+
           $customerSizeGrid = CustomerSizeGrid::find($id);
           if($customerSizeGrid == null)
             throw new ModelNotFoundException("Requested Customer Size not found", 1);
@@ -134,6 +135,8 @@ class CustomerSizeGridController extends Controller
       //customer name refeerd as customer id others also like that
       private function validate_duplicate_code($id, $customer_name, $product_silhouette_description, $size_name)
     {
+
+      
       $customerSizeGrid =CustomerSizeGrid :: where([['customer_id','=',$customer_name],['product_silhouette_id','=',$product_silhouette_description],['size_id','=',$size_name]])->first();
 
 

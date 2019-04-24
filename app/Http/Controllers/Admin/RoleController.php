@@ -173,7 +173,7 @@ class RoleController extends Controller {
       else if($status == true){
         DB::table('permission_role_assign')->insert([
             ['role' => $role_id, 'permission' => $permission_code]
-        ]);        
+        ]);
         $response_message = 'Permission ('.$permission_code.') was assigned';
       }
 
