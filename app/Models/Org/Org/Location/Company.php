@@ -28,7 +28,7 @@ class Company extends BaseValidator
         'company_email' => 'required',
         'default_currency' => 'required',
         'finance_month' => 'required',
-        'vat_reg_no'  => 'required',
+        /*'vat_reg_no'  => 'required',*/
         'tax_code'  => 'required'
     	);
 

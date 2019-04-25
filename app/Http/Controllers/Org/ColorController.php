@@ -28,7 +28,7 @@ class ColorController extends Controller
           $type = $request->type;
           if($type == 'datatable') {
               $data = $request->all();
-              return response($this->datatable_search($data));
+              $this->datatable_search($data);
           }
           else if($type == 'auto')    {
             $search = $request->search;
@@ -201,7 +201,9 @@ class ColorController extends Controller
     //get searched Colors for datatable plugin format
     private function datatable_search($data)
     {
-      if($this->authorize->hasPermission('COLOR_VIEW')){//check permission
+
+      if($this->authorize->hasPermission('COLOR_VIEW') == true){//check permission
+
           $start = $data['start'];
           $length = $data['length'];
           $draw = $data['draw'];
@@ -220,12 +222,12 @@ class ColorController extends Controller
           ->orWhere('color_name'  , 'like', $search.'%' )
           ->count();
 
-          return [
+          echo json_encode([
               "draw" => $draw,
               "recordsTotal" => $color_count,
               "recordsFiltered" => $color_count,
               "data" => $color_list
-          ];
+          ]);
       }
       else{
         return response($this->authorize->error_response(), 401);

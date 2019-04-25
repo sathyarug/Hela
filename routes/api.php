@@ -460,6 +460,12 @@ Route::prefix('admin/')->group(function(){
     Route::apiResource('permission-categories','Admin\PermissionCategoryController');
     Route::apiResource('permissions','Admin\PermissionController');
 
+  Route::get('approval-stages/validate' , 'Admin\ApprovalStageController@validate_data');
+  Route::apiResource('approval-stages','Admin\ApprovalStageController');
+
+  Route::apiResource('process-approvals','Admin\ProcessApprovalController');
+
+
 });
 
 Route::prefix('store/')->group(function(){

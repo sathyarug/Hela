@@ -21,8 +21,8 @@ class CustomerOrder extends BaseValidator
         'order_style'=>'required',
         'order_customer'=>'required',
         'order_division' => 'required',
-        'order_type' => 'required'
-        //'order_status' => 'required'
+        'order_type' => 'required',
+        /*'order_status' => 'required'*/
     );
 
     public function __construct() {
@@ -58,7 +58,7 @@ class CustomerOrder extends BaseValidator
 			 return $this->belongsTo('App\Models\Org\Customer' , 'order_customer')
           ->select(['customer_id','customer_code','customer_name'])->with(['divisions']);
         }
-        
+
 
     public function getCustomerOrders($costingId){
 

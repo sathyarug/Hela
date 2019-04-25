@@ -8,14 +8,18 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Department;
+use App\Libraries\AppAuthorize;
 use Exception;
 
 class DepartmentController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Department list
@@ -24,7 +28,7 @@ class DepartmentController extends Controller
       $type = $request->type;
       if($type == 'datatable')   {
         $data = $request->all();
-        return response($this->datatable_search($data));
+        $this->datatable_search($data);
       }
       else if($type == 'auto')    {
         $search = $request->search;
@@ -43,23 +47,29 @@ class DepartmentController extends Controller
     //create a Department
     public function store(Request $request)
     {
-      $department = new Department();
-      if($department->validate($request->all()))
+      if($this->authorize->hasPermission('DEPARTMENT_MANAGE'))//check permission
       {
-        $department->fill($request->all());
-        $department->status = 1;
-        $department->save();
+        $department = new Department();
+        if($department->validate($request->all()))
+        {
+          $department->fill($request->all());
+          $department->status = 1;
+          $department->save();
 
-        return response([ 'data' => [
-          'message' => 'Department was saved successfully',
-          'department' => $department
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Department was saved successfully',
+            'department' => $department
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $department->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $department->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else {
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,34 +77,46 @@ class DepartmentController extends Controller
     //get a Department
     public function show($id)
     {
-    // $error = 'Always throw this error';
-    //  throw new Exception($error);
-      $department = Department::find($id);
-      if($department == null)
-        throw new ModelNotFoundException("Requested department not found", 1);
-      else
-        return response([ 'data' => $department ]);
+      // $error = 'Always throw this error';
+      //  throw new Exception($error);
+      if($this->authorize->hasPermission('DEPARTMENT_MANAGE'))//check permission
+      {
+        $department = Department::find($id);
+        if($department == null)
+          throw new ModelNotFoundException("Requested department not found", 1);
+        else
+          return response([ 'data' => $department ]);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Department
     public function update(Request $request, $id)
     {
-      $department = Department::find($id);
-      if($department->validate($request->all()))
+      if($this->authorize->hasPermission('DEPARTMENT_MANAGE'))//check permission
       {
-        $department->fill($request->except('dep_code'));
-        $department->save();
+        $department = Department::find($id);
+        if($department->validate($request->all()))
+        {
+          $department->fill($request->except('dep_code'));
+          $department->save();
 
-        return response([ 'data' => [
-          'message' => 'Department was updated successfully',
-          'department' => $department
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Department was updated successfully',
+            'department' => $department
+          ]]);
+        }
+        else
+        {
+          $errors = $department->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $department->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else {
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -102,13 +124,19 @@ class DepartmentController extends Controller
     //deactivate a Department
     public function destroy($id)
     {
-      $department = Department::where('dep_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Department was deactivated successfully.',
-          'department' => $department
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('DEPARTMENT_DELETE'))//check permission
+      {
+        $department = Department::where('dep_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Department was deactivated successfully.',
+            'department' => $department
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -167,30 +195,36 @@ class DepartmentController extends Controller
     //get searched Departments for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('DEPARTMENT_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $dep_list = Department::select('*')
-      ->where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $dep_list = Department::select('*')
+        ->where('dep_code'  , 'like', $search.'%' )
+        ->orWhere('dep_name','like',$search.'%')
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $dep_count = Department::where('dep_code'  , 'like', $search.'%' )
-      ->orWhere('dep_name','like',$search.'%')
-      ->count();
+        $dep_count = Department::where('dep_code'  , 'like', $search.'%' )
+        ->orWhere('dep_name','like',$search.'%')
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $dep_count,
-          "recordsFiltered" => $dep_count,
-          "data" => $dep_list
-      ];
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $dep_count,
+            "recordsFiltered" => $dep_count,
+            "data" => $dep_list
+        ]);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
