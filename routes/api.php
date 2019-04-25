@@ -126,7 +126,7 @@ Route::prefix('org/')->group(function(){
     Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
     Route::apiResource('silhouettes','Org\SilhouetteController');
 
-    Route::get('CustomerSizeGridControllerGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
+    Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
     Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
     Route::get('features/validate' , 'Org\FeatureController@validate_data');
     Route::apiResource('features','Org\FeatureController');
@@ -179,7 +179,7 @@ Route::prefix('org/')->group(function(){
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
 
-    Route::apiResource('ship-modes','Org\ShipModeController');
+  Route::apiResource('ship-modes','Org\ShipModeController');
 
 });
 
@@ -215,8 +215,8 @@ Route::prefix('ie/')->group(function(){
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
-    Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
-    Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+    //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+    //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
 });
@@ -318,6 +318,12 @@ Route::prefix('stores/')->group(function(){
     Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
     Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
     Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+
+    //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+    //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
+    Route::apiResource('material-transfer','Stores\MaterialTransferController');
+    Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
+    //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
@@ -454,6 +460,12 @@ Route::prefix('admin/')->group(function(){
     Route::apiResource('permission-categories','Admin\PermissionCategoryController');
     Route::apiResource('permissions','Admin\PermissionController');
 
+  Route::get('approval-stages/validate' , 'Admin\ApprovalStageController@validate_data');
+  Route::apiResource('approval-stages','Admin\ApprovalStageController');
+
+  Route::apiResource('process-approvals','Admin\ProcessApprovalController');
+
+
 });
 
 Route::prefix('store/')->group(function(){
@@ -559,4 +571,3 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
   //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
-

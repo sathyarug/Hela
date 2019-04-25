@@ -38,6 +38,10 @@ class UserController extends Controller {
       $search = $request->search;
       return response($this->autocomplete_search($search));
     }
+    else if($type == 'auto_has_login')    {
+      $search = $request->search;
+      return response($this->autocomplete_search_has_login($search));
+    }
     else {
       $active = $request->active;
       $fields = $request->fields;
@@ -280,6 +284,16 @@ class UserController extends Controller {
     ]);
   }
 
+
+  //search Color for autocomplete
+  private function autocomplete_search_has_login($search)
+  {
+    $user_lists = UsrProfile::select('usr_profile.user_id','usr_profile.first_name','usr_profile.last_name','usr_profile.email',
+    DB::raw('CONCAT(usr_profile.first_name,usr_profile.last_name) AS full_name') )
+    ->join('usr_login', 'usr_login.user_id', '=', 'usr_profile.user_id')
+    ->where([['usr_profile.first_name', 'like', '%' . $search . '%'],]) ->get();
+    return $user_lists;
+  }
 
 
   //get searched Colors for datatable plugin format
