@@ -74,6 +74,18 @@ class CompanyController extends Controller
   			}
   			$company->sections()->saveMany($save_sections);
 
+        $processes = DB::table('app_process')->get();
+        $insert_procees_list = [];
+        foreach($processes as $process){
+          array_push($insert_procees_list, [
+            'unque_id' => $process->initial_id,
+            'process_type' => $process->process_name,
+            'company' => $insertedId
+          ]);
+        }
+        echo json_encode($insert_procees_list);
+        DB::table('unique_id_generator')->insert($insert_procees_list);
+
         return response([ 'data' => [
           'message' => 'Company was saved successfully',
           'company' => $company

@@ -9,7 +9,7 @@ use App\BaseValidator;
 
 
 
-class Stock extends Model
+class Stock extends BaseValidator
 {
     protected $table='store_stock';
     protected $primaryKey='id';
@@ -17,7 +17,7 @@ class Stock extends Model
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['item_code','location', 'customer_po_id','store', 'sub_store', 'uom', 'weighted_average_price', 'inv_qty', 'tolerance_qty', 'total_qty'
+    protected $fillable=['item_code','location', 'customer_po_id','store', 'sub_store', 'uom', 'weighted_average_price', 'inv_qty', 'tolerance_qty', 'total_qty','material_code'
     ];
 
     protected $rules=array(
