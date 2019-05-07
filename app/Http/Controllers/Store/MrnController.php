@@ -94,6 +94,6 @@ class MrnController extends Controller
     }
 
     public function loadMrn($mrnId, $locId){
-       // $mrn = MRNHeader::
+       
     }
 }
