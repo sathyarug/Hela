@@ -2,40 +2,20 @@
 
 namespace App\Http\Controllers\Store;
 
-use App\Models\Store\MRNHeader;
+use App\Models\Store\IssueDetails;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Models\Org\Location\Cluster;
-use App\Models\mrn\MRN;
-
-class MrnController extends Controller
+class ReturnToStoresController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $type = $request['type'];
-        if($type == 'datatable') {
-            $draw = $request['draw'];
-            $po = $request['text'];
-            return $this->dataTable($draw, $po);
-        }elseif($type == 'load-mrn'){
-            $mrnId = $request['mrn'];
-            $locId = $request['loc'];
-            return $this->loadMrn($mrnId, $locId);
-
-        }elseif ($type == 'mrn-select'){
-            $soId = $request['so'];
-            $active = $request->active;
-            $fields = $request->fields;
-
-            return $this->loadMrnList($soId, $fields);
-        }
-
+        //
     }
 
     /**
@@ -47,6 +27,19 @@ class MrnController extends Controller
     public function store(Request $request)
     {
         //
+
+        foreach ($request->return_data as $returnData){
+            if($returnData['item_select'] == true){
+                //Article::with('category')->whereIn('id', $ids)->get();
+                //dd($returnData);
+
+                //$mod = IssueDetails::with('issue')->whereIn('id', $returnData['issue_line_id'])->get();
+                $mod = IssueDetails::find($returnData['issue_line_id']);
+                dd($mod);
+            }
+        }
+
+
     }
 
     /**
@@ -81,19 +74,5 @@ class MrnController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function loadMrnList($soId, $fields){
-
-        $mrnList = MRNHeader::getMRNList($soId);
-
-        return response([
-            'data' => $mrnList
-        ]);
-
-    }
-
-    public function loadMrn($mrnId, $locId){
-       // $mrn = MRNHeader::
     }
 }

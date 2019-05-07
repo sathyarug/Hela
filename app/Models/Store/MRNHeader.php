@@ -42,4 +42,13 @@ class MRNHeader extends Model
 
         return $mrnData;
     }
+
+    public static function getMrnData($mrn){
+        $mrnData = MRNHeader::where('store_mrn_header.mrn_id', '=', $mrn)
+            ->select('store_mrn_header.mrn_id', 'store_mrn_header.mrn_no')
+            ->join("store_mrn_detail AS d", "d.mrn_id", "=", "store_mrn_header.mrn_id")
+            ->get();
+
+        return $mrnData;
+    }
 }

@@ -490,6 +490,8 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('bin-config','Store\BinConfigController');
 
     Route::apiResource('mrn','Store\MrnController');
+    Route::apiResource('issue','Store\IssueController');
+    Route::apiResource('return-to-stores','Store\ReturnToStoresController');
 });
 
 
