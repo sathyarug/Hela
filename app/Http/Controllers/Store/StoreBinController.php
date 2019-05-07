@@ -51,7 +51,7 @@ class StoreBinController extends Controller {
      */
     public function store(Request $request) {
         $storeBin = new StoreBin();
-        if ($storeBin->validate($request->all())) {
+      //  if ($storeBin->validate($request->all())) {
             $storeBin->fill($request->all());
             $storeBin->status = 1;
             $storeBin->save();
@@ -61,10 +61,10 @@ class StoreBinController extends Controller {
                     'storeBin' => $storeBin
                 ]
                     ], Response::HTTP_CREATED);
-        } else {
+      /*} else {
             $errors = $store->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        }*/
     }
 
     /**
@@ -194,20 +194,26 @@ class StoreBinController extends Controller {
     public function validate_data(Request $request) {
         $for = $request->for;
         if ($for == 'duplicate') {
-            return response($this->validate_duplicate_bin($request->id, $request->store_bin_name));
+            return response($this->validate_duplicate_bin($request->id, $request->store_name,$request->substore_name,$request->store_bin_name));
         }
     }
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_bin($id, $name) {
-        $bin = StoreBin::where('store_bin_name', '=', $name)->first();
-        if ($bin == null) {
-            return ['status' => 'success'];
-        } else if ($bin->store_bin_id == $id) {
-            return ['status' => 'success'];
-        } else {
-            return ['status' => 'error', 'message' => 'Bin already exists'];
+    private function validate_duplicate_bin($id, $store_name,$substore_name,$store_bin_name) {
+
+
+        $bin = StoreBin::where([['store_id', '=', $store_name],['substore_id','=',$substore_name],['store_bin_name','=',$store_bin_name]])->first();
+        if( $bin == null){
+          echo json_encode(array('status' => 'success'));
         }
+        else if($bin->store_bin_id == $id){
+          echo json_encode(array('status' => 'success'));
+        }
+        else {
+          echo json_encode(array('status' => 'error','message' => 'Record already exists'));
+        }
+
+
     }
 
     public function getBinListByLoc(Request $request){

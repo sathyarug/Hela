@@ -7,8 +7,13 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\Merchandising\BulkCosting;
+use App\Models\Merchandising\BulkCostingApproval;
 use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
+use App\Models\Merchandising\CostingBulkRevision;
+use App\Models\Merchandising\HisBulkCosting;
+use App\Models\Merchandising\HisBulkCostingDetails;
+use App\Models\Merchandising\HisBulkCostingFeatureDetails;
 use App\Models\Merchandising\StyleProductFeature;
 
 class BulkCostingController extends Controller {
@@ -32,13 +37,15 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
-        }elseif($type == 'getCostListing'){
-            return response($this->getCostSheetListing($request->style_id));  
-        }elseif($type == 'getCostingHeader'){
-            return response($this->getCostingHeaderDetails($request->costing_id));    
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
+        }elseif ($type == 'SentToApproval') {
+            $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
+            return response($this->SentToApproval($request->style_id,$data));
+        }elseif ($type == 'revision') {
+            $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
+            return response($this->revision($request->style_id,$data));
         }elseif ($type == 'item'){
             $search = $request->search;
             return response($this->getItemList($search));
@@ -49,6 +56,8 @@ class BulkCostingController extends Controller {
             $division_id = $request->division_id;
             $query = $request->query;
             return response($this->getColorForDivision($division_id,$query));
+        }elseif ($type == 'apv'){
+            $this->Approval($request);
         }
     }
 
@@ -82,7 +91,6 @@ class BulkCostingController extends Controller {
         }
 
         if ($model->validate($request->all())) {
-
             $model->style_id=$request->Style['style_id'];
 
             $date=date_create($request->pcd);
@@ -90,6 +98,11 @@ class BulkCostingController extends Controller {
             $model->pcd=date_format($date,"Y-m-d");
             $model->fob=$request->fob;
             $model->plan_efficiency=$request->plan_efficiency;
+            $model->finance_charges=$request->finance_charges;
+            $model->cost_per_std_min=$request->cost_per_std_min;
+            $model->epm=$request->epm;
+            $model->np_margin=$request->np_margin;
+            $model->cost_per_min=$request->cost_per_min;
             $model->finance_charges=$request->finance_charges;
 
             $model->status = 1;
@@ -252,7 +265,7 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
        
 
         $dataArr['style_remark'] = $styleData->remark;
@@ -273,12 +286,15 @@ class BulkCostingController extends Controller {
         $dataArr['country'] = $country->country_description;
 //        $dataArr['stage'] = '';
 
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->first();
-//        print_r($sumStyleSmvComp->created_date);exit;
+        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+//        dd($sumStyleSmvComp->created_date);exit;
 
         if(count($hader)>0){
             $hader[0]['pcd']=date_format(date_create($hader[0]['pcd']),"m/d/Y");
             $dataArr['blk_hader'] = $hader[0];
+            $dataArr['blk_hader']['smv_received']=date_format(date_create($sumStyleSmvComp->created_date),"m/d/Y");
+            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+
 
         }else{
             $financeCost=\App\Models\finance\Cost\FinanceCost::first();
@@ -296,10 +312,13 @@ class BulkCostingController extends Controller {
             $dataArr['blk_hader']['pcd']='';
             $dataArr['blk_hader']['finance_charges']=$financeCost->finance_cost;
             $dataArr['blk_hader']['cost_per_min']=$financeCost->cpum;
+            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+            $dataArr['blk_hader']['costing_status']=0;
+
         }
 
 
-
+//dd($dataArr);
         return $dataArr;
     }
 
@@ -313,7 +332,7 @@ class BulkCostingController extends Controller {
         foreach ($productFeatureList AS $productFeature){
 
             $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id', $productFeature['product_feature_id'])->where('status',1)->get()->toArray();
-//print_r($featureList);exit;
+
 
             foreach ($featureList As $feature){
                 $surcharge=false;
@@ -377,6 +396,110 @@ $count++;
         return json_encode($productFeatureArray);
     }
 
+    private function SentToApproval($style_id,$data) {
+        $blk = \App\Models\Merchandising\BulkCosting::find($data['blkNo']);
+        $blk->costing_status='SentToApproval';
+        $blk->save();
+        $bulk_costing_id =$blk->bulk_costing_id;
+
+        $keyVal = $bulk_costing_id;
+        $keyCode=md5($keyVal);
+        $BulkCostingApproval = new BulkCostingApproval;
+        $BulkCostingApproval->costing_id = $blk->bulk_costing_id;
+        $BulkCostingApproval->approval_key = $keyCode;
+        $BulkCostingApproval->save();
+
+        return($this->getFinishGood($style_id,$data));
+    }
+
+    private function revision($style_id,$data) {
+        $max=CostingBulkRevision::where('costing_id',$data['blkNo'])->max('revision');
+        $newMax=$max+1;
+
+        $CostingBulkRevision = new CostingBulkRevision();
+        $CostingBulkRevision->costing_id=$data['blkNo'];
+        $CostingBulkRevision->revision=$newMax;
+        $CostingBulkRevision->save();
+        $blk = \App\Models\Merchandising\BulkCosting::find($data['blkNo']);
+
+        $HisBulkCosting = new HisBulkCosting();
+        $HisBulkCosting->revistion_id=$newMax;
+        $HisBulkCosting->bulk_costing_id=$blk->bulk_costing_id;
+        $HisBulkCosting->style_id=$blk->style_id;
+        $HisBulkCosting->pcd=$blk->pcd;
+        $HisBulkCosting->plan_efficiency=$blk->plan_efficiency;
+        $HisBulkCosting->fob=$blk->fob;
+        $HisBulkCosting->finance_charges=$blk->finance_charges;
+        $HisBulkCosting->cost_per_min=$blk->cost_per_min;
+        $HisBulkCosting->cost_per_std_min=$blk->cost_per_std_min;
+        $HisBulkCosting->epm=$blk->epm;
+        $HisBulkCosting->np_margin=$blk->np_margin;
+        $HisBulkCosting->save();
+
+        $BulkCostingFeatureDetails= \App\Models\Merchandising\BulkCostingFeatureDetails::where('bulkheader_id', $data['blkNo'])->get();
+//        dd($BulkCostingFeatureDetails);exit;
+        foreach($BulkCostingFeatureDetails as $BulkCostingFeatureData){
+            $HisBulkCostingFeatureDetails = new HisBulkCostingFeatureDetails();
+
+            $HisBulkCostingFeatureDetails->revistion_id=$newMax;
+            $HisBulkCostingFeatureDetails->blk_feature_id=$BulkCostingFeatureData->blk_feature_id;
+            $HisBulkCostingFeatureDetails->style_feature_id = $BulkCostingFeatureData->style_feature_id;
+            $HisBulkCostingFeatureDetails->feature_id = $BulkCostingFeatureData->feature_id;
+            $HisBulkCostingFeatureDetails->component_id = $BulkCostingFeatureData->component_id;
+            $HisBulkCostingFeatureDetails->bulkheader_id = $BulkCostingFeatureData->bulkheader_id;
+            $HisBulkCostingFeatureDetails->surcharge = $BulkCostingFeatureData->surcharge;
+            $HisBulkCostingFeatureDetails->color_ID = $BulkCostingFeatureData->color_ID;
+            $HisBulkCostingFeatureDetails->season_id = $BulkCostingFeatureData->season_id;
+            $HisBulkCostingFeatureDetails->col_opt_id = $BulkCostingFeatureData->col_opt_id;
+            $HisBulkCostingFeatureDetails->bom_stage = $BulkCostingFeatureData->bom_stage;
+            $HisBulkCostingFeatureDetails->mcq = $BulkCostingFeatureData->mcq;
+            $HisBulkCostingFeatureDetails->combo_code = $BulkCostingFeatureData->combo_code;
+            $HisBulkCostingFeatureDetails->save();
+
+            $itemList = BulkCostingDetails::where('bulkheader_id', $BulkCostingFeatureData->blk_feature_id)->get();
+
+            foreach($itemList as $item){
+                $HisBulkCostingDetails = new HisBulkCostingDetails();
+
+                $HisBulkCostingDetails->revistion_id=$newMax;
+                $HisBulkCostingDetails->item_id=$item->item_id;
+                $HisBulkCostingDetails->bulkheader_id = $item->bulkheader_id;
+                $HisBulkCostingDetails->article_no = $item->article_no;
+                $HisBulkCostingDetails->color_id = $item->color_id;
+                $HisBulkCostingDetails->color_type_id = $item->color_type_id;
+                $HisBulkCostingDetails->code = $item->code;
+                $HisBulkCostingDetails->main_item = $item->main_item;
+                $HisBulkCostingDetails->supplier_id = $item->supplier_id;
+                $HisBulkCostingDetails->position = $item->position;
+                $HisBulkCostingDetails->measurement = $item->measurement;
+                $HisBulkCostingDetails->process_option = $item->process_option;
+                $HisBulkCostingDetails->uom_id = $item->uom_id;
+                $HisBulkCostingDetails->net_consumption = $item->net_consumption;
+                $HisBulkCostingDetails->unit_price = $item->unit_price;
+                $HisBulkCostingDetails->wastage = $item->wastage;
+                $HisBulkCostingDetails->gross_consumption = $item->gross_consumption;
+                $HisBulkCostingDetails->freight_charges = $item->freight_charges;
+                $HisBulkCostingDetails->finance_charges = $item->finance_charges;
+                $HisBulkCostingDetails->mcq = $item->mcq;
+                $HisBulkCostingDetails->moq = $item->moq;
+                $HisBulkCostingDetails->calculate_by_deliverywise = $item->calculate_by_deliverywise;
+                $HisBulkCostingDetails->order_type = $item->order_type;
+                $HisBulkCostingDetails->surcharge = $item->surcharge;
+                $HisBulkCostingDetails->total_cost = $item->total_cost;
+                $HisBulkCostingDetails->shipping_terms = $item->shipping_terms;
+                $HisBulkCostingDetails->lead_time = $item->lead_time;
+                $HisBulkCostingDetails->country_of_origin = $item->country_of_origin;
+                $HisBulkCostingDetails->comments = $item->comments;
+                $HisBulkCostingDetails->save();
+
+            }
+        }
+        $blk = \App\Models\Merchandising\BulkCosting::find($data['blkNo']);
+        $blk->costing_status='Edit';
+        $blk->save();
+        return($this->getFinishGood($style_id,$data));
+    }
+
     private function saveLineHeader($request,$data){
         $color=\App\Models\Org\Color::where('color_name', $request->color)->first();
 
@@ -421,37 +544,26 @@ $count++;
         $supplier= \App\Models\Org\Supplier::where('status', 1)->get()->toArray();
         $serviceType= \App\Models\IE\ServiceType::where('status', 1)->get()->toArray();
 
-
-
         return array('category'=>$category,'supplier'=>$supplier,'pOptions'=>$serviceType);
-
     }
 
     public  function getColorForDivision($division_id,$query){
         $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
         return json_encode($color);
     }
-    
-    private function getCostSheetListing($styleId){
 
-        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
-                            ->where('style_id','=',$styleId)->get();
+    public  function Approval($request){
+        $BulkCosting = BulkCosting::find($request->blk);
+        if($BulkCosting->costing_status =='SentToApproval'){
+            $CostingBulkRevision=BulkCostingApproval::where('costing_id',$request->blk)->where('approval_key',$request->approval_key)->where('id',$request->aid)->get();
+            $blkApp = \App\Models\Merchandising\BulkCostingApproval::find($request->aid);
+            $blkApp->lock_status=1;
+            $blkApp->save();
+//            $user = auth()->user();
+        }else{
 
-        return $bulkHeaderData;
+        }
+//       print_r($BulkCosting->costing_status);exit;
     }
-    
-    private function getCostingHeaderDetails($costingId){
 
-       /* $costingHeader = BulkCosting::select("*")
-                            ->where('bulk_costing_id','=',$costingId)->get();*/
-                            
-        $costingHeader = \DB::table('costing_bulk')
-                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
-                            ->select('costing_bulk.*','org_season.season_name') 
-                            ->where('costing_bulk.bulk_costing_id',$costingId)
-                            ->get();             
-
-        return $costingHeader;
-
-    }
 }

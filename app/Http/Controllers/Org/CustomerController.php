@@ -196,8 +196,11 @@ class CustomerController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
+      $active=1;
   		$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['customer_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',$active)
+      ->get();
   		return $customer_lists;
   	}
 

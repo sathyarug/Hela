@@ -28,7 +28,8 @@ class BulkDetailsController extends Controller
             return response($this->getItemList($search));
         }elseif ($type == 'loadItem'){
             $bulkheader_id = $request->serialblk;
-            return response($this->loadItemList($bulkheader_id));
+            $head_id = $request->head;
+            return response($this->loadItemList($bulkheader_id,$head_id));
         }elseif ($type == 'getSupplier'){
             return response($this->getSupplier());
         }elseif ($type == 'getProcessOptions'){
@@ -212,9 +213,14 @@ class BulkDetailsController extends Controller
 //            ->where([['master_description', 'like', '%' . $search . '%'],])->get();
 //    }
 
-    public function loadItemList($id){
+    public function loadItemList($id,$headId){
         $itemList= BulkCostingDetails::select('*')
             ->where([['bulkheader_id', '=',  $id ],['status', '=',  1 ]])->get();
+        $hader = \App\Models\Merchandising\BulkCosting::find($headId)->toArray();
+        $SentToApproval=0;
+        if(count($hader)>0){
+            $SentToApproval=$hader['costing_status'];
+        }
         $returnArray=array();
         foreach ($itemList AS $item){
             $master= \App\itemCreation::find($item->main_item)->toArray();
@@ -283,7 +289,7 @@ class BulkDetailsController extends Controller
             $returnArray[]=$item;
         }
 
-        return json_encode($returnArray);
+        return json_encode(array('data'=>$returnArray,'SentToApproval'=>$SentToApproval));
     }
 
     /**
