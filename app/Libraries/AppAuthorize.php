@@ -9,7 +9,7 @@ class AppAuthorize
 {
 
   public function hasPermission($permission)
-  {
+  {     
       $count = DB::table('usr_login_permission')
       ->where('user_id', '=', auth()->user()->user_id)
       ->where('permission_code', '=', $permission)
