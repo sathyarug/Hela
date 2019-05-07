@@ -156,8 +156,11 @@ class SilhouetteController extends Controller
     //search Silhouette for autocomplete
     private function autocomplete_search($search)
   	{
+      $active=1;
   		$silhouette_lists = Silhouette::select('product_silhouette_id','product_silhouette_description')
-  		->where([['product_silhouette_description', 'like', '%' . $search . '%']]) ->get();
+  		->where([['product_silhouette_description', 'like', '%' . $search . '%']])
+      ->where('status','=',$active)
+      ->get();
   		return $silhouette_lists;
   	}
 

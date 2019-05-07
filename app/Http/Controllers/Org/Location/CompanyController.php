@@ -83,7 +83,7 @@ class CompanyController extends Controller
             'company' => $insertedId
           ]);
         }
-        echo json_encode($insert_procees_list);
+        //echo json_encode($insert_procees_list);
         DB::table('unique_id_generator')->insert($insert_procees_list);
 
         return response([ 'data' => [

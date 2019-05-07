@@ -24,7 +24,8 @@ class SubStoreController extends Controller
             return response($this->datatable_search($data));
         } else if ($type == 'auto') {
             $search = $request->search;
-            return response($this->autocomplete_search($search));
+            $storeId=$request->storeId;
+            return response($this->autocomplete_search($search,$storeId));
         } else {
             $active = $request->active;
             $fields = $request->fields;
@@ -127,9 +128,11 @@ class SubStoreController extends Controller
     }
 
     //search goods types for autocomplete
-    private function autocomplete_search($search) {
+    private function autocomplete_search($search,$storeId) {
         $bin_list = SubStore::select('substore_id', 'substore_name')
-                        ->where([['substore_name', 'like', '%' . $search . '%'],])->get();
+                        ->where([['substore_name', 'like', '%' . $search . '%'],])
+                        ->where('store_id','=',$storeId)
+                        ->get();
         return $bin_list;
     }
 
