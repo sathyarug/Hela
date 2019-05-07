@@ -179,7 +179,7 @@ Route::prefix('org/')->group(function(){
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
 
-    Route::apiResource('ship-modes','Org\ShipModeController');
+  Route::apiResource('ship-modes','Org\ShipModeController');
 
 });
 
@@ -320,8 +320,10 @@ Route::prefix('stores/')->group(function(){
     Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
 
     //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
-    //Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
-    Route::apiResource('material-trasnsfer','Stores\MaterialTransferController');
+    //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
+    Route::apiResource('material-transfer','Stores\MaterialTransferController');
+    Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
+    //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
