@@ -102,7 +102,7 @@ class SMVUpdateHistoryController extends Controller
     //deactivate a SMVUpdate History
     public function destroy($id)
     {
-      $smvupdatehis = SMVUpdateHistory::where('smv_id', $id)->update(['status' => 0]);
+      $smvupdatehis = SMVUpdateHistory::where('smv_his_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
           'smvupdatehis' => $smvupdatehis
