@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\IE\ServiceType;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class ServiceTypeController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Service Type list
@@ -43,23 +47,29 @@ class ServiceTypeController extends Controller
     //create a Service Type
     public function store(Request $request)
     {
-      $servicetype = new ServiceType();
-      if($servicetype->validate($request->all()))
+      if($this->authorize->hasPermission('SERVICE_TYPE_MANAGE'))//check permission
       {
-        $servicetype->fill($request->all());
-        $servicetype->status = 1;
-        $servicetype->save();
+        $servicetype = new ServiceType();
+        if($servicetype->validate($request->all()))
+        {
+          $servicetype->fill($request->all());
+          $servicetype->status = 1;
+          $servicetype->save();
 
-        return response([ 'data' => [
-          'message' => 'Service Type was saved successfully',
-          'servicetype' => $servicetype
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Service Type was saved successfully',
+            'servicetype' => $servicetype
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $servicetype->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $servicetype->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+
       }
     }
 
@@ -67,33 +77,44 @@ class ServiceTypeController extends Controller
     //get a Service Type
     public function show($id)
     {
+      if($this->authorize->hasPermission('SERVICE_TYPE_MANAGE'))//check permission
+      {
+        $servicetype = ServiceType::find($id);
+        if($servicetype == null)
+          throw new ModelNotFoundException("Requested service type not found", 1);
+        else
+          return response([ 'data' => $servicetype ]);
+      }
+      else{
 
-      $servicetype = ServiceType::find($id);
-      if($servicetype == null)
-        throw new ModelNotFoundException("Requested service type not found", 1);
-      else
-        return response([ 'data' => $servicetype ]);
+      }
     }
 
 
     //update a Service Type
     public function update(Request $request, $id)
     {
-      $servicetype = ServiceType::find($id);
-      if($servicetype->validate($request->all()))
+      if($this->authorize->hasPermission('SERVICE_TYPE_MANAGE'))//check permission
       {
-        $servicetype->fill($request->except('service_type_code'));
-        $servicetype->save();
+        $servicetype = ServiceType::find($id);
+        if($servicetype->validate($request->all()))
+        {
+          $servicetype->fill($request->except('service_type_code'));
+          $servicetype->save();
 
-        return response([ 'data' => [
-          'message' => 'Service Type was updated successfully',
-          'servicetype' => $servicetype
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Service Type was updated successfully',
+            'servicetype' => $servicetype
+          ]]);
+        }
+        else
+        {
+          $errors = $servicetype->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $servicetype->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -101,13 +122,19 @@ class ServiceTypeController extends Controller
     //deactivate a Service Type
     public function destroy($id)
     {
-      $servicetype = ServiceType::where('service_type_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Service Type was deactivated successfully.',
-          'servicetype' => $servicetype
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('SERVICE_TYPE_DELETE'))//check permission
+      {
+        $servicetype = ServiceType::where('service_type_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Service Type was deactivated successfully.',
+            'servicetype' => $servicetype
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -166,30 +193,36 @@ class ServiceTypeController extends Controller
     //get searched Service Types for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SERVICE_TYPE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $service_type_list = ServiceType::select('*')
-      ->where('service_type_code'  , 'like', $search.'%' )
-      ->orWhere('service_type_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $service_type_list = ServiceType::select('*')
+        ->where('service_type_code'  , 'like', $search.'%' )
+        ->orWhere('service_type_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $service_type_count = ServiceType::where('service_type_code'  , 'like', $search.'%' )
-      ->orWhere('service_type_description'  , 'like', $search.'%' )
-      ->count();
+        $service_type_count = ServiceType::where('service_type_code'  , 'like', $search.'%' )
+        ->orWhere('service_type_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $service_type_count,
-          "recordsFiltered" => $service_type_count,
-          "data" => $service_type_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $service_type_count,
+            "recordsFiltered" => $service_type_count,
+            "data" => $service_type_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

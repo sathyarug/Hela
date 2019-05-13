@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\BOMStage;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class BOMStageController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Feature list
@@ -43,23 +47,29 @@ class BOMStageController extends Controller
     //create a BOMStage
     public function store(Request $request)
     {
-      $bomstage = new BOMStage();
-      if($bomstage->validate($request->all()))
+      if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
       {
-        $bomstage->fill($request->all());
-        $bomstage->status = 1;
-        $bomstage->save();
+        $bomstage = new BOMStage();
+        if($bomstage->validate($request->all()))
+        {
+          $bomstage->fill($request->all());
+          $bomstage->status = 1;
+          $bomstage->save();
 
-        return response([ 'data' => [
-          'message' => 'BOM Stage was saved successfully',
-          'bomstage' => $bomstage
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'BOM Stage was saved successfully',
+            'bomstage' => $bomstage
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $bomstage->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $bomstage->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +77,44 @@ class BOMStageController extends Controller
     //get a Feature
     public function show($id)
     {
-      $bomstage = BOMStage::find($id);
-      if($bomstage == null)
-        throw new ModelNotFoundException("Requested BOM Stage not found", 1);
-      else
-        return response([ 'data' => $bomstage ]);
+      if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
+      {
+        $bomstage = BOMStage::find($id);
+        if($bomstage == null)
+          throw new ModelNotFoundException("Requested BOM Stage not found", 1);
+        else
+          return response([ 'data' => $bomstage ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Feature
     public function update(Request $request, $id)
     {
-      $bomstage = BOMStage::find($id);
-      if($bomstage->validate($request->all()))
+      if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
       {
-        $bomstage->fill($request->all());
-        $bomstage->save();
+        $bomstage = BOMStage::find($id);
+        if($bomstage->validate($request->all()))
+        {
+          $bomstage->fill($request->all());
+          $bomstage->save();
 
-        return response([ 'data' => [
-          'message' => 'BOM Stage was updated successfully',
-          'bomstage' => $bomstage
-        ]]);
+          return response([ 'data' => [
+            'message' => 'BOM Stage was updated successfully',
+            'bomstage' => $bomstage
+          ]]);
+        }
+        else
+        {
+          $errors = $bomstage->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $bomstage->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +122,19 @@ class BOMStageController extends Controller
     //deactivate a Feature
     public function destroy($id)
     {
-      $bomstage = BOMStage::where('bom_stage_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'BOM Stage was deactivated successfully.',
-          'bomstage' => $bomstage
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('BOM_STAGE_DELETE'))//check permission
+      {
+        $bomstage = BOMStage::where('bom_stage_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'BOM Stage was deactivated successfully.',
+            'bomstage' => $bomstage
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,28 +193,34 @@ class BOMStageController extends Controller
     //get searched Features for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $bomstage_list = BOMStage::select('*')
-      ->where('bom_stage_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $bomstage_list = BOMStage::select('*')
+        ->where('bom_stage_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $bomstage_count = BOMStage::where('bom_stage_description'  , 'like', $search.'%' )
-      ->count();
+        $bomstage_count = BOMStage::where('bom_stage_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $bomstage_count,
-          "recordsFiltered" => $bomstage_count,
-          "data" => $bomstage_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $bomstage_count,
+            "recordsFiltered" => $bomstage_count,
+            "data" => $bomstage_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }      
     }
 
 }

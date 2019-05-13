@@ -9,13 +9,19 @@ use App\Models\Store\SubStore;
 use App\Models\Store\StoreBin;
 use App\Models\Store\Stock;
 
+use App\Libraries\AppAuthorize;
+
 class SubStoreController extends Controller
 {
-     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    var $authorize = null;
+
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
+    }
+
     public function index(Request $request) {
         $type = $request->type;
 
@@ -40,7 +46,10 @@ class SubStoreController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
+      if($this->authorize->hasPermission('SUB_STORE_MANAGE'))//check permission
+      {
         $subStore = new SubStore();
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->all());
@@ -56,6 +65,10 @@ class SubStoreController extends Controller
             $errors = $subStore->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -64,12 +77,19 @@ class SubStoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show($id)
+    {
+      if($this->authorize->hasPermission('SUB_STORE_MANAGE'))//check permission
+      {
         $subStore = SubStore::find($id);
         if ($subStore == null)
             throw new ModelNotFoundException("Requested sub store not found", 1);
         else
             return response(['data' => $subStore]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -79,7 +99,10 @@ class SubStoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
+      if($this->authorize->hasPermission('SUB_STORE_MANAGE'))//check permission
+      {
         $subStore = SubStore::find($id);
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->except('substore_name'));
@@ -93,6 +116,10 @@ class SubStoreController extends Controller
             $errors = $subStore->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -101,14 +128,21 @@ class SubStoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
+      if($this->authorize->hasPermission('SUB_STORE_DELETE'))//check permission
+      {
         $subStore = SubStore::where('substore_id', $id)->update(['status' => 0]);
         return response([
             'data' => [
                 'message' => 'Sub Store is deactivated successfully.',
                 'store' => $subStore
             ]
-                ], Response::HTTP_NO_CONTENT);
+          ], Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get filtered fields only
@@ -134,7 +168,10 @@ class SubStoreController extends Controller
     }
 
     //get searched goods types for datatable plugin format
-    private function datatable_search($data) {
+    private function datatable_search($data)
+    {
+      if($this->authorize->hasPermission('SUB_STORE_MANAGE'))//check permission
+      {
         $start = $data['start'];
         $length = $data['length'];
         $draw = $data['draw'];
@@ -157,6 +194,10 @@ class SubStoreController extends Controller
             "recordsFiltered" => $bin_count,
             "data" => $bin_list
         ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //validate anything based on requirements

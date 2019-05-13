@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\SilhouetteClassification;
+use App\Libraries\AppAuthorize;
 
 class  SilhouetteClassificationController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get shipment term list
@@ -43,6 +47,8 @@ class  SilhouetteClassificationController extends Controller
     //create a shipment term
     public function store(Request $request)
     {
+      if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_MANAGE'))//check permission
+      {
         $silhouetteClassification= new  SilhouetteClassification ();
         $silhouetteClassification->fill($request->all());
         $silhouetteClassification->status = 1;
@@ -53,22 +59,34 @@ class  SilhouetteClassificationController extends Controller
           'silhouetteClassification' => $silhouetteClassification
           ]
         ], Response::HTTP_CREATED );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get shipment term
     public function show($id)
     {
+      if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_MANAGE'))//check permission
+      {
         $silhouetteClassification = SilhouetteClassification::find($id);
         if($silhouetteClassification== null)
           throw new ModelNotFoundException("Requested Silhouette Classification not found", 1);
         else
           return response([ 'data' => $silhouetteClassification]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a shipment term
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_MANAGE'))//check permission
+      {
         $silhouetteClassification =  SilhouetteClassification::find($id);
         $silhouetteClassification->fill($request->all());
         $silhouetteClassification->save();
@@ -77,7 +95,10 @@ class  SilhouetteClassificationController extends Controller
           'message' => ' Silhouette Classification updated successfully',
           'silhouetteClassification' => $silhouetteClassification
         ]]);
-
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -85,6 +106,8 @@ class  SilhouetteClassificationController extends Controller
     //deactivate a ship term
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_DELETE'))//check permission
+      {
         $silhouetteClassification =SilhouetteClassification::where('sil_class_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -92,6 +115,10 @@ class  SilhouetteClassificationController extends Controller
             'silhouetteClassification' => $silhouetteClassification
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -152,28 +179,34 @@ class  SilhouetteClassificationController extends Controller
     //get searched ship terms for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $silhouetteClassification_lists =SilhouetteClassification::select('*')
-      ->where('sil_class_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $silhouetteClassification_lists =SilhouetteClassification::select('*')
+        ->where('sil_class_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $silhouetteClassification_count = SilhouetteClassification::where('sil_class_description'  , 'like', $search.'%' )
-      ->count();
+        $silhouetteClassification_count = SilhouetteClassification::where('sil_class_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $silhouetteClassification_count,
-          "recordsFiltered" => $silhouetteClassification_count,
-          "data" =>   $silhouetteClassification_lists
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $silhouetteClassification_count,
+            "recordsFiltered" => $silhouetteClassification_count,
+            "data" =>   $silhouetteClassification_lists
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
