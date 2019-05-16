@@ -140,9 +140,10 @@ $status="plan";
 
    $stockBalanceInLoction=DB::table('store_stock')
                          ->rightJoinSub($details,'gatepass_details',function($join){
-                        $user = auth()->user();
-                        //$user_location=$user->location;
-                        $user_location=3;
+                           $user = auth()->payload();
+                           $user_location=$user['loc_id'];
+                           //user location hardcode since db dont have real values
+                        //$user_location=3;
                          $join->on('store_stock.item_id','=','gatepass_details.master_id')
                              ->on('store_stock.style_id','=','gatepass_details.style_id')
                              ->on('store_stock.size','=','gatepass_details.size_id')
@@ -162,9 +163,9 @@ $status="plan";
   }
 
   public function getStores(){
-    $user = auth()->user();
-    //$user_location=$user->location;
-    $user_location=3;
+    $user = auth()->payload();
+    $user_location=$user['loc_id'];
+    //$user_location=3;
    $store_list = Store::where('status',1)
                       //->where('loc_id',$user_location)
                         ->pluck('store_name')
@@ -174,9 +175,9 @@ $status="plan";
   }
 
   public function getSubStores(){
-    $user = auth()->user();
-    //$user_location=$user->location;
-    $user_location=3;
+    $user = auth()->payload();
+    $user_location=$user['loc_id'];
+    //$user_location=3;
     $sub_store_list=SubStore::where('status',1)
                           //->where('loc_id',$user_location)
                           ->pluck('substore_name')
@@ -186,9 +187,9 @@ $status="plan";
   }
 
   public function getBins(){
-    $user = auth()->user();
-    //$user_location=$user->location;
-    $user_location=3;
+    $user = auth()->payload();
+    $user_location=$user['loc_id'];
+    //$user_location=3;
     $store_bin_list=StoreBin::where('status',1)
                           //->where('loc_id',$user_location)
                           ->pluck('store_bin_name')
@@ -200,11 +201,11 @@ $status="plan";
 
 
 public function storedetails (Request $request){
-  $user = auth()->user();
-  $transer_location=$user->location;
+  $user = auth()->payload();
+  $transer_location=$user['loc_id'];
   $receiver_location=$request->receiver_location;
   $gate_pass_id=$request->gate_pass_id;
-  $transer_location=3;
+  //$transer_location=3;
   $details= $request->data;
     //print_r($details);
       //print_r($gate_pass_id);*/
