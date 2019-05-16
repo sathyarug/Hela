@@ -126,6 +126,7 @@ class BulkDetailsController extends Controller
             $model->finance_charges=$request->finance_charges;
             $model->moq=$request->moq;
             $model->mcq=$request->mcq;
+//            $model->main_item=$request->main_item;
             $model->calculate_by_deliverywise=$request->calculate_by_deliverywise;
             $model->surcharge=$request->surcharge;
             $model->total_cost=$request->total_cost;
@@ -139,8 +140,8 @@ class BulkDetailsController extends Controller
 
             $model->save();
 
-            $ItemCode=\App\Models\Org\ItemCode::where('item_id',$model->main_item )->where('color_id',$model->color_id )->where('size_id',$model->color_id )->get();
-            print_r($ItemCode);exit;
+           // $ItemCode=\App\Models\Org\ItemCode::where('item_id',$model->main_item )->where('color_id',$model->color_id )->where('size_id',$model->color_id )->get();
+//            print_r($ItemCode);exit;
 
             return response(['data' => [
                 'message' => 'Costing is saved successfully',
@@ -417,7 +418,7 @@ class BulkDetailsController extends Controller
     }
 
     public  function loadItemAccordingCategory($tem){
-//        dd($tem['query']);
+
         $item_list = DB::table('item_master')
             ->join('item_subcategory', 'item_master.subcategory_id', '=', 'item_subcategory.subcategory_id')
             ->join('item_category', 'item_subcategory.category_id', '=', 'item_category.category_id')
