@@ -38,6 +38,8 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
+        }elseif($type == 'getCostListing'){
+            return response($this->getCostSheetListing($request->style_id));
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
@@ -766,5 +768,13 @@ WHERE cost_flash_header.style_id = '.$request->style_id.'
 ORDER BY item_category.category_id');
 
         print_r(json_encode(array('image'=>$styleData->image,'data'=>$flashHaderData, 'details'=>$getAllDataFlash)));exit;
+    }
+    
+    private function getCostSheetListing($styleId){
+
+        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
+                            ->where('style_id','=',$styleId)->get();
+
+        return $bulkHeaderData;
     }
 }
