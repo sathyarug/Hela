@@ -260,7 +260,7 @@ class CustomerController extends Controller
    }
 
     public function loadCustomerDivision(Request $request) {
-
+        //dd($request);
         $customer_id = $request->get('customer_id');
 
         $divisions=DB::table('cust_customer')

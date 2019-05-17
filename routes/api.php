@@ -300,35 +300,35 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
 
   Route::post('load-stock-for-mrn','Store\StockController@searchStock');
-    Route::apiResource('po-load','stores\RollPlanController');
-    Route::apiResource('roll','stores\RollPlanController');
+  Route::apiResource('po-load','stores\RollPlanController');
+  Route::apiResource('roll','stores\RollPlanController');
     /********edited*/
-    Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
-    Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
-    Route::apiResource('fabricInspection','stores\FabricInspectionController');
-    Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
-    Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
-    Route::apiResource('transfer-location','Stores\TransferLocationController');
-    Route::apiResource('grn', 'Store\GrnController');
-    Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
-    Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
-    Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
-    Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
-    Route::get('loadAddedBins','Store\GrnController@getAddedBins');
-    Route::get('load-substores','Store\SubStoreController@getSubStoreList');
-    Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
-    Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
-    Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
-    Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
-    Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
+  Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
+  Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
+  Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
+  Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
+  Route::apiResource('transfer-location','Stores\TransferLocationController');
+  Route::apiResource('grn', 'Store\GrnController');
+  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
+  Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
+  Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
+  Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
+  Route::get('loadAddedBins','Store\GrnController@getAddedBins');
+  Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
+  Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
+  Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
+  Route::post('add-bin-qty','Store\BinTransferController@addBinTrnsfer');
+  Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
 
     //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
     //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
-    Route::apiResource('material-transfer','Stores\MaterialTransferController');
-    Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
+  Route::apiResource('material-transfer','Stores\MaterialTransferController');
+  Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
     //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
     //Route::apiResource('substore','Store\SubStoreController');
-
+  Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
 
 });
 
@@ -372,6 +372,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('loadPoLineData','Merchandising\PurchaseOrder@loadPoLineData');
     Route::get('loadPoSCList','Merchandising\PurchaseOrder@getPoSCList');
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
+    Route::apiResource('purchase-order-data','Merchandising\PurchaseOrder');
 
     Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
     Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');

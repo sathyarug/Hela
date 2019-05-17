@@ -94,5 +94,11 @@ class StockController extends Controller
         ]);
     }
 
+    public function getStockForReturnToSup(Request $request){
+       // dd($request);
+        $stock = $this->getStockForReturnToSup();
+            //->toArray();
+    }
+
 
 }

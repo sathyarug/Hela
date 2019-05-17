@@ -5,16 +5,20 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 
-
-
 use App\Models\Merchandising\CutDirection;
 use Exception;
+use App\Libraries\AppAuthorize;
+
+
 class CutDirectionController extends Controller{
+
+  var $authorize = null;
 
   public function __construct()
   {
     //add functions names to 'except' paramert to skip authentication
     $this->middleware('jwt.verify', ['except' => ['index']]);
+    $this->authorize = new AppAuthorize();
   }
 
   //get shipment term list
@@ -42,6 +46,8 @@ class CutDirectionController extends Controller{
   //create a shipment term
   public function store(Request $request)
   {
+    if($this->authorize->hasPermission('CUT_DIRECTION_MANAGE'))//check permission
+    {
       $cutDirection = new CutDirection();
       $cutDirection->fill($request->all());
       $cutDirection->status = 1;
@@ -52,22 +58,34 @@ class CutDirectionController extends Controller{
         'cutDirection' => $cutDirection
         ]
       ], Response::HTTP_CREATED );
+    }
+    else{
+      return response($this->authorize->error_response(), 401);
+    }
   }
 
   //get shipment term
   public function show($id)
   {
+    if($this->authorize->hasPermission('CUT_DIRECTION_MANAGE'))//check permission
+    {
       $cutDirection =CutDirection::find($id);
       if($cutDirection == null)
         throw new ModelNotFoundException("Requested Cut Direction not found", 1);
       else
         return response([ 'data' => $cutDirection ]);
+    }
+    else{
+      return response($this->authorize->error_response(), 401);
+    }
   }
 
 
   //update a shipment term
   public function update(Request $request, $id)
   {
+    if($this->authorize->hasPermission('CUT_DIRECTION_MANAGE'))//check permission
+    {
       $cutDirection = CutDirection::find($id);
       $cutDirection->fill($request->all());
       $cutDirection->save();
@@ -76,12 +94,17 @@ class CutDirectionController extends Controller{
         'message' => 'Cut Direction updated successfully',
         'cutDirection' => $cutDirection
       ]]);
-
+    }
+    else{
+      return response($this->authorize->error_response(), 401);
+    }
   }
 
   //deactivate a ship term
   public function destroy($id)
   {
+    if($this->authorize->hasPermission('CUT_DIRECTION_DELETE'))//check permission
+    {
       $cutDirection = CutDirection::where('cut_dir_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
@@ -89,6 +112,10 @@ class CutDirectionController extends Controller{
           'cutDirection' => $cutDirection
         ]
       ] , Response::HTTP_NO_CONTENT);
+    }
+    else{
+      return response($this->authorize->error_response(), 401);
+    }
   }
 
 
@@ -150,30 +177,37 @@ class CutDirectionController extends Controller{
   //get searched ship terms for datatable plugin format
   private function datatable_search($data)
   {
-    $start = $data['start'];
-    $length = $data['length'];
-    $draw = $data['draw'];
-    $search = $data['search']['value'];
-    $order = $data['order'][0];
-    $order_column = $data['columns'][$order['column']]['data'];
-    $order_type = $order['dir'];
+    if($this->authorize->hasPermission('CUT_DIRECTION_MANAGE'))//check permission
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
 
-    $cutDirection_list = CutDirection::select('*')
-    ->where('cut_dir_description'  , 'like', $search.'%' )
-    ->orWhere('cd_acronyms'  , 'like', $search.'%' )
-    ->orderBy($order_column, $order_type)
-    ->offset($start)->limit($length)->get();
+      $cutDirection_list = CutDirection::select('*')
+      ->where('cut_dir_description'  , 'like', $search.'%' )
+      ->orWhere('cd_acronyms'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
 
-      $cutDirection_count = CutDirection::where('cut_dir_description'  , 'like', $search.'%' )
-    ->orWhere('cd_acronyms'  , 'like', $search.'%' )
-    ->count();
+        $cutDirection_count = CutDirection::where('cut_dir_description'  , 'like', $search.'%' )
+      ->orWhere('cd_acronyms'  , 'like', $search.'%' )
+      ->count();
 
-    return [
-        "draw" => $draw,
-        "recordsTotal" => $cutDirection_count ,
-        "recordsFiltered" => $cutDirection_count,
-        "data" => $cutDirection_list
-    ];
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $cutDirection_count ,
+          "recordsFiltered" => $cutDirection_count,
+          "data" => $cutDirection_list
+      ];
+    }
+    else{
+      return response($this->authorize->error_response(), 401);
+    }
+
   }
 
 

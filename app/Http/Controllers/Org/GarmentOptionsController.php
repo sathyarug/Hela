@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\GarmentOptions;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class GarmentOptionsController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get GarmentOptions list
@@ -43,23 +47,29 @@ class GarmentOptionsController extends Controller
     //create a GarmentOptions
     public function store(Request $request)
     {
-      $garmentoptions = new GarmentOptions();
-      if($garmentoptions->validate($request->all()))
+      if($this->authorize->hasPermission('GARMT_OPTION_MANAGE'))//check permission
       {
-        $garmentoptions->fill($request->all());
-        $garmentoptions->status = 1;
-        $garmentoptions->save();
+        $garmentoptions = new GarmentOptions();
+        if($garmentoptions->validate($request->all()))
+        {
+          $garmentoptions->fill($request->all());
+          $garmentoptions->status = 1;
+          $garmentoptions->save();
 
-        return response([ 'data' => [
-          'message' => 'Garment Option was saved successfully',
-          'garmentoptions' => $garmentoptions
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Garment Option was saved successfully',
+            'garmentoptions' => $garmentoptions
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $garmentoptions->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $garmentoptions->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +77,44 @@ class GarmentOptionsController extends Controller
     //get a GarmentOptions
     public function show($id)
     {
-      $garmentoptions = GarmentOptions::find($id);
-      if($garmentoptions == null)
-        throw new ModelNotFoundException("Requested garment option not found", 1);
-      else
-        return response([ 'data' => $garmentoptions ]);
+      if($this->authorize->hasPermission('GARMT_OPTION_MANAGE'))//check permission
+      {
+        $garmentoptions = GarmentOptions::find($id);
+        if($garmentoptions == null)
+          throw new ModelNotFoundException("Requested garment option not found", 1);
+        else
+          return response([ 'data' => $garmentoptions ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a GarmentOptions
     public function update(Request $request, $id)
     {
-      $garmentoptions = GarmentOptions::find($id);
-      if($garmentoptions->validate($request->all()))
+      if($this->authorize->hasPermission('GARMT_OPTION_MANAGE'))//check permission
       {
-        $garmentoptions->fill($request->all());
-        $garmentoptions->save();
+        $garmentoptions = GarmentOptions::find($id);
+        if($garmentoptions->validate($request->all()))
+        {
+          $garmentoptions->fill($request->all());
+          $garmentoptions->save();
 
-        return response([ 'data' => [
-          'message' => 'Garment option was updated successfully',
-          'garmentoptions' => $garmentoptions
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Garment option was updated successfully',
+            'garmentoptions' => $garmentoptions
+          ]]);
+        }
+        else
+        {
+          $errors = $garmentoptions->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $garmentoptions->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +122,19 @@ class GarmentOptionsController extends Controller
     //deactivate a GarmentOptions
     public function destroy($id)
     {
-      $garmentoptions = GarmentOptions::where('garment_options_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Garment Option was deactivated successfully.',
-          'garnentoptions' => $garmentoptions
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('GARMT_OPTION_DELETE'))//check permission
+      {
+        $garmentoptions = GarmentOptions::where('garment_options_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Garment Option was deactivated successfully.',
+            'garnentoptions' => $garmentoptions
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,28 +193,34 @@ class GarmentOptionsController extends Controller
     //get searched GarmentOptions for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('GARMT_OPTION_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $garmentoptions_list = GarmentOptions::select('*')
-      ->where('garment_options_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $garmentoptions_list = GarmentOptions::select('*')
+        ->where('garment_options_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $garmentoptions_count = GarmentOptions::where('garment_options_description'  , 'like', $search.'%' )
-      ->count();
+        $garmentoptions_count = GarmentOptions::where('garment_options_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $garmentoptions_count,
-          "recordsFiltered" => $garmentoptions_count,
-          "data" => $garmentoptions_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $garmentoptions_count,
+            "recordsFiltered" => $garmentoptions_count,
+            "data" => $garmentoptions_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

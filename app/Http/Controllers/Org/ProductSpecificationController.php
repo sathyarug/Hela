@@ -8,14 +8,18 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\ProductSpecification  ;
+use App\Models\Org\ProductSpecification;
+use App\Libraries\AppAuthorize;
 
 class  ProductSpecificationController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get product specification listerm list
@@ -43,6 +47,8 @@ class  ProductSpecificationController extends Controller
     //create a shipment term
     public function store(Request $request)
     {
+      if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
+      {
         $productSpecification= new  ProductSpecification ();
         $productSpecification->fill($request->all());
         $productSpecification->status = 1;
@@ -53,22 +59,34 @@ class  ProductSpecificationController extends Controller
           'productSpecification' => $productSpecification
           ]
         ], Response::HTTP_CREATED );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get shipment term
     public function show($id)
     {
+      if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
+      {
         $productSpecification = ProductSpecification::find($id);
         if($productSpecification == null)
           throw new ModelNotFoundException("Requested shipment term not found", 1);
         else
           return response([ 'data' => $productSpecification]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a shipment term
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
+      {
         $productSpecification =  ProductSpecification::find($id);
         $productSpecification->fill($request->all());
         $productSpecification->save();
@@ -77,7 +95,10 @@ class  ProductSpecificationController extends Controller
           'message' => ' Product Specification updated successfully',
           'transaction' => $productSpecification
         ]]);
-
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -85,6 +106,8 @@ class  ProductSpecificationController extends Controller
     //deactivate a ship term
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('PROD_SPEC_DELETE'))//check permission
+      {
         $productSpecification =ProductSpecification::where('prod_cat_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -92,6 +115,10 @@ class  ProductSpecificationController extends Controller
             'transaction' => $productSpecification
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -151,28 +178,34 @@ class  ProductSpecificationController extends Controller
     //get searched ship terms for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $transaction_list = ProductSpecification::select('*')
-      ->where('prod_cat_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $transaction_list = ProductSpecification::select('*')
+        ->where('prod_cat_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $transaction_count = ProductSpecification::where('prod_cat_description'  , 'like', $search.'%' )
-      ->count();
+        $transaction_count = ProductSpecification::where('prod_cat_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $transaction_count,
-          "recordsFiltered" => $transaction_count,
-          "data" => $transaction_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $transaction_count,
+            "recordsFiltered" => $transaction_count,
+            "data" => $transaction_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

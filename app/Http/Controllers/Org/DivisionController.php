@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Division;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class DivisionController extends Controller
 {
@@ -16,6 +17,7 @@ class DivisionController extends Controller
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Division list
@@ -43,23 +45,29 @@ class DivisionController extends Controller
     //create a Division
     public function store(Request $request)
     {
-      $division = new Division();
-      if($division->validate($request->all()))
+      if($this->authorize->hasPermission('DIVISION_MANAGE'))//check permission
       {
-        $division->fill($request->all());
-        $division->status = 1;
-        $division->save();
+        $division = new Division();
+        if($division->validate($request->all()))
+        {
+          $division->fill($request->all());
+          $division->status = 1;
+          $division->save();
 
-        return response([ 'data' => [
-          'message' => 'Division was saved successfully',
-          'Division' => $division
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Division was saved successfully',
+            'Division' => $division
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $division->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $division->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +75,44 @@ class DivisionController extends Controller
     //get a Division
     public function show($id)
     {
-      $division = Division::find($id);
-      if($division == null)
-        throw new ModelNotFoundException("Requested division not found", 1);
-      else
-        return response([ 'data' => $division ]);
+      if($this->authorize->hasPermission('DIVISION_MANAGE'))//check permission
+      {
+        $division = Division::find($id);
+        if($division == null)
+          throw new ModelNotFoundException("Requested division not found", 1);
+        else
+          return response([ 'data' => $division ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Division
     public function update(Request $request, $id)
     {
-      $division = Division::find($id);
-      if($division->validate($request->all()))
+      if($this->authorize->hasPermission('DIVISION_MANAGE'))//check permission
       {
-        $division->fill($request->except('division_code'));
-        $division->save();
+        $division = Division::find($id);
+        if($division->validate($request->all()))
+        {
+          $division->fill($request->except('division_code'));
+          $division->save();
 
-        return response([ 'data' => [
-          'message' => 'Division was updated successfully',
-          'division' => $division
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Division was updated successfully',
+            'division' => $division
+          ]]);
+        }
+        else
+        {
+          $errors = $division->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $division->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +120,19 @@ class DivisionController extends Controller
     //deactivate a Division
     public function destroy($id)
     {
-      $division = Division::where('division_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Division was deactivated successfully.',
-          'division' => $division
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('DIVISION_DELETE'))//check permission
+      {
+        $division = Division::where('division_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Division was deactivated successfully.',
+            'division' => $division
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,30 +191,36 @@ class DivisionController extends Controller
     //get searched Divisions for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('DIVISION_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $division_list = Division::select('*')
-      ->where('division_code'  , 'like', $search.'%' )
-      ->orWhere('division_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $division_list = Division::select('*')
+        ->where('division_code'  , 'like', $search.'%' )
+        ->orWhere('division_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $division_count = Division::where('division_code'  , 'like', $search.'%' )
-      ->orWhere('division_description'  , 'like', $search.'%' )
-      ->count();
+        $division_count = Division::where('division_code'  , 'like', $search.'%' )
+        ->orWhere('division_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $division_count,
-          "recordsFiltered" => $division_count,
-          "data" => $division_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $division_count,
+            "recordsFiltered" => $division_count,
+            "data" => $division_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

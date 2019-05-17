@@ -8,9 +8,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Finance\Item\SubCategory;
 use App\Models\Finance\Item\Category;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class ItemSubCategoryController extends Controller
 {
+    var $authorize = null;
+
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
+    }
+
     public function new(){
         $data = array(
           'categories' => Category::all()
@@ -62,7 +72,24 @@ class ItemSubCategoryController extends Controller
             $errors = $sub_category->errors_tostring();
             echo json_encode(array('status' => 'error' , 'message' => $errors));
         }
-
+                $sub_category->is_inspectiion_allowed = $request->is_inspectiion_allowed;
+                $sub_category->is_display = $request->is_display;
+                $sub_category->status = 1;
+                $sub_category->created_by = 1;
+              }
+              $result = $sub_category->saveOrFail();
+              echo json_encode(array('status' => 'success' , 'message' => 'Sub category details saved successfully.'));
+          }
+          else
+          {
+              // failure, get errors
+              $errors = $sub_category->errors_tostring();
+              echo json_encode(array('status' => 'error' , 'message' => $errors));
+          }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     public function get_sub_category_list(){
@@ -73,9 +100,15 @@ class ItemSubCategoryController extends Controller
 
 
     public function get(Request $request){
+      if($this->authorize->hasPermission('SUB_CAT_MANAGE'))//check permission
+      {
         $sub_category_id = $request->subcategory_id;
         $sub_category = SubCategory::select("*")->where("subcategory_id","=",$sub_category_id)->get();
         echo json_encode($sub_category);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -105,15 +138,17 @@ class ItemSubCategoryController extends Controller
     }
 
     public function get_subcat_list_by_maincat(Request $request){
-      
+
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->get();
         $sub_category = SubCategory::where('category_id','=',$request->category_id)->where('status','=','1')->get();
         echo json_encode($sub_category);
     }
 
-    public function LoadSubCategoryList(Request $request){
-
+    public function LoadSubCategoryList(Request $request)
+    {
+      if($this->authorize->hasPermission('SUB_CAT_MANAGE'))//check permission
+      {
         $data = $request->all();
         //$start = $data['start'];
         $length = $data['length'];
@@ -134,6 +169,10 @@ class ItemSubCategoryController extends Controller
             "data" => $sub_category_list
         ));
         //echo json_encode($sub_category_list);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }        
     }
 
 }

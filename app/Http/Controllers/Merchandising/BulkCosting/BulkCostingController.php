@@ -292,10 +292,11 @@ class BulkCostingController extends Controller {
         $dataArr['cust_id'] = $styleData->customer->customer_id;
         $dataArr['division_name'] = $styleData->division->division_description;
         $dataArr['division_id'] = $styleData->division->division_id;
+        //echo json_encode($styleData->customer);
         $dataArr['country'] = $country->country_description;
-//        $dataArr['stage'] = '';
 
         $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+        //  echo json_encode($styleData->style_id);
 //        dd($sumStyleSmvComp->created_date);exit;
 
         if(count($hader)>0){
@@ -330,6 +331,7 @@ class BulkCostingController extends Controller {
 //dd($dataArr);
         return $dataArr;
     }
+
 
     private function getFinishGood($style_id,$data) {
 

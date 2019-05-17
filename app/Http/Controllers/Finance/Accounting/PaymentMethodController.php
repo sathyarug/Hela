@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Accounting\PaymentMethod;
+use App\Libraries\AppAuthorize;
 
 class PaymentMethodController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get payment method list
@@ -43,6 +47,8 @@ class PaymentMethodController extends Controller
     //create a payment method
     public function store(Request $request)
     {
+      if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
+      {
         $paymentMethod = new PaymentMethod();
         $paymentMethod->fill($request->all());
         $paymentMethod->status = 1;
@@ -53,22 +59,34 @@ class PaymentMethodController extends Controller
           'paymentMethod' => $paymentMethod
           ]
         ], Response::HTTP_CREATED );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get a payment method
     public function show($id)
     {
+      if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
+      {
         $paymentMethod = PaymentMethod::find($id);
         if($paymentMethod == null)
           throw new ModelNotFoundException("Requested payment method not found", 1);
         else
           return response( ['data' => $paymentMethod] );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a payment method
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
+      {
         $paymentMethod = PaymentMethod::find($id);
         $paymentMethod->fill( $request->except('payment_method_code'));
         $paymentMethod->save();
@@ -77,11 +95,17 @@ class PaymentMethodController extends Controller
           'message' => 'Payment method was updated successfully',
           'paymentMethod' => $paymentMethod
         ]]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //deactivate a payment method
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('PAYMENT_METHOD_DELETE'))//check permission
+      {
         $paymentMethod = PaymentMethod::where('payment_method_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -89,6 +113,10 @@ class PaymentMethodController extends Controller
             'paymentMethod' => $paymentMethod
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -148,30 +176,36 @@ class PaymentMethodController extends Controller
     //get searched payment methods for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $payment_method_list = PaymentMethod::select('*')
-      ->where('payment_method_code'  , 'like', $search.'%' )
-      ->orWhere('payment_method_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $payment_method_list = PaymentMethod::select('*')
+        ->where('payment_method_code'  , 'like', $search.'%' )
+        ->orWhere('payment_method_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $payment_method_count = PaymentMethod::where('payment_method_code'  , 'like', $search.'%' )
-      ->orWhere('payment_method_description'  , 'like', $search.'%' )
-      ->count();
+        $payment_method_count = PaymentMethod::where('payment_method_code'  , 'like', $search.'%' )
+        ->orWhere('payment_method_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $payment_method_count,
-          "recordsFiltered" => $payment_method_count,
-          "data" => $payment_method_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $payment_method_count,
+            "recordsFiltered" => $payment_method_count,
+            "data" => $payment_method_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
