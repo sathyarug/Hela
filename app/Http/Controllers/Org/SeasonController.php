@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Season;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class SeasonController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index','GetSeasonsList']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Season list
@@ -43,23 +47,29 @@ class SeasonController extends Controller
     //create a Season
     public function store(Request $request)
     {
-      $season = new Season();
-      if($season->validate($request->all()))
+      if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
       {
-        $season->fill($request->all());
-        $season->status = 1;
-        $season->save();
+        $season = new Season();
+        if($season->validate($request->all()))
+        {
+          $season->fill($request->all());
+          $season->status = 1;
+          $season->save();
 
-        return response([ 'data' => [
-          'message' => 'Season was saved successfully',
-          'season' => $season
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Season was saved successfully',
+            'season' => $season
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $season->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $season->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +77,44 @@ class SeasonController extends Controller
     //get a Season
     public function show($id)
     {
-      $season = Season::find($id);
-      if($season == null)
-        throw new ModelNotFoundException("Requested season not found", 1);
-      else
-        return response([ 'data' => $season ]);
+      if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
+      {
+        $season = Season::find($id);
+        if($season == null)
+          throw new ModelNotFoundException("Requested season not found", 1);
+        else
+          return response([ 'data' => $season ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Season
     public function update(Request $request, $id)
     {
-      $season = Season::find($id);
-      if($season->validate($request->all()))
+      if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
       {
-        $season->fill($request->except('season_code'));
-        $season->save();
+        $season = Season::find($id);
+        if($season->validate($request->all()))
+        {
+          $season->fill($request->except('season_code'));
+          $season->save();
 
-        return response([ 'data' => [
-          'message' => 'Season was updated successfully',
-          'season' => $season
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Season was updated successfully',
+            'season' => $season
+          ]]);
+        }
+        else
+        {
+          $errors = $season->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $season->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +122,19 @@ class SeasonController extends Controller
     //deactivate a Season
     public function destroy($id)
     {
-      $season = Season::where('season_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Season was deactivated successfully.',
-          'Season' => $season
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('SEASON_DELETE'))//check permission
+      {
+        $season = Season::where('season_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Season was deactivated successfully.',
+            'Season' => $season
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,37 +193,43 @@ class SeasonController extends Controller
     //get searched Seasons for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $season_list = Season::select('*')
-      ->where('season_code'  , 'like', $search.'%' )
-      ->orWhere('season_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $season_list = Season::select('*')
+        ->where('season_code'  , 'like', $search.'%' )
+        ->orWhere('season_name'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $season_count = Season::where('season_code'  , 'like', $search.'%' )
-      ->orWhere('Season_name'  , 'like', $search.'%' )
-      ->count();
+        $season_count = Season::where('season_code'  , 'like', $search.'%' )
+        ->orWhere('Season_name'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $season_count,
-          "recordsFiltered" => $season_count,
-          "data" => $season_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $season_count,
+            "recordsFiltered" => $season_count,
+            "data" => $season_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
-    
+
     public function GetSeasonsList(){
-        
+
         $seasons_list = Season::all();
         echo json_encode($seasons_list);
-        
+
     }
 
 }

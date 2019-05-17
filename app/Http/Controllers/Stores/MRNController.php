@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Org;
+namespace App\Http\Controllers\Org\Location;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Org\OriginType;
-use Exception;
+use App\Models\Org\Location\Cluster;
 
-class OriginTypeController extends Controller
+class ClusterController extends Controller
 {
     public function __construct()
     {
@@ -18,7 +17,7 @@ class OriginTypeController extends Controller
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
 
-    //get Origin Type list
+    //get Cluster list
     public function index(Request $request)
     {
       $type = $request->type;
@@ -40,71 +39,71 @@ class OriginTypeController extends Controller
     }
 
 
-    //create a Origin Type
+    //create a Cluster
     public function store(Request $request)
     {
-      $originType = new OriginType();
-      if($originType->validate($request->all()))
+      $cluster = new Cluster();
+      if($cluster->validate($request->all()))
       {
-        $originType->fill($request->all());
-        $originType->status = 1;
-        $originType->save();
+        $cluster->fill($request->all());
+        $cluster->status = 1;
+        $cluster->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type saved successfully',
-          'originType' => $originType
+          'message' => 'Cluster was saved successfully',
+          'cluster' => $cluster
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
+          $errors = $cluster->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //get a Origin Type
+    //get a Cluster
     public function show($id)
     {
-      $originType = OriginType::find($id);
-      if($originType == null)
-        throw new ModelNotFoundException("Requested origin type not found", 1);
+      $cluster = Cluster::find($id);
+      if($cluster == null)
+        throw new ModelNotFoundException("Requested cluster not found", 1);
       else
-        return response([ 'data' => $originType ]);
+        return response([ 'data' => $cluster ]);
     }
 
 
-    //update a Origin Type
+    //update a Cluster
     public function update(Request $request, $id)
     {
-      $originType = OriginType::find($id);
-      if($originType->validate($request->all()))
+      $cluster = Cluster::find($id);
+      if($cluster->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
-        $originType->save();
+        $cluster->fill($request->except('group_code'));
+        $cluster->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type updated successfully',
-          'originType' => $originType
+          'message' => 'Cluster was updated successfully',
+          'cluster' => $cluster
         ]]);
       }
       else
       {
-        $errors = $originType->errors();// failure, get errors
+        $errors = $cluster->errors();// failure, get errors
         return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
 
-    //deactivate a Origin Type
+    //deactivate a Cluster
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'message' => 'Cluster was deactivated successfully.',
+          'cluster' => $cluster
         ]
       ] , Response::HTTP_NO_CONTENT);
     }
@@ -115,23 +114,23 @@ class OriginTypeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->origin_type_id , $request->origin_type));
+        return response($this->validate_duplicate_code($request->group_id , $request->group_code));
       }
     }
 
 
-    //check OriginType code already exists
+    //check Cluster code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $originType = OriginType::where('origin_type','=',$code)->first();
-      if($originType == null){
+      $cluster = Cluster::where('group_code','=',$code)->first();
+      if($cluster == null){
         return ['status' => 'success'];
       }
-      else if($originType->origin_type_id == $id){
+      else if($cluster->group_id == $id){
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Origin type code already exists'];
+        return ['status' => 'error','message' => 'Cluster code already exists'];
       }
     }
 
@@ -141,11 +140,11 @@ class OriginTypeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = OriginType::select('*');
+        $query = Cluster::select('*');
       }
       else{
         $fields = explode(',', $fields);
-        $query = OriginType::select($fields);
+        $query = Cluster::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
@@ -153,16 +152,16 @@ class OriginTypeController extends Controller
       return $query->get();
     }
 
-    //search Origin Type for autocomplete
+    //search Cluster for autocomplete
     private function autocomplete_search($search)
   	{
-  		$origin_type_lists = OriginType::select('origin_type_id','origin_type')
-  		->where([['origin_type', 'like', '%' . $search . '%'],]) ->get();
-  		return $origin_type_lists;
+  		$cluster_lists = Cluster::select('group_id','group_name')
+  		->where([['group_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $cluster_lists;
   	}
 
 
-    //get searched OriginTypes for datatable plugin format
+    //get searched Clusters for datatable plugin format
     private function datatable_search($data)
     {
       $start = $data['start'];
@@ -173,19 +172,30 @@ class OriginTypeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $origin_type_list = OriginType::select('*')
-      ->where('origin_type'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+      $cluster_list = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+  		->select('org_group.*', 'org_source.source_name')
+  		->where('group_code','like',$search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->orWhere('source_name', 'like', $search.'%')
+  		->orderBy($order_column, $order_type)
+  		->offset($start)->limit($length)->get();
 
-      $origin_type_count = OriginType::where('origin_type'  , 'like', $search.'%' )->count();
+  		$cluster_count = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+  		->where('group_code','like',$search.'%')
+  		->orWhere('group_name', 'like', $search.'%')
+  		->orWhere('source_name', 'like', $search.'%')
+  		->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => $origin_type_count,
-          "recordsFiltered" => $origin_type_count,
-          "data" => $origin_type_list
+          "recordsTotal" => $cluster_count,
+          "recordsFiltered" => $cluster_count,
+          "data" => $cluster_list
       ];
+    }
+
+    public function searchStock(Request $request){
+        print_r($request->style_no);
     }
 
 }

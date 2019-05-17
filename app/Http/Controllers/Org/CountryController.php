@@ -9,13 +9,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Country;
 use App\Http\Resources\Org\CountryResource;
+use App\Libraries\AppAuthorize;
 
 class CountryController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //Display a listing of the resource.
@@ -40,22 +44,28 @@ class CountryController extends Controller
     //create new country
     public function store(Request $request)
     {
-      $country = new Country();
-      if($country->validate($request->all()))
+      if($this->authorize->hasPermission('COUNTRY_MANAGE'))//check permission
       {
-        $country->fill($request->all());
-        $country->status = 1;
-        $country->save();
-        return response([
-          'data' => [
-            'message' => 'Country updated successfully',
-            'country' => $country
-          ]
-        ] , Response::HTTP_CREATED );
+        $country = new Country();
+        if($country->validate($request->all()))
+        {
+          $country->fill($request->all());
+          $country->status = 1;
+          $country->save();
+          return response([
+            'data' => [
+              'message' => 'Country updated successfully',
+              'country' => $country
+            ]
+          ] , Response::HTTP_CREATED );
+        }
+        else{
+          $errors = $department->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
-        $errors = $department->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -63,34 +73,46 @@ class CountryController extends Controller
     //get new country
     public function show($id)
     {
+      if($this->authorize->hasPermission('COUNTRY_MANAGE'))//check permission
+      {
         $country = Country::find($id);
         if($country == null)
           return response( ['data' => 'Requested country not found'] , Response::HTTP_NOT_FOUND );
         else
           return response( ['data' => $country] );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update country
     public function update(Request $request, $id)
     {
-      $country = Country::find($id);
-      if($country->validate($request->all()))
+      if($this->authorize->hasPermission('COUNTRY_MANAGE'))//check permission
       {
-        $country->fill($request->except('country_code'));
-        $country->save();
+        $country = Country::find($id);
+        if($country->validate($request->all()))
+        {
+          $country->fill($request->except('country_code'));
+          $country->save();
 
-        return response([
-          'data' => [
-            'message' => 'Country saved successfully',
-            'country' => $country
-          ]
-        ]);
+          return response([
+            'data' => [
+              'message' => 'Country saved successfully',
+              'country' => $country
+            ]
+          ]);
+        }
+        else
+        {
+          $errors = $country->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $country->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -98,6 +120,8 @@ class CountryController extends Controller
     //deactivate a country
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('COUNTRY_DELETE'))//check permission
+      {
         $country = Country::where('country_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -105,6 +129,10 @@ class CountryController extends Controller
             'country' => $country
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -148,31 +176,36 @@ class CountryController extends Controller
     //get searched countries for datatable plugin format
     private function datatable_search($data)
     {
+      if($this->authorize->hasPermission('COUNTRY_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+        $country_list = Country::select('*')
+        ->where('country_code'  , 'like', $search.'%' )
+        ->orWhere('country_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $country_list = Country::select('*')
-      ->where('country_code'  , 'like', $search.'%' )
-      ->orWhere('country_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $country_count = Country::where('country_code'  , 'like', $search.'%' )
+        ->orWhere('country_description'  , 'like', $search.'%' )
+        ->count();
 
-      $country_count = Country::where('country_code'  , 'like', $search.'%' )
-      ->orWhere('country_description'  , 'like', $search.'%' )
-      ->count();
-
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $country_count,
-          "recordsFiltered" => $country_count,
-          "data" => $country_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $country_count,
+            "recordsFiltered" => $country_count,
+            "data" => $country_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

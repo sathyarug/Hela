@@ -9,13 +9,18 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Currency;
+use App\Libraries\AppAuthorize;
 
 class CurrencyController extends Controller
 {
+
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get shipment term list
@@ -43,40 +48,54 @@ class CurrencyController extends Controller
     //create a shipment term
     public function store(Request $request)
     {
-      $currency = new Currency();
-      if ($currency->validate($request->all()))
+      if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
       {
-        $currency->fill($request->all());
-        $currency->status = 1;
-        $currency->save();
+        $currency = new Currency();
+        if ($currency->validate($request->all()))
+        {
+          $currency->fill($request->all());
+          $currency->status = 1;
+          $currency->save();
 
-        return response([ 'data' => [
-          'message' => 'Currency was saved successfully',
-          'currency' => $currency
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Currency was saved successfully',
+            'currency' => $currency
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+          $errors = $currency->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $currency->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
     //get shipment term
     public function show($id)
     {
+      if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
+      {
         $currency = Currency::find($id);
         if($currency == null)
           throw new ModelNotFoundException("Requested currency not found", 1);
         else
           return response([ 'data' => $currency ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a shipment term
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
+      {
         $currency = Currency::find($id);
         if ($currency->validate($request->all()))
         {
@@ -93,11 +112,17 @@ class CurrencyController extends Controller
           $errors = $customer->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //deactivate a ship term
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('CURRENCY_DELETE'))//check permission
+      {
         $currency = Currency::where('currency_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -105,6 +130,10 @@ class CurrencyController extends Controller
             'shipTerm' => $currency
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -164,30 +193,36 @@ class CurrencyController extends Controller
     //get searched ship terms for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $currency_list = Currency::select('*')
-      ->where('currency_code'  , 'like', $search.'%' )
-      ->orWhere('currency_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $currency_list = Currency::select('*')
+        ->where('currency_code'  , 'like', $search.'%' )
+        ->orWhere('currency_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $currency_count = Currency::where('currency_code'  , 'like', $search.'%' )
-      ->orWhere('currency_description'  , 'like', $search.'%' )
-      ->count();
+        $currency_count = Currency::where('currency_code'  , 'like', $search.'%' )
+        ->orWhere('currency_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $currency_count,
-          "recordsFiltered" => $currency_count,
-          "data" => $currency_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $currency_count,
+            "recordsFiltered" => $currency_count,
+            "data" => $currency_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

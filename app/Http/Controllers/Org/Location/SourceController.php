@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Source;
+use App\Libraries\AppAuthorize;
 
 class SourceController extends Controller
 {
-    public function __construct()
+    var $authorize = null;
+
+    public function __construct(Request $request)
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Source list
@@ -42,23 +46,29 @@ class SourceController extends Controller
     //create a Source
     public function store(Request $request)
     {
-      $source = new Source();
-      if($source->validate($request->all()))
+      if($this->authorize->hasPermission('SOURCE_MANAGE'))//check permission
       {
-        $source->fill($request->all());
-        $source->status = 1;
-        $source->save();
+        $source = new Source();
+        if($source->validate($request->all()))
+        {
+          $source->fill($request->all());
+          $source->status = 1;
+          $source->save();
 
-        return response([ 'data' => [
-          'message' => 'Source was saved successfully',
-          'source' => $source
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Source was saved successfully',
+            'source' => $source
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $source->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $source->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -66,32 +76,44 @@ class SourceController extends Controller
     //get a Source
     public function show($id)
     {
-      $source = Source::find($id);
-      if($source == null)
-        throw new ModelNotFoundException("Requested source not found", 1);
-      else
-        return response([ 'data' => $source ]);
+      if($this->authorize->hasPermission('SOURCE_MANAGE'))//check permission
+      {
+        $source = Source::find($id);
+        if($source == null)
+          throw new ModelNotFoundException("Requested source not found", 1);
+        else
+          return response([ 'data' => $source ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Source
     public function update(Request $request, $id)
     {
-      $source = Source::find($id);
-      if($source->validate($request->all()))
+      if($this->authorize->hasPermission('SOURCE_MANAGE'))//check permission
       {
-        $source->fill($request->except('source_code'));
-        $source->save();
+        $source = Source::find($id);
+        if($source->validate($request->all()))
+        {
+          $source->fill($request->except('source_code'));
+          $source->save();
 
-        return response([ 'data' => [
-          'message' => 'Source was updated successfully',
-          'source' => $source
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Source was updated successfully',
+            'source' => $source
+          ]]);
+        }
+        else
+        {
+          $errors = $source->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $source->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -99,13 +121,19 @@ class SourceController extends Controller
     //deactivate a Source
     public function destroy($id)
     {
-      $source = Source::where('source_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Source was deactivated successfully.',
-          'source' => $source
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('SOURCE_DELETE'))//check permission
+      {
+        $source = Source::where('source_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Source was deactivated successfully.',
+            'source' => $source
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -138,18 +166,18 @@ class SourceController extends Controller
     //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
-      $query = null;
-      if($fields == null || $fields == '') {
-        $query = Source::select('*');
-      }
-      else{
-        $fields = explode(',', $fields);
-        $query = Source::select($fields);
-        if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
+        $query = null;
+        if($fields == null || $fields == '') {
+          $query = Source::select('*');
         }
-      }
-      return $query->get();
+        else{
+          $fields = explode(',', $fields);
+          $query = Source::select($fields);
+          if($active != null && $active != ''){
+            $query->where([['status', '=', $active]]);
+          }
+        }
+        return $query->get();
     }
 
 
@@ -165,32 +193,38 @@ class SourceController extends Controller
     //get searched Sources for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SOURCE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $source_list = Source::select('*')
-      ->where('source_code'  , 'like', $search.'%' )
-      ->orWhere('source_name'  , 'like', $search.'%' )
-      ->orWhere('source_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $source_list = Source::select('*')
+        ->where('source_code'  , 'like', $search.'%' )
+        ->orWhere('source_name'  , 'like', $search.'%' )
+        ->orWhere('source_name'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $source_count = Source::where('source_code'  , 'like', $search.'%' )
-      ->orWhere('source_name'  , 'like', $search.'%' )
-      ->orWhere('source_name'  , 'like', $search.'%' )
-      ->count();
+        $source_count = Source::where('source_code'  , 'like', $search.'%' )
+        ->orWhere('source_name'  , 'like', $search.'%' )
+        ->orWhere('source_name'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $source_count,
-          "recordsFiltered" => $source_count,
-          "data" => $source_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $source_count,
+            "recordsFiltered" => $source_count,
+            "data" => $source_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
