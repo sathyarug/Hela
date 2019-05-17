@@ -40,6 +40,8 @@ class BulkCostingController extends Controller {
             return response($this->getStyleData($request->style_id));
         }elseif($type == 'getCostListing'){
             return response($this->getCostSheetListing($request->style_id));
+        }elseif($type == 'getCostingHeader'){
+            return response($this->getCostingHeaderDetails($request->costing_id));    
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
@@ -776,5 +778,20 @@ ORDER BY item_category.category_id');
                             ->where('style_id','=',$styleId)->get();
 
         return $bulkHeaderData;
+    }
+    
+    private function getCostingHeaderDetails($costingId){
+
+       /* $costingHeader = BulkCosting::select("*")
+                            ->where('bulk_costing_id','=',$costingId)->get();*/
+                            
+        $costingHeader = \DB::table('costing_bulk')
+                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
+                            ->select('costing_bulk.*','org_season.season_name') 
+                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->get();             
+
+        return $costingHeader;
+
     }
 }
