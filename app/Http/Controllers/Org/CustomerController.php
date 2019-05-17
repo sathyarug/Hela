@@ -196,8 +196,11 @@ class CustomerController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
+      $active=1;
   		$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['customer_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',$active)
+      ->get();
   		return $customer_lists;
   	}
 
@@ -257,7 +260,7 @@ class CustomerController extends Controller
    }
 
     public function loadCustomerDivision(Request $request) {
-
+        //dd($request);
         $customer_id = $request->get('customer_id');
 
         $divisions=DB::table('cust_customer')

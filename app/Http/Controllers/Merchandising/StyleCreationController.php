@@ -248,15 +248,10 @@ class StyleCreationController extends Controller
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
             ->select('cust_customer.customer_id AS id','cust_customer.customer_name')
             ->where('style_creation.style_id','=',1)
-            ->get();
+            ->first();
 
-        echo json_encode($cust);
-        /*return response([
-            'data' => [
-                'message' => 'Style was deactivated successfully.',
-                'style' => $cust
-            ]
-        ] , Response::HTTP_NO_CONTENT);*/
+        return $cust;
+
     }
 
 }
