@@ -113,7 +113,8 @@ class ItemSubCategoryController extends Controller
     public function get_subcat_list_by_maincat(Request $request){
 
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
-        $sub_category = SubCategory::where('category_id','=',$request->category_id)->get();
+        //$sub_category = SubCategory::where('category_id','=',$request->category_id)->get();
+        $sub_category = SubCategory::where('category_id','=',$request->category_id)->where('status','=','1')->get();
         echo json_encode($sub_category);
     }
 

@@ -303,7 +303,8 @@ class BulkDetailsController extends Controller
         $model = BulkCostingDetails::find($id);
         $model->status=0;
         $model->save();
-        return ($this->loadItemList($model->bulkheader_id));
+        $blkFeature=\App\Models\Merchandising\BulkCostingFeatureDetails::find($model->bulkheader_id);
+        return ($this->loadItemList($model->bulkheader_id,$blkFeature->bulkheader_id));
 //        return 1;
     }
 
@@ -347,7 +348,12 @@ class BulkDetailsController extends Controller
         $model->comments=$modelOld->comments;
 
         $model->save();
-        return ($this->loadItemList($model->bulkheader_id));
+//        App\Models\Merchandising\BulkCostingFeatureDetails
+//        $BulkCosting = BulkCosting::find($request->bulk_header);
+        $blkFeature=\App\Models\Merchandising\BulkCostingFeatureDetails::find($modelOld->bulkheader_id);
+
+//print_r($modelOld->bulkheader_id.','.$blkFeature->bulkheader_id);exit;
+        return ($this->loadItemList($modelOld->bulkheader_id,$blkFeature->bulkheader_id));
 //        return response(['data' => [
 //            'message' => 'Costing is saved successfully',
 //            'bulkCostin' => $model,

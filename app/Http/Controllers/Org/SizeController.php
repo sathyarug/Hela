@@ -184,8 +184,10 @@ class SizeController extends Controller
     //search Size for autocomplete
     private function autocomplete_search($search)
   	{
+      $active=1;
   		$size_lists = Size::select('size_id','size_name')
-  		->where([['size_name', 'like', '%' . $search . '%']]) ->get();
+  		->where([['size_name', 'like', '%' . $search . '%']])
+      ->where('status','=',$active) ->get();
   		return $size_lists;
   	}
 

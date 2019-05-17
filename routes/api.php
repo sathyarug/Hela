@@ -179,7 +179,7 @@ Route::prefix('org/')->group(function(){
   Route::get('features/validate' , 'Org\FeatureController@validate_data');
   Route::apiResource('features','Org\FeatureController');
 
-    Route::apiResource('ship-modes','Org\ShipModeController');
+  Route::apiResource('ship-modes','Org\ShipModeController');
 
 });
 
@@ -290,6 +290,9 @@ Route::prefix('stores/')->group(function(){
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  //sub store bin validate
+  Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
+  Route::apiResource('substore','Store\StoreBinController');
   Route::get('substore-bin-list','Store\SubStoreController@getSubStoreBinList');
   Route::get('load-bin-qty','Store\BinTransferController@loadBinQty');
   Route::get('load-added-bin-qty','Store\BinTransferController@loadAddedBinQty');
@@ -320,8 +323,10 @@ Route::prefix('stores/')->group(function(){
     Route::apiResource('save-bin-transfer', 'Store\BinTransferController');
 
     //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
-    //Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
-    Route::apiResource('material-trasnsfer','Stores\MaterialTransferController');
+    //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
+    Route::apiResource('material-transfer','Stores\MaterialTransferController');
+    Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
+    //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
     //Route::apiResource('substore','Store\SubStoreController');
 
 
@@ -488,6 +493,10 @@ Route::prefix('store/')->group(function(){
 
     Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
     Route::apiResource('bin-config','Store\BinConfigController');
+
+    Route::apiResource('mrn','Store\MrnController');
+    Route::apiResource('issue','Store\IssueController');
+    Route::apiResource('return-to-stores','Store\ReturnToStoresController');
 });
 
 
