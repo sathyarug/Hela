@@ -144,7 +144,7 @@ class  SilhouetteClassificationController extends Controller
        echo json_encode(array('status' => 'success'));
        }
        else {
-       echo json_encode(array('status' => 'error','message' => 'Record already exists'));
+       echo json_encode(array('status' => 'error','message' => 'Silhouette classification already exists'));
        }
     }
 

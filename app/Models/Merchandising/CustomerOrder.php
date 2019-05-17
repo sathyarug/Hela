@@ -33,8 +33,8 @@ class CustomerOrder extends BaseValidator
     public static function boot()
     {
         static::creating(function ($model) {
-          $user = auth()->user();
-          $code = UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , $user->location);
+          $location = auth()->payload()['loc_id'];
+          $code = UniqueIdGenerator::generateUniqueId('CUSTOMER_ORDER' , $location);
           $model->order_code = $code;
           //$model->updated_by = $user->user_id;
         });

@@ -248,8 +248,8 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
-       
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
+
 
         $dataArr['style_remark'] = $styleData->remark;
         $dataArr['division_name'] = $styleData->division->division_description;
@@ -266,15 +266,19 @@ class BulkCostingController extends Controller {
         $dataArr['cust_id'] = $styleData->customer->customer_id;
         $dataArr['division_name'] = $styleData->division->division_description;
         $dataArr['division_id'] = $styleData->division->division_id;
+        //echo json_encode($styleData->customer);
         $dataArr['country'] = $country->country_description;
-//        $dataArr['stage'] = '';
 
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->first();
-//        print_r($sumStyleSmvComp->created_date);exit;
+        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+        //  echo json_encode($styleData->style_id);
+//        dd($sumStyleSmvComp->created_date);exit;
 
         if(count($hader)>0){
             $hader[0]['pcd']=date_format(date_create($hader[0]['pcd']),"m/d/Y");
             $dataArr['blk_hader'] = $hader[0];
+            $dataArr['blk_hader']['smv_received']=date_format(date_create($sumStyleSmvComp->created_date),"m/d/Y");
+            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+
 
         }else{
             $financeCost=\App\Models\finance\Cost\FinanceCost::first();
@@ -292,12 +296,16 @@ class BulkCostingController extends Controller {
             $dataArr['blk_hader']['pcd']='';
             $dataArr['blk_hader']['finance_charges']=$financeCost->finance_cost;
             $dataArr['blk_hader']['cost_per_min']=$financeCost->cpum;
+            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+            $dataArr['blk_hader']['costing_status']=0;
+
         }
 
 
-
+//dd($dataArr);
         return $dataArr;
     }
+
 
     private function getFinishGood($style_id,$data) {
 

@@ -58,7 +58,7 @@ class ColorOptionController extends Controller
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option was saved successfully',
+            'message' => 'Color Option saved successfully',
             'originType' => $colorOption
             ]
           ], Response::HTTP_CREATED );
@@ -104,7 +104,7 @@ class ColorOptionController extends Controller
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option was updated successfully',
+            'message' => 'Color Option updated successfully',
             'colorOption' => $colorOption
           ]]);
         }

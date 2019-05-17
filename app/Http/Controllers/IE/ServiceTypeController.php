@@ -57,7 +57,7 @@ class ServiceTypeController extends Controller
           $servicetype->save();
 
           return response([ 'data' => [
-            'message' => 'Service Type was saved successfully',
+            'message' => 'Service Type saved successfully',
             'servicetype' => $servicetype
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class ServiceTypeController extends Controller
           $servicetype->save();
 
           return response([ 'data' => [
-            'message' => 'Service Type was updated successfully',
+            'message' => 'Service Type updated successfully',
             'servicetype' => $servicetype
           ]]);
         }

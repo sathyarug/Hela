@@ -57,7 +57,7 @@ class DesignationController extends Controller
           $designation->save();
 
           return response([ 'data' => [
-            'message' => 'Department was saved successfully',
+            'message' => 'Designation was saved successfully',
             'designation' => $designation
             ]
           ], Response::HTTP_CREATED );

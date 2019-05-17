@@ -51,7 +51,7 @@ class OriginTypeController extends Controller
         $originType->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was saved successfully',
+          'message' => 'Origin type saved successfully',
           'originType' => $originType
           ]
         ], Response::HTTP_CREATED );
@@ -85,7 +85,7 @@ class OriginTypeController extends Controller
         $originType->save();
 
         return response([ 'data' => [
-          'message' => 'Origin type was updated successfully',
+          'message' => 'Origin type updated successfully',
           'originType' => $originType
         ]]);
       }

@@ -28,8 +28,7 @@ class BulkDetailsController extends Controller
             return response($this->getItemList($search));
         }elseif ($type == 'loadItem'){
             $bulkheader_id = $request->serialblk;
-            $head_id = $request->head;
-            return response($this->loadItemList($bulkheader_id,$head_id));
+            return response($this->loadItemList($bulkheader_id));
         }elseif ($type == 'getSupplier'){
             return response($this->getSupplier());
         }elseif ($type == 'getProcessOptions'){
@@ -126,7 +125,6 @@ class BulkDetailsController extends Controller
             $model->finance_charges=$request->finance_charges;
             $model->moq=$request->moq;
             $model->mcq=$request->mcq;
-//            $model->main_item=$request->main_item;
             $model->calculate_by_deliverywise=$request->calculate_by_deliverywise;
             $model->surcharge=$request->surcharge;
             $model->total_cost=$request->total_cost;
@@ -140,8 +138,8 @@ class BulkDetailsController extends Controller
 
             $model->save();
 
-           // $ItemCode=\App\Models\Org\ItemCode::where('item_id',$model->main_item )->where('color_id',$model->color_id )->where('size_id',$model->color_id )->get();
-//            print_r($ItemCode);exit;
+            //$ItemCode=\App\Models\Org\ItemCode::where('item_id',$model->main_item )->where('color_id',$model->color_id )->where('size_id',$model->color_id )->get();
+          //  print_r($ItemCode);exit;
 
             return response(['data' => [
                 'message' => 'Costing is saved successfully',
@@ -214,84 +212,85 @@ class BulkDetailsController extends Controller
 //            ->where([['master_description', 'like', '%' . $search . '%'],])->get();
 //    }
 
-    public function loadItemList($id,$headId){
-        $itemList= BulkCostingDetails::select('*')
-            ->where([['bulkheader_id', '=',  $id ],['status', '=',  1 ]])->get();
-        $hader = \App\Models\Merchandising\BulkCosting::find($headId)->toArray();
-        $SentToApproval=0;
-        if(count($hader)>0){
-            $SentToApproval=$hader['costing_status'];
-        }
-        $returnArray=array();
-        foreach ($itemList AS $item){
-            $master= \App\itemCreation::find($item->main_item)->toArray();
-            $SubCategory= \App\Models\Finance\Item\SubCategory::find($master['subcategory_id'])->toArray();
-            $category= \App\Models\Finance\Item\Category::find($SubCategory['category_id'])->toArray();
+public function loadItemList($id,$headId){
+  $itemList= BulkCostingDetails::select('*')
+      ->where([['bulkheader_id', '=',  $id ],['status', '=',  1 ]])->get();
+  $hader = \App\Models\Merchandising\BulkCosting::find($headId)->toArray();
+  $SentToApproval=0;
+  if(count($hader)>0){
+      $SentToApproval=$hader['costing_status'];
+  }
+  $returnArray=array();
+  foreach ($itemList AS $item){
+      $master= \App\itemCreation::find($item->main_item)->toArray();
+      $SubCategory= \App\Models\Finance\Item\SubCategory::find($master['subcategory_id'])->toArray();
+      $category= \App\Models\Finance\Item\Category::find($SubCategory['category_id'])->toArray();
 
-            $supplie=\App\Models\Org\Supplier::find($item->supplier_id);
-            $process_options=\App\Models\IE\ServiceType::find($item->process_option);
-            $umo=\App\Models\Org\UOM::find($item->uom_id);
-            $color=\App\Models\Org\Color::find($item->color_id);
-            $contry=\App\Models\Org\Country::find($item->country_of_origin);
-            $colorType=\App\Models\Merchandising\ColorOption::find($item->color_type_id);
+      $supplie=\App\Models\Org\Supplier::find($item->supplier_id);
+      $process_options=\App\Models\IE\ServiceType::find($item->process_option);
+      $umo=\App\Models\Org\UOM::find($item->uom_id);
+      $color=\App\Models\Org\Color::find($item->color_id);
+      $contry=\App\Models\Org\Country::find($item->country_of_origin);
+      $colorType=\App\Models\Merchandising\ColorOption::find($item->color_type_id);
 
-             $calculate_by_deliverywise=false;
-            if($item->calculate_by_deliverywise ==1){
-                $calculate_by_deliverywise=true;
-            }
+       $calculate_by_deliverywise=false;
+      if($item->calculate_by_deliverywise ==1){
+          $calculate_by_deliverywise=true;
+      }
 
-            $oderType='';
-            if($item->order_type ==1){
-                $oderType='color wise';
-            }elseif ($item->order_type ==2) {
-                $oderType='size wise';
-            }elseif ($item->order_type == 3){
-                $oderType='both';
-            }
+      $oderType='';
+      if($item->order_type ==1){
+          $oderType='color wise';
+      }elseif ($item->order_type ==2) {
+          $oderType='size wise';
+      }elseif ($item->order_type == 3){
+          $oderType='both';
+      }
 
-            $item=array(
-                'main_item_type'=>$category['category_name'],
-                'main_item_Id'=>$item->main_item,
-                'main_item_code'=>$master['master_code'],
-                'main_item_description'=>$master['master_description'],
-                'bulkheader_id'=>$item->bulkheader_id,
-                'item_id'=>$item->item_id,
-                'color'=>$color['color_name'],
-                'color_type'=>$colorType['color_option'],
-                'article_no'=>$item->article_no,
-                'supplier'=>$supplie->supplier_name,
-                'position'=>$item->position,
-                'measurement'=>$item->measurement,
-                'process_options'=>$process_options->service_type_description,
-                'uom'=>$umo->uom_code,
-                'net_consumption'=>$item->net_consumption,
-                'unit_price'=>$item->unit_price,
-                'wastage'=>$item->wastage,
-                'gross_consumption'=>$item->gross_consumption,
-                'freight_charges'=>$item->freight_charges,
-                'finance_charges'=>$item->finance_charges,
-                'moq'=>$item->moq,
-                'mcq'=>$item->mcq,
-                'OrderType'=>$oderType,
-                'calculate_by_deliverywise'=>$calculate_by_deliverywise,
-                'surcharge'=>$item->surcharge,
-                'total_cost'=>$item->total_cost,
-                'shipping_terms'=>$item->shipping_terms,
-                'lead_time'=>$item->lead_time,
-                'country_of_origin'=>$contry['country_description'],
-                'comments'=>$item->comments,
-                'success'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-success-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">save</i> </a>',
-                'primary'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-primary-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Copy</i> </a>',
-                'danger'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-danger-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Delete</i> </a>'
+      $item=array(
+          'main_item_type'=>$category['category_name'],
+          'main_item_Id'=>$item->main_item,
+          'main_item_code'=>$master['master_code'],
+          'main_item_description'=>$master['master_description'],
+          'bulkheader_id'=>$item->bulkheader_id,
+          'item_id'=>$item->item_id,
+          'color'=>$color['color_name'],
+          'color_type'=>$colorType['color_option'],
+          'article_no'=>$item->article_no,
+          'supplier'=>$supplie->supplier_name,
+          'position'=>$item->position,
+          'measurement'=>$item->measurement,
+          'process_options'=>$process_options->service_type_description,
+          'uom'=>$umo->uom_code,
+          'net_consumption'=>$item->net_consumption,
+          'unit_price'=>$item->unit_price,
+          'wastage'=>$item->wastage,
+          'gross_consumption'=>$item->gross_consumption,
+          'freight_charges'=>$item->freight_charges,
+          'finance_charges'=>$item->finance_charges,
+          'moq'=>$item->moq,
+          'mcq'=>$item->mcq,
+          'OrderType'=>$oderType,
+          'calculate_by_deliverywise'=>$calculate_by_deliverywise,
+          'surcharge'=>$item->surcharge,
+          'total_cost'=>$item->total_cost,
+          'shipping_terms'=>$item->shipping_terms,
+          'lead_time'=>$item->lead_time,
+          'country_of_origin'=>$contry['country_description'],
+          'comments'=>$item->comments,
+          'success'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-success-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">save</i> </a>',
+          'primary'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-primary-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Copy</i> </a>',
+          'danger'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-danger-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Delete</i> </a>'
 
 
-            );
+      );
 
-            $returnArray[]=$item;
-        }
+      $returnArray[]=$item;
+  }
 
-        return json_encode(array('data'=>$returnArray,'SentToApproval'=>$SentToApproval));
-    }
+  return json_encode(array('data'=>$returnArray,'SentToApproval'=>$SentToApproval));
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -418,7 +417,7 @@ class BulkDetailsController extends Controller
     }
 
     public  function loadItemAccordingCategory($tem){
-
+//        dd($tem['query']);
         $item_list = DB::table('item_master')
             ->join('item_subcategory', 'item_master.subcategory_id', '=', 'item_subcategory.subcategory_id')
             ->join('item_category', 'item_subcategory.category_id', '=', 'item_category.category_id')

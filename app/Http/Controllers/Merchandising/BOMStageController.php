@@ -57,7 +57,7 @@ class BOMStageController extends Controller
           $bomstage->save();
 
           return response([ 'data' => [
-            'message' => 'BOM Stage was saved successfully',
+            'message' => 'BOM Stage saved successfully',
             'bomstage' => $bomstage
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class BOMStageController extends Controller
           $bomstage->save();
 
           return response([ 'data' => [
-            'message' => 'BOM Stage was updated successfully',
+            'message' => 'BOM Stage updated successfully',
             'bomstage' => $bomstage
           ]]);
         }
@@ -220,7 +220,7 @@ class BOMStageController extends Controller
       }
       else{
         return response($this->authorize->error_response(), 401);
-      }      
+      }
     }
 
 }

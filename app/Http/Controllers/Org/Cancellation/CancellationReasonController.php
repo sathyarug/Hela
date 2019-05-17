@@ -102,7 +102,7 @@ class CancellationReasonController extends Controller
           $cluster->save();
 
           return response([ 'data' => [
-            'message' => 'Cluster was updated successfully',
+            'message' => 'Cancellation reason was updated successfully',
             'cluster' => $cluster
           ]]);
         }

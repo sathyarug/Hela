@@ -57,7 +57,7 @@ class SizeController extends Controller
           $size->save();
 
           return response([ 'data' => [
-            'message' => 'Size was saved successfully',
+            'message' => 'Size saved successfully',
             'size' => $size
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class SizeController extends Controller
           $size->save();
 
           return response([ 'data' => [
-            'message' => 'Size was updated successfully',
+            'message' => 'Size updated successfully',
             'size' => $size
           ]]);
         }
