@@ -20,21 +20,36 @@ class ItemSubCategoryController extends Controller
 
     public function save(Request $request){
       //print_r($request->all());die();
+        $IsInspectionAllowed = 0;
+        $IsDisplay = 0;
         $sub_category = new SubCategory();
         if ($sub_category->validate($request->all()))
         {
+            if(is_null($request->is_inspectiion_allowed)){
+                $IsInspectionAllowed = 0;
+            }else{
+                $IsInspectionAllowed = 1;
+            }
+            
+            if(is_null($request->is_display)){
+                $IsDisplay = 0;
+            }else{
+                $IsDisplay = 1;
+            }
+            
+            
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
                 $sub_category->category_id = $request->category_code;
                 $sub_category->subcategory_name = $request->subcategory_name;
-                $sub_category->is_inspectiion_allowed = $request->is_inspectiion_allowed;
-                $sub_category->is_display = $request->is_display;
+                $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
+                $sub_category->is_display = $IsDisplay;
             }
             else{
               $sub_category->fill($request->all());
               $sub_category->category_id = $request->category_code;
-              $sub_category->is_inspectiion_allowed = $request->is_inspectiion_allowed;
-              $sub_category->is_display = $request->is_display;
+              $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
+              $sub_category->is_display = $IsDisplay;
               $sub_category->status = 1;
               $sub_category->created_by = 1;
             }
