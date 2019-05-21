@@ -42,16 +42,20 @@ class CombineSOController extends Controller
 
         $errors = '';
 
+        //dd($request->soList);
+
         foreach ($request->soList as $item) {
             // Check SO already combined
-            $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]]);
-            if($chkCmb){
+            //dd($request->costing_id);
+           // $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]])->count();
 
-                $errors = 'already combined.';
+           /* if($chkCmb){
+
+                $errors = 'Already combined';
                 break;
-            }
+            }*/
 
-            if($item['item_select'] == 1) {
+            if($item['item_select'] == true) {
                 $modal = new CostingSOCombine;
                 $modal->costing_id = $request->costing_id;
                 $modal->color = $item['color_id'];

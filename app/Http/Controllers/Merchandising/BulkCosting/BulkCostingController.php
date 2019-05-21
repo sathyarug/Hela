@@ -16,6 +16,7 @@ use App\Models\Merchandising\HisBulkCostingDetails;
 use App\Models\Merchandising\HisBulkCostingFeatureDetails;
 use App\Models\Merchandising\StyleProductFeature;
 
+
 class BulkCostingController extends Controller {
 
     /**
@@ -37,6 +38,10 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
+        }elseif($type == 'getCostListing'){
+            return response($this->getCostSheetListing($request->style_id));
+        }elseif($type == 'getCostingHeader'){
+            return response($this->getCostingHeaderDetails($request->costing_id));    
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
@@ -58,6 +63,10 @@ class BulkCostingController extends Controller {
             return response($this->getColorForDivision($division_id,$query));
         }elseif ($type == 'apv'){
             $this->Approval($request);
+        }elseif ($type == 'report-balk'){
+            $this->reportBalk($request);
+        }elseif ($type == 'report-flash'){
+            $this->reportFlash($request);
         }
     }
 
@@ -265,7 +274,9 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
+
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);      
+        
 
 
         $dataArr['style_remark'] = $styleData->remark;
@@ -283,10 +294,13 @@ class BulkCostingController extends Controller {
         $dataArr['cust_id'] = $styleData->customer->customer_id;
         $dataArr['division_name'] = $styleData->division->division_description;
         $dataArr['division_id'] = $styleData->division->division_id;
-        $dataArr['country'] = 1;
-//        $dataArr['stage'] = '';
+
+        //echo json_encode($styleData->customer);
+        $dataArr['country'] = $country->country_description;
+
 
         $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+        //  echo json_encode($styleData->style_id);
 //        dd($sumStyleSmvComp->created_date);exit;
 
         if(count($hader)>0){
@@ -321,6 +335,7 @@ class BulkCostingController extends Controller {
 //dd($dataArr);
         return $dataArr;
     }
+
 
     private function getFinishGood($style_id,$data) {
 
@@ -554,16 +569,235 @@ $count++;
 
     public  function Approval($request){
         $BulkCosting = BulkCosting::find($request->blk);
-        if($BulkCosting->costing_status =='SentToApproval'){
-            $CostingBulkRevision=BulkCostingApproval::where('costing_id',$request->blk)->where('approval_key',$request->approval_key)->where('id',$request->aid)->get();
-            $blkApp = \App\Models\Merchandising\BulkCostingApproval::find($request->aid);
-            $blkApp->lock_status=1;
-            $blkApp->save();
+        if(isset($request->ur)){
+            if($BulkCosting->costing_status =='SentToApproval'){
+//            $CostingBulkRevision=BulkCostingApproval::where('costing_id',$request->blk)->where('approval_key',$request->approval_key)->where('id',$request->aid)->get();
+                $blkApp = \App\Models\Merchandising\BulkCostingApproval::find($request->aid);
+                $blkApp->lock_status=1;
+                $blkApp->save();
+
+
+                $upate =DB::table('costing_bulk')
+                    ->where('bulk_costing_id', $blkApp->costing_id)
+                    ->update(['costing_approval_user' => $request->ur,'costing_approval_time'=>now(),'costing_status'=>'approved']);
+
 //            $user = auth()->user();
-        }else{
+            }else{
+
+            }
+        }
+
+    }
+    public  function reportBalk($request){
+
+        $getAllData=DB::select('SELECT
+item_master.master_description,
+item_master.master_code,
+item_subcategory.subcategory_name,
+item_category.category_name,
+costing_bulk.style_id,
+costing_bulk.bulk_costing_id,
+costing_bulk_feature_details.blk_feature_id,
+costing_bulk_details.item_id,
+costing_bulk.pcd,
+costing_bulk.plan_efficiency,
+costing_bulk.fob,
+costing_bulk.finance_charges,
+costing_bulk.cost_per_min,
+costing_bulk.cost_per_std_min,
+costing_bulk.epm,
+costing_bulk.np_margin,
+sum((costing_bulk_details.unit_price*costing_bulk_details.gross_consumption)) AS total,
+\'\' AS updated_date,
+\'\' AS User
+FROM
+costing_bulk_details
+INNER JOIN item_master ON item_master.master_id = costing_bulk_details.main_item
+INNER JOIN item_subcategory ON item_master.subcategory_id = item_subcategory.subcategory_id
+INNER JOIN item_category ON item_category.category_id = item_subcategory.category_id
+INNER JOIN costing_bulk_feature_details ON costing_bulk_feature_details.blk_feature_id = costing_bulk_details.bulkheader_id
+INNER JOIN costing_bulk ON costing_bulk_feature_details.bulkheader_id = costing_bulk.bulk_costing_id
+WHERE
+costing_bulk.style_id ='.$request->style_id.'
+GROUP BY
+item_category.category_name');
+
+        $getAllDataHis=DB::select('SELECT
+costing_bulk.style_id,
+costing_bulk_revision.revision,
+his_costing_bulk.pcd,
+his_costing_bulk_feature_details.blk_feature_id,
+his_costing_bulk_details.bulkheader_id,
+item_master.master_description,
+item_subcategory.subcategory_name,
+item_category.category_name,
+his_costing_bulk.plan_efficiency,
+his_costing_bulk.fob,
+his_costing_bulk.finance_charges,
+his_costing_bulk.cost_per_min,
+his_costing_bulk.cost_per_std_min,
+his_costing_bulk.epm,
+his_costing_bulk.np_margin,
+Sum((his_costing_bulk_details.unit_price*his_costing_bulk_details.gross_consumption)) AS total,
+costing_bulk_revision.created_date,
+costing_bulk_revision.updated_date,
+CONCAT(usr_profile.first_name, " ", usr_profile.last_name, "-", costing_bulk_revision.created_by) AS User
+FROM
+costing_bulk
+INNER JOIN costing_bulk_revision ON costing_bulk.bulk_costing_id = costing_bulk_revision.costing_id
+INNER JOIN his_costing_bulk ON costing_bulk_revision.revision = his_costing_bulk.revistion_id AND costing_bulk_revision.costing_id = his_costing_bulk.bulk_costing_id
+INNER JOIN his_costing_bulk_feature_details ON his_costing_bulk.revistion_id = his_costing_bulk_feature_details.revistion_id AND his_costing_bulk.bulk_costing_id = his_costing_bulk_feature_details.bulkheader_id
+INNER JOIN his_costing_bulk_details ON his_costing_bulk_feature_details.revistion_id = his_costing_bulk_details.revistion_id AND his_costing_bulk_feature_details.blk_feature_id = his_costing_bulk_details.bulkheader_id
+INNER JOIN item_master ON item_master.master_id = his_costing_bulk_details.item_id
+INNER JOIN item_subcategory ON item_master.subcategory_id = item_subcategory.subcategory_id
+INNER JOIN item_category ON item_subcategory.category_id = item_category.category_id
+INNER JOIN usr_profile ON usr_profile.user_id = costing_bulk_revision.created_by
+WHERE
+costing_bulk.style_id='.$request->style_id.'
+GROUP BY
+costing_bulk_revision.revision,item_category.category_name
+ORDER BY
+costing_bulk_revision.revision DESC
+');
+
+
+        $data=array();
+        $fullData=array();
+        $index=0;
+
+        $fabric=$trims=$packing=$other='';
+        foreach ($getAllData AS $allData){
+            if($allData->category_name == 'Fabric'){
+                $fabric=$allData->total;
+            }
+            if($allData->category_name == 'Trims'){
+                $trims=$allData->total;
+            }
+            if($allData->category_name == 'Packing'){
+                $packing=$allData->total;
+            }
+            if($allData->category_name == 'Other'){
+                $other=$allData->total;
+            }
 
         }
-//       print_r($BulkCosting->costing_status);exit;
+            $data=array(
+                'pcd'=>$getAllData[0]->pcd,
+                'plan_efficiency'=>$getAllData[0]->plan_efficiency,
+                'fob'=>$getAllData[0]->fob,
+                'finance_charges'=>$getAllData[0]->finance_charges,
+                'cost_per_min'=>$getAllData[0]->cost_per_min,
+                'cost_per_std_min'=>$getAllData[0]->cost_per_std_min,
+                'epm'=>$getAllData[0]->epm,
+                'np_margin'=>$getAllData[0]->np_margin,
+                'fabric'=>$fabric,
+                'trims'=>$trims,
+                'packing'=>$packing,
+                'other'=>$other,
+                'updated_date'=>$getAllData[0]->updated_date,
+                'User'=>$getAllData[0]->User
+
+            );
+
+        $fullData[$index]=$data;
+
+        $one=0;$two=$getAllDataHis[0]->revision;
+        $fabric=$trims=$packing=$other='';
+        foreach ($getAllDataHis AS $allDataHis){
+            $one=$allDataHis->revision;
+            $data=array();
+           // dd($allDataHis->revistion_id);
+
+            if($allDataHis->category_name == 'Fabric'){
+                $fabric=$allData->total;
+            }
+            if($allDataHis->category_name == 'Trims'){
+                $trims=$allData->total;
+            }
+            if($allDataHis->category_name == 'Packing'){
+                $packing=$allData->total;
+            }
+            if($allDataHis->category_name == 'Other'){
+                $other=$allData->total;
+            }
+            $data=array(
+                'pcd'=>$allDataHis->pcd,
+                'plan_efficiency'=>$allDataHis->plan_efficiency,
+                'fob'=>$allDataHis->fob,
+                'finance_charges'=>$allDataHis->finance_charges,
+                'cost_per_min'=>$allDataHis->cost_per_min,
+                'cost_per_std_min'=>$allDataHis->cost_per_std_min,
+                'epm'=>$allDataHis->epm,
+                'np_margin'=>$allDataHis->np_margin,
+                'fabric'=>$fabric,
+                'trims'=>$trims,
+                'packing'=>$packing,
+                'other'=>$other,
+                'updated_date'=>$allDataHis->updated_date,
+                'User'=>$allDataHis->User
+
+            );
+            if($one !=$two){
+                $index++;
+                $fullData[$index]=$data;
+                $two=$one;
+
+            }
+        }
+        $styleData = \App\Models\Merchandising\styleCreation::find($request->style_id);
+//        dd($styleData->image);
+print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;
+
     }
 
+    public  function reportFlash($request){
+        $styleData = \App\Models\Merchandising\styleCreation::find($request->style_id);
+        $flashHaderData = \App\Models\Merchandising\Costing\Flash\cost_flash_header::find($request->style_id);
+
+
+        $getAllDataFlash=DB::select('SELECT
+item_master.master_id,
+cost_flash_header.style_id,
+cost_flash_details.req_qty,
+cost_flash_details.tot_req_qty,
+cost_flash_details.total_value,
+item_category.category_name,
+item_category.category_id,
+item_subcategory.subcategory_name,
+item_master.master_description,
+item_master.master_code
+FROM
+cost_flash_header
+INNER JOIN cost_flash_details ON cost_flash_details.costing_id = cost_flash_header.costing_id
+INNER JOIN item_master ON item_master.master_id = cost_flash_details.master_id
+INNER JOIN item_subcategory ON item_master.subcategory_id = item_subcategory.subcategory_id
+INNER JOIN item_category ON item_subcategory.category_id = item_category.category_id
+WHERE cost_flash_header.style_id = '.$request->style_id.'
+ORDER BY item_category.category_id');
+
+        print_r(json_encode(array('image'=>$styleData->image,'data'=>$flashHaderData, 'details'=>$getAllDataFlash)));exit;
+    }
+    
+    private function getCostSheetListing($styleId){
+
+        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
+                            ->where('style_id','=',$styleId)->get();
+
+        return $bulkHeaderData;
+    }
+    
+    private function getCostingHeaderDetails($costingId){
+
+       /* $costingHeader = BulkCosting::select("*")
+                            ->where('bulk_costing_id','=',$costingId)->get();*/
+                            
+        $costingHeader = \DB::table('costing_bulk')
+                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
+                            ->select('costing_bulk.*','org_season.season_name') 
+                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->get();             
+
+        return $costingHeader;
+
+    }
 }

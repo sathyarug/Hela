@@ -37,6 +37,10 @@ class StyleCreationController extends Controller
             return response([
                 'data' => $this->list($active , $fields)
             ]);
+        }elseif($type == 'style_customer'){
+            return response([
+                'data' => $this->getCustomerForStyle()
+            ]);
         }else{
 
             try{
@@ -237,6 +241,17 @@ class StyleCreationController extends Controller
                 'style' => $style
             ]
         ] , Response::HTTP_NO_CONTENT);
+    }
+
+    public function getCustomerForStyle(){
+        $cust = DB::table('style_creation')
+            ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
+            ->select('cust_customer.customer_id AS id','cust_customer.customer_name')
+            ->where('style_creation.style_id','=',1)
+            ->first();
+
+        return $cust;
+
     }
 
 }

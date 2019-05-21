@@ -39,6 +39,12 @@ class CustomerOrderDetailsController extends Controller
       else if($type == 'style_colors')  {
         $style = $request->style;
         return response(['data' => $this->style_colors($style)]);
+      }else if($type == 'customer_po_for_so')  {
+          $cusOrder = $request->order_id;
+          $fields = $request->fields;
+          return response([
+              'data' => $this->getCustomerPoForSO($cusOrder, $fields)
+          ]);
       }
       else{
         $order_id = $request->order_id;
@@ -194,6 +200,14 @@ class CustomerOrderDetailsController extends Controller
           return response([ 'data' => $notSelected]);
         }*/
 
+    }
+
+    public function getCustomerPoForSO($cusOrder, $fields){
+        $fields = explode(',', $fields);
+
+        $customerOrder = CustomerOrderDetails::select($fields);
+        $customerOrder->where('order_id','=',$cusOrder);
+        return $customerOrder->get();
     }
 
     public function split_delivery(Request $request)

@@ -121,7 +121,7 @@ class SectionController extends Controller
     //deactivate a Section
     public function destroy($id)
     {
-      if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
+      if($this->authorize->hasPermission('SECTION_DELETE'))//check permission
       {
         $section = Section::where('section_id', $id)->update(['status' => 0]);
         return response([
@@ -167,18 +167,18 @@ class SectionController extends Controller
     private function list($active = 0 , $fields = null)
     {
         $fields = "section_name,section_id";
-      $query = null;
-      if($fields == null || $fields == '') {
-        $query = Section::select('*');
-      }
-      else{
-        $fields = explode(',', $fields);
-        $query = Section::select($fields);
-        if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
+        $query = null;
+        if($fields == null || $fields == '') {
+          $query = Section::select('*');
         }
-      }
-      return $query->get();
+        else{
+          $fields = explode(',', $fields);
+          $query = Section::select($fields);
+          if($active != null && $active != ''){
+            $query->where([['status', '=', $active]]);
+          }
+        }
+        return $query->get();
     }
 
     //search Section for autocomplete

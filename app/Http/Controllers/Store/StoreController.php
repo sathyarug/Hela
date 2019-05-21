@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Store\Store;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class StoreController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Store list
@@ -43,23 +47,29 @@ class StoreController extends Controller
     //create a Store
     public function store(Request $request)
     {
-      $store = new Store();
-      if($store->validate($request->all()))
+      if($this->authorize->hasPermission('STORE_MANAGE'))//check permission
       {
-        $store->fill($request->all());
-        $store->status = 1;
-        $store->save();
+        $store = new Store();
+        if($store->validate($request->all()))
+        {
+          $store->fill($request->all());
+          $store->status = 1;
+          $store->save();
 
-        return response([ 'data' => [
-          'message' => 'Store was saved successfully',
-          'store' => $store
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Store was saved successfully',
+            'store' => $store
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $store->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $store->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +77,44 @@ class StoreController extends Controller
     //get a Store
     public function show($id)
     {
-      $store = Store::find($id);
-      if($store == null)
-        throw new ModelNotFoundException("Requested store not found", 1);
-      else
-        return response([ 'data' => $store ]);
+      if($this->authorize->hasPermission('STORE_MANAGE'))//check permission
+      {
+        $store = Store::find($id);
+        if($store == null)
+          throw new ModelNotFoundException("Requested store not found", 1);
+        else
+          return response([ 'data' => $store ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Store
     public function update(Request $request, $id)
     {
-      $store = Store::find($id);
-      if($store->validate($request->all()))
+      if($this->authorize->hasPermission('STORE_MANAGE'))//check permission
       {
-        $store->fill($request->except('store_name'));
-        $store->save();
+        $store = Store::find($id);
+        if($store->validate($request->all()))
+        {
+          $store->fill($request->except('store_name'));
+          $store->save();
 
-        return response([ 'data' => [
-          'message' => 'Store was updated successfully',
-          'store' => $store
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Store was updated successfully',
+            'store' => $store
+          ]]);
+        }
+        else
+        {
+          $errors = $store->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $store->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +122,19 @@ class StoreController extends Controller
     //deactivate a Store
     public function destroy($id)
     {
-      $store = Store::where('store_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Store was deactivated successfully.',
-          'store' => $store
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('STORE_DELETE'))//check permission
+      {
+        $store = Store::where('store_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Store was deactivated successfully.',
+            'store' => $store
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -157,8 +185,12 @@ class StoreController extends Controller
     //search Store for autocomplete
     private function autocomplete_search($search)
   	{
+      $user = auth()->user();
+      $location=$user->location;
   		$store_lists = Store::select('store_id','store_name')
-  		->where([['store_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['store_name', 'like', '%' . $search . '%'],])
+      ->where('loc_id','=',$location)  
+      ->get();
   		return $store_lists;
   	}
 
@@ -166,32 +198,38 @@ class StoreController extends Controller
     //get searched Stores for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('STORE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->select('org_store.*','org_location.loc_name')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $store_list = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
+        ->select('org_store.*','org_location.loc_name')
+        ->where('store_name'  , 'like', $search.'%' )
+        ->orWhere('loc_name'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
-      ->where('store_name'  , 'like', $search.'%' )
-      ->orWhere('loc_name'  , 'like', $search.'%' )
-      ->count();
+        $store_count = Store::join('org_location' , 'org_location.loc_id' , '=' , 'org_store.loc_id')
+        ->where('store_name'  , 'like', $search.'%' )
+        ->orWhere('loc_name'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $store_count,
-          "recordsFiltered" => $store_count,
-          "data" => $store_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $store_count,
+            "recordsFiltered" => $store_count,
+            "data" => $store_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

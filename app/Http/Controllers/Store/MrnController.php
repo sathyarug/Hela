@@ -2,30 +2,40 @@
 
 namespace App\Http\Controllers\Store;
 
+use App\Models\Store\MRNHeader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Store\Stock;
 
-class StockController extends Controller
+use App\Models\Org\Location\Cluster;
+use App\Models\mrn\MRN;
+
+class MrnController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $type = $request['type'];
+        if($type == 'datatable') {
+            $draw = $request['draw'];
+            $po = $request['text'];
+            return $this->dataTable($draw, $po);
+        }elseif($type == 'load-mrn'){
+            $mrnId = $request['mrn'];
+            $locId = $request['loc'];
+            return $this->loadMrn($mrnId, $locId);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        }elseif ($type == 'mrn-select'){
+            $soId = $request['so'];
+            $active = $request->active;
+            $fields = $request->fields;
+
+            return $this->loadMrnList($soId, $fields);
+        }
+
     }
 
     /**
@@ -46,17 +56,6 @@ class StockController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
     {
         //
     }
@@ -84,21 +83,17 @@ class StockController extends Controller
         //
     }
 
-    public function searchStock(Request $request){
-        //$poData = Stock::where('style_id', $request->style_no['style_id'])->get();
+    public function loadMrnList($soId, $fields){
 
-        $stockData = Stock::getCurrentStockOfLoc();
+        $mrnList = MRNHeader::getMRNList($soId);
 
         return response([
-            'data' => $stockData
+            'data' => $mrnList
         ]);
+
     }
 
-    public function getStockForReturnToSup(Request $request){
-       // dd($request);
-        $stock = $this->getStockForReturnToSup();
-            //->toArray();
+    public function loadMrn($mrnId, $locId){
+
     }
-
-
 }

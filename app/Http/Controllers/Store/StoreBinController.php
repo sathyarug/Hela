@@ -9,7 +9,18 @@ use App\Models\Store\StoreBin;
 use App\Models\Finance\Item\Category;
 use Illuminate\Support\Facades\DB;
 
+use App\Libraries\AppAuthorize;
+
 class StoreBinController extends Controller {
+
+    var $authorize = null;
+
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
+    }
 
     /**
      * Display a listing of the resource.
@@ -49,9 +60,12 @@ class StoreBinController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
+      if($this->authorize->hasPermission('BIN_MANAGE'))//check permission
+      {
         $storeBin = new StoreBin();
-        if ($storeBin->validate($request->all())) {
+      //  if ($storeBin->validate($request->all())) {
             $storeBin->fill($request->all());
             $storeBin->status = 1;
             $storeBin->save();
@@ -61,10 +75,14 @@ class StoreBinController extends Controller {
                     'storeBin' => $storeBin
                 ]
                     ], Response::HTTP_CREATED);
-        } else {
+      /*} else {
             $errors = $store->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -73,7 +91,10 @@ class StoreBinController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show($id)
+    {
+      if($this->authorize->hasPermission('BIN_MANAGE'))//check permission
+      {
         $storeBin = StoreBin::find($id);
         $storeBin->store;
         $storeBin->substore;
@@ -81,6 +102,10 @@ class StoreBinController extends Controller {
             throw new ModelNotFoundException("Requested store not found", 1);
         else
             return response(['data' => $storeBin]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -90,7 +115,10 @@ class StoreBinController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
+      if($this->authorize->hasPermission('BIN_MANAGE'))//check permission
+      {
         $storeBin = StoreBin::find($id);
         if ($storeBin->validate($request->all())) {
             $storeBin->fill($request->except('store_bin_name'));
@@ -104,6 +132,10 @@ class StoreBinController extends Controller {
             $errors = $storeBin->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     /**
@@ -112,14 +144,21 @@ class StoreBinController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
+      if($this->authorize->hasPermission('BIN_DELETE'))//check permission
+      {
         $storeBin = StoreBin::where('store_bin_id', $id)->update(['status' => 0]);
         return response([
             'data' => [
                 'message' => 'Store Bin is deactivated successfully.',
                 'store' => $storeBin
             ]
-                ], Response::HTTP_NO_CONTENT);
+        ], Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get filtered fields only
@@ -145,7 +184,10 @@ class StoreBinController extends Controller {
     }
 
     //get searched goods types for datatable plugin format
-    private function datatable_search($data) {
+    private function datatable_search($data)
+    {
+      if($this->authorize->hasPermission('BIN_MANAGE'))//check permission
+      {
         $start = $data['start'];
         $length = $data['length'];
         $draw = $data['draw'];
@@ -188,26 +230,36 @@ class StoreBinController extends Controller {
             "recordsFiltered" => $bin_count,
             "data" => $bin_list
         ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //validate anything based on requirements
     public function validate_data(Request $request) {
         $for = $request->for;
         if ($for == 'duplicate') {
-            return response($this->validate_duplicate_bin($request->id, $request->store_bin_name));
+            return response($this->validate_duplicate_bin($request->id, $request->store_name,$request->substore_name,$request->store_bin_name));
         }
     }
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_bin($id, $name) {
-        $bin = StoreBin::where('store_bin_name', '=', $name)->first();
-        if ($bin == null) {
-            return ['status' => 'success'];
-        } else if ($bin->store_bin_id == $id) {
-            return ['status' => 'success'];
-        } else {
-            return ['status' => 'error', 'message' => 'Bin already exists'];
+    private function validate_duplicate_bin($id, $store_name,$substore_name,$store_bin_name) {
+
+
+        $bin = StoreBin::where([['store_id', '=', $store_name],['substore_id','=',$substore_name],['store_bin_name','=',$store_bin_name]])->first();
+        if( $bin == null){
+          echo json_encode(array('status' => 'success'));
         }
+        else if($bin->store_bin_id == $id){
+          echo json_encode(array('status' => 'success'));
+        }
+        else {
+          echo json_encode(array('status' => 'error','message' => 'Record already exists'));
+        }
+
+
     }
 
     public function getBinListByLoc(Request $request){

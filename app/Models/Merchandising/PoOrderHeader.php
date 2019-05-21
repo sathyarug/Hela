@@ -102,4 +102,10 @@ class PoOrderHeader extends BaseValidator
     public function poDetails(){
         return $this->belongsTo('App\Models\Merchandising\PoOrderDetails' , 'po_id');
     }
+
+    public function getPOSupplierAndInvoice(){
+        return self::select('s.supplier_name')
+            ->join('org_supplier as s', 's.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+            ->get();
+    }
 }

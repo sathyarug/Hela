@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\GoodsType;
+use App\Libraries\AppAuthorize;
 
 class GoodsTypeController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get goods type list
@@ -43,6 +47,8 @@ class GoodsTypeController extends Controller
     //create g goods type
     public function store(Request $request)
     {
+      if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
+      {
         $goodsType = new GoodsType();
         $goodsType->goods_type_description = $request->goods_type_description;
         $goodsType->status = 1;
@@ -53,22 +59,34 @@ class GoodsTypeController extends Controller
           'goodsType' => $goodsType
           ]
         ], Response::HTTP_CREATED );
+      }
+      else {
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //get goods type
     public function show($id)
     {
+      if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
+      {
         $goodsType = GoodsType::find($id);
         if($goodsType == null)
           throw new ModelNotFoundException("Requested goods type not found", 1);
         else
           return response( ['data' => $goodsType] );
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a goods type
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
+      {
         $goodsType = GoodsType::find($id);
         $goodsType->goods_type_description = $request->goods_type_description;
         $goodsType->save();
@@ -77,11 +95,17 @@ class GoodsTypeController extends Controller
           'message' => 'Goods type updated successfully',
           'goodsType' => $goodsType
         ]]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //deactivate a goods type
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('GOODS_TYPE_DELETE'))//check permission
+      {
         $goodsType = GoodsType::where('goods_type_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -89,6 +113,10 @@ class GoodsTypeController extends Controller
             'goodsType' => $goodsType
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -148,28 +176,34 @@ class GoodsTypeController extends Controller
     //get searched goods types for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $goods_type_list = GoodsType::select('*')
-      ->where('goods_type_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $goods_type_list = GoodsType::select('*')
+        ->where('goods_type_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $goods_type_count = GoodsType::where('goods_type_description'  , 'like', $search.'%' )
-      ->count();
+        $goods_type_count = GoodsType::where('goods_type_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $goods_type_count,
-          "recordsFiltered" => $goods_type_count,
-          "data" => $goods_type_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $goods_type_count,
+            "recordsFiltered" => $goods_type_count,
+            "data" => $goods_type_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

@@ -32,7 +32,8 @@ class SubCategory extends BaseValidator
     }
     
     public function scopeGetSubCategoryList(){        
-        return DB::table('item_subcategory')->join('item_category','item_category.category_id','=','item_subcategory.category_id')->select('item_subcategory.*','item_category.category_name')->where('item_subcategory.status','=','1')->get();
+        //return DB::table('item_subcategory')->join('item_category','item_category.category_id','=','item_subcategory.category_id')->select('item_subcategory.*','item_category.category_name')->where('item_subcategory.status','=','1')->get();
+        return DB::table('item_subcategory')->join('item_category','item_category.category_id','=','item_subcategory.category_id')->select('item_subcategory.*','item_category.category_name')->get();
     }
     
     public function scopeGetSubCategoryCount(){        

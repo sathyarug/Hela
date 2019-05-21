@@ -68,4 +68,8 @@ class Stock extends BaseValidator
         return $stockData;
     }
 
+    public static function getStockForReturnToSup(){
+
+    }
+
 }

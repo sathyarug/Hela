@@ -12,10 +12,14 @@ use Illuminate\Http\Request;
 use App\Models\Merchandising\productFeature;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCategoryResource;
+use App\Libraries\AppAuthorize;
 
 
 class ProductFeatureController extends Controller
 {
+
+    var $authorize = null;
+    
     public function loadProductFeature(Request $request) {
 //        print_r('sss');exit;
         try{

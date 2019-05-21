@@ -95,8 +95,10 @@ use App\models\store\StockTransaction;
 
                       private function tabaleLoad($style){
 
-                        $user = auth()->user();
-                        $user_location=$user->location;
+                        $user = auth()->payload();
+                        $user_location=$user['loc_id'];
+
+
 
 
 
@@ -132,8 +134,8 @@ use App\models\store\StockTransaction;
                       }
 
                       public function storedetails (Request $request){
-                        $user = auth()->user();
-                        $transer_location=$user->location;
+                        $user = auth()->payload();
+                        $transer_location=$user['loc_id'];
                         $receiver_location=$request->receiver_location;
                         //print_r($receiver_location);
                           $id;

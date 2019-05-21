@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\UOM;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class UomController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get UOM list
@@ -43,23 +47,29 @@ class UomController extends Controller
     //create a UOM
     public function store(Request $request)
     {
-      $uom = new UOM();
-      if($uom->validate($request->all()))
+      if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
       {
-        $uom->fill($request->all());
-        $uom->status = 1;
-        $uom->save();
+        $uom = new UOM();
+        if($uom->validate($request->all()))
+        {
+          $uom->fill($request->all());
+          $uom->status = 1;
+          $uom->save();
 
-        return response([ 'data' => [
-          'message' => 'UOM was saved successfully',
-          'uom' => $uom
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'UOM was saved successfully',
+            'uom' => $uom
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $uom->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $uom->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,34 +77,44 @@ class UomController extends Controller
     //get a UOM
     public function show($id)
     {
-    //  $error = 'Always throw this error';
-    //  throw new Exception($error);
-      $uom = UOM::find($id);
-      if($uom == null)
-        throw new ModelNotFoundException("Requested UOM not found", 1);
-      else
-        return response([ 'data' => $uom ]);
+      if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
+      {
+        $uom = UOM::find($id);
+        if($uom == null)
+          throw new ModelNotFoundException("Requested UOM not found", 1);
+        else
+          return response([ 'data' => $uom ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a UOM
     public function update(Request $request, $id)
     {
-      $uom = UOM::find($id);
-      if($uom->validate($request->all()))
+      if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
       {
-        $uom->fill($request->except('uom_code'));
-        $uom->save();
+        $uom = UOM::find($id);
+        if($uom->validate($request->all()))
+        {
+          $uom->fill($request->except('uom_code'));
+          $uom->save();
 
-        return response([ 'data' => [
-          'message' => 'UOM was updated successfully',
-          'uom' => $uom
-        ]]);
+          return response([ 'data' => [
+            'message' => 'UOM was updated successfully',
+            'uom' => $uom
+          ]]);
+        }
+        else
+        {
+          $errors = $uom->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $uom->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -102,13 +122,19 @@ class UomController extends Controller
     //deactivate a UOM
     public function destroy($id)
     {
-      $uom = UOM::where('uom_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'UOM was deactivated successfully.',
-          'uom' => $uom
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('UOM_DELETE'))//check permission
+      {
+        $uom = UOM::where('uom_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'UOM was deactivated successfully.',
+            'uom' => $uom
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -167,30 +193,36 @@ class UomController extends Controller
     //get searched UOMs for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $uom_list = UOM::select('*')
-      ->where('uom_code'  , 'like', $search.'%' )
-      ->orWhere('uom_description'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $uom_list = UOM::select('*')
+        ->where('uom_code'  , 'like', $search.'%' )
+        ->orWhere('uom_description'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $uom_count = UOM::where('uom_code'  , 'like', $search.'%' )
-      ->orWhere('uom_description'  , 'like', $search.'%' )
-      ->count();
+        $uom_count = UOM::where('uom_code'  , 'like', $search.'%' )
+        ->orWhere('uom_description'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $uom_count,
-          "recordsFiltered" => $uom_count,
-          "data" => $uom_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $uom_count,
+            "recordsFiltered" => $uom_count,
+            "data" => $uom_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

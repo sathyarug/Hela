@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Size;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class SizeController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Size list
@@ -43,23 +47,29 @@ class SizeController extends Controller
     //create a Size
     public function store(Request $request)
     {
-      $size = new Size();
-      if($size->validate($request->all()))
+      if($this->authorize->hasPermission('SIZE_MANAGE'))//check permission
       {
-        $size->fill($request->all());
-        $size->status = 1;
-        $size->save();
+        $size = new Size();
+        if($size->validate($request->all()))
+        {
+          $size->fill($request->all());
+          $size->status = 1;
+          $size->save();
 
-        return response([ 'data' => [
-          'message' => 'Size was saved successfully',
-          'size' => $size
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Size saved successfully',
+            'size' => $size
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $size->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $size->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +77,44 @@ class SizeController extends Controller
     //get a Size
     public function show($id)
     {
-      $size = Size::find($id);
-      if($size == null)
-        throw new ModelNotFoundException("Requested size not found", 1);
-      else
-        return response([ 'data' => $size ]);
+      if($this->authorize->hasPermission('SIZE_MANAGE'))//check permission
+      {
+        $size = Size::find($id);
+        if($size == null)
+          throw new ModelNotFoundException("Requested size not found", 1);
+        else
+          return response([ 'data' => $size ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Size
     public function update(Request $request, $id)
     {
-      $size = Size::find($id);
-      if($size->validate($request->all()))
+      if($this->authorize->hasPermission('SIZE_MANAGE'))//check permission
       {
-        $size->fill($request->except('size_name'));
-        $size->save();
+        $size = Size::find($id);
+        if($size->validate($request->all()))
+        {
+          $size->fill($request->except('size_name'));
+          $size->save();
 
-        return response([ 'data' => [
-          'message' => 'Size was updated successfully',
-          'size' => $size
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Size updated successfully',
+            'size' => $size
+          ]]);
+        }
+        else
+        {
+          $errors = $size->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $size->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +122,19 @@ class SizeController extends Controller
     //deactivate a Size
     public function destroy($id)
     {
-      $size = Size::where('size_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Size was deactivated successfully.',
-          'size' => $size
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('SIZE_DELETE'))//check permission
+      {
+        $size = Size::where('size_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Size was deactivated successfully.',
+            'size' => $size
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -156,8 +184,10 @@ class SizeController extends Controller
     //search Size for autocomplete
     private function autocomplete_search($search)
   	{
+      $active=1;
   		$size_lists = Size::select('size_id','size_name')
-  		->where([['size_name', 'like', '%' . $search . '%']]) ->get();
+  		->where([['size_name', 'like', '%' . $search . '%']])
+      ->where('status','=',$active) ->get();
   		return $size_lists;
   	}
 
@@ -165,28 +195,34 @@ class SizeController extends Controller
     //get searched Sizes for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('SIZE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $size_list = Size::select('*')
-      ->where('size_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $size_list = Size::select('*')
+        ->where('size_name'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $size_count = Size::where('size_name'  , 'like', $search.'%' )
-      ->count();
+        $size_count = Size::where('size_name'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $size_count,
-          "recordsFiltered" => $size_count,
-          "data" => $size_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $size_count,
+            "recordsFiltered" => $size_count,
+            "data" => $size_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
