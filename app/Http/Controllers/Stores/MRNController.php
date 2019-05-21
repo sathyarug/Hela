@@ -194,4 +194,10 @@ class ClusterController extends Controller
       ];
     }
 
+    public function searchStock(Request $request){
+        print_r($request->style_no);
+
+        //
+    }
+
 }
