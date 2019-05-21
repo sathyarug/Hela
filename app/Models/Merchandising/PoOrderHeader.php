@@ -3,6 +3,7 @@
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use App\BaseValidator;
 use App\Libraries\UniqueIdGenerator;
 
@@ -75,20 +76,23 @@ class PoOrderHeader extends BaseValidator
     {
         static::creating(function ($model) {
 
-          if($model->po_type == 'BULK'){$rep = 'BUL';}
-          elseif ($model->po_type == 'GENERAL') {$rep = 'GEN';}
-          elseif ($model->po_type == 'GREAIGE') {$rep = 'GRE';}
-          elseif ($model->po_type == 'RE-ORDER') {$rep = 'REO';}
-          elseif ($model->po_type == 'SAMPLE') {$rep = 'SAM';}
-          elseif ($model->po_type == 'SERVICE') {$rep = 'SER';}
-          $user = auth()->user();
-          $code = UniqueIdGenerator::generateUniqueId('PO_MANUAL' , $user->location);
+              if ($model->po_type == 'BULK'){$rep = 'BUL';}
+          elseif ($model->po_type == 'GENERAL'){$rep = 'GEN';}
+          elseif ($model->po_type == 'GREAIGE'){$rep = 'GRE';}
+          elseif ($model->po_type == 'RE-ORDER'){$rep = 'REO';}
+          elseif ($model->po_type == 'SAMPLE'){$rep = 'SAM';}
+          elseif ($model->po_type == 'SERVICE'){$rep = 'SER';}
+          $user = auth()->payload();
+          $user_loc = $user['loc_id'];
+          $code = UniqueIdGenerator::generateUniqueId('PO_MANUAL' , $user_loc);
           $model->po_number = $rep.$code;
-          //$model->updated_by = $user->user_id;
+          $model->loc_id = $user_loc;
+
+          
         });
 
         /*static::updating(function ($model) {
-            $user = auth()->user();
+            $user = auth()->pay_loa();
             $model->updated_by = $user->user_id;
         });*/
 
