@@ -118,7 +118,7 @@ class PurchaseOrder extends Controller
     }
 
     public function getPoSCList(Request $request){
-        $po = PoOrderDetails::select('sc_no')->where('po_id', $request->id)->get();
+        $po = PoOrderDetails::select('sc_no')->where('id', $request->id)->get();
         $podata = $po->toArray();
 
         return response([
