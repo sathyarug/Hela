@@ -38,6 +38,10 @@ class BulkCostingController extends Controller {
             return response($this->getStyleList($search));
         } elseif ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
+        }elseif($type == 'getCostListing'){
+            return response($this->getCostSheetListing($request->style_id));
+        }elseif($type == 'getCostingHeader'){
+            return response($this->getCostingHeaderDetails($request->costing_id));    
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
@@ -270,7 +274,9 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
+
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);      
+        
 
 
         $dataArr['style_remark'] = $styleData->remark;
@@ -288,8 +294,10 @@ class BulkCostingController extends Controller {
         $dataArr['cust_id'] = $styleData->customer->customer_id;
         $dataArr['division_name'] = $styleData->division->division_description;
         $dataArr['division_id'] = $styleData->division->division_id;
+
         //echo json_encode($styleData->customer);
         $dataArr['country'] = $country->country_description;
+
 
         $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
         //  echo json_encode($styleData->style_id);
@@ -318,7 +326,7 @@ class BulkCostingController extends Controller {
             $dataArr['blk_hader']['pcd']='';
             $dataArr['blk_hader']['finance_charges']=$financeCost->finance_cost;
             $dataArr['blk_hader']['cost_per_min']=$financeCost->cpum;
-            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+            $dataArr['blk_hader']['costed_smv_id']=1;
             $dataArr['blk_hader']['costing_status']=0;
 
         }
@@ -768,5 +776,28 @@ WHERE cost_flash_header.style_id = '.$request->style_id.'
 ORDER BY item_category.category_id');
 
         print_r(json_encode(array('image'=>$styleData->image,'data'=>$flashHaderData, 'details'=>$getAllDataFlash)));exit;
+    }
+    
+    private function getCostSheetListing($styleId){
+
+        $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
+                            ->where('style_id','=',$styleId)->get();
+
+        return $bulkHeaderData;
+    }
+    
+    private function getCostingHeaderDetails($costingId){
+
+       /* $costingHeader = BulkCosting::select("*")
+                            ->where('bulk_costing_id','=',$costingId)->get();*/
+                            
+        $costingHeader = \DB::table('costing_bulk')
+                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
+                            ->select('costing_bulk.*','org_season.season_name') 
+                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->get();             
+
+        return $costingHeader;
+
     }
 }
