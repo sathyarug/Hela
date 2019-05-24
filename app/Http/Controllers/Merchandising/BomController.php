@@ -8,6 +8,7 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\BOMSOAllocation;
+use App\Models\Merchandising\MaterialRatio;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -130,6 +131,7 @@ class BomController extends Controller
 
             $bomHeader = new BOMHeader();
             $bomHeader->costing_id = $request->costingid;
+            $bomHeader->color_combo = $request->colorComboId;
 
             $bomHeader->saveOrFail();
 
@@ -159,6 +161,10 @@ class BomController extends Controller
         $bomDeatils->status = 1;
         $bomDeatils->bal_qty = $request->totreqqty;
         $bomDeatils->item_size = $request->itemsize;
+        $bomDeatils->component_id = $request->componentid;
+        $bomDeatils->supplier_id = $request->supplierid;       
+        $bomDeatils->item_wastage = $request->wastage;       
+        $bomDeatils->combine_id = $request->combineid;       
 
         $bomDeatils->saveOrFail();
     }
@@ -265,5 +271,30 @@ class BomController extends Controller
             $result = $ex->getMessage();
         }
         echo json_encode($result);
+    }
+    
+    public function saveMaterialRatio(Request $request){
+
+        $materialRatio = new MaterialRatio();
+        $materialRatio->bom_id          = $request->bom_id;
+        $materialRatio->component_id    = $request->component_id;
+        $materialRatio->master_id       = $request->master_id;
+        $materialRatio->color_id        = $request->color_id;
+        $materialRatio->size_id         = $request->size_id;
+        $materialRatio->required_qty    = $request->required_qty;
+
+        $materialRatio->saveOrFail();
+    }
+    
+    public function getColorCombo(Request $request){
+        try{
+            $bomHeader = new BOMHeader();
+            $result = $bomHeader->getColorCombpoByCosting($request->costing_id);
+
+        }catch( \Exception $ex){
+            $result = $ex->getMessage();
+        }
+        echo json_encode($result);
+        
     }
 }
