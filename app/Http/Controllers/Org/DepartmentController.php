@@ -57,7 +57,7 @@ class DepartmentController extends Controller
           $department->save();
 
           return response([ 'data' => [
-            'message' => 'Department was saved successfully',
+            'message' => 'Department saved successfully',
             'department' => $department
             ]
           ], Response::HTTP_CREATED );
@@ -105,7 +105,7 @@ class DepartmentController extends Controller
           $department->save();
 
           return response([ 'data' => [
-            'message' => 'Department was updated successfully',
+            'message' => 'Department updated successfully',
             'department' => $department
           ]]);
         }
@@ -157,7 +157,7 @@ class DepartmentController extends Controller
       if($department == null){
         return ['status' => 'success'];
       }
-      else if($department->Department_id == $id){
+      else if($department->dep_id == $id){
         return ['status' => 'success'];
       }
       else {

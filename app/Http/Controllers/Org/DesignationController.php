@@ -57,7 +57,7 @@ class DesignationController extends Controller
           $designation->save();
 
           return response([ 'data' => [
-            'message' => 'Designation was saved successfully',
+            'message' => 'Designation saved successfully',
             'designation' => $designation
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class DesignationController extends Controller
           $designation->save();
 
           return response([ 'data' => [
-            'message' => 'Designation was updated successfully',
+            'message' => 'Designation updated successfully',
             'designation' => $designation
           ]]);
         }

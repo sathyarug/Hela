@@ -56,7 +56,7 @@ class ClusterController extends Controller
           $cluster->save();
 
           return response([ 'data' => [
-            'message' => 'Cluster was saved successfully',
+            'message' => 'Cluster saved successfully',
             'cluster' => $cluster
             ]
           ], Response::HTTP_CREATED );
@@ -102,7 +102,7 @@ class ClusterController extends Controller
           $cluster->save();
 
           return response([ 'data' => [
-            'message' => 'Cluster was updated successfully',
+            'message' => 'Cluster updated successfully',
             'cluster' => $cluster
           ]]);
         }
