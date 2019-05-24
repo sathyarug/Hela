@@ -57,6 +57,10 @@ class BulkCostingController extends Controller {
             $division_id = $request->division_id;
             $query = $request->query;
             return response($this->getColorForDivision($division_id,$query));
+        }elseif ($type == 'getColorForDivisionCode'){
+            $division_id = $request->division_id;
+            $query = $request->query;
+            return response($this->getColorForDivisionCode($division_id,$query));
         }elseif ($type == 'apv'){
             $this->Approval($request);
         }elseif ($type == 'report-balk'){
@@ -267,10 +271,10 @@ class BulkCostingController extends Controller {
     }
 
     private function getStyleData($style_id) {
-        $dataArr = array();
+       $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
        
 
         $dataArr['style_remark'] = $styleData->remark;
@@ -291,18 +295,29 @@ class BulkCostingController extends Controller {
         $dataArr['country'] = $country->country_description;
 //        $dataArr['stage'] = '';
 
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+       // $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
 //        dd($sumStyleSmvComp->created_date);exit;
 
         if(count($hader)>0){
+            $costed_smv=0;
+            $blkCostFea = \App\Models\Merchandising\BulkCostingFeatureDetails::where('bulkheader_id',$hader[0]['bulk_costing_id'])->where('status',1)->get();
+
+            if(count($blkCostFea)>0){
+                $sum=0;
+                foreach ($blkCostFea AS $CostFea ){
+                    $sum+=$CostFea['smv'];
+                }
+                $costed_smv=$sum;
+            }
             $hader[0]['pcd']=date_format(date_create($hader[0]['pcd']),"m/d/Y");
             $dataArr['blk_hader'] = $hader[0];
-            $dataArr['blk_hader']['smv_received']=date_format(date_create($sumStyleSmvComp->created_date),"m/d/Y");
-            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+            $dataArr['blk_hader']['smv_received']='';
+            $dataArr['blk_hader']['costed_smv_id']=$costed_smv;
+
 
 
         }else{
-            $financeCost=\App\Models\finance\Cost\FinanceCost::first();
+            $financeCost=\App\Models\Finance\Cost\FinanceCost::first();
 
             $dataArr['blk_hader']['updated_date']='';
             $dataArr['blk_hader']['total_cost']='';
@@ -317,13 +332,13 @@ class BulkCostingController extends Controller {
             $dataArr['blk_hader']['pcd']='';
             $dataArr['blk_hader']['finance_charges']=$financeCost->finance_cost;
             $dataArr['blk_hader']['cost_per_min']=$financeCost->cpum;
-            $dataArr['blk_hader']['costed_smv_id']=$sumStyleSmvComp->smv_value;
+            $dataArr['blk_hader']['costed_smv_id']=0;
             $dataArr['blk_hader']['costing_status']=0;
 
         }
 
 
-//dd($dataArr);
+
         return $dataArr;
     }
 
@@ -342,7 +357,7 @@ class BulkCostingController extends Controller {
             foreach ($featureList As $feature){
                 $surcharge=false;
                 $mcq=false;
-                $colordata='';$blkHeadId=0;
+                $colordata='';$blkHeadId=0;$colorComboData=0;$smv=0;
                 $featureData=\App\Models\Org\Feature::find($feature['product_feature_id']);
                 $component=\App\Models\Org\Component::find($feature['product_component_id']);
 
@@ -371,8 +386,17 @@ class BulkCostingController extends Controller {
                     $colordata=$color->color_name;
 
                 }
+                if(isset($blkCostFea->combo_color)){
+
+                    $color=\App\Models\Org\Color::find($blkCostFea->combo_color);
+                    $colorComboData=$color->color_name;
+                }
                 if(isset($blkCostFea->blk_feature_id)){
                     $blkHeadId=$blkCostFea->blk_feature_id;
+                }
+
+                if(isset($blkCostFea->smv) && (!is_null($blkCostFea->smv))){
+                	$smv=$blkCostFea->smv;
                 }
 
 
@@ -385,7 +409,9 @@ class BulkCostingController extends Controller {
                     'mcq'=>$mcq,
                     'surcharge'=>$surcharge,
                     'color'=>$colordata,
+                    'color_combo'=>$colorComboData,
                     'blkHead'=>$blkHeadId,
+                    'smv'=>$smv,
                     'main_featureName_id'=>$featureData->product_feature_id,
                     'success'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-success-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">save</i> </a>',
                     'primary'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-primary-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Copy</i> </a>',
@@ -459,6 +485,8 @@ $count++;
             $HisBulkCostingFeatureDetails->bom_stage = $BulkCostingFeatureData->bom_stage;
             $HisBulkCostingFeatureDetails->mcq = $BulkCostingFeatureData->mcq;
             $HisBulkCostingFeatureDetails->combo_code = $BulkCostingFeatureData->combo_code;
+            $HisBulkCostingFeatureDetails->combo_color = $BulkCostingFeatureData->combo_color;
+            $HisBulkCostingFeatureDetails->smv = $BulkCostingFeatureData->smv;
             $HisBulkCostingFeatureDetails->save();
 
             $itemList = BulkCostingDetails::where('bulkheader_id', $BulkCostingFeatureData->blk_feature_id)->get();
@@ -507,6 +535,8 @@ $count++;
 
     private function saveLineHeader($request,$data){
         $color=\App\Models\Org\Color::where('color_name', $request->color)->first();
+        $color_combo=\App\Models\Org\Color::where('color_code', $request->color_combo)->first();
+
 
  if($request->blkHead != 0){
      $bulkCostingDetails = BulkCostingFeatureDetails::find($request->blkHead);
@@ -516,9 +546,11 @@ $count++;
 
         $bulkCostingDetails->bulkheader_id=$request->blkHead;
         $bulkCostingDetails->color_id=$color->color_id;
+        $bulkCostingDetails->combo_color=$color_combo->color_id;
         $bulkCostingDetails->feature_id=$request->main_featureName_id;
         $bulkCostingDetails->component_id=$request->id;
         $bulkCostingDetails->mcq=$request->mcq;
+        $bulkCostingDetails->smv=$request->smv;
         $bulkCostingDetails->surcharge=$request->surcharge;
         $bulkCostingDetails->style_feature_id=$request->style_feature_id;
         $bulkCostingDetails->bulkheader_id=$data['blkNo'];
@@ -526,6 +558,14 @@ $count++;
         $bulkCostingDetails->season_id=$data['season'];
         $bulkCostingDetails->col_opt_id=$data['colType'];
         $bulkCostingDetails->save();
+
+        $styleFeatures=BulkCostingFeatureDetails::where('style_feature_id',$bulkCostingDetails->style_feature_id)->where('feature_id',$bulkCostingDetails->feature_id)->where('status',1)->get();
+
+        foreach ($styleFeatures AS $Features){
+            $bulkCostingDetailsUpdate = BulkCostingFeatureDetails::find($Features->blk_feature_id);
+            $bulkCostingDetailsUpdate->combo_color=$color_combo->color_id;
+            $bulkCostingDetailsUpdate->save();
+        }
 
         $model = BulkCosting::find($bulkCostingDetails->bulkheader_id);
 
@@ -554,6 +594,11 @@ $count++;
 
     public  function getColorForDivision($division_id,$query){
         $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
+        return json_encode($color);
+    }
+
+    public  function getColorForDivisionCode($division_id,$query){
+        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_code')->toArray();
         return json_encode($color);
     }
 
