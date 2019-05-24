@@ -266,13 +266,13 @@ class BulkCostingController extends Controller {
     }
 
     private function getStyleList($search) {
-        return \App\Models\Merchandising\styleCreation::select('style_id', 'style_no')
+        return \App\Models\Merchandising\StyleCreation::select('style_id', 'style_no')
                         ->where([['style_no', 'like', '%' . $search . '%'],])->get();
     }
 
     private function getStyleData($style_id) {
        $dataArr = array();
-        $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
+        $styleData = \App\Models\Merchandising\StyleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
         $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
        
@@ -789,14 +789,14 @@ if(count($getAllData)>0){
          }  
 
        
-        $styleData = \App\Models\Merchandising\styleCreation::find($request->style_id);
+        $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
 //        dd($styleData->image);
 print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;
 
     }
 
     public  function reportFlash($request){
-        $styleData = \App\Models\Merchandising\styleCreation::find($request->style_id);
+        $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
         $flashHaderData = \App\Models\Merchandising\Costing\Flash\cost_flash_header::find($request->style_id);
 
 

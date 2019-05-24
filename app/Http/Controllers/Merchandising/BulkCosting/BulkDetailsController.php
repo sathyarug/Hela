@@ -428,7 +428,7 @@ class BulkDetailsController extends Controller
     public function loadMainData($id){
         $blkFeature=\App\Models\Merchandising\BulkCostingFeatureDetails::find($id);
         $hader = \App\Models\Merchandising\BulkCosting::find($blkFeature->bulkheader_id);
-        $style = \App\Models\Merchandising\styleCreation::find($hader->style_id);
+        $style = \App\Models\Merchandising\StyleCreation::find($hader->style_id);
         $color=\App\Models\Org\Color::find($blkFeature->color_ID);
         $component=\App\Models\Org\Component::find($blkFeature->component_id);
         //$sumStyleSmv=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->sum('smv_value');

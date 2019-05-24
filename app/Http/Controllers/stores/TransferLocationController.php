@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderDetails;
-use App\Models\Merchandising\styleCreation;
+use App\Models\Merchandising\StyleCreation;
 use App\Models\Finance\Item\SubCategory;
 use App\Models\Store\Stock;
 use App\Models\stores\TransferLocationUpdate;

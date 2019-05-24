@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\BaseValidator;
 
-class styleCreation extends BaseValidator {
+class StyleCreation extends BaseValidator {
 
     protected $table = 'style_creation';
     protected $primaryKey = 'style_id';
