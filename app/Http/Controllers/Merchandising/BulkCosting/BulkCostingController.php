@@ -388,7 +388,7 @@ class BulkCostingController extends Controller {
                 }
                 if(isset($blkCostFea->combo_color)){
 
-                    $color=\App\Models\Org\Color::find($blkCostFea->combo_color);
+                   $color=\App\Models\Org\Color::find($blkCostFea->combo_color);
                     $colorComboData=$color->color_name;
                 }
                 if(isset($blkCostFea->blk_feature_id)){
@@ -716,7 +716,10 @@ costing_bulk_revision.revision DESC
             }
 
         }
-            $data=array(
+
+// print_r(count($getAllData));exit;
+if(count($getAllData)>0){
+	$data=array(
                 'pcd'=>$getAllData[0]->pcd,
                 'plan_efficiency'=>$getAllData[0]->plan_efficiency,
                 'fob'=>$getAllData[0]->fob,
@@ -735,8 +738,12 @@ costing_bulk_revision.revision DESC
             );
 
         $fullData[$index]=$data;
+}
+         
 
-        $one=0;$two=$getAllDataHis[0]->revision;
+         if(count($getAllDataHis)>0){
+
+         	 $one=0;$two=$getAllDataHis[0]->revision;
         $fabric=$trims=$packing=$other='';
         foreach ($getAllDataHis AS $allDataHis){
             $one=$allDataHis->revision;
@@ -779,6 +786,9 @@ costing_bulk_revision.revision DESC
 
             }
         }
+         }  
+
+       
         $styleData = \App\Models\Merchandising\styleCreation::find($request->style_id);
 //        dd($styleData->image);
 print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;
