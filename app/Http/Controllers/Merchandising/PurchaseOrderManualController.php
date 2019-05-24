@@ -277,10 +277,12 @@ class PurchaseOrderManualController extends Controller
 
     $load_list = DB::select("select B.*, MCD.*, OU.uom_code, OS.size_name, OC.color_name, IM.master_description,
         SU.supplier_name, CUS.customer_name,CUS.customer_code,
-        ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD WHERE MPD.sc_no =  B.bom_id ) AS req_qty,
+        ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD
+        WHERE MPD.bom_id =  B.bom_id and MPD.combine_id =  B.combine_id
+        ) AS req_qty,
         org_location.loc_name,
         (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
-        merc_po_order_details AS MPOD WHERE MPOD.sc_no = B.bom_id ) AS po_nos
+        merc_po_order_details AS MPOD WHERE MPOD.bom_id = B.bom_id and MPOD.combine_id =  B.combine_id) AS po_nos
         FROM
         bom_details AS B
         INNER JOIN merc_costing_so_combine AS MC ON B.combine_id = MC.comb_id
@@ -308,7 +310,7 @@ class PurchaseOrderManualController extends Controller
 
     public function merge_save(Request $request){
       $lines = $request->lines;
-    //  print_r($lines[0]['bom_id']);
+    //  print_r($lines );
       if($lines != null && sizeof($lines) >= 1){
 
         $max_no = PurchaseReqLines::max('merge_no');
@@ -318,6 +320,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line = new PurchaseReqLines();
 
         $temp_line->bom_id = $lines[$x]['bom_id'];
+        $temp_line->combine_id = $lines[$x]['combine_id'];
         $temp_line->order_id = $lines[$x]['order_id'];
         $temp_line->cpo_no = $lines[$x]['po_no'];
         $temp_line->merge_no = $max_no;
@@ -368,7 +371,8 @@ class PurchaseOrderManualController extends Controller
        ->join('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
-	     ->select((DB::raw('round((merc_po_order_header.cur_value * merc_purchase_req_lines.unit_price),2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*')
+	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
+       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        //->select
        ->where('merge_no'  , '=', $prl_id )
       // ->orWhere('supplier_name'  , 'like', $search.'%' )
@@ -390,7 +394,7 @@ class PurchaseOrderManualController extends Controller
   	}
 
 
-    
+
 
 
 
