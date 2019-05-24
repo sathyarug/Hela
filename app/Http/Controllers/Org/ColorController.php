@@ -169,7 +169,7 @@ class ColorController extends Controller
     //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
-      if($this->authorize->hasPermission('COLOR_VIEW')) {//check permission
+      if($this->authorize->hasPermission('COLOR_MANAGE')) {//check permission
         $query = null;
         if($fields == null || $fields == '') {
           $query = Color::select('*');
