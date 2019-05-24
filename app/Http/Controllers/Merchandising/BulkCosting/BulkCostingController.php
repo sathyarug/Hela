@@ -41,7 +41,7 @@ class BulkCostingController extends Controller {
         }elseif($type == 'getCostListing'){
             return response($this->getCostSheetListing($request->style_id));
         }elseif($type == 'getCostingHeader'){
-            return response($this->getCostingHeaderDetails($request->costing_id));    
+            return response($this->getCostingHeaderDetails($request->costing_id));
         } elseif ($type == 'getFinishGood') {
             $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
             return response($this->getFinishGood($request->style_id,$data));
@@ -274,9 +274,8 @@ class BulkCostingController extends Controller {
         $dataArr = array();
         $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
+        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
 
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);      
-        
 
 
         $dataArr['style_remark'] = $styleData->remark;
@@ -777,25 +776,25 @@ ORDER BY item_category.category_id');
 
         print_r(json_encode(array('image'=>$styleData->image,'data'=>$flashHaderData, 'details'=>$getAllDataFlash)));exit;
     }
-    
+
     private function getCostSheetListing($styleId){
 
         $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
                             ->where('style_id','=',$styleId)->get();
-
+                          //  dd($bulkHeaderData);
         return $bulkHeaderData;
     }
-    
+
     private function getCostingHeaderDetails($costingId){
 
        /* $costingHeader = BulkCosting::select("*")
                             ->where('bulk_costing_id','=',$costingId)->get();*/
-                            
+
         $costingHeader = \DB::table('costing_bulk')
                             ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
-                            ->select('costing_bulk.*','org_season.season_name') 
+                            ->select('costing_bulk.*','org_season.season_name')
                             ->where('costing_bulk.bulk_costing_id',$costingId)
-                            ->get();             
+                            ->get();
 
         return $costingHeader;
 
