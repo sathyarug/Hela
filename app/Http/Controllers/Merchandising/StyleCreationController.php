@@ -163,8 +163,10 @@ class StyleCreationController extends Controller
     }
 
     public function GetStyleDetails(Request $request){
-        $style_details = styleCreation::GetStyleDetails($request->style_id);
-        echo json_encode($style_details);
+        $style_details = new styleCreation();
+        $result = $style_details->GetStyleDetailsByCode($request->style_id);
+        
+        echo json_encode($result);
 
     }
 
