@@ -48,7 +48,7 @@ class ColorController extends Controller
     //create a Color
     public function store(Request $request)
     {
-      if($this->authorize->hasPermission('COLOR_CREATE'))//check permission
+      if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
         $color = new Color();
         if($color->validate($request->all()))
@@ -78,7 +78,7 @@ class ColorController extends Controller
     //get a Color
     public function show($id)
     {
-      if($this->authorize->hasPermission('COLOR_UPDATE'))//check permission
+      if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
         $color = Color::find($id);
         if($color == null)
@@ -95,7 +95,7 @@ class ColorController extends Controller
     //update a Color
     public function update(Request $request, $id)
     {
-      if($this->authorize->hasPermission('COLOR_UPDATE'))//check permission
+      if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
         $color = Color::find($id);
         if($color->validate($request->all()))
@@ -202,7 +202,7 @@ class ColorController extends Controller
     private function datatable_search($data)
     {
 
-      if($this->authorize->hasPermission('COLOR_VIEW') == true){//check permission
+      if($this->authorize->hasPermission('COLOR_MANAGE') == true){//check permission
 
           $start = $data['start'];
           $length = $data['length'];
