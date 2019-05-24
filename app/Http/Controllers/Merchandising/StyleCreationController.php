@@ -163,8 +163,15 @@ class StyleCreationController extends Controller
     }
 
     public function GetStyleDetails(Request $request){
+
         $style_details = StyleCreation::GetStyleDetails($request->style_id);
         echo json_encode($style_details);
+
+        $style_details = new styleCreation();
+        $result = $style_details->GetStyleDetailsByCode($request->style_id);
+        
+        echo json_encode($result);
+
 
     }
 
@@ -248,15 +255,10 @@ class StyleCreationController extends Controller
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
             ->select('cust_customer.customer_id AS id','cust_customer.customer_name')
             ->where('style_creation.style_id','=',1)
-            ->get();
+            ->first();
 
-        echo json_encode($cust);
-        /*return response([
-            'data' => [
-                'message' => 'Style was deactivated successfully.',
-                'style' => $cust
-            ]
-        ] , Response::HTTP_NO_CONTENT);*/
+        return $cust;
+
     }
 
 }

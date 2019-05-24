@@ -9,13 +9,18 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\ColorOption;
 use Exception;
+use App\Libraries\AppAuthorize;
 
 class ColorOptionController extends Controller
 {
+
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Origin Type list
@@ -43,23 +48,29 @@ class ColorOptionController extends Controller
     //create a Origin Type
     public function store(Request $request)
     {
-      $colorOption = new ColorOption;
-      if($colorOption->validate($request->all()))
+      if($this->authorize->hasPermission('COLOR_OPTION_MANAGE'))//check permission
       {
-        $colorOption->fill($request->all());
-        $colorOption->status = 1;
-        $colorOption->save();
+        $colorOption = new ColorOption;
+        if($colorOption->validate($request->all()))
+        {
+          $colorOption->fill($request->all());
+          $colorOption->status = 1;
+          $colorOption->save();
 
-        return response([ 'data' => [
-          'message' => 'Color Option was saved successfully',
-          'originType' => $colorOption
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Color Option saved successfully',
+            'originType' => $colorOption
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $colorOption->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $colorOption->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -67,32 +78,44 @@ class ColorOptionController extends Controller
     //get a Origin Type
     public function show($id)
     {
-      $colorOption = ColorOption::find($id);
-      if($colorOption == null)
-        throw new ModelNotFoundException("Requested Color Option not found", 1);
-      else
-        return response([ 'data' => $colorOption ]);
+      if($this->authorize->hasPermission('COLOR_OPTION_MANAGE'))//check permission
+      {
+        $colorOption = ColorOption::find($id);
+        if($colorOption == null)
+          throw new ModelNotFoundException("Requested Color Option not found", 1);
+        else
+          return response([ 'data' => $colorOption ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Origin Type
     public function update(Request $request, $id)
     {
-      $colorOption = ColorOption::find($id);
-      if($colorOption->validate($request->all()))
+      if($this->authorize->hasPermission('COLOR_OPTION_MANAGE'))//check permission
       {
-        $colorOption->fill($request->all());
-        $colorOption->save();
+        $colorOption = ColorOption::find($id);
+        if($colorOption->validate($request->all()))
+        {
+          $colorOption->fill($request->all());
+          $colorOption->save();
 
-        return response([ 'data' => [
-          'message' => 'Color Option was updated successfully',
-          'colorOption' => $colorOption
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Color Option updated successfully',
+            'colorOption' => $colorOption
+          ]]);
+        }
+        else
+        {
+          $errors = $colorOption->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $colorOption->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -100,13 +123,19 @@ class ColorOptionController extends Controller
     //deactivate a Origin Type
     public function destroy($id)
     {
-      $colorOption = ColorOption::where('col_opt_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Color Option was deactivated successfully.',
-          'colorOption' => $colorOption
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('COLOR_OPTION_DELETE'))//check permission
+      {
+        $colorOption = ColorOption::where('col_opt_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Color Option was deactivated successfully.',
+            'colorOption' => $colorOption
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -165,27 +194,33 @@ class ColorOptionController extends Controller
     //get searched OriginTypes for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('COLOR_OPTION_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $color_option_lists =ColorOption::select('*')
-      ->where('color_option'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $color_option_lists =ColorOption::select('*')
+        ->where('color_option'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-    $color_option_count = ColorOption::where('color_option'  , 'like', $search.'%' )->count();
+      $color_option_count = ColorOption::where('color_option'  , 'like', $search.'%' )->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $color_option_count,
-          "recordsFiltered" =>$color_option_count,
-          "data" => $color_option_lists
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $color_option_count,
+            "recordsFiltered" =>$color_option_count,
+            "data" => $color_option_lists
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

@@ -16,8 +16,21 @@ class PurchaseOrder extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $type = $request->type;
+        $active = $request->active;
+        $fields = $request->fields;
+        if($type == 'get-invoice-and-supplier'){
+            return response([
+                'data' => $this->getSupplierAndInvoiceNo($active , $fields, $request->id)
+            ]);
+        }else{
+            return response([
+                'data' => $this->list($active , $fields)
+            ]);
+        }
+
 
     }
 
@@ -128,5 +141,10 @@ class PurchaseOrder extends Controller
             }
         }
         return $query->get();
+    }
+
+    public function getSupplierAndInvoiceNo($active = 0 , $fields = null, $id){
+        $poHeader = PoOrderHeader::find($id);
+        return $poHeader->getPOSupplierAndInvoice();
     }
 }

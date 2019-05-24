@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Cluster;
+use App\Libraries\AppAuthorize;
 
 class ClusterController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get Cluster list
@@ -42,23 +46,29 @@ class ClusterController extends Controller
     //create a Cluster
     public function store(Request $request)
     {
-      $cluster = new Cluster();
-      if($cluster->validate($request->all()))
+      if($this->authorize->hasPermission('CLUSTER_MANAGE'))//check permission
       {
-        $cluster->fill($request->all());
-        $cluster->status = 1;
-        $cluster->save();
+        $cluster = new Cluster();
+        if($cluster->validate($request->all()))
+        {
+          $cluster->fill($request->all());
+          $cluster->status = 1;
+          $cluster->save();
 
-        return response([ 'data' => [
-          'message' => 'Cluster was saved successfully',
-          'cluster' => $cluster
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Cluster saved successfully',
+            'cluster' => $cluster
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $cluster->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-          $errors = $cluster->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -66,32 +76,44 @@ class ClusterController extends Controller
     //get a Cluster
     public function show($id)
     {
-      $cluster = Cluster::find($id);
-      if($cluster == null)
-        throw new ModelNotFoundException("Requested cluster not found", 1);
-      else
-        return response([ 'data' => $cluster ]);
+      if($this->authorize->hasPermission('CLUSTER_MANAGE'))//check permission
+      {
+        $cluster = Cluster::find($id);
+        if($cluster == null)
+          throw new ModelNotFoundException("Requested cluster not found", 1);
+        else
+          return response([ 'data' => $cluster ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a Cluster
     public function update(Request $request, $id)
     {
-      $cluster = Cluster::find($id);
-      if($cluster->validate($request->all()))
+      if($this->authorize->hasPermission('CLUSTER_MANAGE'))//check permission
       {
-        $cluster->fill($request->except('group_code'));
-        $cluster->save();
+        $cluster = Cluster::find($id);
+        if($cluster->validate($request->all()))
+        {
+          $cluster->fill($request->except('group_code'));
+          $cluster->save();
 
-        return response([ 'data' => [
-          'message' => 'Cluster was updated successfully',
-          'cluster' => $cluster
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Cluster updated successfully',
+            'cluster' => $cluster
+          ]]);
+        }
+        else
+        {
+          $errors = $cluster->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $cluster->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+        return response($this->authorize->error_response(), 401);
       }
     }
 
@@ -99,13 +121,19 @@ class ClusterController extends Controller
     //deactivate a Cluster
     public function destroy($id)
     {
-      $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Cluster was deactivated successfully.',
-          'cluster' => $cluster
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      if($this->authorize->hasPermission('CLUSTER_DELETE'))//check permission
+      {
+        $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Cluster was deactivated successfully.',
+            'cluster' => $cluster
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -164,34 +192,40 @@ class ClusterController extends Controller
     //get searched Clusters for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('CLUSTER_DELETE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $cluster_list = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
-  		->select('org_group.*', 'org_source.source_name')
-  		->where('group_code','like',$search.'%')
-  		->orWhere('group_name', 'like', $search.'%')
-  		->orWhere('source_name', 'like', $search.'%')
-  		->orderBy($order_column, $order_type)
-  		->offset($start)->limit($length)->get();
+        $cluster_list = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+    		->select('org_group.*', 'org_source.source_name')
+    		->where('group_code','like',$search.'%')
+    		->orWhere('group_name', 'like', $search.'%')
+    		->orWhere('source_name', 'like', $search.'%')
+    		->orderBy($order_column, $order_type)
+    		->offset($start)->limit($length)->get();
 
-  		$cluster_count = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
-  		->where('group_code','like',$search.'%')
-  		->orWhere('group_name', 'like', $search.'%')
-  		->orWhere('source_name', 'like', $search.'%')
-  		->count();
+    		$cluster_count = Cluster::join('org_source', 'org_group.source_id', '=', 'org_source.source_id')
+    		->where('group_code','like',$search.'%')
+    		->orWhere('group_name', 'like', $search.'%')
+    		->orWhere('source_name', 'like', $search.'%')
+    		->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $cluster_count,
-          "recordsFiltered" => $cluster_count,
-          "data" => $cluster_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $cluster_count,
+            "recordsFiltered" => $cluster_count,
+            "data" => $cluster_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }

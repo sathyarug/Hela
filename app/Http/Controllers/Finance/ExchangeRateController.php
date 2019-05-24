@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\ExchangeRate;
+use App\Libraries\AppAuthorize;
 
 class ExchangeRateController extends Controller
 {
+    var $authorize = null;
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->authorize = new AppAuthorize();
     }
 
     //get shipment term list
@@ -43,40 +47,54 @@ class ExchangeRateController extends Controller
     //create a shipment term
     public function store(Request $request)
     {
-      $rate = new ExchangeRate();
-      if ($rate->validate($request->all()))
+      if($this->authorize->hasPermission('EXCHANGE_RATE_MANAGE'))//check permission
       {
-        $rate->fill($request->all());
-        $rate->status = 1;
-        $rate->save();
+        $rate = new ExchangeRate();
+        if ($rate->validate($request->all()))
+        {
+          $rate->fill($request->all());
+          $rate->status = 1;
+          $rate->save();
 
-        return response([ 'data' => [
-          'message' => 'Exchange rate was saved successfully',
-          'exchangeRate' => $rate
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Exchange rate was saved successfully',
+            'exchangeRate' => $rate
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+          $errors = $customer->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
-      else
-      {
-        $errors = $customer->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else{
+          return response($this->authorize->error_response(), 401);
       }
     }
 
     //get shipment term
     public function show($id)
     {
+      if($this->authorize->hasPermission('EXCHANGE_RATE_MANAGE'))//check permission
+      {
         $rate = ExchangeRate::with(['currency'])->find($id);
         if($rate == null)
           throw new ModelNotFoundException("Requested exchange rate not found", 1);
         else
           return response([ 'data' => $rate ]);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
     //update a shipment term
     public function update(Request $request, $id)
     {
+      if($this->authorize->hasPermission('EXCHANGE_RATE_MANAGE'))//check permission
+      {
         $rate = ExchangeRate::find($id);
         if ($rate->validate($request->all()))
         {
@@ -93,11 +111,17 @@ class ExchangeRateController extends Controller
           $errors = $customer->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
     //deactivate a ship term
     public function destroy($id)
     {
+      if($this->authorize->hasPermission('EXCHANGE_RATE_DELETE'))//check permission
+      {
         $rate = ExchangeRate::where('id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -105,6 +129,10 @@ class ExchangeRateController extends Controller
             'exchangeRate' => $rate
           ]
         ] , Response::HTTP_NO_CONTENT);
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 
@@ -121,7 +149,7 @@ class ExchangeRateController extends Controller
     //check shipment cterm code code already exists
     private function validate_duplicate($id , $currency , $valid_from)
     {
-      $valid_from = date('Y-m-d', strtotime($valid_from));  
+      $valid_from = date('Y-m-d', strtotime($valid_from));
       $rate = ExchangeRate::where([['currency','=',$currency] , ['valid_from' , '=' , $valid_from]])->first();
       if($rate == null){
         return ['status' => 'success'];
@@ -165,32 +193,38 @@ class ExchangeRateController extends Controller
     //get searched ship terms for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
+      if($this->authorize->hasPermission('EXCHANGE_RATE_MANAGE'))//check permission
+      {
+        $start = $data['start'];
+        $length = $data['length'];
+        $draw = $data['draw'];
+        $search = $data['search']['value'];
+        $order = $data['order'][0];
+        $order_column = $data['columns'][$order['column']]['data'];
+        $order_type = $order['dir'];
 
-      $rate_list = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
-      ->select('org_exchange_rate.*','fin_currency.currency_code','fin_currency.currency_description')
-      ->where('currency_code'  , 'like', $search.'%' )
-      ->orWhere('valid_from'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+        $rate_list = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
+        ->select('org_exchange_rate.*','fin_currency.currency_code','fin_currency.currency_description')
+        ->where('currency_code'  , 'like', $search.'%' )
+        ->orWhere('valid_from'  , 'like', $search.'%' )
+        ->orderBy($order_column, $order_type)
+        ->offset($start)->limit($length)->get();
 
-      $rate_count = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
-      ->where('currency_code'  , 'like', $search.'%' )
-      ->orWhere('valid_from'  , 'like', $search.'%' )
-      ->count();
+        $rate_count = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
+        ->where('currency_code'  , 'like', $search.'%' )
+        ->orWhere('valid_from'  , 'like', $search.'%' )
+        ->count();
 
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $rate_count,
-          "recordsFiltered" => $rate_count,
-          "data" => $rate_list
-      ];
+        return [
+            "draw" => $draw,
+            "recordsTotal" => $rate_count,
+            "recordsFiltered" => $rate_count,
+            "data" => $rate_list
+        ];
+      }
+      else{
+        return response($this->authorize->error_response(), 401);
+      }
     }
 
 }
