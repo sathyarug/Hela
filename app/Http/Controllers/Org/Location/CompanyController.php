@@ -89,7 +89,7 @@ class CompanyController extends Controller
               'company' => $insertedId
             ]);
           }
-          echo json_encode($insert_procees_list);
+          //echo json_encode($insert_procees_list);
           DB::table('unique_id_generator')->insert($insert_procees_list);
 
           return response([ 'data' => [
@@ -103,17 +103,7 @@ class CompanyController extends Controller
             $errors = $company->errors();// failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-<<<<<<< HEAD
-=======
-        //echo json_encode($insert_procees_list);
-        DB::table('unique_id_generator')->insert($insert_procees_list);
 
-        return response([ 'data' => [
-          'message' => 'Company was saved successfully',
-          'company' => $company
-          ]
-        ], Response::HTTP_CREATED );
->>>>>>> 75e3adc99d753da56f2b51a9ab160cf22f730d1e
       }
       else{
         return response($this->authorize->error_response(), 401);
