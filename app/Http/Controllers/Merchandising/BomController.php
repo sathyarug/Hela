@@ -297,4 +297,17 @@ class BomController extends Controller
         echo json_encode($result);
         
     }
+    
+    public function getMatRatio(Request $request){
+        
+        try{
+            $getMaterialRatio = new MaterialRatio();
+            $resultMaterialRatio = $getMaterialRatio->getMaterialRatio($request->bom_id,$request->component_id,$request->item_id);
+
+        }catch( \Exception $ex){
+            $resultMaterialRatio = $ex->getMessage();
+        }
+        echo json_encode($resultMaterialRatio);
+        
+    }
 }
