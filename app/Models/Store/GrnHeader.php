@@ -43,8 +43,9 @@ class GrnHeader extends Model
             ->join("item_master AS i", "i.master_id", "=", "d.item_code")
             ->join("org_color AS c", "c.color_id", "=", "d.color")
             ->join("org_size AS s", "s.size_id", "=", "d.size")
+            ->join("org_uom AS u", "u.uom_id", "=", "d.uom")
             ->join("cust_customer AS cu", "cu.customer_id", "=", "o.order_customer")
-            ->select("store_grn_header.grn_id","store_grn_header.grn_number", "d.id", "d.item_code","cu.customer_name", "s.size_name", "d.uom", "d.po_qty", "d.grn_qty", "d.bal_qty", "d.id", "d.sc_no", "i.master_description", "c.color_name")
+            ->select("store_grn_header.grn_id","store_grn_header.grn_number", "d.id", "d.item_code","cu.customer_name", "s.size_name", "u.uom_description", "d.po_qty", "d.grn_qty", "d.bal_qty", "d.id", "d.sc_no", "i.master_description", "c.color_name")
             ->get()
             ->toArray();
 

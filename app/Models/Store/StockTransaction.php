@@ -9,7 +9,7 @@ use App\BaseValidator;
 
 
 
-class StockTransaction extends BaseValidator
+class StockTransaction extends Model
 {
     protected $table='store_stock_transaction';
     protected $primaryKey='transaction_id';
@@ -18,7 +18,7 @@ class StockTransaction extends BaseValidator
     const CREATED_AT='created_date';
     const UPDATED_AT = null;
 
-    protected $fillable=['doc_num','doc_type','customer_po_id', 'item_id', 'so','main_store', 'sub_store', 'location', 'bin', 'size', 'color','qty', 'uom', 'status'];
+    protected $fillable=['doc_num','doc_type','combine_id', 'item_code', 'so','main_store', 'sub_store', 'location', 'bin', 'size', 'color','qty', 'uom', 'status'];
 
     protected $rules=array(
         ////'color_code'=>'required',

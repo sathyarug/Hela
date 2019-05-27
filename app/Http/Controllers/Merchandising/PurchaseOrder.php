@@ -21,9 +21,13 @@ class PurchaseOrder extends Controller
         $type = $request->type;
         $active = $request->active;
         $fields = $request->fields;
-        if($type == 'get-invoice-and-supplier'){
+        if($type == 'get-invoice-and-supplier') {
             return response([
-                'data' => $this->getSupplierAndInvoiceNo($active , $fields, $request->id)
+                'data' => $this->getSupplierAndInvoiceNo($active, $fields, $request->id)
+            ]);
+        }elseif($type == 'color-list'){
+            return response([
+                'data' => $this->getPoColorList($request->id)
             ]);
         }else{
             return response([
@@ -108,18 +112,17 @@ class PurchaseOrder extends Controller
         //return response()->json(true);
     }
 
-    public function loadPoBpoList(Request $request){
-        $po = PoOrderHeader::select('po_id', 'po_number')->where('po_id', $request->id)->get();
-        $podata = $po->toArray();
-
-        return response([
-            'data' => $podata
-        ]);
-    }
-
     public function getPoSCList(Request $request){
-        $po = PoOrderDetails::select('sc_no')->where('id', $request->id)->get();
-        $podata = $po->toArray();
+         $poData = DB::table('merc_po_order_header as h')
+            ->join('merc_po_order_details as d', 'h.po_number', '=', 'd.po_no')
+            ->select('d.sc_no')
+            ->where('h.po_id', '=', $request->id)
+            ->toSql();
+
+         dd($poData);
+
+
+        $podata = $poData->toArray();
 
         return response([
             'data' => $podata
@@ -146,5 +149,18 @@ class PurchaseOrder extends Controller
     public function getSupplierAndInvoiceNo($active = 0 , $fields = null, $id){
         $poHeader = PoOrderHeader::find($id);
         return $poHeader->getPOSupplierAndInvoice();
+    }
+
+    public function getPoColorList($id){
+        $poData = DB::table('merc_po_order_header as h')
+            ->join('merc_po_order_details as d', 'h.po_number', '=', 'd.po_no')
+            ->join('org_color as c', 'c.color_id', '=', 'd.colour')
+            ->select('c.color_id', 'c.color_name')
+            ->where('h.po_id', '=', $id)
+            ->groupBy('d.colour')
+            ->get();
+
+        return $poData->toArray();
+
     }
 }
