@@ -422,6 +422,8 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
     Route::post('po-manual/revision_header' , 'Merchandising\PurchaseOrderManualDetailsController@load_po_revision_header');
+    Route::post('po-manual/prl_header_load' , 'Merchandising\PurchaseOrderManualDetailsController@prl_header_load');
+
     Route::post('po-manual-details/save_line_details_revision','Merchandising\PurchaseOrderManualDetailsController@save_line_details_revision');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
@@ -436,10 +438,12 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
     Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
     Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+    Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
 
     Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
     Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
+    Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
 
 
 });

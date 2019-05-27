@@ -304,7 +304,8 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details = new PoOrderDetails();
 
         $po_details->po_no = $formData['po_number'];
-        $po_details->sc_no = $lines[$x]['bom_id'];
+        $po_details->bom_id = $lines[$x]['bom_id'];
+        $po_details->combine_id = $lines[$x]['combine_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
         $po_details->style = $lines[$x]['master_id'];
@@ -468,7 +469,35 @@ class PurchaseOrderManualDetailsController extends Controller
 
     }
 
+    public function prl_header_load(Request $request){
+      $order_id = $request->PORID;
+    //  print_r($order_id);
 
+      $LOAD_SUP= DB::select('SELECT PRL.supplier_id,PRL.supplier_name FROM merc_purchase_req_lines AS PRL
+            WHERE PRL.merge_no = "'.$order_id.'" GROUP BY PRL.merge_no');
+      $po_sup_code = $LOAD_SUP[0]->supplier_id;
+
+      $LOAD_CUR= DB::select('SELECT SUP.currency as currency_id,CUR.currency_code,PM.payment_method_id,PM.payment_method_description,
+            SUP.payemnt_terms,FPT.payment_description,PS.ship_term_id,PS.ship_term_description
+            FROM org_supplier AS SUP
+            INNER JOIN fin_currency AS CUR ON SUP.currency = CUR.currency_id
+            INNER JOIN fin_payment_method AS PM ON SUP.payment_mode = PM.payment_method_id
+            INNER JOIN fin_payment_term AS FPT ON SUP.payemnt_terms = FPT.payment_term_id
+            INNER JOIN fin_shipment_term AS PS ON SUP.ship_terms_agreed = PS.ship_term_id
+            WHERE SUP.supplier_id = "'.$po_sup_code.'" ');
+
+
+
+
+      $porl_arr['load_sup']=$LOAD_SUP;
+      $porl_arr['load_cur']=$LOAD_CUR;
+
+      if($porl_arr == null)
+          throw new ModelNotFoundException("Requested section not found", 1);
+      else
+          return response([ 'data' => $porl_arr ]);
+
+    }
 
     public function load_po_revision_header(Request $request){
 

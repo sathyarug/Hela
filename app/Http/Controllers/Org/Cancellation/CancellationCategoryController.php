@@ -55,7 +55,7 @@ class CancellationCategoryController extends Controller
           $category->save();
 
           return response([ 'data' => [
-            'message' => 'Cancellation category was saved successfully',
+            'message' => 'Cancellation category saved successfully',
             'cancellationCategory' => $category
             ]
           ], Response::HTTP_CREATED );
@@ -101,7 +101,7 @@ class CancellationCategoryController extends Controller
           $category->save();
 
           return response([ 'data' => [
-            'message' => 'Cancellation category was updated successfully',
+            'message' => 'Cancellation category updated successfully',
             'cancellationCategory' => $category
           ]]);
         }

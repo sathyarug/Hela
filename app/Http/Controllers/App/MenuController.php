@@ -40,7 +40,9 @@ class MenuController extends Controller
       else{
         $menus = DB::select('select app_menu.* from app_menu where app_menu.parent_menu = ? AND
             IF(app_menu.permission IS NULL , 1 ,
-              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND usr_login_permission.permission_code=app_menu.permission)) >= 1' , [$menu->code, $user_id]);
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC' ,
+               [$menu->code, $user_id]);
         $menu->sub_menus = $menus;
       }
 

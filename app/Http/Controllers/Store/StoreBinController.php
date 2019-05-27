@@ -65,7 +65,7 @@ class StoreBinController extends Controller {
       if($this->authorize->hasPermission('BIN_MANAGE'))//check permission
       {
         $storeBin = new StoreBin();
-      //  if ($storeBin->validate($request->all())) {
+        if ($storeBin->validate($request->all())) {
             $storeBin->fill($request->all());
             $storeBin->status = 1;
             $storeBin->save();
@@ -75,7 +75,7 @@ class StoreBinController extends Controller {
                     'storeBin' => $storeBin
                 ]
                     ], Response::HTTP_CREATED);
-      /*} else {
+      } else {
             $errors = $store->errors(); // failure, get errors
             return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }

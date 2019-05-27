@@ -56,7 +56,7 @@ class CancellationReasonController extends Controller
           $cluster->save();
 
           return response([ 'data' => [
-            'message' => 'Cancellation reason was saved successfully',
+            'message' => 'Cancellation reason saved successfully',
             'cluster' => $cluster
             ]
           ], Response::HTTP_CREATED );
@@ -102,7 +102,7 @@ class CancellationReasonController extends Controller
           $cluster->save();
 
           return response([ 'data' => [
-            'message' => 'Cancellation reason was updated successfully',
+            'message' => 'Cancellation reason updated successfully',
             'cluster' => $cluster
           ]]);
         }

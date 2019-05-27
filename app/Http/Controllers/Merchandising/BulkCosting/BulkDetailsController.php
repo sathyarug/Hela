@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\BulkCosting;
 use App\Models\Merchandising\BulkCostingDetails;
 use Illuminate\Support\Facades\DB;
+use App\Models\Finance\Cost\FinanceCost;
+use App\Models\Merchandising\Position;
 
 class BulkDetailsController extends Controller
 {
@@ -40,6 +42,8 @@ class BulkDetailsController extends Controller
             return response($this->getColorForDivision());
         }elseif ($type == 'getContry'){
             return response($this->getContry());
+        }elseif ($type == 'getShepTerms'){
+            return response($this->getShepTerms());
         }elseif ($type == 'loadMainData'){
             $bulkheader_id = $request->serialblk;
             return response($this->loadMainData($bulkheader_id));
@@ -49,6 +53,8 @@ class BulkDetailsController extends Controller
             return response($this->loadItemAccordingCategory($request));
         }elseif ($type == 'getColorType'){
             return response($this->getColorType());
+        }elseif ($type == 'getPosition'){
+            return response($this->getPosition());
         }elseif ($type == 'addNewItem'){
             $serialblk = $request->serialblk;
             return response($this->addNewItem($serialblk));
@@ -85,7 +91,7 @@ class BulkDetailsController extends Controller
             if(isset($request->color)){
                 $color=\App\Models\Org\Color::where('color_name',$request->color )->get();
             }else{
-                $color[0]['color_id']='';
+                $color[0]['color_id']=0;
             }
 
             $contry=\App\Models\Org\Country::where('country_description',$request->country_of_origin )->get();
@@ -93,7 +99,19 @@ class BulkDetailsController extends Controller
             if(isset($request->color_type)){
                 $colorType=\App\Models\Merchandising\ColorOption::Where('color_option',$request->color_type)->get();
             }else{
-                $colorType[0]['col_opt_id']='';
+                $colorType[0]['col_opt_id']=0;
+            }
+
+            if(isset($request->position)){
+                $positionId=\App\Models\Merchandising\Position::Where('position',$request->position)->get();
+            }else{
+                $positionId[0]['position_id']=0;
+            }
+
+            if(isset($request->shipping_terms)){
+                $shipTermId=\App\Models\Finance\ShipmentTerm::Where('ship_term_description',$request->shipping_terms)->get();
+            }else{
+                $shipTermId[0]['ship_term_id']=0;
             }
 
             $orderType=0;
@@ -113,7 +131,7 @@ class BulkDetailsController extends Controller
             $model->color_type_id=$colorType[0]['col_opt_id'];
             $model->main_item=$request->main_item_Id;
             $model->supplier_id=$supplier[0]['supplier_id'];
-            $model->Position=$request->position;
+            $model->Position=$positionId[0]['position_id'];
             $model->measurement=$request->measurement;
             $model->process_option=$serviceType[0]['service_type_id'];
             $model->uom_id=$umo[0]['uom_id'];
@@ -130,7 +148,7 @@ class BulkDetailsController extends Controller
             $model->calculate_by_deliverywise=$request->calculate_by_deliverywise;
             $model->surcharge=$request->surcharge;
             $model->total_cost=$request->total_cost;
-            $model->shipping_terms=$request->shipping_terms;
+            $model->shipping_terms=$shipTermId[0]['ship_term_id'];
             $model->order_type=$orderType;
             $model->lead_time=$request->lead_time;
             $model->country_of_origin=$contry[0]['country_id'];
@@ -159,6 +177,7 @@ class BulkDetailsController extends Controller
         $master= \App\itemCreation::find($id)->toArray();
         $SubCategory= \App\Models\Finance\Item\SubCategory::find($master['subcategory_id'])->toArray();
         $category= \App\Models\Finance\Item\Category::find($SubCategory['category_id'])->toArray();
+      //  $FinanceCost=\App\Models\Finance\Cost\FinanceCost();
 //        $supplier= \App\Models\Org\Supplier::where('status', 1)->get()->toArray();
 //        $serviceType= \App\Models\IE\ServiceType::where('status', 1)->get()->toArray();
 
@@ -234,6 +253,8 @@ class BulkDetailsController extends Controller
             $color=\App\Models\Org\Color::find($item->color_id);
             $contry=\App\Models\Org\Country::find($item->country_of_origin);
             $colorType=\App\Models\Merchandising\ColorOption::find($item->color_type_id);
+            $position=\App\Models\Merchandising\Position::find($item->position);
+            $shipTerm=\App\Models\Finance\ShipmentTerm::find($item->shipping_terms);
 
              $calculate_by_deliverywise=false;
             if($item->calculate_by_deliverywise ==1){
@@ -260,7 +281,7 @@ class BulkDetailsController extends Controller
                 'color_type'=>$colorType['color_option'],
                 'article_no'=>$item->article_no,
                 'supplier'=>$supplie->supplier_name,
-                'position'=>$item->position,
+                'position'=>$position->position,
                 'measurement'=>$item->measurement,
                 'process_options'=>$process_options->service_type_description,
                 'uom'=>$umo->uom_code,
@@ -276,7 +297,7 @@ class BulkDetailsController extends Controller
                 'calculate_by_deliverywise'=>$calculate_by_deliverywise,
                 'surcharge'=>$item->surcharge,
                 'total_cost'=>$item->total_cost,
-                'shipping_terms'=>$item->shipping_terms,
+                'shipping_terms'=>$shipTerm['ship_term_description'],
                 'lead_time'=>$item->lead_time,
                 'country_of_origin'=>$contry['country_description'],
                 'comments'=>$item->comments,
@@ -385,7 +406,10 @@ class BulkDetailsController extends Controller
         $colorType=\App\Models\Merchandising\ColorOption::Where('status',1)->pluck('color_option')->toArray();
         return json_encode($colorType);
     }
-
+    public  function getPosition(){
+        $colorType=\App\Models\Merchandising\Position::Where('status',1)->pluck('position')->toArray();
+        return json_encode($colorType);
+    }
     public  function getMainCategory(){
         $category=\App\Models\Finance\Item\Category::pluck('category_name')->toArray();
         return json_encode($category);
@@ -395,30 +419,37 @@ class BulkDetailsController extends Controller
         $contry=\App\Models\Org\Country::pluck('country_description')->toArray();
         return json_encode($contry);
     }
+
+    public  function getShepTerms(){
+        $shepTerms=\App\Models\Finance\ShipmentTerm::pluck('ship_term_description')->toArray();
+        return json_encode($shepTerms);
+    }
+
     public function loadMainData($id){
         $blkFeature=\App\Models\Merchandising\BulkCostingFeatureDetails::find($id);
         $hader = \App\Models\Merchandising\BulkCosting::find($blkFeature->bulkheader_id);
-        $style = \App\Models\Merchandising\styleCreation::find($hader->style_id);
+        $style = \App\Models\Merchandising\StyleCreation::find($hader->style_id);
         $color=\App\Models\Org\Color::find($blkFeature->color_ID);
         $component=\App\Models\Org\Component::find($blkFeature->component_id);
-        $sumStyleSmv=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->sum('smv_value');
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->where('feature_id', $blkFeature->component_id)->sum('smv_value');
-        $financeCost=\App\Models\finance\Cost\FinanceCost::first();
-        $cpmData=\App\Models\ie\ProductCMP::where('style_id', $hader->style_id)->pluck('cpm')->toArray();
-        $cpm=0;
-        if(isset($cpmData[0])){
-        $cpm= $cpmData[0];
-        }
+        //$sumStyleSmv=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->sum('smv_value');
+       // $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $hader->style_id)->where('feature_id', $blkFeature->component_id)->sum('smv_value');
+        $financeCost=\App\Models\Finance\Cost\FinanceCost::first();
+//        $cpmData=\App\Models\ie\ProductCMP::where('style_id', $hader->style_id)->pluck('cpm')->toArray();
+//        $cpm=0;
+//        if(isset($cpmData[0])){
+//        $cpm= $cpmData[0];
+//        }
 //        print_r($cpm);exit;
        return (array('style'=>$style->style_no,
            'component'=>$component->product_component_description,
            'color'=>$color->color_name,
-           'styleSmv'=>$sumStyleSmv,
-           'styleSmvComp'=>$sumStyleSmvComp,
+          // 'styleSmv'=>$sumStyleSmv,
+            'styleSmv'=>$blkFeature->smv,
+          // 'styleSmvComp'=>$sumStyleSmvComp,
            'finance_cost'=>$financeCost->finance_cost,
            'cpmfront_end'=>$financeCost->cpmfront_end,
            'cpum'=>$financeCost->cpum,
-           'cpm'=>$cpm,
+           'cpm'=>(($financeCost->cpum)*($hader->plan_efficiency)),
            'fob'=>(float)$hader->fob
        ));
     }
@@ -442,6 +473,7 @@ class BulkDetailsController extends Controller
     }
 
     public function addNewItem($serialblk){
+        $finCost = FinanceCost::all();
         $item=array(
             'main_item_type'=>'',
             'main_item_Id'=>'',
@@ -462,7 +494,7 @@ class BulkDetailsController extends Controller
             'wastage'=>'',
             'gross_consumption'=>0,
             'freight_charges'=>0,
-            'finance_charges'=>0,
+            'finance_charges'=>$finCost[0]['finance_cost'],
             'moq'=>'',
             'mcq'=>'',
             'OrderType'=>'',
