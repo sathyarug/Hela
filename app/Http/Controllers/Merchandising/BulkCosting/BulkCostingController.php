@@ -304,7 +304,7 @@ class BulkCostingController extends Controller {
 
        // $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
 
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+        //$sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
         //  echo json_encode($styleData->style_id);
 
 //        dd($sumStyleSmvComp->created_date);exit;
