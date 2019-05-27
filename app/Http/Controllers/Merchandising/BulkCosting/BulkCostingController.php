@@ -304,7 +304,7 @@ class BulkCostingController extends Controller {
 
        // $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
 
-        $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
+        //$sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
         //  echo json_encode($styleData->style_id);
 
 //        dd($sumStyleSmvComp->created_date);exit;
@@ -753,7 +753,7 @@ if(count($getAllData)>0){
 
         $fullData[$index]=$data;
 }
-         
+
 
          if(count($getAllDataHis)>0){
 
@@ -800,9 +800,9 @@ if(count($getAllData)>0){
 
             }
         }
-         }  
+         }
 
-       
+
         $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
 //        dd($styleData->image);
 print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;

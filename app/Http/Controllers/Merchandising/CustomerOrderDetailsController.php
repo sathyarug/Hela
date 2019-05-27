@@ -487,10 +487,11 @@ class CustomerOrderDetailsController extends Controller
 
 
     private function style_colors($style){
-      $colors = DB::select("SELECT costing_bulk_feature_details.combo_color, org_color.color_code,org_color.color_name FROM costing_bulk_feature_details
+    /*  $colors = DB::select("SELECT costing_bulk_feature_details.combo_color, org_color.color_code,org_color.color_name FROM costing_bulk_feature_details
           INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
           INNER JOIN org_color ON costing_bulk_feature_details.combo_color = org_color.color_id
-          WHERE costing_bulk.style_id = ?",[$style]);
+          WHERE costing_bulk.style_id = ?",[$style]);*/
+      $colors = DB::select("SELECT color_id,color_code,color_name from org_color");
       return $colors;
     }
 

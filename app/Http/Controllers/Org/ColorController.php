@@ -58,7 +58,7 @@ class ColorController extends Controller
           $color->save();
 
           return response([ 'data' => [
-            'message' => 'Color was saved successfully',
+            'message' => 'Color saved successfully',
             'color' => $color
             ]
           ], Response::HTTP_CREATED );
@@ -104,7 +104,7 @@ class ColorController extends Controller
           $color->save();
 
           return response([ 'data' => [
-            'message' => 'Color was updated successfully',
+            'message' => 'Color updated successfully',
             'color' => $color
           ]]);
         }
