@@ -104,8 +104,25 @@ class PoOrderHeader extends BaseValidator
     }
 
     public function getPOSupplierAndInvoice(){
-        return self::select('s.supplier_name')
+        return self::select('s.supplier_name', 's.supplier_id')
             ->join('org_supplier as s', 's.supplier_id', '=', 'merc_po_order_header.po_sup_code')
             ->get();
     }
+
+    public static function getPoLineData($request){
+        $podata = self::where('merc_po_order_header.po_id', $request->id)
+            ->join("merc_po_order_details AS d", "merc_po_order_header.po_number", "=", "d.po_no")
+            ->join("item_master AS i", "i.master_id", "=", "d.item_code")
+            ->join("merc_customer_order_header AS h", "h.order_style", "=", "d.style")
+            ->join("cust_customer AS t", "t.customer_id", "=", "h.order_customer")
+            ->join("org_color AS c", "c.color_id", "=", "d.colour")
+            ->join("org_size AS s", "s.size_id", "=", "d.size")
+            ->join("org_uom AS u", "u.uom_id", "=", "d.uom")
+            ->select("d.combine_id", "c.color_name", "s.size_name", "u.uom_description", "d.tot_qty", "d.id", "i.master_description", "t.customer_name")
+            ->get()
+            ->toArray();
+
+        return $podata;
+    }
+
 }

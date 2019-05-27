@@ -284,7 +284,6 @@ Route::prefix('stores/')->group(function(){
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
-  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
@@ -310,7 +309,6 @@ Route::prefix('stores/')->group(function(){
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
-  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
@@ -404,7 +402,6 @@ Route::prefix('merchandising/')->group(function(){
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
-  Route::post('save-grn-lines', 'Store\GrnController@addGrnLines');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
   Route::get('load-grn-lines', 'Store\GrnController@loadAddedGrnLInes');
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');

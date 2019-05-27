@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Store;
 use App\Libraries\UniqueIdGenerator;
 use App\Models\Store\Stock;
 use App\Models\Store\StockTransaction;
+use App\Models\Store\SubStore;
+use App\Models\Finance\Transaction;
+use App\Models\Store\Store;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Store\GrnHeader;
 use App\Models\Store\GrnDetail;
@@ -26,62 +30,88 @@ class GrnController extends Controller
         exit;
     }
 
-    public function testPP(){
-        echo "ppppp";
-    }
-
     public function store(Request $request){
 
-         //dd($request); exit;
+       // dd($request);
 
-         if($request['id']){
+         if(empty($request['grn_id'])) {
 
-             //$res = GrnDetail::where('grn_id',$request['id'])->delete();
+                 //Update GRN Header
+                 $header = new GrnHeader;
+                 $unId = UniqueIdGenerator::generateUniqueId('GRN', auth()->payload()['loc_id']);
+                 $header->grn_number = $unId;
+                 $header->po_number = $request['po_no']['po_id'];
 
-             //Update GRN Header
-             $header = GrnHeader::find($request['id']);
-             $unId = UniqueIdGenerator::generateUniqueId('GRN', 1);
-             //$unId = 2001;
-             $header->grn_number = $unId;
-             $header->save();
+            }else{
+                 $header = GrnHeader::find($request['grn_id']);
+                 $header->updated_by = auth()->payload()['user_id'];
 
-             // Insert New GRN Lines
+                 // Remove all added grn details
+                 GrnDetail::where('grn_id', $request['grn_id'])->delete();
+            }
+            //Get Main store
+            $store = SubStore::find($request['sub_store']['substore_id']);
+
+            $header->batch_no = $request['batch_no'];
+            $header->inv_number = $request['invoice_no'];
+            $header->note = $request['note'];
+            $header->location = auth()->payload()['loc_id'];
+            $header->main_store = $store->store_id;
+            $header->sub_store = $store->substore_id;
+            $header->created_by = auth()->payload()['user_id'];
+
+            $header->save();
+
              $i = 1;
              foreach ($request['grn_lines'] as $rec){
-                 //dd($rec['sc_no']);
-                 //$poData = new PoOrderDetails;
-                 //$poData = PoOrderDetails::where('id', $rec['po_line_id'])->first();
-                 $grnLine = GrnDetail::find($rec['grn_line_id']);
-
-                 //Deleting existing GRN Lines
-                 GrnDetail::where('id',$rec['grn_line_id'])->delete();
+                 $poDetails = PoOrderDetails::find($rec['po_line_id']);
 
                  $grnDetails = new GrnDetail;
-                 $grnDetails->grn_id = $request['id'];
+                 $grnDetails->grn_id = $header->grn_id;
                  $grnDetails->grn_line_no = $i;
-                 $grnDetails->style_id = 211;
-                 $grnDetails->sc_no = $grnLine->sc_no;
-                 $grnDetails->color = $grnLine->color;
-                 $grnDetails->size = $grnLine->size;
-                 $grnDetails->uom = $grnLine->uom;
-                 $grnDetails->po_qty = $rec['po_qty'];
-                 $grnDetails->grn_qty = (float)$rec['qty'];
-                 $grnDetails->bal_qty = $rec['po_qty'] - (float)$rec['qty'];
-                 $grnDetails->status = 0;
-                 $grnDetails->item_code = $rec['item_code'];
+                 $grnDetails->style_id = $poDetails->style;
+                 $grnDetails->combine_id = $poDetails->comb_id;
+                 $grnDetails->color = $poDetails->colour;
+                 $grnDetails->size = $poDetails->size;
+                 $grnDetails->uom = $poDetails->uom;
+                 $grnDetails->po_qty = (double)$poDetails->tot_qty;
+                 $grnDetails->grn_qty = (double)$rec['qty'];
+                 $grnDetails->bal_qty = (double)$poDetails->tot_qty - (double)$rec['qty'];
+                 $grnDetails->item_code = $poDetails->item_code;
+
                  $grnDetails->save();
 
                  $i++;
 
-                 //Update Stock Transaction
-                 $st = StockTransaction::where('doc_num', $request['id'])->where('doc_type', 'GRN')->get();
+                /* return response([ 'data' => [
+                         'message' => 'Saved Successfully',
+                         'grnId' => $header->grn_id
+                     ]
+                    ], Response::HTTP_CREATED );*/
 
-                 foreach($st as $stockTr){
-                     $stockTr->status = 'CONFIRM';
-                     $stockTr->main_store = 2;
-                     $stockTr->sub_store = 1;
-                     $stockTr->save();
-                 }
+                // continue;
+                 //Update Stock Transaction
+                 $transaction = Transaction::where('trans_description', 'GRN')->get();
+
+                 //$st = StockTransaction::where('doc_num', $request['id'])->where('doc_type', 'GRN')->get();
+
+                 $st = new StockTransaction;
+                 $st->status = 'CONFIRM';
+                 $st->doc_type = $header->grn_id;
+                 $st->doc_num = $header->grn_id;
+                 $st->style_id = $poDetails->style;
+                 $st->main_store = $store->store_id;
+                 $st->sub_store = $store->substore_id;
+                 $st->item_code = $poDetails->item_code;
+                 $st->size = $poDetails->size;
+                 $st->color = $poDetails->colour;
+                 $st->uom = $poDetails->uom;
+                 $st->qty = $store->substore_id;
+                 $st->location = auth()->payload()['loc_id'];
+                 $st->bin = 1;
+                 $st->created_by = auth()->payload()['user_id'];
+                 $st->save();
+
 
                  // Update Stock
                  $stock = Stock::where('item_code', $rec['item_code'])->where('location', 'GRN')->where('store', 'GRN')->where('sub_store', 'GRN')->get();
@@ -93,16 +123,10 @@ class GrnController extends Controller
                  }
 
 
-
-
              }
 
-
-
-
-
              //Update Stock
-         }
+
 
         exit;
         /*$lineCount = 0;
@@ -186,15 +210,17 @@ class GrnController extends Controller
                     //$poData = new PoOrderDetails;
                     $poData = PoOrderDetails::where('id', $rec['po_line_id'])->first();
 
+                   // dd($poData);
+
                     $grnDetails = new GrnDetail;
                     $grnDetails->grn_id = $grnNo;
                     $grnDetails->grn_line_no = $i;
-                    $grnDetails->style_id = 211;
+                    $grnDetails->style_id = $poData->style;
                     $grnDetails->sc_no = $poData->sc_no;
                     $grnDetails->color = $poData->colour;
                     $grnDetails->size = $poData->size;
                     $grnDetails->uom = $poData->uom;
-                    $grnDetails->po_qty = $poData->bal_qty;
+                    $grnDetails->po_qty = $poData->tot_qty;
                     $grnDetails->grn_qty = (float)$rec['qty'];
                     $grnDetails->bal_qty = $poData->bal_qty - (float)$rec['qty'];
                     $grnDetails->status = 0;

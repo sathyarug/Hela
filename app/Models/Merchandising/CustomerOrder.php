@@ -50,7 +50,7 @@ class CustomerOrder extends BaseValidator
 
 		public function style()
 		{
-			 return $this->belongsTo('App\Models\Merchandising\styleCreation' , 'order_style')->select(['style_id','style_no','style_description']);
+			 return $this->belongsTo('App\Models\Merchandising\StyleCreation' , 'order_style')->select(['style_id','style_no','style_description']);
 		}
 
     public function customer()

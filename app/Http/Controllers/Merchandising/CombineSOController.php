@@ -42,33 +42,33 @@ class CombineSOController extends Controller
 
         $errors = '';
 
-        //dd($request->soList);
-
         foreach ($request->soList as $item) {
             // Check SO already combined
             //dd($request->costing_id);
            // $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]])->count();
 
-           /* if($chkCmb){
+            $chkCmb = DB::table('merc_costing_so_combine')->where('feature_id', $request->feature_id)->where('details_id', $item['details_id'])->first();
 
-                $errors = 'Already combined';
-                break;
-            }*/
-
-            if($item['item_select'] == true) {
-                $modal = new CostingSOCombine;
-                $modal->costing_id = $request->costing_id;
-                $modal->color = $item['color_id'];
-                $modal->details_id = $item['details_id'];
-                $modal->qty = $item['qty'];
-                $modal->comb_id = $comId;
-                $modal->created_by = 58814;
-                $modal->updated_by = 58814;
-                $modal->save();
+            if ($chkCmb === null) {
+                if($item['item_select'] == true) {
+                    $modal = new CostingSOCombine;
+                    $modal->costing_id = $request->costing_id;
+                    $modal->color = $item['color_id'];
+                    $modal->details_id = $item['details_id'];
+                    $modal->qty = $item['qty'];
+                    $modal->comb_id = $comId;
+                    $modal->created_by = auth()->payload()['user_id'];
+                    $modal->save();
+                }
+            }else{
+                return response(['response' => ['type' => 'error'],['validationErrors' => 'Already Combined']], 200);
             }
+
         }
 
-        return response(['errors' => ['validationErrors' => $errors]], 200);
+        return response(['response' => ['type' => 'success'], ['message' => 'Successfully Added']], 200);
+
+
     }
 
     /**
@@ -109,7 +109,10 @@ class CombineSOController extends Controller
     private function getCostingDataByStyle($styleId , $fields = null)
     {
         $fields = explode(',', $fields);
-        return BulkCosting::getCostingCombineData($styleId);
+        $ee = BulkCosting::getCostingCombineData($styleId);
+       // dd($ee);
+        //return BulkCosting::getCostingCombineData($styleId);
+        return $ee;
 
     }
 }

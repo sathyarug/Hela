@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Merchandising\styleCreation;
+use App\Models\Merchandising\StyleCreation;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
 use App\Models\Merchandising\productFeature;
@@ -44,7 +44,7 @@ class StyleCreationController extends Controller
         }else{
 
             try{
-                echo json_encode(styleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
+                echo json_encode(StyleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
             }
             catch (JWTException $e) {
                 // something went wrong whilst attempting to encode the token
@@ -65,13 +65,13 @@ class StyleCreationController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = styleCreation::select('*')
+        $section_list = StyleCreation::select('*')
             ->where('style_no'  , 'like', $search.'%' )
             ->orWhere('style_description'  , 'like', $search.'%' )
             ->orderBy('status',$order_column, $order_type)
             ->offset($start)->limit($length)->get();
 
-        $section_count = styleCreation::where('style_no'  , 'like', $search.'%' )
+        $section_count = StyleCreation::where('style_no'  , 'like', $search.'%' )
             ->orWhere('style_description'  , 'like', $search.'%' )
             ->count();
 
@@ -86,9 +86,9 @@ class StyleCreationController extends Controller
     public function saveStyleCreation(Request $request) {
 //        $payload = $request->avatar;
         if($request->style_id != null){
-            $styleCreation = styleCreation::find($request->style_id);
+            $styleCreation = StyleCreation::find($request->style_id);
         }else{
-            $styleCreation = new styleCreation();
+            $styleCreation = new StyleCreation();
         }
         // echo "hello"; exit;
 
@@ -108,7 +108,7 @@ class StyleCreationController extends Controller
            // $styleCreation->image =$request->avatar['filename'];
 
              $styleCreation->saveOrFail();
-            $styleCreationUpdate = styleCreation::find($styleCreation->style_id);
+            $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
 
             $styleCreationUpdate->image =$styleCreation->style_id.'.png';
             $styleCreationUpdate->save();
@@ -158,22 +158,27 @@ class StyleCreationController extends Controller
     }
 
     public function loadStyles(){
-        $style_list = styleCreation::all();
+        $style_list = StyleCreation::all();
         echo json_encode($style_list);
     }
 
     public function GetStyleDetails(Request $request){
+
+        $style_details = StyleCreation::GetStyleDetails($request->style_id);
+        echo json_encode($style_details);
+
         $style_details = new styleCreation();
         $result = $style_details->GetStyleDetailsByCode($request->style_id);
         
         echo json_encode($result);
+
 
     }
 
     //get a Section
     public function show($id)
     {
-        $style = styleCreation::with(['productFeature'])->find($id);
+        $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
         // $productFeature = DB::table('style_product_feature')
@@ -220,11 +225,11 @@ class StyleCreationController extends Controller
     {
         $query = null;
         if($fields == null || $fields == '') {
-            $query = styleCreation::select('*');
+            $query = StyleCreation::select('*');
         }
         else{
             $fields = explode(',', $fields);
-            $query = styleCreation::select($fields);
+            $query = StyleCreation::select($fields);
             if($active != null && $active != ''){
                 $payload = auth()->payload();
                 $query->where([['status', '=', $active]]);
@@ -236,7 +241,7 @@ class StyleCreationController extends Controller
     //deactivate a style
     public function destroy($id)
     {
-        $style = styleCreation::where('style_id', $id)->update(['status' => 0]);
+        $style = StyleCreation::where('style_id', $id)->update(['status' => 0]);
         return response([
             'data' => [
                 'message' => 'Style was deactivated successfully.',
