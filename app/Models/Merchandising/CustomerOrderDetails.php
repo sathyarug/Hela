@@ -58,7 +58,8 @@ class CustomerOrderDetails extends BaseValidator
 		{
 			 return $this->belongsTo('App\Models\Org\Location\Location' , 'projection_location')->select(array('loc_id', 'loc_name'));;
     }
-    
+
+
     //get order quantity from order id
     public function getCustomerOrderQty($orderId){
 
@@ -66,7 +67,7 @@ class CustomerOrderDetails extends BaseValidator
               ->where('order_id','=',$orderId)
               ->where('delivery_status','RELEASED')
               ->groupBy('order_id')->get();
-      
+
     }
 
     //get cutomer order sizes and quantities
@@ -84,9 +85,9 @@ class CustomerOrderDetails extends BaseValidator
                 ->get();
 
     }
-    
+
     public function getCustomerColors($orderId){
-        
+
         return DB::table('merc_customer_order_details')
                 ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
                 ->join('org_color','merc_customer_order_details.style_color','org_color.color_id')
@@ -95,8 +96,8 @@ class CustomerOrderDetails extends BaseValidator
                 ->where('merc_customer_order_details.delivery_status','RELEASED')
                 ->groupBy('org_color.color_id','org_color.color_name')
                 ->get();
-                
-        
+
+
     }
 
 

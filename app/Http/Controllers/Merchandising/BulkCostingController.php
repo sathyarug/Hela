@@ -240,13 +240,13 @@ class BulkCostingController extends Controller {
     }
 
     private function getStyleList($search) {
-        return \App\Models\Merchandising\styleCreation::select('style_id', 'style_no')
+        return \App\Models\Merchandising\StyleCreation::select('style_id', 'style_no')
                         ->where([['style_no', 'like', '%' . $search . '%'],])->get();
     }
 
     private function getStyleData($style_id) {
         $dataArr = array();
-        $styleData = \App\Models\Merchandising\styleCreation::find($style_id);
+        $styleData = \App\Models\Merchandising\StyleCreation::find($style_id);
         $hader = \App\Models\Merchandising\BulkCosting::where('style_id', $style_id)->get()->toArray();
         $country = \App\Models\Org\Country::find($styleData->customer->customer_county);
        

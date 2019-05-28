@@ -56,7 +56,7 @@ class SectionController extends Controller
             $section->save();
 
             return response([ 'data' => [
-              'message' => 'Section was saved successfully',
+              'message' => 'Section saved successfully',
               'section' => $section
               ]
             ], Response::HTTP_CREATED );
@@ -102,7 +102,7 @@ class SectionController extends Controller
           $section->save();
 
           return response([ 'data' => [
-            'message' => 'Section was updated successfully',
+            'message' => 'Section updated successfully',
             'section' => $section
           ]]);
         }
