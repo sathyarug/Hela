@@ -502,7 +502,6 @@ class PurchaseOrderManualDetailsController extends Controller
     public function prl_header_load(Request $request){
       $order_id = $request->PORID;
       //print_r($order_id);
-
       $LOAD_SUP= DB::select('SELECT PRL.supplier_id,PRL.supplier_name FROM merc_purchase_req_lines AS PRL
             WHERE PRL.merge_no = "'.$order_id.'" GROUP BY PRL.merge_no');
       $po_sup_code = $LOAD_SUP[0]->supplier_id;

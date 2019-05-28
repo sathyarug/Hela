@@ -439,7 +439,7 @@ class PurchaseOrderManualController extends Controller
 
     public function load_reqline(Request $request)
   	{
-        $prl_id = $request->prl_id;
+      $prl_id = $request->prl_id;
 
       $load_list = PurchaseReqLines::join('bom_details', 'bom_details.bom_id', '=', 'merc_purchase_req_lines.bom_id')
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
