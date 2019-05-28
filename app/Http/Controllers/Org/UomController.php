@@ -57,7 +57,7 @@ class UomController extends Controller
           $uom->save();
 
           return response([ 'data' => [
-            'message' => 'UOM was saved successfully',
+            'message' => 'UOM saved successfully',
             'uom' => $uom
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class UomController extends Controller
           $uom->save();
 
           return response([ 'data' => [
-            'message' => 'UOM was updated successfully',
+            'message' => 'UOM updated successfully',
             'uom' => $uom
           ]]);
         }

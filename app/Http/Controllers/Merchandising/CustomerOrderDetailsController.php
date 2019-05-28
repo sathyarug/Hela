@@ -472,10 +472,11 @@ class CustomerOrderDetailsController extends Controller
           });
       })
       ->get();*/
-      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name
+      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name 
        from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
+      inner join org_color on a.style_color = org_color.color_id
       where
       a.order_id = ? and
       a.delivery_status != ? and
