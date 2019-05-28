@@ -162,10 +162,7 @@ class StyleCreationController extends Controller
         echo json_encode($style_list);
     }
 
-    public function GetStyleDetails(Request $request){
-
-        $style_details = StyleCreation::GetStyleDetails($request->style_id);
-        echo json_encode($style_details);
+    public function GetStyleDetails(Request $request){       
 
         $style_details = new styleCreation();
         $result = $style_details->GetStyleDetailsByCode($request->style_id);

@@ -336,6 +336,36 @@ class PurchaseOrderManualDetailsController extends Controller
 
     }
 
+    public function update_line_details(Request $request){
+      $lines = $request->lines;
+      $formData = $request->formData;
+      $po = $formData['po_number'];
+      //$ordId = $formData['ordId'];
+    //  print_r($lines[0]['bom_id']);
+      if($lines != null && sizeof($lines) >= 1){
+
+        for($x = 0 ; $x < sizeof($lines) ; $x++){
+
+          DB::table('merc_po_order_details')
+            ->where('po_no', $formData['po_number'])
+            ->where('bom_id', $lines[$x]['bom_id'])
+            ->where('combine_id', $lines[$x]['combine_id'])
+            ->update(['req_qty' => $lines[$x]['tra_qty'],'tot_qty' => $lines[$x]['value_sum'],'po_status' => 'PLANNED']);
+
+
+        }
+
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Saved successfully.'
+          ]
+        ] , 200);
+
+      }
+
+    }
+
     public function save_line_details_revision(Request $request){
       $lines = $request->lines;
       $formData = $request->formData;
@@ -486,11 +516,13 @@ class PurchaseOrderManualDetailsController extends Controller
             INNER JOIN fin_shipment_term AS PS ON SUP.ship_terms_agreed = PS.ship_term_id
             WHERE SUP.supplier_id = "'.$po_sup_code.'" ');
 
-
+      $PO_NUM= DB::select('SELECT MPOH.po_number,MPOH.po_id FROM merc_po_order_header AS MPOH
+            WHERE MPOH.prl_id = "'.$order_id.'"');
 
 
       $porl_arr['load_sup']=$LOAD_SUP;
       $porl_arr['load_cur']=$LOAD_CUR;
+      $porl_arr['po_num']=$PO_NUM;
 
       if($porl_arr == null)
           throw new ModelNotFoundException("Requested section not found", 1);

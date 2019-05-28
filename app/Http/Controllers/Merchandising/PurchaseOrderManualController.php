@@ -32,6 +32,10 @@ class PurchaseOrderManualController extends Controller
         $data = $request->all();
         return response($this->datatable_search($data));
       }
+      if($type == 'datatable_2') {
+        $data = $request->all();
+        return response($this->datatable_2_search($data));
+      }
       else if($type == 'auto')    {
         $search = $request->search;
         return response($this->autocomplete_search($search));
@@ -54,7 +58,7 @@ class PurchaseOrderManualController extends Controller
       {
         $order->fill($request->all());
         $order->status = '1';
-        $order->po_status = 'PLANNED';
+        $order->po_status = '';
         $order->save();
 
         $order_id=$order->po_id;
@@ -101,6 +105,7 @@ class PurchaseOrderManualController extends Controller
       if($pOrder->validate($request->all()))
       {
         $pOrder->fill($request->except('customer_code'));
+        $pOrder->po_status = 'PLANNED';
         $pOrder->save();
 
         return response([ 'data' => [
@@ -268,6 +273,47 @@ class PurchaseOrderManualController extends Controller
       ];
     }
 
+    private function datatable_2_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $customer_list = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+      ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
+      ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
+      ->where('po_type'  , '==', null)
+      //->orWhere('po_number'  , 'like', $search.'%' )
+      //->orWhere('supplier_name'  , 'like', $search.'%' )
+	    //->orWhere('first_name'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      //print_r($customer_list);
+
+      $customer_count = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+      ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
+      ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
+      ->where('po_type'  , '==', null)
+      //->where('po_number'  , 'like', $search.'%' )
+      //->orWhere('supplier_name'  , 'like', $search.'%' )
+	    //->orWhere('first_name'  , 'like', $search.'%' )
+      ->count();
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $customer_count,
+          "recordsFiltered" => $customer_count,
+          "data" => $customer_list
+      ];
+    }
+
+
+
 
     public function load_bom_Details(Request $request)
   	{
@@ -340,7 +386,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line->mcq = '0';
         $temp_line->bal_order = $lines[$x]['bal_oder'];;
         $temp_line->po_qty = $lines[$x]['req_qty'];;
-        $temp_line->status = '';
+        $temp_line->status = '1';
 
         $temp_line->save();
 
