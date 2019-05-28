@@ -371,7 +371,7 @@ class PurchaseOrderManualController extends Controller
                     INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
                     INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
                     WHERE
-                    CUS.customer_name = '%$customer_name%'
+                    CUS.customer_name LIKE '%$customer_name%'
                     ");
 
 
@@ -464,6 +464,9 @@ class PurchaseOrderManualController extends Controller
   	}
 
 
+
+
+    
 
 
 
