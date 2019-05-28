@@ -60,12 +60,29 @@ class CustomerOrderDetails extends BaseValidator
     }
     
     //get order quantity from order id
-    public function getCustomerOrderQty($orderId){
+    public function getCustomerOrderQty($orderId, $colorComboId){
 
-      return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
+        // Comment On - 05/28/2019
+        // Comment By - Nalin Jayakody
+        // Comment For - Get SUM of sales order quantity by color combo
+        // ===============================================================         
+        /*return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
               ->where('order_id','=',$orderId)
               ->where('delivery_status','RELEASED')
-              ->groupBy('order_id')->get();
+              ->groupBy('order_id')
+              ->get();*/
+        
+        $sql = DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
+              ->join('merc_costing_so_combine','merc_customer_order_details.details_id','merc_costing_so_combine.details_id')
+              ->join('costing_bulk_feature_details','merc_costing_so_combine.feature_id','costing_bulk_feature_details.blk_feature_id')  
+              ->where('order_id','=',$orderId)
+              ->where('delivery_status','RELEASED')
+              ->where('costing_bulk_feature_details.combo_color','=',$colorComboId)  
+              ->groupBy('order_id')
+              ->toSql();  
+              //->get();
+        
+        dd($sql);
       
     }
 
