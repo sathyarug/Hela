@@ -3,6 +3,8 @@
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
 use App\BaseValidator;
 
 class MaterialRatio extends \App\BaseValidator
@@ -24,6 +26,20 @@ class MaterialRatio extends \App\BaseValidator
     
     public function __construct() {
         parent::__construct();
+    }
+    
+    public function getMaterialRatio($bomid, $componentid, $masteritemid){
+        
+        return DB::table('mat_ratio')
+                ->join('org_color','mat_ratio.color_id','org_color.color_id')
+                ->join('org_size','mat_ratio.size_id','org_size.size_id')
+                ->select('org_color.color_name','org_size.size_name','mat_ratio.required_qty')
+                ->where('mat_ratio.bom_id',$bomid)
+                ->where('mat_ratio.master_id',$masteritemid)
+                ->where('mat_ratio.component_id',$componentid)
+                ->get();
+        
+        
     }
     
 }

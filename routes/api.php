@@ -440,6 +440,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
     Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
     Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
+    Route::get('bom/getratio','Merchandising\BomController@getMatRatio');
 
     Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');

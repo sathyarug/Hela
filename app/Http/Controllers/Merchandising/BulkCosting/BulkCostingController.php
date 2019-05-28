@@ -367,11 +367,14 @@ class BulkCostingController extends Controller {
 
             $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id', $productFeature['product_feature_id'])->where('status',1)->get()->toArray();
 
+            //$cal=$this->getEmpNp($productFeature['product_feature_id'],$data);
+
+
 
             foreach ($featureList As $feature){
                 $surcharge=false;
                 $mcq=false;
-                $colordata='';$blkHeadId=0;$colorComboData=0;$smv=0;
+                $colordata='';$blkHeadId=0;$colorComboData='';$smv=0;
                 $featureData=\App\Models\Org\Feature::find($feature['product_feature_id']);
                 $component=\App\Models\Org\Component::find($feature['product_component_id']);
 
@@ -403,7 +406,7 @@ class BulkCostingController extends Controller {
                 if(isset($blkCostFea->combo_color)){
 
                    $color=\App\Models\Org\Color::find($blkCostFea->combo_color);
-                    $colorComboData=$color->color_name;
+                    $colorComboData=$color->color_code;
                 }
                 if(isset($blkCostFea->blk_feature_id)){
                     $blkHeadId=$blkCostFea->blk_feature_id;
@@ -440,6 +443,32 @@ $count++;
 
         return json_encode($productFeatureArray);
     }
+
+    private function getEmpNp($product_feature_id,$data) {
+
+        $blk=$data['blkNo'];
+        $bom=$data['bom'];
+        $season=$data['season'];
+        $colType=$data['colType'];
+
+
+        $getTotel=DB::select('SELECT
+Sum((costing_bulk_details.unit_price*costing_bulk_details.gross_consumption)) AS total
+FROM
+costing_bulk_feature_details
+INNER JOIN costing_bulk_details ON costing_bulk_details.bulkheader_id = costing_bulk_feature_details.blk_feature_id
+INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
+WHERE costing_bulk.bulk_costing_id='.$blk.' AND costing_bulk_feature_details.season_id='.$season.' AND costing_bulk_feature_details.col_opt_id='.$colType.' AND costing_bulk_feature_details.bom_stage='.$bom);
+        print_r('SELECT
+Sum((costing_bulk_details.unit_price*costing_bulk_details.gross_consumption)) AS total
+FROM
+costing_bulk_feature_details
+INNER JOIN costing_bulk_details ON costing_bulk_details.bulkheader_id = costing_bulk_feature_details.blk_feature_id
+INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
+WHERE costing_bulk.bulk_costing_id='.$blk.' AND costing_bulk_feature_details.season_id='.$season.' AND costing_bulk_feature_details.col_opt_id='.$colType.' AND costing_bulk_feature_details.bom_stage='.$bom);exit;
+
+    }
+
 
     private function SentToApproval($style_id,$data) {
         $blk = \App\Models\Merchandising\BulkCosting::find($data['blkNo']);

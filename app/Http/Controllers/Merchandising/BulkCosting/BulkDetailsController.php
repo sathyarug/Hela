@@ -263,11 +263,13 @@ class BulkDetailsController extends Controller
 
             $oderType='';
             if($item->order_type ==1){
-                $oderType='color wise';
+                $oderType='COLOR WISE';
             }elseif ($item->order_type ==2) {
-                $oderType='size wise';
+                $oderType='SIZE WISE';
             }elseif ($item->order_type == 3){
-                $oderType='both';
+                $oderType='BOTH';
+            }else{
+                $oderType='NONE';
             }
 
             $item=array(

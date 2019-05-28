@@ -44,15 +44,18 @@ class CombineSOController extends Controller
 
         foreach ($request->soList as $item) {
             // Check SO already combined
-            //dd($request->costing_id);
-           // $chkCmb = DB::table('merc_costing_so_combine')->whereColumn([['costing_id', '=', $request->costing_id],['details_id', '=', $item['details_id']]])->count();
 
-            $chkCmb = DB::table('merc_costing_so_combine')->where('feature_id', $request->feature_id)->where('details_id', $item['details_id'])->first();
+            $chkCmb = DB::table('merc_costing_so_combine')
+                ->where('feature_id', $request->feature_id)
+                ->where('details_id', $item['details_id'])
+                ->where('color', $item['color_id'])
+                ->first();
 
-            if ($chkCmb === null) {
+           // if ($chkCmb === null) {
                 if($item['item_select'] == true) {
                     $modal = new CostingSOCombine;
                     $modal->costing_id = $request->costing_id;
+                    $modal->feature_id = $request->feature_id;
                     $modal->color = $item['color_id'];
                     $modal->details_id = $item['details_id'];
                     $modal->qty = $item['qty'];
@@ -60,9 +63,9 @@ class CombineSOController extends Controller
                     $modal->created_by = auth()->payload()['user_id'];
                     $modal->save();
                 }
-            }else{
+           /* }else{
                 return response(['response' => ['type' => 'error'],['validationErrors' => 'Already Combined']], 200);
-            }
+            }*/
 
         }
 
@@ -109,10 +112,7 @@ class CombineSOController extends Controller
     private function getCostingDataByStyle($styleId , $fields = null)
     {
         $fields = explode(',', $fields);
-        $ee = BulkCosting::getCostingCombineData($styleId);
-       // dd($ee);
-        //return BulkCosting::getCostingCombineData($styleId);
-        return $ee;
+        return BulkCosting::getCostingCombineData($styleId);
 
     }
 }
