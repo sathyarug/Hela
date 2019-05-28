@@ -472,7 +472,7 @@ class CustomerOrderDetailsController extends Controller
           });
       })
       ->get();*/
-      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name 
+      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
        from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
@@ -539,7 +539,8 @@ class CustomerOrderDetailsController extends Controller
     private function get_delivery_details($details_id){
       $deliveries = CustomerOrderDetails::join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
       ->join('org_location', 'org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
-      ->select('merc_customer_order_details.*','org_country.country_description','org_location.loc_name')
+      ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
+      ->select('merc_customer_order_details.*','org_country.country_description','org_location.loc_name','org_color.color_code','org_color.color_name')
       ->where('merc_customer_order_details.details_id', '=', $details_id)
       ->first();
       return $deliveries;

@@ -905,9 +905,17 @@ ORDER BY item_category.category_id');
        /* $costingHeader = BulkCosting::select("*")
                             ->where('bulk_costing_id','=',$costingId)->get();*/
 
-        $costingHeader = \DB::table('costing_bulk')
+        /*$costingHeader = \DB::table('costing_bulk')
                             ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
                             ->select('costing_bulk.*','org_season.season_name')
+                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->get();*/
+        
+        $costingHeader = \DB::table('costing_bulk')
+                            ->select(DB::raw('costing_bulk.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing_bulk.bulk_costing_id) AS Tot_Qty'))
+                            ->distinct()
+                            ->join('costing_bulk_feature_details','costing_bulk.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
+                            ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')                            
                             ->where('costing_bulk.bulk_costing_id',$costingId)
                             ->get();
 
