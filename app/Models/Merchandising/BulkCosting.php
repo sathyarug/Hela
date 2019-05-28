@@ -68,7 +68,7 @@ class BulkCosting extends BaseValidator {
     }
 
     public static function getCostingCombineData($styleId){
-        $rr = DB::select('SELECT
+        return DB::select('SELECT
                                     `costing_bulk_feature_details`.`bulkheader_id`,`merc_costing_so_combine`.`feature_id`, `style_creation`.`style_no`,
                                     `style_creation`.`style_id`,
                                     `merc_bom_stage`.`bom_stage_description`,
@@ -98,7 +98,7 @@ class BulkCosting extends BaseValidator {
                                 ORDER BY
                                     `costing_bulk`.`bulk_costing_id` ASC');
 
-        dd($rr);
+
     }
 
 
