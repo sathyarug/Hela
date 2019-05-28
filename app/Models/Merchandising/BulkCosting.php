@@ -68,17 +68,37 @@ class BulkCosting extends BaseValidator {
     }
 
     public static function getCostingCombineData($styleId){
-        return  BulkCosting::select('costing_bulk_feature_details.bulkheader_id', 'costing_bulk_feature_details.blk_feature_id', 'style_creation.style_no',  'style_creation.style_id', 'merc_bom_stage.bom_stage_description', DB::raw('GROUP_CONCAT(DISTINCT merc_costing_so_combine.details_id) AS details_id'), 'org_color.color_name', 'org_color.color_id')
-            ->join('costing_bulk_feature_details', 'costing_bulk_feature_details.bulkheader_id', '=', 'costing_bulk.bulk_costing_id')
-            ->join('style_creation', 'style_creation.style_id', '=', 'costing_bulk.style_id')
-            ->leftJoin('merc_costing_so_combine', 'merc_costing_so_combine.costing_id', '=', 'costing_bulk.bulk_costing_id')
-            ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing_bulk_feature_details.bom_stage')
-            ->join('org_color', 'costing_bulk_feature_details.combo_color', '=', 'org_color.color_id')
-            ->where(([['costing_bulk.status', '=', 1],['costing_bulk.style_id', '=', $styleId]]))
-            ->groupBy('costing_bulk_feature_details.combo_color', 'costing_bulk_feature_details.bulkheader_id')
-            ->orderBy('costing_bulk.bulk_costing_id')
-            ->get()
-            ->toArray();
+        return DB::select('SELECT
+                                    `costing_bulk_feature_details`.`bulkheader_id`,`merc_costing_so_combine`.`feature_id`, `style_creation`.`style_no`,
+                                    `style_creation`.`style_id`,
+                                    `merc_bom_stage`.`bom_stage_description`,
+                                    GROUP_CONCAT(
+                                        DISTINCT merc_customer_order_header.order_code
+                                    ) AS so,
+                                    `org_color`.`color_name`,
+                                    `org_color`.`color_id`
+                                FROM
+                                    `costing_bulk`
+                                INNER JOIN `costing_bulk_feature_details` ON `costing_bulk_feature_details`.`bulkheader_id` = `costing_bulk`.`bulk_costing_id`
+                                INNER JOIN `style_creation` ON `style_creation`.`style_id` = `costing_bulk`.`style_id`
+                                LEFT JOIN `merc_costing_so_combine` ON `merc_costing_so_combine`.`costing_id` = `costing_bulk`.`bulk_costing_id`and merc_costing_so_combine.color = `costing_bulk_feature_details`.`combo_color`
+                                LEFT JOIN `merc_customer_order_details` ON `merc_customer_order_details`.`details_id` = `merc_costing_so_combine`.`details_id`
+                                LEFT JOIN `merc_customer_order_header` ON `merc_customer_order_header`.`order_id` = `merc_customer_order_details`.`order_id`
+                                INNER JOIN `merc_bom_stage` ON `merc_bom_stage`.`bom_stage_id` = `costing_bulk_feature_details`.`bom_stage`
+                                INNER JOIN `org_color` ON `costing_bulk_feature_details`.`combo_color` = `org_color`.`color_id`
+                                WHERE
+                                    (
+                                        `costing_bulk`.`status` = 1
+                                        AND `costing_bulk`.`style_id` = '.$styleId.'
+                                    )
+                                GROUP BY
+                                    `costing_bulk_feature_details`.`combo_color`,
+                                    `costing_bulk_feature_details`.`bulkheader_id`,
+                                    `merc_costing_so_combine`.`color`
+                                ORDER BY
+                                    `costing_bulk`.`bulk_costing_id` ASC');
+
+
     }
 
 
