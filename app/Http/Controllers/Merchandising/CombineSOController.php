@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Merchandising;
 
+use App\Models\Merchandising\CustomerOrderDetails;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CostingSOCombine;
@@ -41,6 +42,7 @@ class CombineSOController extends Controller
         $comId = $maxCmb +1;
 
         $errors = '';
+        $saveStatus = false;
 
         foreach ($request->soList as $item) {
             // Check SO already combined
@@ -51,7 +53,7 @@ class CombineSOController extends Controller
                 ->where('color', $item['color_id'])
                 ->first();
 
-           // if ($chkCmb === null) {
+            if ($chkCmb === null) {
                 if($item['item_select'] == true) {
                     $modal = new CostingSOCombine;
                     $modal->costing_id = $request->costing_id;
@@ -61,15 +63,24 @@ class CombineSOController extends Controller
                     $modal->qty = $item['qty'];
                     $modal->comb_id = $comId;
                     $modal->created_by = auth()->payload()['user_id'];
-                    $modal->save();
+                    $saveStatus = $modal->save();
+
+                    //Update customer order detail status
+                    $cusOrder = CustomerOrderDetails::where('details_id', '=', $item['details_id'])->first();
+                    $cusOrder->delivery_status = 'RELEASED';
+                    $cusOrder->save();
+                    //dd($cusOrder);
                 }
-           /* }else{
+            }else{
                 return response(['response' => ['type' => 'error'],['validationErrors' => 'Already Combined']], 200);
-            }*/
+            }
 
         }
 
-        return response(['response' => ['type' => 'success'], ['message' => 'Successfully Added']], 200);
+        if($saveStatus){
+            return response(['response' => ['type' => 'success'], ['message' => 'Successfully Added']], 200);
+        }
+
 
 
     }
