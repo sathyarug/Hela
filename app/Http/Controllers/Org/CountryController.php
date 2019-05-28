@@ -54,7 +54,7 @@ class CountryController extends Controller
           $country->save();
           return response([
             'data' => [
-              'message' => 'Country updated successfully',
+              'message' => 'Country saved successfully',
               'country' => $country
             ]
           ] , Response::HTTP_CREATED );
@@ -100,7 +100,7 @@ class CountryController extends Controller
 
           return response([
             'data' => [
-              'message' => 'Country saved successfully',
+              'message' => 'Country updated successfully',
               'country' => $country
             ]
           ]);
