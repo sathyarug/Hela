@@ -501,7 +501,7 @@ class PurchaseOrderManualDetailsController extends Controller
 
     public function prl_header_load(Request $request){
       $order_id = $request->PORID;
-    //  print_r($order_id);
+      //print_r($order_id);
 
       $LOAD_SUP= DB::select('SELECT PRL.supplier_id,PRL.supplier_name FROM merc_purchase_req_lines AS PRL
             WHERE PRL.merge_no = "'.$order_id.'" GROUP BY PRL.merge_no');
@@ -595,7 +595,7 @@ class PurchaseOrderManualDetailsController extends Controller
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
-       ->join('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')

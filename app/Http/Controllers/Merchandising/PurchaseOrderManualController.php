@@ -446,17 +446,12 @@ class PurchaseOrderManualController extends Controller
 	     ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
-       ->join('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
+       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
 	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       //->select
        ->where('merge_no'  , '=', $prl_id )
-      // ->orWhere('supplier_name'  , 'like', $search.'%' )
-	    // ->orWhere('loc_name'  , 'like', $search.'%' )
-      // ->groupBy('merc_costing_so_combine.comb_id')
-      // ->distinct()
        ->get();
 
 
