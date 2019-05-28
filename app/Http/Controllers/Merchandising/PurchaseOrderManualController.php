@@ -321,28 +321,60 @@ class PurchaseOrderManualController extends Controller
     $customer_name = $request->customer['customer_name'];
     //print_r($customer_name);
 
-    $load_list = DB::select("select B.*, MCD.*, OU.uom_code, OS.size_name, OC.color_name, IM.master_description,
-        SU.supplier_name, CUS.customer_name,CUS.customer_code,
-        ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD
-        WHERE MPD.bom_id =  B.bom_id and MPD.combine_id =  B.combine_id
-        ) AS req_qty,
-        org_location.loc_name,
-        (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
-        merc_po_order_details AS MPOD WHERE MPOD.bom_id = B.bom_id and MPOD.combine_id =  B.combine_id) AS po_nos
-        FROM
-        bom_details AS B
-        INNER JOIN merc_costing_so_combine AS MC ON B.combine_id = MC.comb_id
-        INNER JOIN merc_customer_order_details AS MCD ON MC.details_id = MCD.details_id
-        INNER JOIN merc_customer_order_header AS MCH ON MCH.order_id = MCD.order_id
-        INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
-        INNER JOIN org_size AS OS ON B.item_size = OS.size_id
-        INNER JOIN org_color AS OC ON B.item_color = OC.color_id
-        INNER JOIN item_master AS IM ON B.master_id = IM.master_id
-        INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
-        INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
-        INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
-        WHERE
-        CUS.customer_name LIKE '%$customer_name%' GROUP BY B.bom_id ");
+    // $load_list = DB::select("select B.*, MCD.*, OU.uom_code, OS.size_name, OC.color_name, IM.master_description,
+    //     SU.supplier_name, CUS.customer_name,CUS.customer_code,
+    //     ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD
+    //     WHERE MPD.bom_id =  B.bom_id and MPD.combine_id =  B.combine_id
+    //     ) AS req_qty,
+    //     org_location.loc_name,
+    //     (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
+    //     merc_po_order_details AS MPOD WHERE MPOD.bom_id = B.bom_id and MPOD.combine_id =  B.combine_id) AS po_nos
+    //     FROM
+    //     bom_details AS B
+    //     INNER JOIN merc_costing_so_combine AS MC ON B.combine_id = MC.comb_id
+    //     INNER JOIN merc_customer_order_details AS MCD ON MC.details_id = MCD.details_id
+    //     INNER JOIN merc_customer_order_header AS MCH ON MCH.order_id = MCD.order_id
+    //     INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
+    //     INNER JOIN org_size AS OS ON B.item_size = OS.size_id
+    //     INNER JOIN org_color AS OC ON B.item_color = OC.color_id
+    //     INNER JOIN item_master AS IM ON B.master_id = IM.master_id
+    //     INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
+    //     INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
+    //     INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
+    //     WHERE
+    //     CUS.customer_name LIKE '%$customer_name%' GROUP BY B.bom_id ");
+
+
+        $load_list = DB::select("SELECT B.bom_id,B.combine_id,B.master_id,B.item_color,B.unit_price,B.conpc,B.total_qty,B.total_value,
+                     B.supplier_id,B.artical_no,B.status,B.bal_qty,B.order_id,B.uom_id,B.item_wastage,B.component_id,MCD.details_id,
+                    MCD.order_id,MCD.style_color,MCD.style_description,MCD.pcd,MCD.rm_in_date,MCD.po_no,MCD.planned_delivery_date,
+                    MCD.revised_delivery_date,MCD.fob,MCD.country,MCD.projection_location,MCD.order_qty,MCD.excess_presentage,
+                    MCD.planned_qty,MCD.ship_mode,MCD.delivery_status,MCD.created_date,MCD.created_by,MCD.updated_date,MCD.updated_by,
+                    MCD.line_no,MCD.version_no,MCD.parent_line_no,MCD.parent_line_id,MCD.split_lines,MCD.type_created,MCD.type_modified,
+                    MCD.merged_line_nos,MCD.merged_line_ids,MCD.merge_generated_line_id,OU.uom_code,OS.size_name,OC.color_name,
+                    IM.master_description,SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
+                    ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD
+                            WHERE MPD.bom_id =  B.bom_id and MPD.combine_id =  B.combine_id
+                            ) AS req_qty,
+                    (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
+                            merc_po_order_details AS MPOD WHERE MPOD.bom_id = B.bom_id and MPOD.combine_id =  B.combine_id) AS po_nos
+                    FROM
+                    bom_details AS B
+                    INNER JOIN merc_customer_order_header AS MCH ON B.combine_id = MCH.order_id
+                    INNER JOIN merc_customer_order_details AS MCD ON MCH.order_id = MCD.order_id
+                    INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
+                    LEFT JOIN mat_ratio AS MR ON B.bom_id = MR.bom_id AND B.combine_id = MR.component_id AND B.master_id = MR.master_id
+                    LEFT JOIN org_size AS OS ON MR.size_id = OS.size_id
+                    INNER JOIN org_color AS OC ON B.item_color = OC.color_id
+                    INNER JOIN item_master AS IM ON B.master_id = IM.master_id
+                    INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
+                    INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
+                    INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
+                    WHERE
+                    CUS.customer_name = 'PVH-Coparetion'
+                    GROUP BY
+                    B.bom_id");
+
 
        //return $customer_list;
        return response([ 'data' => [
