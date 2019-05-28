@@ -21,9 +21,13 @@ class PurchaseOrder extends Controller
         $type = $request->type;
         $active = $request->active;
         $fields = $request->fields;
-        if($type == 'get-invoice-and-supplier'){
+        if($type == 'get-invoice-and-supplier') {
             return response([
-                'data' => $this->getSupplierAndInvoiceNo($active , $fields, $request->id)
+                'data' => $this->getSupplierAndInvoiceNo($active, $fields, $request->id)
+            ]);
+        }elseif($type == 'color-list'){
+            return response([
+                'data' => $this->getPoColorList($request->id)
             ]);
         }else{
             return response([
@@ -108,18 +112,17 @@ class PurchaseOrder extends Controller
         //return response()->json(true);
     }
 
-    public function loadPoBpoList(Request $request){
-        $po = PoOrderHeader::select('po_id', 'po_number')->where('po_id', $request->id)->get();
-        $podata = $po->toArray();
-
-        return response([
-            'data' => $podata
-        ]);
-    }
-
     public function getPoSCList(Request $request){
-        $po = PoOrderDetails::select('sc_no')->where('po_id', $request->id)->get();
-        $podata = $po->toArray();
+         $poData = DB::table('merc_po_order_header as h')
+            ->join('merc_po_order_details as d', 'h.po_number', '=', 'd.po_no')
+            ->select('d.sc_no')
+            ->where('h.po_id', '=', $request->id)
+            ->toSql();
+
+         dd($poData);
+
+
+        $podata = $poData->toArray();
 
         return response([
             'data' => $podata
@@ -147,4 +150,66 @@ class PurchaseOrder extends Controller
         $poHeader = PoOrderHeader::find($id);
         return $poHeader->getPOSupplierAndInvoice();
     }
+
+    //generate pdf
+        public function generate_pdf(Request $request)
+        {
+           // $result = PoOrderHeader::select('po_number','po_date','po_status','po_sup_code','po_deli_loc')->where('po_number', $request->po_no)->get();
+
+                    $result = DB::table('merc_po_order_header')
+                            ->join('org_supplier', 'merc_po_order_header.po_sup_code', '=', 'org_supplier.supplier_id')
+                            ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
+                            ->select('merc_po_order_header.*', 'org_supplier.supplier_name','org_supplier.supplier_address1','org_supplier.supplier_address2',
+                            'org_supplier.supplier_city','org_supplier.supplier_country','org_location.loc_name','org_location.loc_address_1','org_location.loc_address_2')
+                            ->where('merc_po_order_header.po_number', $request->po_no)->get();
+
+            $total_qty=PoOrderDetails::select('tot_qty')->where('po_no',$request->po_no)->sum('tot_qty');
+           // $list=PoOrderDetails::select('*')->where('po_no', $request->po_no)->get();
+            $list=DB::table('merc_po_order_details')
+                    ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+                    ->join('style_creation', 'merc_po_order_details.style', '=', 'style_creation.style_id')
+                    ->join('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
+                    ->join('org_size', 'merc_po_order_details.size', '=', 'org_size.size_id')
+                    ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
+                    ->select('merc_po_order_details.*', 'item_master.master_code', 'item_master.master_description',
+                    'style_creation.style_no','org_color.color_name','org_size.size_name','org_uom.uom_code')
+                    ->where('merc_po_order_details.po_no', $request->po_no)->get();
+
+                if($result){
+                    $data=[
+                        'po'=>$result[0]->po_number,
+                        'po_date'=>$result[0]->po_date,
+                        'po_status'=>$result[0]->po_status,
+                        'supplier_name'=>$result[0]->supplier_name,
+                        'supplier_address1'=>$result[0]->supplier_address1,
+                        'supplier_address2'=>$result[0]->supplier_address2,
+                        'supplier_city'=>$result[0]->supplier_city,
+                        'supplier_country'=>$result[0]->supplier_country,
+                        'loc_name'=>$result[0]->loc_name,
+                        'loc_address_1'=>$result[0]->loc_address_1,
+                        'loc_address_2'=>$result[0]->loc_address_2,
+                        'total_qty'=>$total_qty,
+                        'data'=>$list,
+                    ];
+
+                }
+
+            $pdf=PDF::loadView('pdf', $data);
+            return $pdf->stream('document.pdf');
+        }
+
+        public function getPoColorList($id){
+            $poData = DB::table('merc_po_order_header as h')
+                ->join('merc_po_order_details as d', 'h.po_number', '=', 'd.po_no')
+                ->join('org_color as c', 'c.color_id', '=', 'd.colour')
+                ->select('c.color_id', 'c.color_name')
+                ->where('h.po_id', '=', $id)
+                ->groupBy('d.colour')
+                ->get();
+
+            return $poData->toArray();
+
+        }
+
+
 }

@@ -175,7 +175,8 @@ class SupplierController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $supplier_list = Supplier::select('*')
+      $supplier_list = Supplier::select('org_supplier.*','fin_goods_type.goods_type_description')
+      ->join('fin_goods_type', 'fin_goods_type.goods_type_id', '=', 'org_supplier.type_of_service')
       ->where('supplier_code'  , 'like', $search.'%' )
       ->orWhere('supplier_name'  , 'like', $search.'%' )
       ->orWhere('supplier_short_name'  , 'like', $search.'%' )

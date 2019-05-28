@@ -782,7 +782,7 @@ if(count($getAllData)>0){
 
         $fullData[$index]=$data;
 }
-         
+
 
          if(count($getAllDataHis)>0){
 
@@ -829,9 +829,9 @@ if(count($getAllData)>0){
 
             }
         }
-         }  
+         }
 
-       
+
         $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
 //        dd($styleData->image);
 print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;

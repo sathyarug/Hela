@@ -60,9 +60,14 @@ class CustomerOrder extends BaseValidator
         }
 
 
-    public function getCustomerOrders($costingId){
-
-        return DB::table('merc_customer_order_header')
+    public function getCustomerOrders($costingId, $colorComboId){
+        
+        
+        // Comment On - 05/28/2019
+        // Comment By - Nalin Jayakody
+        // Comment For - Load sales order combine details, by combo color
+        // ===============================================================
+        /*return DB::table('merc_customer_order_header')
                  ->join('merc_customer_order_details','merc_customer_order_details.order_id','merc_customer_order_header.order_id')
                  ->join('merc_costing_so_combine','merc_costing_so_combine.details_id','merc_customer_order_details.details_id')
                  ->join('costing_bulk','costing_bulk.bulk_costing_id','merc_costing_so_combine.costing_id')
@@ -70,7 +75,27 @@ class CustomerOrder extends BaseValidator
                  ->where('costing_bulk.bulk_costing_id','=',$costingId)
                  ->where('merc_customer_order_details.delivery_status','=','RELEASED')
                  ->whereNotIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
-                 ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code')->get();
+                 ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code')->get();*/
+        
+        
+        return DB::table('merc_customer_order_header')
+                 ->join('merc_customer_order_details','merc_customer_order_details.order_id','merc_customer_order_header.order_id')
+                 ->join('merc_costing_so_combine','merc_costing_so_combine.details_id','merc_customer_order_details.details_id')
+                 ->join('costing_bulk','costing_bulk.bulk_costing_id','merc_costing_so_combine.costing_id')
+                 ->join('costing_bulk_feature_details','merc_costing_so_combine.feature_id','costing_bulk_feature_details.blk_feature_id')
+                 ->select('merc_customer_order_header.order_id', 'merc_customer_order_header.order_code','costing_bulk_feature_details.combo_color')
+                 ->where('costing_bulk.bulk_costing_id','=',$costingId)
+                 ->where('merc_customer_order_details.delivery_status','=','RELEASED')
+                 ->where('costing_bulk_feature_details.combo_color','=',$colorComboId)
+                 ->whereNotIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
+                 ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code','costing_bulk_feature_details.combo_color')
+                 ->get();
+        
+        
+        
+        
+       
+        
     }
 
     public function getAssignCustomerOrders($costingId){

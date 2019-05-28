@@ -18,13 +18,13 @@ class PoOrderHeader extends BaseValidator
 
     protected $dates = ['delivery_date','po_date'];
     protected $rules=array(
-        'po_type'=>'required',
+        //'po_type'=>'required',
         'po_sup_code' => 'required',
-        'po_deli_loc' => 'required',
+        //'po_deli_loc' => 'required',
         'po_def_cur' => 'required',
         'pay_mode' => 'required',
         'pay_term' => 'required',
-        'ship_mode' => 'required',
+        //'ship_mode' => 'required',
         'po_date' => 'required',
         'prl_id' => 'required',
         'ship_term' => 'required'
@@ -76,19 +76,20 @@ class PoOrderHeader extends BaseValidator
     {
         static::creating(function ($model) {
 
-              if ($model->po_type == 'BULK'){$rep = 'BUL';}
-          elseif ($model->po_type == 'GENERAL'){$rep = 'GEN';}
-          elseif ($model->po_type == 'GREAIGE'){$rep = 'GRE';}
-          elseif ($model->po_type == 'RE-ORDER'){$rep = 'REO';}
-          elseif ($model->po_type == 'SAMPLE'){$rep = 'SAM';}
-          elseif ($model->po_type == 'SERVICE'){$rep = 'SER';}
+        //      if ($model->po_type == 'BULK'){$rep = 'BUL';}
+        //  elseif ($model->po_type == 'GENERAL'){$rep = 'GEN';}
+        //  elseif ($model->po_type == 'GREAIGE'){$rep = 'GRE';}
+        //  elseif ($model->po_type == 'RE-ORDER'){$rep = 'REO';}
+        //  elseif ($model->po_type == 'SAMPLE'){$rep = 'SAM';}
+        //  elseif ($model->po_type == 'SERVICE'){$rep = 'SER';}
           $user = auth()->payload();
           $user_loc = $user['loc_id'];
           $code = UniqueIdGenerator::generateUniqueId('PO_MANUAL' , $user_loc);
-          $model->po_number = $rep.$code;
+        //  $model->po_number = $rep.$code;
+          $model->po_number = $code;
           $model->loc_id = $user_loc;
 
-          
+
         });
 
         /*static::updating(function ($model) {
@@ -104,8 +105,25 @@ class PoOrderHeader extends BaseValidator
     }
 
     public function getPOSupplierAndInvoice(){
-        return self::select('s.supplier_name')
+        return self::select('s.supplier_name', 's.supplier_id')
             ->join('org_supplier as s', 's.supplier_id', '=', 'merc_po_order_header.po_sup_code')
             ->get();
     }
+
+    public static function getPoLineData($request){
+        $podata = self::where('merc_po_order_header.po_id', $request->id)
+            ->join("merc_po_order_details AS d", "merc_po_order_header.po_number", "=", "d.po_no")
+            ->join("item_master AS i", "i.master_id", "=", "d.item_code")
+            ->join("merc_customer_order_header AS h", "h.order_style", "=", "d.style")
+            ->join("cust_customer AS t", "t.customer_id", "=", "h.order_customer")
+            ->join("org_color AS c", "c.color_id", "=", "d.colour")
+            ->join("org_size AS s", "s.size_id", "=", "d.size")
+            ->join("org_uom AS u", "u.uom_id", "=", "d.uom")
+            ->select("d.combine_id", "c.color_name", "s.size_name", "u.uom_description", "d.tot_qty", "d.id", "i.master_description", "t.customer_name")
+            ->get()
+            ->toArray();
+
+        return $podata;
+    }
+
 }

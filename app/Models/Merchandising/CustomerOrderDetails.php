@@ -58,14 +58,29 @@ class CustomerOrderDetails extends BaseValidator
 		{
 			 return $this->belongsTo('App\Models\Org\Location\Location' , 'projection_location')->select(array('loc_id', 'loc_name'));;
     }
-    
-    //get order quantity from order id
-    public function getCustomerOrderQty($orderId){
 
-      return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
+
+    //get order quantity from order id
+    public function getCustomerOrderQty($orderId, $colorComboId){
+
+        // Comment On - 05/28/2019
+        // Comment By - Nalin Jayakody
+        // Comment For - Get SUM of sales order quantity by color combo
+        // ===============================================================         
+        /*return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
               ->where('order_id','=',$orderId)
               ->where('delivery_status','RELEASED')
-              ->groupBy('order_id')->get();
+              ->groupBy('order_id')
+              ->get();*/
+        
+        return DB::table('merc_customer_order_details')->select(DB::raw("order_id, SUM(order_qty) AS Order_Qty"))
+              ->join('merc_costing_so_combine','merc_customer_order_details.details_id','merc_costing_so_combine.details_id')
+              ->join('costing_bulk_feature_details','merc_costing_so_combine.feature_id','costing_bulk_feature_details.blk_feature_id')  
+              ->where('order_id','=',$orderId)
+              ->where('delivery_status','RELEASED')
+              ->where('costing_bulk_feature_details.combo_color','=',$colorComboId)  
+              ->groupBy('order_id')               
+              ->get();
       
     }
 
@@ -84,9 +99,9 @@ class CustomerOrderDetails extends BaseValidator
                 ->get();
 
     }
-    
+
     public function getCustomerColors($orderId){
-        
+
         return DB::table('merc_customer_order_details')
                 ->join('merc_customer_order_header','merc_customer_order_header.order_id','merc_customer_order_details.order_id')
                 ->join('org_color','merc_customer_order_details.style_color','org_color.color_id')
@@ -95,8 +110,8 @@ class CustomerOrderDetails extends BaseValidator
                 ->where('merc_customer_order_details.delivery_status','RELEASED')
                 ->groupBy('org_color.color_id','org_color.color_name')
                 ->get();
-                
-        
+
+
     }
 
 

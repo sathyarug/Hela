@@ -339,11 +339,13 @@ class CustomerOrderController extends Controller
     private function getCustomerOrdersForStyle(Request $request){
         $cusOrder = CustomerOrder::join('merc_customer_order_details', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
             ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
-            ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
-            ->select('merc_customer_order_details.details_id','org_color.color_name','org_country.country_description','merc_customer_order_details.order_qty', 'org_color.color_id', 'merc_customer_order_header.order_code' )
+            ->leftJoin('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
+            ->select('merc_customer_order_details.details_id','org_color.color_id', 'org_color.color_name','org_country.country_description','merc_customer_order_details.order_qty', 'org_color.color_id', 'merc_customer_order_header.order_code' )
             ->where('merc_customer_order_header.order_style', '=', $request->style_id)
+            ->where('merc_customer_order_details.style_color', '=', $request->color)
             ->get()
-            ->toArray();          
+            ->toArray();
+
         return $cusOrder;
     }
 
