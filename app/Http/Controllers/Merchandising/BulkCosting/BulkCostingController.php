@@ -886,10 +886,10 @@ ORDER BY item_category.category_id');
                             ->get();*/
         
         $costingHeader = \DB::table('costing_bulk')
-                            ->join('costing_bulk_feature_details','costing_bulk.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
-                            ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')
-                            ->select('costing_bulk.*','org_season.season_name')
+                            ->select(DB::raw('costing_bulk.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing_bulk.bulk_costing_id) AS Tot_Qty'))
                             ->distinct()
+                            ->join('costing_bulk_feature_details','costing_bulk.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
+                            ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')                            
                             ->where('costing_bulk.bulk_costing_id',$costingId)
                             ->get();
 
