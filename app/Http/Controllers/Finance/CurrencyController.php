@@ -58,7 +58,7 @@ class CurrencyController extends Controller
           $currency->save();
 
           return response([ 'data' => [
-            'message' => 'Currency was saved successfully',
+            'message' => 'Currency saved successfully',
             'currency' => $currency
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class CurrencyController extends Controller
           $currency->save();
 
           return response([ 'data' => [
-            'message' => 'Currency was updated successfully',
+            'message' => 'Currency updated successfully',
             'currency' => $currency
           ]]);
         }
