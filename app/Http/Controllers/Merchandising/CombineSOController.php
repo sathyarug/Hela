@@ -50,10 +50,8 @@ class CombineSOController extends Controller
                 ->where('details_id', $item['details_id'])
                 ->where('color', $item['color_id'])
                 ->first();
-            dd($chkCmb);
 
-
-            if ($chkCmb === null) {
+           // if ($chkCmb === null) {
                 if($item['item_select'] == true) {
                     $modal = new CostingSOCombine;
                     $modal->costing_id = $request->costing_id;
@@ -65,9 +63,9 @@ class CombineSOController extends Controller
                     $modal->created_by = auth()->payload()['user_id'];
                     $modal->save();
                 }
-            }else{
+           /* }else{
                 return response(['response' => ['type' => 'error'],['validationErrors' => 'Already Combined']], 200);
-            }
+            }*/
 
         }
 
@@ -114,9 +112,7 @@ class CombineSOController extends Controller
     private function getCostingDataByStyle($styleId , $fields = null)
     {
         $fields = explode(',', $fields);
-        $ee = BulkCosting::getCostingCombineData($styleId);
-
-        return $ee;
+        return BulkCosting::getCostingCombineData($styleId);
 
     }
 }
