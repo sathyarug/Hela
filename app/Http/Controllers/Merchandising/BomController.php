@@ -95,7 +95,8 @@ class BomController extends Controller
     public function getCustOrders(Request $request){
 
         $customerOrder = new CustomerOrder();
-        $rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId);
+        //$rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId);
+        $rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId, $request->colorComboID);
 
         echo json_encode($rsCustOrderList);
 
@@ -113,7 +114,7 @@ class BomController extends Controller
     public function getCustomerOrderQty(Request $request){
 
         $customerOrderDetails = new CustomerOrderDetails();
-        $rsCustomerOrderQty = $customerOrderDetails->getCustomerOrderQty($request->orderId);
+        $rsCustomerOrderQty = $customerOrderDetails->getCustomerOrderQty($request->orderId, $request->colorcomboid);
 
         echo json_encode($rsCustomerOrderQty);
     }
