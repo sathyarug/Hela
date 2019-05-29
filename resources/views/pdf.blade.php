@@ -38,7 +38,7 @@
 <body>
 <div class="container">
 <div style="width:100%;">
-<div style="float:left; width:20%;"><img src="http://localhost/test_projects/mpdf/resources/images/hela.jpg"/></div>
+<div style="float:left; width:20%;"><img src="http://localhost/surfacedev/resources/images/hela.jpg"/></div>
 <div style="float:left;width:80%;">
 <div id="example2">
 <div style="font-weight:bold;font-size:16px;">Foundation Garments (Pvt) Ltd</div>
