@@ -308,7 +308,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->combine_id = $lines[$x]['combine_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
-        $po_details->style = $lines[$x]['master_id'];
+        $po_details->style = $lines[$x]['style_id'];
         $po_details->colour = $lines[$x]['color_id'];
         $po_details->size = $lines[$x]['size_id'];
         $po_details->unit_price = $lines[$x]['sumunit_price'];
@@ -604,6 +604,8 @@ class PurchaseOrderManualDetailsController extends Controller
        //->where('merc_po_order_details.status'  , '=', 1 )
        ->where('po_number'  , '=', $po_number )
        ->get();
+
+
 
        //$count = $load_list->count();
       // for()
