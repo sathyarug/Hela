@@ -56,13 +56,18 @@ class CustomerOrder extends BaseValidator
     public function customer()
 		{
 			 return $this->belongsTo('App\Models\Org\Customer' , 'order_customer')
-          ->select(['customer_id','customer_code','customer_name'])->with(['divisions']);
-        }
+          ->select(['customer_id','customer_code','customer_name']);//->with(['divisions']);
+    }
+
+    public function division()
+		{
+			 return $this->belongsTo('App\Models\Org\Division' , 'order_division')->select(['division_id','division_description','division_code']);
+    }
 
 
     public function getCustomerOrders($costingId, $colorComboId){
-        
-        
+
+
         // Comment On - 05/28/2019
         // Comment By - Nalin Jayakody
         // Comment For - Load sales order combine details, by combo color
@@ -76,8 +81,8 @@ class CustomerOrder extends BaseValidator
                  ->where('merc_customer_order_details.delivery_status','=','RELEASED')
                  ->whereNotIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
                  ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code')->get();*/
-        
-        
+
+
         return DB::table('merc_customer_order_header')
                  ->join('merc_customer_order_details','merc_customer_order_details.order_id','merc_customer_order_header.order_id')
                  ->join('merc_costing_so_combine','merc_costing_so_combine.details_id','merc_customer_order_details.details_id')
@@ -90,12 +95,12 @@ class CustomerOrder extends BaseValidator
                  ->whereNotIn('merc_customer_order_header.order_id', DB::table('bom_so_allocation')->pluck('bom_so_allocation.order_id'))
                  ->groupBy('merc_customer_order_header.order_id','merc_customer_order_header.order_code','costing_bulk_feature_details.combo_color')
                  ->get();
-        
-        
-        
-        
-       
-        
+
+
+
+
+
+
     }
 
     public function getAssignCustomerOrders($costingId){

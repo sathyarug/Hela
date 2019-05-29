@@ -90,7 +90,7 @@ class CustomerOrderController extends Controller
     //get a customer
     public function show($id)
     {
-      $customerOrder = CustomerOrder::with(['style','customer'])->find($id);
+      $customerOrder = CustomerOrder::with(['style','customer','division'])->find($id);
       if($customerOrder == null)
         throw new ModelNotFoundException("Requested customer order not found", 1);
       else
@@ -225,7 +225,9 @@ class CustomerOrderController extends Controller
     //search customer for autocomplete
     private function style_search($search)
   	{
-  		$style_lists = StyleCreation::select('style_id','style_no','style_description','customer_id')
+  		$style_lists = StyleCreation::select('style_creation.*', 'cust_customer.customer_code','cust_customer.customer_name','cust_division.division_description')
+      ->join('cust_customer', 'style_creation.customer_id', '=', 'cust_customer.customer_id')
+      ->join('cust_division', 'style_creation.division_id', '=', 'cust_division.division_id')
   		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
   		return $style_lists;
   	}
