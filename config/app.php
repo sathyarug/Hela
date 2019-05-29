@@ -166,8 +166,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        
+
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class,
 
     ],
 
@@ -222,7 +223,8 @@ return [
         'Input' => Illuminate\Support\Facades\Input::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
-        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class
+        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'PDF' => Meneses\LaravelMpdf\Facades\LaravelMpdf::class
     ],
 
 ];

@@ -68,7 +68,7 @@ class StyleCreationController extends Controller
         $section_list = StyleCreation::select('*')
             ->where('style_no'  , 'like', $search.'%' )
             ->orWhere('style_description'  , 'like', $search.'%' )
-            ->orderBy('status',$order_column, $order_type)
+            ->orderBy('status',$order_column.' DESC', $order_type)
             ->offset($start)->limit($length)->get();
 
         $section_count = StyleCreation::where('style_no'  , 'like', $search.'%' )

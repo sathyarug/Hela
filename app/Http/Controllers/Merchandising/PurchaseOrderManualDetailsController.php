@@ -308,7 +308,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->combine_id = $lines[$x]['combine_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
-        $po_details->style = $lines[$x]['master_id'];
+        $po_details->style = $lines[$x]['style_id'];
         $po_details->colour = $lines[$x]['color_id'];
         $po_details->size = $lines[$x]['size_id'];
         $po_details->unit_price = $lines[$x]['sumunit_price'];
@@ -350,6 +350,7 @@ class PurchaseOrderManualDetailsController extends Controller
             ->where('po_no', $formData['po_number'])
             ->where('bom_id', $lines[$x]['bom_id'])
             ->where('combine_id', $lines[$x]['combine_id'])
+            ->where('line_no', $lines[$x]['line_no'])
             ->update(['req_qty' => $lines[$x]['tra_qty'],'tot_qty' => $lines[$x]['value_sum'],'po_status' => 'PLANNED']);
 
 
@@ -501,8 +502,7 @@ class PurchaseOrderManualDetailsController extends Controller
 
     public function prl_header_load(Request $request){
       $order_id = $request->PORID;
-    //  print_r($order_id);
-
+      //print_r($order_id);
       $LOAD_SUP= DB::select('SELECT PRL.supplier_id,PRL.supplier_name FROM merc_purchase_req_lines AS PRL
             WHERE PRL.merge_no = "'.$order_id.'" GROUP BY PRL.merge_no');
       $po_sup_code = $LOAD_SUP[0]->supplier_id;
@@ -595,7 +595,7 @@ class PurchaseOrderManualDetailsController extends Controller
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
-       ->join('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
@@ -605,6 +605,8 @@ class PurchaseOrderManualDetailsController extends Controller
        ->where('po_number'  , '=', $po_number )
        ->get();
 
+
+
        //$count = $load_list->count();
       // for()
       // if($load_list[0]->polineststus == 1)
@@ -613,6 +615,34 @@ class PurchaseOrderManualDetailsController extends Controller
        //return;
        //print_r($load_list[0]->polineststus;);
        //return $customer_list;
+       return response([ 'data' => [
+         'load_list' => $load_list,
+         'prl_id' => $prl_id,
+         'count' => sizeof($load_list)
+         ]
+       ], Response::HTTP_CREATED );
+
+    }
+
+
+    public function load_reqline_2(Request $request)
+    {
+      $prl_id = $request->prl_id;
+
+      $load_list = PoOrderDetails::join('bom_details', 'bom_details.bom_id', '=', 'merc_po_order_details.bom_id')
+       ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
+       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+       ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
+       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+       ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+       ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+       //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
+       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price')
+       ->where('prl_id'  , '=', $prl_id )
+       ->get();
+
+       //print_r($load_list);
        return response([ 'data' => [
          'load_list' => $load_list,
          'prl_id' => $prl_id,

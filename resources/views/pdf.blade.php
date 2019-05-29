@@ -38,7 +38,7 @@
 <body>
 <div class="container">
 <div style="width:100%;">
-<div style="float:left; width:20%;"><img src="http://localhost/test_projects/mpdf/resources/images/hela.jpg"/></div>
+<div style="float:left; width:20%;"><img src="http://localhost/surfacedev/resources/images/hela.jpg"/></div>
 <div style="float:left;width:80%;">
 <div id="example2">
 <div style="font-weight:bold;font-size:16px;">Foundation Garments (Pvt) Ltd</div>
@@ -120,9 +120,7 @@
   <table id="tbl1" width="100%" align="center">
     <tr>
       <td width="6%" align="center"><strong>Line No</strong></td>
-      <td width="5%" align="center"><strong>Rel No</strong></td>
       <td width="13%" align="center"><strong>Style</strong></td>
-      <td width="9%" align="center"><strong>Item Code</strong></td>
       <td width="13%" align="center"><strong>Description</strong></td>
       <td width="7%" align="center"><strong>Del Date</strong></td>
       <td width="7%" align="center"><strong>Size</strong></td>
@@ -132,26 +130,29 @@
       <td width="5%" align="center"><strong>Qty</strong></td>
       <td width="9%" align="center"><strong>Value</strong></td>
     </tr>
+    {{  $tot =0 }}
+    {{  $req =0 }}
     @foreach ($data as $d)
     <tr>
-      <td>{{ $d->id }}</td>
-      <td>{{ $d->id }}</td>
+
+      <td>{{ $d->line_no }}</td>
       <td>{{ $d->style_no }}</td>
-      <td>{{ $d->master_code }}</td>
       <td>{{ $d->master_description }}</td>
       <td>{{ $d->deli_date}}</td>
       <td>{{ $d->size_name }}</td>
       <td>{{ $d->color_name }}</td>
       <td>{{ $d->uom_code }}</td>
       <td align="right">{{ $d->unit_price }}</td>
-      <td align="right">{{ $d->tot_qty }}</td>
-      <td  align="right">{{ $d->unit_price*$d->tot_qty }}</td>
+      <td align="right">{{ $d->req_qty }}</td>
+      <td  align="right">{{ $d->tot_qty }}</td>
     </tr>
+    {{ $req += $d->req_qty }}
+    {{ $tot += $d->tot_qty }}
     @endforeach
     <tr>
-      <td colspan="10" align="center"><strong>Total</strong></td>
-      <td  align="right"><strong>{{$total_qty}}</strong></td>
-      <td  align="right"><strong>1500</strong></td>
+      <td colspan="8" align="center"><strong>Total</strong></td>
+      <td  align="right"><strong>{{ $req }}</strong></td>
+      <td  align="right"><strong>{{ $tot }}</strong></td>
     </tr>
   </table>
   <p>&nbsp;</p>
