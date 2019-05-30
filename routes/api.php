@@ -417,6 +417,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
     Route::post('po-manual-details/load_bom_Details','Merchandising\PurchaseOrderManualController@load_bom_Details');
     Route::post('po-manual-details/load_reqline','Merchandising\PurchaseOrderManualController@load_reqline');
+    Route::post('po-manual-details/load_reqline_2','Merchandising\PurchaseOrderManualDetailsController@load_reqline_2');
     Route::post('po-manual-details/load_por_line','Merchandising\PurchaseOrderManualDetailsController@load_por_line');
     Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
 

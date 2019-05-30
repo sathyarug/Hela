@@ -442,6 +442,13 @@ class BulkDetailsController extends Controller
 //        $cpm= $cpmData[0];
 //        }
 //        print_r($cpm);exit;
+        $data['blkNo']=$blkFeature->bulkheader_id;
+        $data['bom']=$blkFeature->bom_stage;
+        $data['season']=$blkFeature->season_id;
+        $data['colType']=$blkFeature->col_opt_id;
+        $epmNnp = \App\Models\Merchandising\BulkCostingFeatureDetails::getEmpNp($blkFeature->style_feature_id,$data);
+//print_r($epmNnp);exit;
+       // $epmNnp = \App\Models\Merchandising\BulkCostingFeatureDetails::getEmpNp($productFeature['id'],$data);
        return (array('style'=>$style->style_no,
            'component'=>$component->product_component_description,
            'color'=>$color->color_name,
@@ -452,7 +459,8 @@ class BulkDetailsController extends Controller
            'cpmfront_end'=>$financeCost->cpmfront_end,
            'cpum'=>$financeCost->cpum,
            'cpm'=>(($financeCost->cpum)*($hader->plan_efficiency)),
-           'fob'=>(float)$hader->fob
+           'fob'=>(float)$epmNnp['fob'],
+           'totalCostWithoutRm'=>$epmNnp['totalCostWithoutRm']
        ));
     }
 
