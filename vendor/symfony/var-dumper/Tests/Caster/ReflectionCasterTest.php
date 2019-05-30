@@ -70,7 +70,10 @@ EOTXT
         $this->assertDumpMatchesFormat(
             <<<'EOTXT'
 Closure($x) {
-%Ause: {
+%Aparameters: {
+    $x: {}
+  }
+  use: {
     $a: 123
     $b: & 123
   }
@@ -114,7 +117,7 @@ EOTXT
     {
         $var = function &($a = 5) {};
 
-        $this->assertDumpEquals('Closure&($a = 5) { …5}', $var, Caster::EXCLUDE_VERBOSE);
+        $this->assertDumpEquals('Closure&($a = 5) { …6}', $var, Caster::EXCLUDE_VERBOSE);
     }
 
     public function testReflectionParameter()
