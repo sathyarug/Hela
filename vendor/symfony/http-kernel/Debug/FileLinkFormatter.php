@@ -20,10 +20,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Formats debug file links.
  *
  * @author Jérémy Romey <jeremy@free-agent.fr>
- *
- * @final since Symfony 4.3
  */
-class FileLinkFormatter
+class FileLinkFormatter implements \Serializable
 {
     private $fileLinkFormat;
     private $requestStack;
@@ -66,11 +64,17 @@ class FileLinkFormatter
     /**
      * @internal
      */
-    public function __sleep(): array
+    public function serialize()
     {
-        $this->getFileLinkFormat();
+        return serialize($this->getFileLinkFormat());
+    }
 
-        return ['fileLinkFormat'];
+    /**
+     * @internal
+     */
+    public function unserialize($serialized)
+    {
+        $this->fileLinkFormat = unserialize($serialized, ['allowed_classes' => false]);
     }
 
     /**
@@ -87,17 +91,21 @@ class FileLinkFormatter
 
     private function getFileLinkFormat()
     {
+        if ($this->fileLinkFormat) {
+            return $this->fileLinkFormat;
+        }
         if ($this->requestStack && $this->baseDir && $this->urlFormat) {
             $request = $this->requestStack->getMasterRequest();
+            if ($request instanceof Request) {
+                if ($this->urlFormat instanceof \Closure && !$this->urlFormat = ($this->urlFormat)()) {
+                    return;
+                }
 
-            if ($request instanceof Request && (!$this->urlFormat instanceof \Closure || $this->urlFormat = ($this->urlFormat)())) {
-                $this->fileLinkFormat = [
+                return [
                     $request->getSchemeAndHttpHost().$request->getBasePath().$this->urlFormat,
                     $this->baseDir.\DIRECTORY_SEPARATOR, '',
                 ];
             }
         }
-
-        return $this->fileLinkFormat;
     }
 }
