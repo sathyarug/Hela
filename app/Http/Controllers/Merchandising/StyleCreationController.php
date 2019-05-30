@@ -39,7 +39,7 @@ class StyleCreationController extends Controller
             ]);
         }elseif($type == 'style_customer'){
             return response([
-                'data' => $this->getCustomerForStyle()
+                'data' => $this->getCustomerForStyle($request->style)
             ]);
         }else{
 
@@ -247,11 +247,11 @@ class StyleCreationController extends Controller
         ] , Response::HTTP_NO_CONTENT);
     }
 
-    public function getCustomerForStyle(){
+    public function getCustomerForStyle($style){
         $cust = DB::table('style_creation')
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
             ->select('cust_customer.customer_id AS id','cust_customer.customer_name')
-            ->where('style_creation.style_id','=',1)
+            ->where('style_creation.style_id','=',$style)
             ->first();
 
         return $cust;

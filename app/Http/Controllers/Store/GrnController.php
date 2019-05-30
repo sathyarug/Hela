@@ -91,13 +91,13 @@ class GrnController extends Controller
 
                 // continue;
                  //Update Stock Transaction
-                 $transaction = Transaction::where('trans_description', 'GRN')->get();
+                 $transaction = Transaction::where('trans_description', 'GRN')->first();
 
                  //$st = StockTransaction::where('doc_num', $request['id'])->where('doc_type', 'GRN')->get();
 
                  $st = new StockTransaction;
                  $st->status = 'CONFIRM';
-                 $st->doc_type = $header->grn_id;
+                 $st->doc_type = $transaction->trans_code;
                  $st->doc_num = $header->grn_id;
                  $st->style_id = $poDetails->style;
                  $st->main_store = $store->store_id;
@@ -110,74 +110,17 @@ class GrnController extends Controller
                  $st->location = auth()->payload()['loc_id'];
                  $st->bin = 1;
                  $st->created_by = auth()->payload()['user_id'];
-                 $st->save();
+                 if(!$st->save()){
 
-
-                 // Update Stock
-                 $stock = Stock::where('item_code', $rec['item_code'])->where('location', 'GRN')->where('store', 'GRN')->where('sub_store', 'GRN')->get();
-
-                 if(!$stock){
-                     $stock = new Stock;
-                     $stock->item_code = $rec['item_code'];
-                     $stock->item_code = $rec['item_code'];
                  }
-
 
              }
 
-             //Update Stock
 
-
-        exit;
-        /*$lineCount = 0;
-
-        //Check po lines selected
-        foreach ($request['item_list'] as $rec){
-            if($rec['item_select']){
-                $lineCount++;
-            }
-        }
-
-        if($lineCount > 0){
-            if(!$request['id']){
-                $grnHeader = new GrnHeader;
-                $grnHeader->grn_number = 1002;
-                $grnHeader->po_number = $request->po_no;
-                $grnHeader->save();
-                $grnNo = $grnHeader->grn_id;
-            }else{
-                $grnNo = $request['id'];
-            }
-
-            foreach ($request['item_list'] as $rec){
-                if($rec['item_select']){
-
-                    //$poData = new PoOrderDetails;
-                    $poData = PoOrderDetails::where('id', $rec['po_line_id'])->first();
-
-                    $grnDetails = new GrnDetail;
-                    $grnDetails->grn_id = $grnNo;
-                    $grnDetails->grn_line_no = 1;
-                    $grnDetails->style_id = 211;
-                    $grnDetails->sc_no = $poData->sc_no;
-                    $grnDetails->color = $poData->colour;
-                    $grnDetails->size = $poData->size;
-                    $grnDetails->uom = $poData->uom;
-                    $grnDetails->po_qty = $poData->bal_qty;
-                    $grnDetails->grn_qty = (float)$rec['qty'];
-                    $grnDetails->bal_qty = $poData->bal_qty - (float)$rec['qty'];
-                    $grnDetails->status = 0;
-                    $grnDetails->item_code = $poData->item_code;
-                    $grnDetails->save();
-
-                }
-            }
-
-        }
 
         return response([
             'id' => $grnNo
-        ]);*/
+        ]);
 
     }
 
