@@ -168,7 +168,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
-        Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class,
+        Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class
 
     ],
 
