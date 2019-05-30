@@ -10,7 +10,7 @@ use App\Models\Org\Division;
 use App\Models\Merchandising\productFeature;
 use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
-use App\Models\Merchandising\productType;
+use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
 use DB;
 //use Illuminate\Http\Response;
@@ -185,7 +185,7 @@ class StyleCreationController extends Controller
         //           ->get();
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
-        $productType = productType::find($style['pack_type_id']);
+        $productType = ProductType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
                   ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
                   ->select('org_customer_divisions.id AS division_id','cust_division.division_code','cust_division.division_description')
