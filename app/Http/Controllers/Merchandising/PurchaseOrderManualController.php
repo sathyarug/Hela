@@ -358,7 +358,7 @@ class PurchaseOrderManualController extends Controller
 
       ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
         FROM merc_po_order_details AS MPOD WHERE
-        MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id   )AS po_nos
+        MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id   )AS po_nos
 
                                 FROM
                                 	bom_details AS B
