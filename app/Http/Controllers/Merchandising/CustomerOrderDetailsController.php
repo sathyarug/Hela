@@ -60,6 +60,7 @@ class CustomerOrderDetailsController extends Controller
       if($order_details->validate($request->all()))
       {
         $order_details->fill($request->all());
+        $order_details->delivery_status = 'PLANNED';
         $order_details->version_no = 0;
         $order_details->line_no = $this->get_next_line_no($order_details->order_id);
         $order_details->type_created = 'CREATE';
@@ -103,6 +104,7 @@ class CustomerOrderDetailsController extends Controller
 
           $order_details_new = new CustomerOrderDetails();
           $order_details_new->fill($request->all());
+          $order_details_new->delivery_status = $order_details->delivery_status;
           $order_details_new->version_no = $order_details->version_no + 1;
           $order_details_new->line_no = $order_details->line_no;
           $order_details_new->type_created = $order_details->type_created;
@@ -272,8 +274,16 @@ class CustomerOrderDetailsController extends Controller
           $new_size->save();
         }
 
-        $delivery_new->order_qty = $split_order_qty;//update order qty and planned qty
-        $delivery_new->planned_qty = $split_plan_qty;
+        if(sizeof($sizes) > 0){
+          $delivery_new->order_qty = $split_order_qty;//update order qty and planned qty
+          $delivery_new->planned_qty = $split_plan_qty;
+        }
+        else{ //no sizes avalibale and split main order qty
+          $s_qty = ceil($delivery['order_qty'] / $split_count);
+          $delivery_new->order_qty = $s_qty;
+          $delivery_new->planned_qty = ceil((($s_qty * $excess_presentage) / 100) + $s_qty);
+        }
+
         $delivery_new->save();
       }
 
@@ -386,6 +396,9 @@ class CustomerOrderDetailsController extends Controller
         $deliveries = [];
         if($delivery != null){
           $deliveries = CustomerOrderDetails::where('order_id', '=', $delivery->order_id)
+          ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
+          ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
+          ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
           ->where('line_no', '=', $delivery->line_no)
           ->get();
         }
@@ -402,12 +415,18 @@ class CustomerOrderDetailsController extends Controller
 
           if($delivery->type_created == 'GFS'){
             $deliveries = CustomerOrderDetails::where('details_id', '=', $delivery->parent_line_id)
+            ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
+            ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
+            ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
             ->get();
           }
           else if($delivery->type_created == 'GFM'){
             $merged_lines = json_decode($delivery->merged_line_ids);
             //print_r($delivery->details_id);die();
             $deliveries = CustomerOrderDetails::whereIn('details_id', $merged_lines)
+            ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
+            ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
+            ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
             ->get();
           }
 
