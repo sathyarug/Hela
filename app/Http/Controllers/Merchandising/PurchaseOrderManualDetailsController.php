@@ -327,7 +327,7 @@ class PurchaseOrderManualDetailsController extends Controller
 
         DB::table('merc_purchase_req_lines')
             ->where('merge_no', $prl_id)
-            ->update(['status_user' => 'SAVED']);
+            ->update(['status_user' => 'RELEASED']);
 
         }
 

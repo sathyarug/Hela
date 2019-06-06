@@ -342,11 +342,13 @@ class PurchaseOrderManualController extends Controller
 
                                 ( SELECT Sum(MPD.req_qty)AS req_qty
                                   FROM merc_po_order_details AS MPD WHERE
-                                  MPD.bom_id = B.bom_id AND MPD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id  )AS req_qty,
+                                  MPD.bom_id = B.bom_id AND MPD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id
+                                  AND MPD.item_code = B.master_id AND MPD.colour = B.item_color AND MPD.component_id = B.component_id  )AS req_qty,
 
                                 ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
                                   FROM merc_po_order_details AS MPOD WHERE
-                                  MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id   )AS po_nos
+                                  MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id
+                                  AND MPOD.item_code = B.master_id AND MPOD.colour = B.item_color AND MPOD.component_id = B.component_id    )AS po_nos
 
                                   FROM
                                   	bom_details AS B
@@ -366,12 +368,14 @@ class PurchaseOrderManualController extends Controller
                                   INNER JOIN costing_bulk ON bom_header.costing_id = costing_bulk.bulk_costing_id
                                   INNER JOIN style_creation ON costing_bulk.style_id = style_creation.style_id
                                   INNER JOIN merc_costing_so_combine ON bom_header.costing_id = merc_costing_so_combine.costing_id
-                                  INNER JOIN merc_purchase_req_lines AS MPRL ON merc_costing_so_combine.id = MPRL.so_com_id AND B.bom_id = MPRL.bom_id AND B.combine_id = MPRL.combine_id AND MCH.order_id = MPRL.order_id
+                                  #LEFT JOIN merc_purchase_req_lines AS MPRL ON merc_costing_so_combine.id = MPRL.so_com_id AND B.bom_id = MPRL.bom_id AND B.combine_id = MPRL.combine_id AND MCH.order_id = MPRL.order_id
                                   WHERE
                                   CUS.customer_name LIKE '%$customer_name%'
                                   AND style_creation.style_no LIKE '%".$style_no."%'
-                                  AND MPRL.status_user <> 'HOLD'
+                                  #AND MPRL.status_user <> 'HOLD'
                       ");
+
+
 
 
        //return $customer_list;
@@ -393,8 +397,9 @@ class PurchaseOrderManualController extends Controller
         $max_no = $max_no + 1;
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
-        $temp_line = new PurchaseReqLines();
 
+
+        $temp_line = new PurchaseReqLines();
         $temp_line->bom_id = $lines[$x]['bom_id'];
         $temp_line->combine_id = $lines[$x]['combine_id'];
         $temp_line->order_id = $lines[$x]['order_id'];
@@ -419,7 +424,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line->so_com_id = $lines[$x]['so_com_id'];
         $temp_line->status = '1';
         $temp_line->status_user = 'OPEN';
-
+        $temp_line->component_id = $lines[$x]['component_id'];
         $temp_line->save();
 
         }
