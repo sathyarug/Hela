@@ -230,6 +230,10 @@ Route::prefix('items/')->group(function(){
 
     Route::get('getitem/getItemByCode' , 'itemCreationController@GetItemDetailsByCode');
     Route::apiResource('getitem','itemCreationController');
+    //item cretaion duplicate validataion
+    Route::get('itemCreation/validate' , 'itemCreationController@validate_data');
+    Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+    Route::apiResource('itemCreation','itemCreationController');
 
 });
 

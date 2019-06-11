@@ -57,7 +57,7 @@ class GarmentOptionsController extends Controller
           $garmentoptions->save();
 
           return response([ 'data' => [
-            'message' => 'Garment Option was saved successfully',
+            'message' => 'Garment Option saved successfully',
             'garmentoptions' => $garmentoptions
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class GarmentOptionsController extends Controller
           $garmentoptions->save();
 
           return response([ 'data' => [
-            'message' => 'Garment option was updated successfully',
+            'message' => 'Garment option updated successfully',
             'garmentoptions' => $garmentoptions
           ]]);
         }
