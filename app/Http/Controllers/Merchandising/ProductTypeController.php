@@ -20,7 +20,7 @@ class ProductTypeController extends Controller
     public function loadProductType(Request $request) {
         try{
 //            echo json_encode(ProductCategory::all());
-            echo json_encode(productType::where('pack_type_description', 'LIKE', '%'.$request->search.'%')->get());
+            echo json_encode(productType::where('pack_type_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
 //            return ProductCategoryResource::collection(ProductCategory::where('prod_cat_description', 'LIKE', '%'.$request->search.'%')->get() );
         }
         catch (JWTException $e) {
