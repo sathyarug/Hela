@@ -554,7 +554,6 @@ Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProd
 Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
 
 Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
-
 Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');
 Route::get('/loadStyleDetails','Merchandising\StyleCreationController@GetStyleDetails');
 

@@ -297,6 +297,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $lines = $request->lines;
       $formData = $request->formData;
       $po = $formData['po_number'];
+      $prl_id = $formData['prl_id'];
     //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
 
@@ -321,9 +322,12 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->base_unit_price = $lines[$x]['unit_price'];
         $po_details->component_id = $lines[$x]['component_id'];
         $po_details->so_com_id = $lines[$x]['so_com_id'];
-        //$po_details->so_com_id = $lines[$x]['so_com_id'];
 
         $po_details->save();
+
+        DB::table('merc_purchase_req_lines')
+            ->where('merge_no', $prl_id)
+            ->update(['status_user' => 'RELEASED']);
 
         }
 

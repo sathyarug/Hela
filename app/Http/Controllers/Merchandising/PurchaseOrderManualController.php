@@ -72,6 +72,17 @@ class PurchaseOrderManualController extends Controller
         $cur_update->cur_value=$current_value[0]->rate;
         $cur_update->save();
 
+        $load_poh_status = DB::select("SELECT MOPH.prl_id FROM merc_po_order_header AS MOPH
+                WHERE MOPH.po_id = '$order_id'");
+
+        //$update_status=PurchaseReqLines::where('merge_no', $load_poh_status[0]->prl_id);
+        //              ->update(['status_user' => 'HOLD']);
+
+        DB::table('merc_purchase_req_lines')
+            ->where('merge_no', $load_poh_status[0]->prl_id)
+            ->update(['status_user' => 'HOLD']);
+
+
         return response([ 'data' => [
           'message' => 'Purchase order was saved successfully',
           'savepo' => $order,
@@ -286,7 +297,7 @@ class PurchaseOrderManualController extends Controller
       $customer_list = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
       ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->where('po_type'  , '==', null)
+      ->whereNull('po_type')
       //->orWhere('po_number'  , 'like', $search.'%' )
       //->orWhere('supplier_name'  , 'like', $search.'%' )
 	    //->orWhere('first_name'  , 'like', $search.'%' )
@@ -294,11 +305,12 @@ class PurchaseOrderManualController extends Controller
       ->offset($start)->limit($length)->get();
 
       //print_r($customer_list);
+      //die();
 
       $customer_count = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
       ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->where('po_type'  , '==', null)
+      ->whereNull('po_type')
       //->where('po_number'  , 'like', $search.'%' )
       //->orWhere('supplier_name'  , 'like', $search.'%' )
 	    //->orWhere('first_name'  , 'like', $search.'%' )
@@ -322,66 +334,48 @@ class PurchaseOrderManualController extends Controller
     $style_no = $request->style['style_no'];
     //print_r($customer_name);
 
-    // $load_list = DB::select("select B.*, MCD.*, OU.uom_code, OS.size_name, OC.color_name, IM.master_description,
-    //     SU.supplier_name, CUS.customer_name,CUS.customer_code,
-    //     ( select Sum(MPD.req_qty) AS req_qty FROM merc_po_order_details AS MPD
-    //     WHERE MPD.bom_id =  B.bom_id and MPD.combine_id =  B.combine_id
-    //     ) AS req_qty,
-    //     org_location.loc_name,
-    //     (SELECT GROUP_CONCAT(DISTINCT MPOD.po_no SEPARATOR ' | ') AS po_nos FROM
-    //     merc_po_order_details AS MPOD WHERE MPOD.bom_id = B.bom_id and MPOD.combine_id =  B.combine_id) AS po_nos
-    //     FROM
-    //     bom_details AS B
-    //     INNER JOIN merc_costing_so_combine AS MC ON B.combine_id = MC.comb_id
-    //     INNER JOIN merc_customer_order_details AS MCD ON MC.details_id = MCD.details_id
-    //     INNER JOIN merc_customer_order_header AS MCH ON MCH.order_id = MCD.order_id
-    //     INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
-    //     INNER JOIN org_size AS OS ON B.item_size = OS.size_id
-    //     INNER JOIN org_color AS OC ON B.item_color = OC.color_id
-    //     INNER JOIN item_master AS IM ON B.master_id = IM.master_id
-    //     INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
-    //     INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
-    //     INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
-    //     WHERE
-    //     CUS.customer_name LIKE '%$customer_name%' GROUP BY B.bom_id ");
-
-
-        $load_list = DB::select("SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
+        $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
                                 	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
                                   costing_bulk.style_id,
                                 	style_creation.style_no,
                                   merc_costing_so_combine.id as so_com_id,
 
-      ( SELECT Sum(MPD.req_qty)AS req_qty
-        FROM merc_po_order_details AS MPD WHERE
-        MPD.bom_id = B.bom_id AND MPD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id  )AS req_qty,
+                                ( SELECT Sum(MPD.req_qty)AS req_qty
+                                  FROM merc_po_order_details AS MPD WHERE
+                                  MPD.bom_id = B.bom_id AND MPD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id
+                                  AND MPD.item_code = B.master_id AND MPD.colour = B.item_color AND MPD.component_id = B.component_id  )AS req_qty,
 
-      ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
-        FROM merc_po_order_details AS MPOD WHERE
-        MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id   )AS po_nos
+                                ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
+                                  FROM merc_po_order_details AS MPOD WHERE
+                                  MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id
+                                  AND MPOD.item_code = B.master_id AND MPOD.colour = B.item_color AND MPOD.component_id = B.component_id    )AS po_nos
 
-                                FROM
-                                	bom_details AS B
-                                INNER JOIN merc_customer_order_header AS MCH ON B.combine_id = MCH.order_id
-                                INNER JOIN merc_customer_order_details AS MCD ON MCH.order_id = MCD.order_id
-                                INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
-                                LEFT JOIN mat_ratio AS MR ON B.bom_id = MR.bom_id
-                                AND B.combine_id = MR.component_id
-                                AND B.master_id = MR.master_id
-                                LEFT JOIN org_size AS OS ON MR.size_id = OS.size_id
-                                INNER JOIN org_color AS OC ON B.item_color = OC.color_id
-                                INNER JOIN item_master AS IM ON B.master_id = IM.master_id
-                                INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
-                                INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
-                                INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
-                                INNER JOIN bom_header ON B.bom_id = bom_header.bom_id
-                                INNER JOIN costing_bulk ON bom_header.costing_id = costing_bulk.bulk_costing_id
-                                INNER JOIN style_creation ON costing_bulk.style_id = style_creation.style_id
-                                INNER JOIN merc_costing_so_combine ON bom_header.costing_id = merc_costing_so_combine.costing_id
-                                WHERE
-                                	CUS.customer_name LIKE '%$customer_name%'
+                                  FROM
+                                  	bom_details AS B
+                                  INNER JOIN merc_customer_order_header AS MCH ON B.combine_id = MCH.order_id
+                                  INNER JOIN merc_customer_order_details AS MCD ON MCH.order_id = MCD.order_id
+                                  INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
+                                  LEFT JOIN mat_ratio AS MR ON B.bom_id = MR.bom_id
+                                  AND B.combine_id = MR.component_id
+                                  AND B.master_id = MR.master_id
+                                  LEFT JOIN org_size AS OS ON MR.size_id = OS.size_id
+                                  INNER JOIN org_color AS OC ON B.item_color = OC.color_id
+                                  INNER JOIN item_master AS IM ON B.master_id = IM.master_id
+                                  INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
+                                  INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
+                                  INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
+                                  INNER JOIN bom_header ON B.bom_id = bom_header.bom_id
+                                  INNER JOIN costing_bulk ON bom_header.costing_id = costing_bulk.bulk_costing_id
+                                  INNER JOIN style_creation ON costing_bulk.style_id = style_creation.style_id
+                                  INNER JOIN merc_costing_so_combine ON bom_header.costing_id = merc_costing_so_combine.costing_id
+                                  #LEFT JOIN merc_purchase_req_lines AS MPRL ON merc_costing_so_combine.id = MPRL.so_com_id AND B.bom_id = MPRL.bom_id AND B.combine_id = MPRL.combine_id AND MCH.order_id = MPRL.order_id
+                                  WHERE
+                                  CUS.customer_name LIKE '%$customer_name%'
                                   AND style_creation.style_no LIKE '%".$style_no."%'
-                    ");
+                                  #AND MPRL.status_user <> 'HOLD'
+                      ");
+
+
 
 
        //return $customer_list;
@@ -403,8 +397,9 @@ class PurchaseOrderManualController extends Controller
         $max_no = $max_no + 1;
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
-        $temp_line = new PurchaseReqLines();
 
+
+        $temp_line = new PurchaseReqLines();
         $temp_line->bom_id = $lines[$x]['bom_id'];
         $temp_line->combine_id = $lines[$x]['combine_id'];
         $temp_line->order_id = $lines[$x]['order_id'];
@@ -428,7 +423,8 @@ class PurchaseOrderManualController extends Controller
         $temp_line->po_qty = $lines[$x]['req_qty'];
         $temp_line->so_com_id = $lines[$x]['so_com_id'];
         $temp_line->status = '1';
-
+        $temp_line->status_user = 'OPEN';
+        $temp_line->component_id = $lines[$x]['component_id'];
         $temp_line->save();
 
         }
