@@ -57,7 +57,7 @@ class SeasonController extends Controller
           $season->save();
 
           return response([ 'data' => [
-            'message' => 'Season was saved successfully',
+            'message' => 'Season saved successfully',
             'season' => $season
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class SeasonController extends Controller
           $season->save();
 
           return response([ 'data' => [
-            'message' => 'Season was updated successfully',
+            'message' => 'Season updated successfully',
             'season' => $season
           ]]);
         }

@@ -297,6 +297,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $lines = $request->lines;
       $formData = $request->formData;
       $po = $formData['po_number'];
+      $prl_id = $formData['prl_id'];
     //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
 
@@ -308,7 +309,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->combine_id = $lines[$x]['combine_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
-        $po_details->style = $lines[$x]['master_id'];
+        $po_details->style = $lines[$x]['style_id'];
         $po_details->colour = $lines[$x]['color_id'];
         $po_details->size = $lines[$x]['size_id'];
         $po_details->unit_price = $lines[$x]['sumunit_price'];
@@ -319,9 +320,14 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->remarks = '';
         $po_details->status = '1';
         $po_details->base_unit_price = $lines[$x]['unit_price'];
-
+        $po_details->component_id = $lines[$x]['component_id'];
+        $po_details->so_com_id = $lines[$x]['so_com_id'];
 
         $po_details->save();
+
+        DB::table('merc_purchase_req_lines')
+            ->where('merge_no', $prl_id)
+            ->update(['status_user' => 'RELEASED']);
 
         }
 
@@ -604,6 +610,8 @@ class PurchaseOrderManualDetailsController extends Controller
        //->where('merc_po_order_details.status'  , '=', 1 )
        ->where('po_number'  , '=', $po_number )
        ->get();
+
+
 
        //$count = $load_list->count();
       // for()

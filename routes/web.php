@@ -569,5 +569,5 @@ Route::prefix('finance/item/')->group(function(){
 });
 
 Route::post('flashcosting/savecostingdetails', 'Merchandising\Costing\Flash\FlashController@saveCostingDetails');
+Route::get('/print-pdf', 'Merchandising\PurchaseOrder@generate_pdf');
 /* */
-

@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 
 use App\Models\Finance\Item\Category;
 use App\Models\Finance\Item\ContentType;
 use App\Models\Finance\Item\Composition;
 use App\Models\Finance\Item\PropertyValueAssign;
+use App\Models\Merchandising\BulkCostingDetails;
 use App\itemCreation;
-use Illuminate\Http\Request;
+
 
 class itemCreationController extends Controller
 {
@@ -83,10 +85,12 @@ class itemCreationController extends Controller
      */
     public function store(Request $request)
     {
-
-        $requestData = $request->all();
-
-        itemCreation::create($requestData);
+        $itemCreation=new itemCreation();
+        //$requestData = $request->all();
+        $itemCreation->fill($request->all());
+        //itemCreation::create($requestData);
+        $itemCreation->status=1;
+        $itemCreation->save();
 
         //return redirect('item-creation')->with('flash_message', 'itemCreation added!');
         echo json_encode(array('status' => 'success'));
@@ -101,7 +105,25 @@ class itemCreationController extends Controller
   		return $master_lists;
   	}
 
+    public function validate_data(Request $request){
 
+      $for = $request->for;
+
+      if($for == 'duplicate')
+      {
+        //print_r( $request->all());
+        return response($this->validate_duplicate_code($request->id , $request->customer_name,
+        $request->product_silhouette_description,$request->size_name));
+      }
+
+    }
+
+  /*  private validate_duplicate_code($request->id , $request->customer_name,
+    $request->product_silhouette_description,$request->size_name){
+
+
+
+    }/*
 
 
     /**
@@ -158,12 +180,29 @@ class itemCreationController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
-    {
-        itemCreation::destroy($id);
-
-        return redirect('item-creation')->with('flash_message', 'itemCreation deleted!');
-    }
+     //deactivate a ship term
+     public function destroy($id)
+     {
+        //to check the deleting item used in costing
+        $bukDetails=BulkCostingDetails::where([['main_item','=',$id]])->first();
+        if(!$bukDetails==null){
+          return response([
+            'data' => [
+              'status'=>'0',
+              ]
+          ]);
+        }
+       else if($bukDetails==null){
+       $itemCreation =itemCreation::where('master_id', $id)->update(['status' => 0]);
+       return response([
+         'data' => [
+           'status'=>'1',
+           'message' => 'Deactivated successfully.',
+           'itemCreation' => $itemCreation
+         ]
+       ]);
+     }
+     }
 
     private function datatable_search($data)
     {
@@ -180,7 +219,7 @@ class itemCreationController extends Controller
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $item_count = Season::where('master_description'  , 'like', $search.'%' )
+      $item_count = itemCreation::where('master_description'  , 'like', $search.'%' )
       ->count();
 
       return [
