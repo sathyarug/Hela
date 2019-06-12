@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\BOMStage;
+use App\Models\Merchandising\BulkCostingFeatureDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -96,6 +97,13 @@ class BOMStageController extends Controller
     {
       if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
       {
+        $bulkCostingFeatureDetails=BulkCostingFeatureDetails::where([['bom_stage','=',$id]])->first();
+        if($bulkCostingFeatureDetails!=null){
+          return response([ 'data' => [
+            'status' => '0',
+                ]]);
+        }
+        else if($bulkCostingFeatureDetails==null){
         $bomstage = BOMStage::find($id);
         if($bomstage->validate($request->all()))
         {
@@ -107,6 +115,7 @@ class BOMStageController extends Controller
             'bomstage' => $bomstage
           ]]);
         }
+      }
         else
         {
           $errors = $bomstage->errors();// failure, get errors
@@ -124,6 +133,14 @@ class BOMStageController extends Controller
     {
       if($this->authorize->hasPermission('BOM_STAGE_DELETE'))//check permission
       {
+        $bulkCostingFeatureDetails=BulkCostingFeatureDetails::where([['bom_stage','=',$id]])->first();
+        if($bulkCostingFeatureDetails!=null){
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }
         $bomstage = BOMStage::where('bom_stage_id', $id)->update(['status' => 0]);
         return response([
           'data' => [

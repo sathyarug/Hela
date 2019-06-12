@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Size;
+use App\Models\Org\CustomerSizeGrid;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -124,13 +125,24 @@ class SizeController extends Controller
     {
       if($this->authorize->hasPermission('SIZE_DELETE'))//check permission
       {
+      $customerSizeGrid =CustomerSizeGrid :: where([['size_id','=',$id]])->first();
+      if($customerSizeGrid!=null){
+        return response([
+          'data' => [
+            'status'=>'0',
+            ]
+        ]);
+      }
+      else if($customerSizeGrid==null){
         $size = Size::where('size_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
+            'status'=>'1',
             'message' => 'Size was deactivated successfully.',
             'size' => $size
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

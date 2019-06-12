@@ -190,6 +190,7 @@ class BulkCostingController extends Controller {
 
            $model->style_feature_id = $productFeatureList->id;
            $model->feature_id = $styleFeature['feature_id'];
+           $model->combo_color = $styleFeature['combo_color'];
            $model->component_id = $styleFeature['component_id'];
            $model->bulkheader_id = $styleFeature['bulkheader_id'];
            $model->surcharge = $styleFeature['surcharge'];
@@ -369,7 +370,12 @@ class BulkCostingController extends Controller {
             $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id', $productFeature['product_feature_id'])->where('status',1)->get()->toArray();
 
 
-            $epmNnp = \App\Models\Merchandising\BulkCostingFeatureDetails::getEmpNp($productFeature['id'],$data);
+            $epmNnp['epm']=0;
+            $epmNnp['np']=0;
+
+            if(!is_null($data['blkNo'])){
+                $epmNnp = \App\Models\Merchandising\BulkCostingFeatureDetails::getEmpNp($productFeature['id'],$data);
+            }
 
             foreach ($featureList As $feature){
                 $surcharge=false;
@@ -389,7 +395,7 @@ class BulkCostingController extends Controller {
                     }else{
                         $mcq=false;
                     }
-
+//dd($blkCostFea);
                 if(isset($blkCostFea->surcharge) && $blkCostFea->surcharge==1){
                     $surcharge=true;
                 }else{
@@ -401,6 +407,7 @@ class BulkCostingController extends Controller {
 
                     $color=\App\Models\Org\Color::find($blkCostFea->color_ID)->first();
                     $colordata=$color->color_name;
+
 
                 }
                 if(isset($blkCostFea->combo_color)){
