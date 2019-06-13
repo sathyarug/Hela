@@ -187,7 +187,7 @@ class DepartmentController extends Controller
     private function autocomplete_search($search)
   	{
   		$department_lists = Department::select('dep_id','dep_name')
-  		->where([['dep_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['dep_name', 'like', '%' . $search . '%'],['status','<>','0']]) ->get();
   		return $department_lists;
   	}
 
