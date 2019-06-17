@@ -11,7 +11,7 @@ use App\Models\Org\Division;
 use App\Models\Merchandising\productFeature;
 use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
-use App\Models\Merchandising\productType;
+use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
 use DB;
 //use Illuminate\Http\Response;
@@ -38,6 +38,11 @@ class StyleCreationController extends Controller
             return response([
                 'data' => $this->list($active , $fields)
             ]);
+        }elseif($type == 'checkStyle')   {
+            $id = $request->styleId;
+            $code = $request->styleNo;
+            return response($this->validate_duplicate_code($id , $code));
+
         }elseif($type == 'style_customer'){
             return response([
                 'data' => $this->getCustomerForStyle($request->style)
@@ -67,15 +72,32 @@ class StyleCreationController extends Controller
         $length = $data['length'];
         $draw = $data['draw'];
         $search = $data['search']['value'];
+//        $search = '';
+
         $order = $data['order'][0];
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = StyleCreation::select('*')
-            ->where('style_no'  , 'like', $search.'%' )
-            ->orWhere('style_description'  , 'like', $search.'%' )
-            ->orderBy('status',$order_column.' DESC', $order_type)
-            ->offset($start)->limit($length)->get();
+        if($data['search']['value'] === null){
+            $section_list = StyleCreation::select('*')
+                ->orderBy('status','DESC')
+                ->orderBy($order_column,'DESC')
+                ->offset($start)->limit($length)->get();
+//            $search = $data['search']['value'];
+        }else{
+            $section_list = StyleCreation::select('*')
+                ->where('style_no'  , 'like', $search.'%' )
+                ->orWhere('style_description'  , 'like', $search.'%' )
+                ->orderBy('status','DESC')
+                ->orderBy($order_column,'DESC')
+                ->offset($start)->limit($length)->get();
+        }
+//
+//        $section_list = StyleCreation::select('*')
+//            ->where('style_no'  , 'like', $search.'%' )
+//            ->orWhere('style_description'  , 'like', $search.'%' )
+//            ->orderBy($order_column.' DESC', $order_type)
+//            ->offset($start)->limit($length)->get();
 
         $section_count = StyleCreation::where('style_no'  , 'like', $search.'%' )
             ->orWhere('style_description'  , 'like', $search.'%' )
@@ -109,7 +131,8 @@ class StyleCreationController extends Controller
             $styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
             $styleCreation->division_id =$request->division['division_id'];
             $styleCreation->style_description =$request->style_description;
-            $styleCreation->remark =$request->Remarks;
+            $styleCreation->remark_style =$request->Remarks;
+            $styleCreation->remarks_pack =$request->Remarks_pack;
 
            // $styleCreation->image =$request->avatar['filename'];
 
@@ -136,7 +159,7 @@ class StyleCreationController extends Controller
     				}
     				$styleCreation->productFeature()->saveMany($save_product_features);
           //  $this->saveImage($request->avatar['value'],$styleCreation->style_id);
-            echo json_encode(array('status' => 'success', 'message' => 'Customer details saved successfully.','image' =>$styleCreation->style_id.'.png'));
+            echo json_encode(array('status' => 'success', 'message' => 'Style details saved successfully.','image' =>$styleCreation->style_id.'.png'));
         } else {
             // failure, get errors
             $errors = $styleCreation->errors();
@@ -191,7 +214,7 @@ class StyleCreationController extends Controller
         //           ->get();
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
-        $productType = productType::find($style['pack_type_id']);
+        $productType = ProductType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
                   ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
                   ->select('org_customer_divisions.id AS division_id','cust_division.division_code','cust_division.division_description')
@@ -207,6 +230,7 @@ class StyleCreationController extends Controller
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;
         $style['division']=$divisions;
+        $style['error']=1;
         // $style['image']=$avatarHidden;
 
 
@@ -264,13 +288,29 @@ class StyleCreationController extends Controller
 
     }
 
-    public function getStyleDetailsForSMV($search){
-      $active=1;
-      $style_lists = StyleCreation::select('style_id','style_no')
-      ->where([['style_no', 'like', '%' . $search . '%'],])
-      ->where('status','=',$active)
-      ->get();
-      return $style_lists;
+public function getStyleDetailsForSMV($search){
+  $active=1;
+  $style_lists = StyleCreation::select('style_id','style_no')
+  ->where([['style_no', 'like', '%' . $search . '%'],])
+  ->where('status','=',$active)
+  ->get();
+  return $style_lists;
+
+
+}
+    //check Division code already exists
+    private function validate_duplicate_code($id , $code)
+    {
+        $style = StyleCreation::where('style_no','=',$code)->where('status','=',1)->first();
+        if($style == null){
+            return ['status' => 0,'message' => ''];
+        }
+        else if($style->style_id == $id){
+            return ['status' => 0,'message' => ''];
+        }
+        else {
+            return ['status' => 1,'message' => 'Style no already exists'];
+        }
     }
 
 }

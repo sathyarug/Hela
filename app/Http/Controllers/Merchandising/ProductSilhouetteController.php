@@ -19,7 +19,7 @@ class ProductSilhouetteController extends Controller
     public function loadProductSilhouette(Request $request) {
         try{
 //            echo json_encode(ProductCategory::all());
-            echo json_encode(ProductSilhouette::where('product_silhouette_description', 'LIKE', '%'.$request->search.'%')->get());
+            echo json_encode(ProductSilhouette::where('product_silhouette_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
 //            return ProductCategoryResource::collection(ProductCategory::where('prod_cat_description', 'LIKE', '%'.$request->search.'%')->get() );
         }
         catch (JWTException $e) {

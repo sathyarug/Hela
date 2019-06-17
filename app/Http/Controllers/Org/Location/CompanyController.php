@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Company;
+use App\Models\Org\Location\Location;
 use App\Models\Org\Department;
 use App\Models\Org\Section;
 use App\Libraries\AppAuthorize;
@@ -133,6 +134,17 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_MANAGE'))//check permission
       {
+        $check_location = Location::where([['company_id','=',$id]])->first();
+        if($check_location != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
+
         $company = Company::find($id);
         if($company->validate($request->all()))
         {
@@ -169,6 +181,9 @@ class CompanyController extends Controller
           $errors = $company->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+      }
+
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -181,6 +196,18 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_DELETE'))//check permission
       {
+
+        $check_location = Location::where([['company_id','=',$id]])->first();
+
+        if($check_location != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
         $company = Company::where('company_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -188,6 +215,10 @@ class CompanyController extends Controller
             'company' => $company
           ]
         ] , Response::HTTP_NO_CONTENT);
+
+        }
+
+
       }
       else{
         return response($this->authorize->error_response(), 401);

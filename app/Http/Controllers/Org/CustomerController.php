@@ -262,6 +262,10 @@ class CustomerController extends Controller
     public function loadCustomerDivision(Request $request) {
         //dd($request);
         $customer_id = $request->get('customer_id');
+        $search = '';
+        if($request->get('search') !== null){
+            $search = $request->get('search');
+        }
 
         $divisions=DB::table('cust_customer')
             ->join('org_customer_divisions', 'cust_customer.customer_id', '=', 'org_customer_divisions.customer_id')
@@ -269,6 +273,7 @@ class CustomerController extends Controller
             ->select('org_customer_divisions.id AS division_id','cust_division.division_description')
             ->where('cust_customer.status','<>', 0)
             ->where('cust_customer.customer_id','=',$customer_id)
+            ->where('cust_division.division_description','like','%' . $search . '%')
             ->get()->toArray();
 //        print_r($divisions);exit;
         $data=array();

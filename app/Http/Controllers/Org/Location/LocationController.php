@@ -127,7 +127,7 @@ class LocationController extends Controller
   				$location->costCenters()->saveMany($save_cost_centers);
 
           return response([ 'data' => [
-            'message' => 'Location was updated successfully',
+            'message' => 'Location updated successfully',
             'location' => $location
           ]]);
         }
