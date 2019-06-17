@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Org\Customer;
@@ -41,7 +42,12 @@ class StyleCreationController extends Controller
             return response([
                 'data' => $this->getCustomerForStyle($request->style)
             ]);
-        }else{
+        }
+        else if($type == 'auto') {
+          $search = $request->search;
+          return response($this->getStyleDetailsForSMV($search));
+        }
+        else{
 
             try{
                 echo json_encode(StyleCreation::where('style_no', 'LIKE', '%'.$request->search.'%')->get());
@@ -162,11 +168,11 @@ class StyleCreationController extends Controller
         echo json_encode($style_list);
     }
 
-    public function GetStyleDetails(Request $request){       
+    public function GetStyleDetails(Request $request){
 
         $style_details = new styleCreation();
         $result = $style_details->GetStyleDetailsByCode($request->style_id);
-        
+
         echo json_encode($result);
 
 
@@ -256,6 +262,15 @@ class StyleCreationController extends Controller
 
         return $cust;
 
+    }
+
+    public function getStyleDetailsForSMV($search){
+      $active=1;
+      $style_lists = StyleCreation::select('style_id','style_no')
+      ->where([['style_no', 'like', '%' . $search . '%'],])
+      ->where('status','=',$active)
+      ->get();
+      return $style_lists;
     }
 
 }
