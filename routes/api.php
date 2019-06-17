@@ -214,7 +214,9 @@ Route::prefix('ie/')->group(function(){
   Route::apiResource('servicetypes','IE\ServiceTypeController');
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
-
+   Route::apiResource('styles','Merchandising\StyleCreationController');
+   Route::apiResource('bomStages','Merchandising\BOMStageController');
+   Route::apiResource('ComponentSMVDetails','IE\ComponentSMVController');
     //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
@@ -234,6 +236,7 @@ Route::prefix('items/')->group(function(){
     Route::get('itemCreation/validate' , 'itemCreationController@validate_data');
     Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
     Route::apiResource('itemCreation','itemCreationController');
+
 
 });
 

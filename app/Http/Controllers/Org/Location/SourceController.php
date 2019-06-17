@@ -57,7 +57,7 @@ class SourceController extends Controller
           $source->save();
 
           return response([ 'data' => [
-            'message' => 'Source was saved successfully',
+            'message' => 'Parent Company saved successfully',
             'source' => $source
             ]
           ], Response::HTTP_CREATED );
@@ -103,7 +103,7 @@ class SourceController extends Controller
           $source->save();
 
           return response([ 'data' => [
-            'message' => 'Source was updated successfully',
+            'message' => 'Parent Company updated successfully',
             'source' => $source
           ]]);
         }
