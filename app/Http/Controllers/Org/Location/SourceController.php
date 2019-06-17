@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Source;
+use App\Models\Org\Location\Cluster;
 use App\Libraries\AppAuthorize;
 
 class SourceController extends Controller
@@ -123,6 +124,17 @@ class SourceController extends Controller
     {
       if($this->authorize->hasPermission('SOURCE_DELETE'))//check permission
       {
+
+        $check_cluster = Cluster::where([['source_id','=',$id]])->first();
+        if($check_cluster != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
         $source = Source::where('source_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -130,6 +142,9 @@ class SourceController extends Controller
             'source' => $source
           ]
         ] , Response::HTTP_NO_CONTENT);
+
+      }
+
       }
       else {
         return response($this->authorize->error_response(), 401);
