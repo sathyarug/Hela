@@ -461,7 +461,8 @@ class PurchaseOrderManualController extends Controller
        ->where('merge_no'  , '=', $prl_id )
        ->get();
 
-       //print_r($load_list);
+       print_r($load_list);
+       
        return response([ 'data' => [
          'load_list' => $load_list,
          'prl_id' => $prl_id,
