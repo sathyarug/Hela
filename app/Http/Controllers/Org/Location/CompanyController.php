@@ -94,7 +94,7 @@ class CompanyController extends Controller
           DB::table('unique_id_generator')->insert($insert_procees_list);
 
           return response([ 'data' => [
-            'message' => 'Company was saved successfully',
+            'message' => 'Company saved successfully',
             'company' => $company
             ]
           ], Response::HTTP_CREATED );
@@ -172,7 +172,7 @@ class CompanyController extends Controller
     			$company->sections()->saveMany($save_sections);
 
           return response([ 'data' => [
-            'message' => 'Company was updated successfully',
+            'message' => 'Company updated successfully',
             'company' => $company
           ]]);
         }
