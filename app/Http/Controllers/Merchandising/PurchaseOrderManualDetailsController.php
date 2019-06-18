@@ -637,7 +637,13 @@ class PurchaseOrderManualDetailsController extends Controller
     {
       $prl_id = $request->prl_id;
 
-      $load_list = PoOrderDetails::join('bom_details', 'bom_details.bom_id', '=', 'merc_po_order_details.bom_id')
+      $load_list = PoOrderDetails::join("bom_details",function($join){
+               $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
+                    ->on("bom_details.combine_id","=","merc_po_order_details.combine_id")
+                    ->on("bom_details.master_id","=","merc_po_order_details.item_code")
+                    ->on("bom_details.item_color","=","merc_po_order_details.colour");
+            })
+
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
