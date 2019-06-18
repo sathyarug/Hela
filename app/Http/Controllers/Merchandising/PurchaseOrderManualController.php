@@ -332,12 +332,14 @@ class PurchaseOrderManualController extends Controller
     //$customer_name = $data['customer_name'];
     $customer_name = $request->customer['customer_name'];
     $style_no = $request->style['style_no'];
+    $order_code = $request->salesorder['order_code'];
     //print_r($customer_name);
 
-        $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
+    $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
                                 	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
                                   costing_bulk.style_id,
                                 	style_creation.style_no,
+                                  MCH.order_code,
                                   merc_costing_so_combine.id as so_com_id,
 
                                 ( SELECT Sum(MPD.req_qty)AS req_qty
@@ -372,6 +374,7 @@ class PurchaseOrderManualController extends Controller
                                   WHERE
                                   CUS.customer_name LIKE '%$customer_name%'
                                   AND style_creation.style_no LIKE '%".$style_no."%'
+                                  AND MCH.order_code LIKE '%".$order_code."%'
                                   #AND MPRL.status_user <> 'HOLD'
                                   GROUP BY
                                   B.bom_id,B.combine_id,B.master_id,B.item_color,B.component_id
