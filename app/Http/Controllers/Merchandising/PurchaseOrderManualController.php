@@ -373,6 +373,8 @@ class PurchaseOrderManualController extends Controller
                                   CUS.customer_name LIKE '%$customer_name%'
                                   AND style_creation.style_no LIKE '%".$style_no."%'
                                   #AND MPRL.status_user <> 'HOLD'
+                                  GROUP BY
+                                  B.bom_id,B.combine_id,B.master_id,B.item_color,B.component_id
                       ");
 
 
