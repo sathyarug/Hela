@@ -52,6 +52,8 @@ class ClusterController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
+          $cluster->group_code = strtoupper($cluster->group_code);
+          $cluster->group_name = strtoupper($cluster->group_name);
           $cluster->status = 1;
           $cluster->save();
 
@@ -99,6 +101,7 @@ class ClusterController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->except('group_code'));
+          $cluster->group_name = strtoupper($cluster->group_name);
           $cluster->save();
 
           return response([ 'data' => [
@@ -129,7 +132,7 @@ class ClusterController extends Controller
             'message' => 'Cluster was deactivated successfully.',
             'cluster' => $cluster
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
       else{
         return response($this->authorize->error_response(), 401);

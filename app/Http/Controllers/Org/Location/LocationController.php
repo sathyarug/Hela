@@ -55,6 +55,8 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->all());
+          $location->loc_code = strtoupper($location->loc_code);
+          $location->loc_name = strtoupper($location->loc_name);
   				$location->status = 1;
   				$location->created_by = 1;
   				$result = $location->saveOrFail();
@@ -114,6 +116,7 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->except('loc_code'));
+          $location->loc_name = strtoupper($location->loc_name);
           $location->save();
 
           DB::table('org_location_cost_centers')->where('loc_id', '=', $id)->delete();
@@ -151,10 +154,10 @@ class LocationController extends Controller
         $location = Location::where('loc_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Location was deactivated successfully.',
+            'message' => 'Location deactivated successfully.',
             'location' => $location
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
       else{
         return response($this->authorize->error_response(), 401);

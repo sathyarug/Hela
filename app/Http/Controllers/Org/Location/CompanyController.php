@@ -56,6 +56,8 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->all());
+          $company->company_code = strtoupper($company->company_code);
+          $company->company_name = strtoupper($company->company_name);
           $company->status = 1;
           $company->created_by = 1;
           $result = $company->saveOrFail();
@@ -149,6 +151,7 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->except('company_code'));
+          $company->company_name = strtoupper($company->company_name);
           $company->save();
 
           DB::table('org_company_departments')->where('company_id', '=', $id)->delete();

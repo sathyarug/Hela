@@ -53,6 +53,8 @@ class SourceController extends Controller
         if($source->validate($request->all()))
         {
           $source->fill($request->all());
+          $source->source_code = strtoupper($source->source_code);
+          $source->source_name = strtoupper($source->source_name);
           $source->status = 1;
           $source->save();
 
@@ -100,6 +102,7 @@ class SourceController extends Controller
         if($source->validate($request->all()))
         {
           $source->fill($request->except('source_code'));
+          $source->source_name = strtoupper($source->source_name);
           $source->save();
 
           return response([ 'data' => [
@@ -141,7 +144,7 @@ class SourceController extends Controller
             'message' => 'Source was deactivated successfully.',
             'source' => $source
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
 
       }
 
