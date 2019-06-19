@@ -20,7 +20,6 @@ class Company extends BaseValidator
         'company_name' => 'required',
         'group_id' => 'required',
         'company_address_1' => 'required',
-        //'company_address_2' => 'required',
         'city' => 'required',
         'country_code' => 'required',
         'company_reg_no' => 'required',
