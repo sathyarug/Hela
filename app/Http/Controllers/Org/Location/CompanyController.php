@@ -211,10 +211,10 @@ class CompanyController extends Controller
         $company = Company::where('company_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Company was deactivated successfully.',
+            'message' => 'Company deactivated successfully.',
             'company' => $company
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
 
         }
 
