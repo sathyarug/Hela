@@ -101,6 +101,15 @@ class SourceController extends Controller
         $source = Source::find($id);
         if($source->validate($request->all()))
         {
+          $check_cluster = Cluster::where([['status', '=', '1'],['source_id','=',$id]])->first();
+          if($check_cluster != null)
+          {
+            return response([
+              'data'=>[
+                'status'=>'0',
+              ]
+            ]);
+          }else{
           $source->fill($request->except('source_code'));
           $source->source_name = strtoupper($source->source_name);
           $source->save();
@@ -109,6 +118,7 @@ class SourceController extends Controller
             'message' => 'Parent Company updated successfully',
             'source' => $source
           ]]);
+        }
         }
         else
         {
@@ -128,7 +138,7 @@ class SourceController extends Controller
       if($this->authorize->hasPermission('SOURCE_DELETE'))//check permission
       {
 
-        $check_cluster = Cluster::where([['source_id','=',$id]])->first();
+        $check_cluster = Cluster::where([['status', '=', '1'],['source_id','=',$id]])->first();
         if($check_cluster != null)
         {
           return response([

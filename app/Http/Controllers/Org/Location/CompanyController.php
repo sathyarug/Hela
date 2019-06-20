@@ -136,7 +136,7 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_MANAGE'))//check permission
       {
-        $check_location = Location::where([['company_id','=',$id]])->first();
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
         if($check_location != null)
         {
           return response([
@@ -200,7 +200,7 @@ class CompanyController extends Controller
       if($this->authorize->hasPermission('COMPANY_DELETE'))//check permission
       {
 
-        $check_location = Location::where([['company_id','=',$id]])->first();
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
 
         if($check_location != null)
         {
