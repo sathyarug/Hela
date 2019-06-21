@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Location;
+use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Libraries\AppAuthorize;
 
@@ -115,6 +116,16 @@ class LocationController extends Controller
         $location = Location::find($id);
         if($location->validate($request->all()))
         {
+          $customer_order = CustomerOrderDetails::where([['delivery_status', '<>', 'CANCEL'],['projection_location','=',$id]])->first();
+          if($customer_order != null)
+          {
+            return response([
+              'data'=>[
+                'status'=>'0',
+              ]
+            ]);
+          }else{
+
           $location->fill($request->except('loc_code'));
           $location->loc_name = strtoupper($location->loc_name);
           $location->save();
@@ -133,6 +144,7 @@ class LocationController extends Controller
             'message' => 'Location updated successfully',
             'location' => $location
           ]]);
+         }
         }
         else
         {
@@ -151,6 +163,15 @@ class LocationController extends Controller
     {
       if($this->authorize->hasPermission('LOC_DELETE'))//check permission
       {
+        $customer_order = CustomerOrderDetails::where([['delivery_status', '<>', 'CANCEL'],['projection_location','=',$id]])->first();
+        if($customer_order != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
         $location = Location::where('loc_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
@@ -158,6 +179,7 @@ class LocationController extends Controller
             'location' => $location
           ]
         ]);
+       }
       }
       else{
         return response($this->authorize->error_response(), 401);
