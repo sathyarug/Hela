@@ -214,7 +214,9 @@ Route::prefix('ie/')->group(function(){
   Route::apiResource('servicetypes','IE\ServiceTypeController');
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
-
+   Route::apiResource('styles','Merchandising\StyleCreationController');
+   Route::apiResource('bomStages','Merchandising\BOMStageController');
+   Route::apiResource('ComponentSMVDetails','IE\ComponentSMVController');
     //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
@@ -234,6 +236,7 @@ Route::prefix('items/')->group(function(){
     Route::get('itemCreation/validate' , 'itemCreationController@validate_data');
     Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
     Route::apiResource('itemCreation','itemCreationController');
+
 
 });
 
@@ -429,6 +432,9 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('po-manual-details/update_line_details','Merchandising\PurchaseOrderManualDetailsController@update_line_details');
     Route::post('po-manual/revision_header' , 'Merchandising\PurchaseOrderManualDetailsController@load_po_revision_header');
     Route::post('po-manual/prl_header_load' , 'Merchandising\PurchaseOrderManualDetailsController@prl_header_load');
+    Route::post('po-delivery-split' , 'Merchandising\PurchaseOrderManualDetailsController@po_delivery_split');
+    Route::get('po-delivery-split-load' , 'Merchandising\PurchaseOrderManualDetailsController@po_delivery_split_load');
+
 
     Route::post('po-manual-details/save_line_details_revision','Merchandising\PurchaseOrderManualDetailsController@save_line_details_revision');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');

@@ -185,7 +185,7 @@ class SectionController extends Controller
     private function autocomplete_search($search)
   	{
   		$section_lists = Section::select('section_id','section_name')
-  		->where([['section_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['section_name', 'like', '%' . $search . '%'],['status','<>','0']]) ->get();
   		return $section_lists;
   	}
 

@@ -12,6 +12,7 @@ use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\PoOrderDetails;
 use App\Models\Merchandising\PoOrderDetailsRevision;
 use App\Models\Merchandising\PoOrderHeaderRevision;
+use App\Models\Merchandising\PoOrderDeliverySplit;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 
@@ -376,6 +377,7 @@ class PurchaseOrderManualDetailsController extends Controller
     public function save_line_details_revision(Request $request){
       $lines = $request->lines;
       $formData = $request->formData;
+
       //print_r($formData);
       $po = $formData['po_number'];
 
@@ -635,7 +637,13 @@ class PurchaseOrderManualDetailsController extends Controller
     {
       $prl_id = $request->prl_id;
 
-      $load_list = PoOrderDetails::join('bom_details', 'bom_details.bom_id', '=', 'merc_po_order_details.bom_id')
+      $load_list = PoOrderDetails::join("bom_details",function($join){
+               $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
+                    ->on("bom_details.combine_id","=","merc_po_order_details.combine_id")
+                    ->on("bom_details.master_id","=","merc_po_order_details.item_code")
+                    ->on("bom_details.item_color","=","merc_po_order_details.colour");
+            })
+
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
@@ -656,6 +664,49 @@ class PurchaseOrderManualDetailsController extends Controller
          ]
        ], Response::HTTP_CREATED );
 
+    }
+
+
+    public function po_delivery_split(Request $request){
+
+      $formData = $request->formData;
+      //print_r($formData);
+    //  die()
+      $po_details_split = new PoOrderDeliverySplit();
+
+      $po_details_split->po_details_id = $formData['po_details_id'];
+      $po_details_split->line_no =$formData['line_no'];
+      $po_details_split->split_qty = $formData['split_qty'];
+      $po_details_split->delivery_date = $formData['delivery_date'];
+
+      $po_details_split->save();
+
+      return response([
+              'data' => [
+              'status' => 'success',
+              'message' => 'Saved successfully.'
+          ]
+         ] , 200);
+
+    }
+
+
+    public function po_delivery_split_load(Request $request){
+
+        $delivery = DB::select('SELECT * FROM merc_po_order_split WHERE
+                     merc_po_order_split.po_details_id = "'.$request->line_id.'" ');
+
+        $delivery_sum = DB::select('SELECT IFNULL(Sum(POS.split_qty),0) AS split_qty_sum FROM merc_po_order_split AS POS
+                        WHERE POS.po_details_id = "'.$request->line_id.'" ');
+
+
+        $pors_arr['delivery']=$delivery;
+        $pors_arr['delivery_sum']=$delivery_sum;
+
+        if($pors_arr == null)
+            throw new ModelNotFoundException("Requested section not found", 1);
+        else
+            return response([ 'data' => $pors_arr ]);
     }
 
 

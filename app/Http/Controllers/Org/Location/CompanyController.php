@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Company;
+use App\Models\Org\Location\Location;
 use App\Models\Org\Department;
 use App\Models\Org\Section;
 use App\Libraries\AppAuthorize;
@@ -55,6 +56,8 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->all());
+          $company->company_code = strtoupper($company->company_code);
+          $company->company_name = strtoupper($company->company_name);
           $company->status = 1;
           $company->created_by = 1;
           $result = $company->saveOrFail();
@@ -93,7 +96,7 @@ class CompanyController extends Controller
           DB::table('unique_id_generator')->insert($insert_procees_list);
 
           return response([ 'data' => [
-            'message' => 'Company was saved successfully',
+            'message' => 'Company saved successfully',
             'company' => $company
             ]
           ], Response::HTTP_CREATED );
@@ -133,10 +136,22 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_MANAGE'))//check permission
       {
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
+        if($check_location != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
+
         $company = Company::find($id);
         if($company->validate($request->all()))
         {
           $company->fill($request->except('company_code'));
+          $company->company_name = strtoupper($company->company_name);
           $company->save();
 
           DB::table('org_company_departments')->where('company_id', '=', $id)->delete();
@@ -160,7 +175,7 @@ class CompanyController extends Controller
     			$company->sections()->saveMany($save_sections);
 
           return response([ 'data' => [
-            'message' => 'Company was updated successfully',
+            'message' => 'Company updated successfully',
             'company' => $company
           ]]);
         }
@@ -169,6 +184,9 @@ class CompanyController extends Controller
           $errors = $company->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+      }
+
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -181,13 +199,29 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_DELETE'))//check permission
       {
+
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
+
+        if($check_location != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
         $company = Company::where('company_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Company was deactivated successfully.',
+            'message' => 'Company deactivated successfully.',
             'company' => $company
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+
+        }
+
+
       }
       else{
         return response($this->authorize->error_response(), 401);

@@ -185,7 +185,7 @@ class CurrencyController extends Controller
     private function autocomplete_search($search)
   	{
   		$ship_term_lists = Currency::select('currency_id','currency_code')
-  		->where([['currency_code', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['currency_code', 'like', '%' . $search . '%'],['status','<>','0']]) ->get();
   		return $ship_term_lists;
   	}
 
