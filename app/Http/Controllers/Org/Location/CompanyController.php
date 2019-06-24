@@ -295,7 +295,9 @@ class CompanyController extends Controller
         $order_type = $order['dir'];
 
         $company_list = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
-    		->select('org_company.*', 'org_group.group_name')
+        ->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
+        ->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
+    		->select('org_company.*', 'org_group.group_name','org_country.country_description','fin_currency.currency_code')
     		->where('company_code','like',$search.'%')
     		->orWhere('company_name', 'like', $search.'%')
     		->orWhere('group_name', 'like', $search.'%')
@@ -303,6 +305,8 @@ class CompanyController extends Controller
     		->offset($start)->limit($length)->get();
 
     		$company_count = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
+        ->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
+        ->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
     		->select('org_company.*', 'org_group.group_name')
     		->where('company_code','like',$search.'%')
     		->orWhere('company_name', 'like', $search.'%')
