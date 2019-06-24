@@ -30,7 +30,7 @@ class ComponentSMVController extends Controller
       else if($type == 'searchDetails')    {
         $styleId = $request->styleId;
         $bomStageId=$request->bomStageId;
-        return response($this->details_search($styleId,$bomStageId));
+        return response(['data'=>$this->details_search($styleId,$bomStageId)]);
       }
       else {
         $active = $request->active;
@@ -43,26 +43,12 @@ class ComponentSMVController extends Controller
 
 
     //create a Service Type
-    public function store(Request $request)
+    public function storeDataset(Request $request)
     {
-      $garmentOperation = new GarmentOperationMaster();
-      if($garmentOperation->validate($request->all()))
-      {
-        $garmentOperation->fill($request->all());
-        $garmentOperation->status = 1;
-        $garmentOperation->save();
-
-        return response([ 'data' => [
-          'message' => 'Garment Operation successfully',
-          'garmentOperation' => $garmentOperation
-          ]
-        ], Response::HTTP_CREATED );
-      }
-      else
-      {
-          $errors = $garmentOperation->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
+    return response(['data'=>[
+      'message'=>"BVBVBVBVBVB",
+      ]
+    ]);
     }
 
 
@@ -146,15 +132,17 @@ class ComponentSMVController extends Controller
   		return $garment_operation_lists;
   	}
     private function details_search($styleId,$bomStageID){
+      //echo($styleId);
+      //echo($bomStageID);
       $costingDetails= BulkCostingFeatureDetails::join('merc_bom_stage','costing_bulk_feature_details.bom_stage','=','merc_bom_stage.bom_stage_id')
-      ->join('style_product_feature','costing_bulk_feature_details.style_feature_id','=','style_product_feature.id')
-      //need to ad product feature
-      //and join garmentOperation
-      ->join('style_creation','costing_bulk_feature_details.style_id','=','style_creation.style_id')
-      ->select('*')
-      ->where('style_feature_id','=',$styleId)
-      ->where('bom_stage','=',$bomStageID)
-
+      ->join('costing_bulk','costing_bulk_feature_details.bulkheader_id','=','costing_bulk.bulk_costing_id')
+      ->join('style_creation','costing_bulk.style_id','=','style_creation.style_id')
+      ->join('product_feature','costing_bulk_feature_details.feature_id','=','product_feature.product_feature_id')
+      ->select('product_feature.product_feature_description','product_feature.product_feature_id')
+      ->where('style_creation.style_id','=',$styleId)
+      ->where('merc_bom_stage.bom_stage_id','=',$bomStageID)
+      ->get();
+      return $costingDetails;
 
     }
 
