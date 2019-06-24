@@ -53,6 +53,8 @@ class SourceController extends Controller
         if($source->validate($request->all()))
         {
           $source->fill($request->all());
+          $source->source_code = strtoupper($source->source_code);
+          $source->source_name = strtoupper($source->source_name);
           $source->status = 1;
           $source->save();
 
@@ -99,13 +101,24 @@ class SourceController extends Controller
         $source = Source::find($id);
         if($source->validate($request->all()))
         {
+          $check_cluster = Cluster::where([['status', '=', '1'],['source_id','=',$id]])->first();
+          if($check_cluster != null)
+          {
+            return response([
+              'data'=>[
+                'status'=>'0',
+              ]
+            ]);
+          }else{
           $source->fill($request->except('source_code'));
+          $source->source_name = strtoupper($source->source_name);
           $source->save();
 
           return response([ 'data' => [
             'message' => 'Parent Company updated successfully',
             'source' => $source
           ]]);
+        }
         }
         else
         {
@@ -125,7 +138,7 @@ class SourceController extends Controller
       if($this->authorize->hasPermission('SOURCE_DELETE'))//check permission
       {
 
-        $check_cluster = Cluster::where([['source_id','=',$id]])->first();
+        $check_cluster = Cluster::where([['status', '=', '1'],['source_id','=',$id]])->first();
         if($check_cluster != null)
         {
           return response([
@@ -141,7 +154,7 @@ class SourceController extends Controller
             'message' => 'Source was deactivated successfully.',
             'source' => $source
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
 
       }
 

@@ -332,12 +332,14 @@ class PurchaseOrderManualController extends Controller
     //$customer_name = $data['customer_name'];
     $customer_name = $request->customer['customer_name'];
     $style_no = $request->style['style_no'];
+    $order_code = $request->salesorder['order_code'];
     //print_r($customer_name);
 
-        $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
+    $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
                                 	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
                                   costing_bulk.style_id,
                                 	style_creation.style_no,
+                                  MCH.order_code,
                                   merc_costing_so_combine.id as so_com_id,
 
                                 ( SELECT Sum(MPD.req_qty)AS req_qty
@@ -372,7 +374,10 @@ class PurchaseOrderManualController extends Controller
                                   WHERE
                                   CUS.customer_name LIKE '%$customer_name%'
                                   AND style_creation.style_no LIKE '%".$style_no."%'
+                                  AND MCH.order_code LIKE '%".$order_code."%'
                                   #AND MPRL.status_user <> 'HOLD'
+                                  GROUP BY
+                                  B.bom_id,B.combine_id,B.master_id,B.item_color,B.component_id
                       ");
 
 
@@ -446,7 +451,12 @@ class PurchaseOrderManualController extends Controller
   	{
       $prl_id = $request->prl_id;
 
-      $load_list = PurchaseReqLines::join('bom_details', 'bom_details.bom_id', '=', 'merc_purchase_req_lines.bom_id')
+      $load_list = PurchaseReqLines::join("bom_details",function($join){
+               $join->on("bom_details.bom_id","=","merc_purchase_req_lines.bom_id")
+                    ->on("bom_details.combine_id","=","merc_purchase_req_lines.combine_id")
+                    ->on("bom_details.master_id","=","merc_purchase_req_lines.item_code")
+                    ->on("bom_details.item_color","=","merc_purchase_req_lines.item_color");
+            })
        ->join('bom_header', 'bom_header.bom_id', '=', 'bom_details.bom_id')
        ->join('costing_bulk', 'costing_bulk.bulk_costing_id', '=', 'bom_header.costing_id')
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
@@ -461,7 +471,10 @@ class PurchaseOrderManualController extends Controller
        ->where('merge_no'  , '=', $prl_id )
        ->get();
 
+       //echo $load_list;
+
        //print_r($load_list);
+
        return response([ 'data' => [
          'load_list' => $load_list,
          'prl_id' => $prl_id,

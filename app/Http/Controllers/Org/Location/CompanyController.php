@@ -56,6 +56,8 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->all());
+          $company->company_code = strtoupper($company->company_code);
+          $company->company_name = strtoupper($company->company_name);
           $company->status = 1;
           $company->created_by = 1;
           $result = $company->saveOrFail();
@@ -94,7 +96,7 @@ class CompanyController extends Controller
           DB::table('unique_id_generator')->insert($insert_procees_list);
 
           return response([ 'data' => [
-            'message' => 'Company was saved successfully',
+            'message' => 'Company saved successfully',
             'company' => $company
             ]
           ], Response::HTTP_CREATED );
@@ -134,7 +136,7 @@ class CompanyController extends Controller
     {
       if($this->authorize->hasPermission('COMPANY_MANAGE'))//check permission
       {
-        $check_location = Location::where([['company_id','=',$id]])->first();
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
         if($check_location != null)
         {
           return response([
@@ -149,6 +151,7 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->except('company_code'));
+          $company->company_name = strtoupper($company->company_name);
           $company->save();
 
           DB::table('org_company_departments')->where('company_id', '=', $id)->delete();
@@ -172,7 +175,7 @@ class CompanyController extends Controller
     			$company->sections()->saveMany($save_sections);
 
           return response([ 'data' => [
-            'message' => 'Company was updated successfully',
+            'message' => 'Company updated successfully',
             'company' => $company
           ]]);
         }
@@ -197,7 +200,7 @@ class CompanyController extends Controller
       if($this->authorize->hasPermission('COMPANY_DELETE'))//check permission
       {
 
-        $check_location = Location::where([['company_id','=',$id]])->first();
+        $check_location = Location::where([['status', '=', '1'],['company_id','=',$id]])->first();
 
         if($check_location != null)
         {
@@ -211,10 +214,10 @@ class CompanyController extends Controller
         $company = Company::where('company_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Company was deactivated successfully.',
+            'message' => 'Company deactivated successfully.',
             'company' => $company
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
 
         }
 
@@ -292,7 +295,9 @@ class CompanyController extends Controller
         $order_type = $order['dir'];
 
         $company_list = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
-    		->select('org_company.*', 'org_group.group_name')
+        ->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
+        ->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
+    		->select('org_company.*', 'org_group.group_name','org_country.country_description','fin_currency.currency_code')
     		->where('company_code','like',$search.'%')
     		->orWhere('company_name', 'like', $search.'%')
     		->orWhere('group_name', 'like', $search.'%')
@@ -300,6 +305,8 @@ class CompanyController extends Controller
     		->offset($start)->limit($length)->get();
 
     		$company_count = Company::join('org_group', 'org_company.group_id', '=', 'org_group.group_id')
+        ->join('org_country', 'org_company.country_code', '=', 'org_country.country_id')
+        ->join('fin_currency', 'org_company.default_currency', '=', 'fin_currency.currency_id')
     		->select('org_company.*', 'org_group.group_name')
     		->where('company_code','like',$search.'%')
     		->orWhere('company_name', 'like', $search.'%')
