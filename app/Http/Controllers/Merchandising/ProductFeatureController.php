@@ -19,12 +19,13 @@ class ProductFeatureController extends Controller
 {
 
     var $authorize = null;
-    
+
     public function loadProductFeature(Request $request) {
 //        print_r('sss');exit;
         try{
 //            echo json_encode(ProductCategory::all());
-            echo json_encode(productFeature::where('product_feature_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
+            echo json_encode(productFeature::where('product_feature_description', 'LIKE', '%'.$request->search.'%')
+            ->where('status',1)->get());
 //            return ProductCategoryResource::collection(ProductCategory::where('prod_cat_description', 'LIKE', '%'.$request->search.'%')->get() );
         }
         catch (JWTException $e) {
