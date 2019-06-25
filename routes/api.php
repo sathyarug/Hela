@@ -216,7 +216,7 @@ Route::prefix('ie/')->group(function(){
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
    Route::apiResource('styles','Merchandising\StyleCreationController');
    Route::apiResource('bomStages','Merchandising\BOMStageController');
-   Route::apiResource('ComponentSMVDetails','IE\ComponentSMVController');
+   Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
     //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');

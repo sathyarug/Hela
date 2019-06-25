@@ -55,6 +55,7 @@ class BOMStageController extends Controller
         {
           $bomstage->fill($request->all());
           $bomstage->status = 1;
+          $bomstage->bom_stage_description=strtoupper($bomstage->bom_stage_description);
           $bomstage->save();
 
           return response([ 'data' => [
@@ -147,7 +148,7 @@ class BOMStageController extends Controller
             'message' => 'BOM Stage was deactivated successfully.',
             'bomstage' => $bomstage
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
       else{
         return response($this->authorize->error_response(), 401);

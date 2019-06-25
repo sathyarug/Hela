@@ -7,8 +7,12 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\IE\CompoenentSMV;
+use App\Models\IE\ComponentSMVHeader;
+use App\Models\IE\ComponentSMVDetails;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
+use App\Models\IE\GarmentOperationMaster;
+use App\Models\IE\SMVUpdateHistory;
+use App\Models\Merchandising\StyleCreation;
 use Exception;
 
 class ComponentSMVController extends Controller
@@ -32,6 +36,11 @@ class ComponentSMVController extends Controller
         $bomStageId=$request->bomStageId;
         return response(['data'=>$this->details_search($styleId,$bomStageId)]);
       }
+      else if($type=='checkSMVRange'){
+        $styleId=$request->styleId;
+        $styleWiseTotalSMV=$request->styleWiseTotalSMV;
+        return ($this->check_smv_range($styleId,$styleWiseTotalSMV));
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -45,12 +54,76 @@ class ComponentSMVController extends Controller
     //create a Service Type
     public function storeDataset(Request $request)
     {
+      $styleId=$request->styleId;
+      $bomStageID=$request->bomStageId;
+      $totalSMV=$request->totalSMV;
+      $details=$request->data;
+      $smvComponentHeader=new ComponentSMVHeader();
+      $smvComponentHeader->style_id=$styleId;
+      $smvComponentHeader->status=1;
+      $smvComponentHeader->bom_stage_id=$bomStageID;
+      $smvComponentHeader->total_smv=$totalSMV;
+      $smvComponentHeader->save();
+      $headerId=$smvComponentHeader->smv_component_header_id;
+
+      //echo(sizeof($details));
+      for($i=0;$i<sizeof($details);$i++){
+        $smvComponentDetails=new ComponentSMVDetails();
+        $smvComponentDetails->smv_component_header_id=$headerId;
+        $garmentOperationName=$details[$i]["garment_operation_name"];
+        //echo($garmentOperationName);
+         $garmentOperation=GarmentOperationMaster::select('*')
+         ->where('garment_operation_name','=',$garmentOperationName)
+         ->first();
+         //echo($garmentOperation->garment_operation_id);
+         $smvComponentDetails->garment_operation_id=$garmentOperation->garment_operation_id;
+         $smvComponentDetails->product_feature_id=$details[$i]['product_feature_id'];
+         $smvComponentDetails->smv=$details[$i]['smv'];
+         $smvComponentDetails->status=1;
+         $smvComponentDetails->save();
+        }
+
+
     return response(['data'=>[
-      'message'=>"BVBVBVBVBVB",
+      'message'=>"Component SMV Saved sucessfully",
       ]
     ]);
     }
 
+    public function check_smv_range($styleId,$styleWiseTotalSMV){
+
+
+
+      $smvUpdateHistory=SMVUpdateHistory::join('style_creation','ie_smv_his.product_silhouette_id','=','style_creation.product_silhouette_id')
+      ->where('style_creation.style_id','=',$styleId)
+      ->where('ie_smv_his.min_smv','<=',$styleWiseTotalSMV)
+      ->where('ie_smv_his.max_smv','>=',$styleWiseTotalSMV)
+      ->select('*')
+      ->first();
+      //->toSql();
+      //print_r($smvUpdateHistory);
+
+      if($smvUpdateHistory==null){
+        return response([
+           'data' => [
+             'message' => 'SMV is Not in the Range',
+             'status' => 0,
+           ]
+         ]);
+
+      }
+      else if($smvUpdateHistory!=null){
+         return response([
+           'data' => [
+             'message' => 'SMV is in the Range',
+             'status' => 1,
+           ]
+         ]);
+        //echo("pass");
+      }
+
+
+    }
 
     //get a Service Type
     public function show($id)
