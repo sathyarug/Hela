@@ -139,9 +139,11 @@ class GarmentOperationMasterController extends Controller
     //search Service Type for autocomplete
     private function autocomplete_search($search)
   	{
-  		$garment_operation_lists = GarmentOperationMaster::select('garment_operation_id','garment_operation_name')
-  		->where([['garment_operation_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $garment_operation_lists;
+  		$garment_operation_lists = GarmentOperationMaster::where([['garment_operation_name', 'like', '%' . $search . '%'],])
+       ->where('status','1')
+      ->pluck('garment_operation_name')
+      ->toArray();
+  		return  json_encode($garment_operation_lists);
   	}
 
 
