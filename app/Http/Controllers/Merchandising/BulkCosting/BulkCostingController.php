@@ -669,12 +669,14 @@ $count++;
     }
 
     public  function getColorForDivision($division_id,$query){
-        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
+//        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
+        $color=\App\Models\Org\Color::pluck('color_name')->toArray();
         return json_encode($color);
     }
 
     public  function getColorForDivisionCode($division_id,$query){
-        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_code')->toArray();
+//        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_code')->toArray();
+        $color=\App\Models\Org\Color::pluck('color_code')->toArray();
         return json_encode($color);
     }
 

@@ -51,8 +51,11 @@ class SectionController extends Controller
           $section = new Section();
           if($section->validate($request->all()))
           {
+            //$request->section_code=strtoupper($request->section_code);
+            //echo($request->section_code);
             $section->fill($request->all());
             $section->status = 1;
+            $section->section_code=strtoupper($section->section_code);
             $section->save();
 
             return response([ 'data' => [
