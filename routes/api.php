@@ -459,7 +459,15 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
     Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
 
-
+    Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
+    Route::apiResource('items','Merchandising\Item\ItemController');
+    
+    Route::apiResource('item-categories','Merchandising\Item\CategoryController');
+    Route::apiResource('item-sub-categories','Merchandising\Item\SubCategoryController');
+    Route::apiResource('item-content-types','Merchandising\Item\ContentTypeController');
+    Route::apiResource('item-compositions','Merchandising\Item\CompositionController');
+    Route::apiResource('item-properties','Merchandising\Item\ItemPropertyController');
+    Route::apiResource('item-property-values','Merchandising\Item\ItemPropertyValueController');
 });
 
 Route::prefix('admin/')->group(function(){

@@ -53,6 +53,7 @@ class SeasonController extends Controller
         if($season->validate($request->all()))
         {
           $season->fill($request->all());
+          $season->season_code = strtoupper($season->season_code);
           $season->status = 1;
           $season->save();
 
