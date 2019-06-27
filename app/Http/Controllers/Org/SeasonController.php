@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Season;
+use App\Models\Merchandising\BulkCostingFeatureDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -54,6 +55,7 @@ class SeasonController extends Controller
         {
           $season->fill($request->all());
           $season->status = 1;
+          $season->season_code=strtoupper($season->season_code);
           $season->save();
 
           return response([ 'data' => [
@@ -96,6 +98,16 @@ class SeasonController extends Controller
     {
       if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
       {
+        $costingBulkFeatureDetails=BulkCostingFeatureDetails::where([['season_id','=',$id]])->first();
+        if($costingBulkFeatureDetails!=null){
+          return response([
+            'data' => [
+              'message' => 'Sason Already in Use.',
+              'status'=>'0',
+            ]
+          ]);
+          }
+          else if($costingBulkFeatureDetails==null){
         $season = Season::find($id);
         if($season->validate($request->all()))
         {
@@ -104,7 +116,8 @@ class SeasonController extends Controller
 
           return response([ 'data' => [
             'message' => 'Season updated successfully',
-            'season' => $season
+            'season' => $season,
+            'status'=>'1'
           ]]);
         }
         else
@@ -112,6 +125,7 @@ class SeasonController extends Controller
           $errors = $season->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -124,20 +138,34 @@ class SeasonController extends Controller
     {
       if($this->authorize->hasPermission('SEASON_DELETE'))//check permission
       {
+
+        $costingBulkFeatureDetails=BulkCostingFeatureDetails::where([['season_id','=',$id]])->first();
+        if($costingBulkFeatureDetails!=null){
+          return response([
+            'data' => [
+              'message' => 'Sason Already in Use.',
+              'status'=>'0',
+            ]
+          ]);
+          }
+        else if($costingBulkFeatureDetails==null){
         $season = Season::where('season_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Season was deactivated successfully.',
-            'Season' => $season
+            'message' => 'Season deactivated successfully.',
+            'Season' => $season,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
+}
       else{
         return response($this->authorize->error_response(), 401);
       }
-    }
 
 
+
+}
     //validate anything based on requirements
     public function validate_data(Request $request){
       $for = $request->for;

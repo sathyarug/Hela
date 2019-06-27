@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Section;
+use App\Models\Org\CompanySection;
 use App\Libraries\AppAuthorize;
 
 class SectionController extends Controller
@@ -98,6 +99,24 @@ class SectionController extends Controller
     {
       if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
       {
+        $companySection=CompanySection::where([['section_id','=',$id]])->first();
+
+        if($companySection!=null){
+          return response([
+            'data' => [
+              'message' => 'Section is Already in Use',
+              'status'=>'0'
+            ]
+          ]);
+        }
+        
+        if($companySection==null){
+                  return response([
+                    'data' => [
+                      'message' => 'Section is Already in Use',
+                      'status'=>'0'
+                    ]
+                  ]);
         $section = Section::find($id);
         if($section->validate($request->all()))
         {
@@ -109,6 +128,7 @@ class SectionController extends Controller
             'section' => $section
           ]]);
         }
+      }
         else
         {
           $errors = $section->errors();// failure, get errors
@@ -126,14 +146,27 @@ class SectionController extends Controller
     {
       if($this->authorize->hasPermission('SECTION_DELETE'))//check permission
       {
-        $section = Section::where('section_id', $id)->update(['status' => 0]);
+        $companySection=CompanySection::where([['section_id','=',$id]])->first();
+
+        if($companySection!=null){
+          return response([
+            'data' => [
+              'message' => 'Section is Already in Use',
+              'status'=>'0'
+            ]
+          ]);
+        }
+            else if($companySection==null){
+              $section = Section::where('section_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Section was deactivated successfully.',
-            'section' => $section
+            'section' => $section,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
+    }
       else {
         return response($this->authorize->error_response(), 401);
       }
