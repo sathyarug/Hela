@@ -461,13 +461,20 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::apiResource('items','Merchandising\Item\ItemController');
-    
+
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
     Route::apiResource('item-sub-categories','Merchandising\Item\SubCategoryController');
     Route::apiResource('item-content-types','Merchandising\Item\ContentTypeController');
     Route::apiResource('item-compositions','Merchandising\Item\CompositionController');
+    Route::get('item-properties/validate','Merchandising\Item\ItemPropertyController@validate_data');
     Route::apiResource('item-properties','Merchandising\Item\ItemPropertyController');
     Route::apiResource('item-property-values','Merchandising\Item\ItemPropertyValueController');
+
+    Route::post('load_un_assign_list', 'Merchandising\Item\ItemPropertyController@load_un_assign_list');
+    Route::post('load_un_assign_list2', 'Merchandising\Item\ItemPropertyController@load_un_assign_list2');
+    Route::post('save_assign', 'Merchandising\Item\ItemPropertyController@save_assign');
+    Route::post('final_save_assign', 'Merchandising\Item\ItemPropertyController@final_save_assign');
+    Route::post('save_pro_name', 'Merchandising\Item\ItemPropertyController@save_pro_name');
 });
 
 Route::prefix('admin/')->group(function(){

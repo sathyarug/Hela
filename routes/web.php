@@ -547,9 +547,7 @@ Route::get('itemproperty/check_property','itempropertyController@CheckProperty')
 Route::post('itemproperty/delete-assign', 'itempropertyController@RemoveAssign');
 
 
-//DTX UPDATE
-Route::post('itemproperty/load_un_assign_list', 'itempropertyController@load_un_assign_list');
-Route::post('itemproperty/load_un_assign_list2', 'itempropertyController@load_un_assign_list2');
+
 
 
 Route::post('itemCreation/saveContent','itemCreationController@SaveContentType');
@@ -566,7 +564,7 @@ Route::get('itemCreation/loadCompositions','itemCreationController@LoadCompositi
 
 Route::prefix('finance/item/')->group(function(){
     Route::get('subcategorylist','Finance\Item\ItemSubCategoryController@LoadSubCategoryList');
-  //  Route::get('maincategorylist','Finance\Item\ItemSubCategoryController@get_category_list');
+    Route::get('maincategorylist','Finance\Item\ItemSubCategoryController@get_category_list');
     Route::post('sub-category-save','Finance\Item\ItemSubCategoryController@save');
     Route::get('get','Finance\Item\ItemSubCategoryController@get');
     Route::get('sub-category-change-status','Finance\Item\ItemSubCategoryController@change_status');
