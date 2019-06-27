@@ -131,16 +131,16 @@ class ItemController extends Controller
 
 
 
-    }/*
+    }*/
 
 
 
-    public function show($id)
-    {
+  /*  public function show($id)
+    {*/
         /*$itemcreation = itemCreation::findOrFail($id);
 
         return view('item-creation.show', compact('itemcreation'));*/
-    }
+  /*  }*/
 
 
     public function edit($id)
