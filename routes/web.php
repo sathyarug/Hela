@@ -547,6 +547,11 @@ Route::get('itemproperty/load-unassign-bysubcat', 'itempropertyController@LoadUn
 Route::get('itemproperty/check_property','itempropertyController@CheckProperty');
 Route::post('itemproperty/delete-assign', 'itempropertyController@RemoveAssign');
 
+//DTX UPDATE
+Route::post('itemproperty/load_un_assign_list', 'itempropertyController@load_un_assign_list');
+Route::post('itemproperty/load_un_assign_list2', 'itempropertyController@load_un_assign_list2');
+
+
 Route::post('itemCreation/saveContent','itemCreationController@SaveContentType');
 Route::post('itemCreation/saveComposition','itemCreationController@SaveCompositions');
 Route::post('itemCreation/savePropertyValue','itemCreationController@SavePropertyValue');
