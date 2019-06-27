@@ -88,7 +88,7 @@ class CustomerController extends Controller
         $customer->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was updated successfully',
+          'message' => 'Customer updated successfully',
           'customer' => $customer
         ]]);
       }
@@ -106,7 +106,7 @@ class CustomerController extends Controller
       $customer = Customer::where('customer_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Customer was deactivated successfully.',
+          'message' => 'Customer deactivated successfully.',
           'customer' => $customer
         ]
       ] , Response::HTTP_NO_CONTENT);

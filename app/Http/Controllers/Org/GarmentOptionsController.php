@@ -54,6 +54,7 @@ class GarmentOptionsController extends Controller
         {
           $garmentoptions->fill($request->all());
           $garmentoptions->status = 1;
+          $garmentoptions->garment_options_description=strtoupper($garmentoptions->garment_options_description);
           $garmentoptions->save();
 
           return response([ 'data' => [

@@ -55,6 +55,7 @@ class SizeController extends Controller
         {
           $size->fill($request->all());
           $size->status = 1;
+          $size->size_name=strtoupper($size->size_name);
           $size->save();
 
           return response([ 'data' => [
