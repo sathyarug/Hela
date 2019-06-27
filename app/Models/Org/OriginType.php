@@ -3,6 +3,7 @@
 namespace App\Models\Org;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use App\BaseValidator;
 
 class OriginType extends BaseValidator
@@ -23,5 +24,8 @@ class OriginType extends BaseValidator
         parent::__construct();
     }
 
+    public function isUsed($id){
+      $is_exists = DB::table('item_master')->where('uom_id', $id)->exists();
+    }
 
 }

@@ -1,27 +1,43 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Merchandising\Item;
 
 use App\Http\Requests;
+<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\itemproperty;
+=======
+>>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-use App\Models\Finance\Item\Category;
-use App\Models\Finance\Item\SubCategory;
+use App\Models\Merchandising\Item\ItemProperty;
+use App\Models\Merchandising\Item\PropertyValueAssign;
+use App\Models\Merchandising\Item\Category;
+use App\Models\Merchandising\Item\SubCategory;
 use App\assign_property;
 
-class itempropertyController extends Controller
+class ItemPropertyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
+        $type = $request->type;
+
+        if($type == 'assigned_properties'){
+          $sub_category = $request->sub_category;
+          return response([
+            'data' => $this->load_assign_properties($sub_category)
+          ]);
+        }
+        else if($type == 'property_values'){
+          $property_id = $request->property_id;
+          return response([
+            'data' => $this->load_property_values($property_id)
+          ]);
+        }
+        /*$keyword = $request->get('search');
         $perPage = 25;
 
         if (!empty($keyword)) {
@@ -33,29 +49,19 @@ class itempropertyController extends Controller
 
         $data = array(
           'categories' => Category::all()
-        );
+        );*/
 
         //return view('itemproperty.itemproperty', compact('itemproperty',$data));
-        return view('itemproperty.itemproperty',$data);
+      //  return view('itemproperty.itemproperty',$data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function create()
     {
-        return view('itemproperty.itemproperty.create');
+      //  return view('itemproperty.itemproperty.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
+
     public function store(Request $request)
     {
 
@@ -66,13 +72,7 @@ class itempropertyController extends Controller
         return redirect('itemproperty')->with('flash_message', 'itemproperty added!');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function show($id)
     {
         $itemproperty = itemproperty::findOrFail($id);
@@ -80,13 +80,7 @@ class itempropertyController extends Controller
         return view('itemproperty.itemproperty.show', compact('itemproperty'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function edit($id)
     {
         $itemproperty = itemproperty::findOrFail($id);
@@ -94,14 +88,7 @@ class itempropertyController extends Controller
         return view('itemproperty.itemproperty.edit', compact('itemproperty'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
+
     public function update(Request $request, $id)
     {
 
@@ -113,13 +100,7 @@ class itempropertyController extends Controller
         return redirect('itemproperty')->with('flash_message', 'itemproperty updated!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
+
     public function destroy($id)
     {
         itemproperty::destroy($id);
@@ -181,6 +162,7 @@ class itempropertyController extends Controller
         echo json_encode(array('status' => 'success'));
     }
 
+<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
     public function LoadAssignProperties(Request $request){
 
         $propperty_assign = new itemproperty();
@@ -188,6 +170,16 @@ class itempropertyController extends Controller
 
         echo json_encode($obj);
 
+=======
+    private function load_assign_properties($sub_category){
+        $propperty_assign = new ItemProperty();
+        $arr = $propperty_assign->load_assign_properties($sub_category);
+        for($x = 0 ; $x < sizeof($arr) ; $x++) {
+          $arr[$x]->property_values = $this->load_property_values($arr[$x]->property_id);
+          $arr[$x]->data1 = 0;
+        }
+        return $arr;
+>>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
     }
 
     public function LoadUnAssignPropertiesBySubCat(Request $request){
@@ -209,6 +201,7 @@ class itempropertyController extends Controller
     }
 
 
+<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
 
     public function load_un_assign_list(Request $request){
       $subCatCode = $request->subCatCode;
@@ -239,6 +232,11 @@ class itempropertyController extends Controller
          return response([ 'count2' => sizeof($subCat2), 'subCat2'=> $subCat2 ]);
 
 
+=======
+    private function load_property_values($property_id){
+        $list = PropertyValueAssign::where('property_id', '=', $property_id)->get();
+        return $list;
+>>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
     }
 
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Org;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\UOM;
@@ -96,21 +97,33 @@ class UomController extends Controller
     {
       if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
       {
-        $uom = UOM::find($id);
-        if($uom->validate($request->all()))
-        {
-          $uom->fill($request->except('uom_code'));
-          $uom->save();
-
-          return response([ 'data' => [
-            'message' => 'UOM updated successfully',
-            'uom' => $uom
-          ]]);
+        $is_exists = DB::table('item_master')->where('uom_id', $id)->exists();
+        if($is_exists){ // uom already used in item master table
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => 'Cannot deactivate UOM. Already use in item creation.'
+            ]
+          ] , 200);
         }
-        else
-        {
-          $errors = $uom->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        else{
+          $uom = UOM::find($id);
+          if($uom->validate($request->all()))
+          {
+            $uom->fill($request->except('uom_code'));
+            $uom->save();
+
+            return response([ 'data' => [
+              'status' => 'success',
+              'message' => 'UOM updated successfully',
+              'uom' => $uom
+            ]]);
+          }
+          else
+          {
+            $errors = $uom->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          }
         }
       }
       else{
@@ -124,13 +137,25 @@ class UomController extends Controller
     {
       if($this->authorize->hasPermission('UOM_DELETE'))//check permission
       {
-        $uom = UOM::where('uom_id', $id)->update(['status' => 0]);
-        return response([
-          'data' => [
-            'message' => 'UOM was deactivated successfully.',
-            'uom' => $uom
-          ]
-        ] , Response::HTTP_NO_CONTENT);
+        $is_exists = DB::table('item_master')->where('uom_id', $id)->exists();
+        if($is_exists){ // uom already used in item master table
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => 'Cannot deactivate UOM. Already use in item creation.'
+            ]
+          ] , 200);
+        }
+        else{
+          $uom = UOM::where('uom_id', $id)->update(['status' => 0]);
+          return response([
+            'data' => [
+              'status' => 'success',
+              'message' => 'UOM was deactivated successfully.',
+              'uom' => $uom
+            ]
+          ] , Response::HTTP_NO_CONTENT);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
