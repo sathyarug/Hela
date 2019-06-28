@@ -192,8 +192,13 @@ class ItemPropertyController extends Controller
 
       $subCat = DB::table('item_property')
       ->select('item_property.property_id','item_property.property_name')
+      ->where('item_property.status' , '<>', 0 )
       ->whereNotIn('item_property.property_id',function($q) use ($subCatCode){
-         $q->select('property_id')->from('item_property_assign')->where('subcategory_id',$subCatCode);})
+         $q->select('property_id')
+         ->from('item_property_assign')
+         ->where('subcategory_id',$subCatCode)
+         ->where('status', '<>', 0 )
+         ;})
          ->get();
 
          return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
@@ -206,6 +211,7 @@ class ItemPropertyController extends Controller
       $subCat2 = ItemProperty::select('item_property_assign.*','item_property.*')
          ->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')
          ->where('item_property_assign.subcategory_id' , '=', $subCatCode2 )
+         ->where('item_property_assign.status' , '<>', 0 )
          ->orderByRaw('sequence_no ASC')
          ->get();
 
@@ -309,6 +315,55 @@ class ItemPropertyController extends Controller
           ]
         ]);
     }
+
+    public function remove_assign(Request $request){
+
+        $List = $request->Assign;
+        $proid = $request->proid;
+        $formData = $request->formData;
+
+        DB::table('item_property_assign')
+            ->where('subcategory_id', $formData['sub_category_code'])
+            ->where('property_id', $proid)
+            ->update(['status' => 0]);
+
+        return response([ 'data' => [
+          'message' => 'Property Deleted successfully',
+          'proid' => $formData['sub_category_code']
+          ]
+        ]);
+    }
+
+
+    public function remove_unassign(Request $request){
+
+        $List = $request->UNAssign;
+        $proid = $request->proid;
+        $formData = $request->formData;
+
+        $check = AssignProperty::where([['status', '=', '1'],['property_id','=',$proid]])->first();
+        if($check != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
+        DB::table('item_property')
+            ->where('property_id', $proid)
+            ->update(['status' => 0]);
+
+        return response([ 'data' => [
+          'message' => 'Property Deleted successfully',
+          'proid' => $formData['sub_category_code']
+          ]
+        ]);
+      }
+    }
+
+
 
 
 }

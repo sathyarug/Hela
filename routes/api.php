@@ -475,6 +475,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('save_assign', 'Merchandising\Item\ItemPropertyController@save_assign');
     Route::post('final_save_assign', 'Merchandising\Item\ItemPropertyController@final_save_assign');
     Route::post('save_pro_name', 'Merchandising\Item\ItemPropertyController@save_pro_name');
+    Route::post('remove_assign', 'Merchandising\Item\ItemPropertyController@remove_assign');
+    Route::post('remove_unassign', 'Merchandising\Item\ItemPropertyController@remove_unassign');
 });
 
 Route::prefix('admin/')->group(function(){
