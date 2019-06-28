@@ -285,8 +285,8 @@ class ItemPropertyController extends Controller
     //check Source code already exists
     private function validate_duplicate_code($id , $code)
     {
-      $source = ItemProperty::where('property_name','=',$code)->first();
-    //  echo $source;
+      $source = ItemProperty::where([['status', '=', '1'],['property_name','=',$code]])->first();
+      //  echo $source;
       if($source == null){
         return ['status' => 'success'];
       }
@@ -305,7 +305,7 @@ class ItemPropertyController extends Controller
         $formData = $request->formData;
 
         $item_properties = new ItemProperty();
-        $item_properties->property_name = $pro_name['property_name'];
+        $item_properties->property_name = strtoupper($pro_name['property_name']);
         $item_properties->status = 1;
         $item_properties->saveOrFail();
 
