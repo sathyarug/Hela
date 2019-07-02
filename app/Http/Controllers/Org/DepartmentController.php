@@ -54,6 +54,7 @@ class DepartmentController extends Controller
         {
           $department->fill($request->all());
           $department->status = 1;
+          $department->dep_code=strtoupper($department->dep_code);
           $department->save();
 
           return response([ 'data' => [

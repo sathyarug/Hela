@@ -85,7 +85,7 @@ class RequestTypeController extends Controller
         $requestType->save();
 
         return response([ 'data' => [
-          'message' => 'Request Type was updated successfully',
+          'message' => 'Request Type updated successfully',
           'requestType' => $requestType
         ]]);
       }
@@ -103,7 +103,7 @@ class RequestTypeController extends Controller
       $requestType = RequestType::where('request_type_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Request Type was deactivated successfully.',
+          'message' => 'Request Type deactivated successfully.',
           'RequestType' => $requestType
         ]
       ] , Response::HTTP_NO_CONTENT);

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Feature;
+
+
 use Exception;
 
 class FeatureController extends Controller
@@ -100,6 +102,8 @@ class FeatureController extends Controller
     //deactivate a Feature
     public function destroy($id)
     {
+      //$styleCreation=StyleCreation::where(['','=',''])
+
       $feature = Feature::where('product_feature_id', $id)->update(['status' => 0]);
       return response([
         'data' => [

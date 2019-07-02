@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Currency;
+use App\Models\Org\Supplier;
 use App\Libraries\AppAuthorize;
 
 class CurrencyController extends Controller
@@ -96,15 +97,27 @@ class CurrencyController extends Controller
     {
       if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
       {
+        $supplier=Supplier::where([['currency','=',$id]])->first();
+        if($supplier!=null){
+          return response([
+            'data' => [
+              'status'=>'0',
+              'message'=>'Currency already in use.'
+              ]
+          ]);
+        }
+        else if($supplier==null){
         $currency = Currency::find($id);
         if ($currency->validate($request->all()))
         {
+
           $currency->fill($request->except('currency_code'));
           $currency->save();
 
           return response([ 'data' => [
             'message' => 'Currency updated successfully',
-            'currency' => $currency
+            'currency' => $currency,
+              'status'=>'1'
           ]]);
         }
         else
@@ -112,6 +125,7 @@ class CurrencyController extends Controller
           $errors = $customer->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -123,14 +137,26 @@ class CurrencyController extends Controller
     {
       if($this->authorize->hasPermission('CURRENCY_DELETE'))//check permission
       {
+          $supplier=Supplier::where([['currency','=',$id]])->first();
+          if($supplier!=null){
+            return response([
+              'data' => [
+                'message' => 'Currency already in use.',
+                'status'=>'0'
+              ]
+            ]);
+          }
+          if($supplier==null){
         $currency = Currency::where('currency_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Currency was deactivated successfully.',
-            'shipTerm' => $currency
+            'message' => 'Currency deactivated successfully.',
+            'shipTerm' => $currency,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
+    }
       else{
         return response($this->authorize->error_response(), 401);
       }

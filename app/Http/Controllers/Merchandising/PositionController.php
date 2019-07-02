@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\Position;
+use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
 class PositionController extends Controller
 {
@@ -100,13 +101,25 @@ class PositionController extends Controller
       //deactivate a Origin Type
       public function destroy($id)
       {
+        $bulkCostingDetails=BulkCostingDetails::where([['position','=',$id]])->first();
+        if($bulkCostingDetails!=null){
+          return response(['data'=>[
+            'message'=>'Position Already in Use',
+           'status'=>'0',
+          ]
+        ]);
+        }
+
+        else if($bulkCostingDetails==null){
         $position = Position::where('position_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Position was deactivated successfully.',
-            'position' => $position
+            'position' => $position,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
 
 

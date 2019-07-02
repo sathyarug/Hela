@@ -54,7 +54,7 @@ class SupplierController extends Controller
         $supplier->save();
 
         return response([ 'data' => [
-          'message' => 'Supplier was saved successfully',
+          'message' => 'Supplier saved successfully',
           'supplier' => $supplier
           ]
         ], Response::HTTP_CREATED );
@@ -104,7 +104,7 @@ class SupplierController extends Controller
         $supplier->save();
 
         return response([ 'data' => [
-          'message' => 'Supplier was updated successfully',
+          'message' => 'Supplier updated successfully',
           'supplier' => $supplier
         ]]);
       }
@@ -122,7 +122,7 @@ class SupplierController extends Controller
       $supplier = Supplier::where('supplier_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Supplier was deactivated successfully.',
+          'message' => 'Supplier deactivated successfully.',
           'supplier' => $supplier
         ]
       ] , Response::HTTP_NO_CONTENT);
