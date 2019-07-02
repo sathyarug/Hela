@@ -128,8 +128,10 @@ Route::prefix('org/')->group(function(){
 
     Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
     Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+
     Route::get('features/validate' , 'Org\FeatureController@validate_data');
     Route::apiResource('features','Org\FeatureController');
+    Route::post('features/load_pro_list', 'Org\FeatureController@load_pro_list');
 
     Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
     Route::apiResource('garmentoptions','Org\GarmentOptionsController');
@@ -149,8 +151,8 @@ Route::prefix('org/')->group(function(){
     Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
     Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
 
-    Route::get('features/validate' , 'Org\FeatureController@validate_data');
-    Route::apiResource('features','Org\FeatureController');
+    //Route::get('features/validate' , 'Org\FeatureController@validate_data');
+    //Route::apiResource('features','Org\FeatureController');
 
     Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
     Route::apiResource('silhouettes','Org\SilhouetteController');
@@ -176,8 +178,8 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
 
-  Route::get('features/validate' , 'Org\FeatureController@validate_data');
-  Route::apiResource('features','Org\FeatureController');
+  //Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  //Route::apiResource('features','Org\FeatureController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
