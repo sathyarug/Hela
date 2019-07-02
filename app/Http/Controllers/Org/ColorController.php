@@ -145,15 +145,15 @@ class ColorController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->color_id , $request->color_code));
+        return response($this->validate_duplicate_code($request->color_id , $request->color_code,$request->color_name,$request->pantone_no));
       }
     }
 
 
     //check Color code already exists
-    private function validate_duplicate_code($id , $code)
+    private function validate_duplicate_code($id , $code,$colorName,$pantoneNo)
     {
-      $color = Color::where('color_code','=',$code)->first();
+      $color = Color::where([['color_code','=',$code],['color_name','=',$colorName],['pantone_no','=',$pantoneNo]])->first();
       if($color == null){
         return ['status' => 'success'];
       }
@@ -161,7 +161,7 @@ class ColorController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Color code already exists'];
+        return ['status' => 'error','message' => 'Record already exists'];
       }
     }
 
@@ -215,6 +215,7 @@ class ColorController extends Controller
           $color_list = Color::select('*')
           ->where('color_code'  , 'like', $search.'%' )
           ->orWhere('Color_name'  , 'like', $search.'%' )
+          ->orWhere('pantone_no','like',$search.'%')
           ->orderBy($order_column, $order_type)
           ->offset($start)->limit($length)->get();
 

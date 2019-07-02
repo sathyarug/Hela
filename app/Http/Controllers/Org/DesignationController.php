@@ -54,6 +54,7 @@ class DesignationController extends Controller
         {
           $designation->fill($request->all());
           $designation->status = 1;
+          $designation->des_code=strtoupper($designation->des_code);
           $designation->save();
 
           return response([ 'data' => [

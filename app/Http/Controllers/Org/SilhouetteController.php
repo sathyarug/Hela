@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Silhouette;
+use App\Models\Merchandising\StyleCreation;
 use Exception;
 
 class SilhouetteController extends Controller
@@ -78,17 +79,27 @@ class SilhouetteController extends Controller
     //update a Silhouette
     public function update(Request $request, $id)
     {
+      $styleCreation=StyleCreation::where([['product_silhouette_id','=',$id]]);
       $silhouette = Silhouette::find($id);
       if($silhouette->validate($request->all()))
       {
+        if($styleCreation!=null){
+          return response([ 'data' => [
+            'message' => 'Silhouette Already in Use',
+            'status'=>'0'
+          ]]);
+        }
+        else if($styleCreation==null){
         $silhouette->fill($request->all());
         $silhouette->save();
 
         return response([ 'data' => [
           'message' => 'Silhouette was updated successfully',
-          'silhouette' => $silhouette
+          'silhouette' => $silhouette,
+          'status'=>'1'
         ]]);
       }
+    }
       else
       {
         $errors = $silhouette->errors();// failure, get errors
@@ -100,13 +111,24 @@ class SilhouetteController extends Controller
     //deactivate a Silhouette
     public function destroy($id)
     {
+      $styleCreation=StyleCreation::where([['product_silhouette_id','=',$id]]);
+      if($styleCreation=!null){
+        return response([
+          'data'=>[
+            'message'=>'Silhouatte Alaredy in Use.',
+            'status'=>'0'
+          ]
+        ]);
+      }
       $silhouette = Silhouette::where('product_silhouette_id', $id)->update(['status' => 0]);
+
       return response([
         'data' => [
           'message' => 'Silhouette was deactivated successfully.',
-          'silhouette' => $silhouette
+          'silhouette' => $silhouette,
+          'status'=>'1'
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ]);
     }
 
 

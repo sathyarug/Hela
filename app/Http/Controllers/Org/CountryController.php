@@ -50,6 +50,7 @@ class CountryController extends Controller
         if($country->validate($request->all()))
         {
           $country->fill($request->all());
+          $country->country_code=strtoupper($country->country_code);
           $country->status = 1;
           $country->save();
           return response([
