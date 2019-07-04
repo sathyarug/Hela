@@ -346,6 +346,9 @@ class BulkCostingController extends Controller {
     private function getFinishGood($style_id,$data) {
 
 
+
+
+
         $productFeatureList = StyleProductFeature::where('style_id', $style_id)->get()->toArray();
 
         $count=1;

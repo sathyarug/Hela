@@ -223,6 +223,7 @@ class itempropertyController extends Controller
          ->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')
          ->where('item_property_assign.subcategory_id' , '=', $subCatCode )
          ->get();*/
+         //$check_company = Company::where([['status', '=', '1'],['group_id','=',$id]])->first();
 
          return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
 
@@ -237,6 +238,26 @@ class itempropertyController extends Controller
          ->get();
 
          return response([ 'count2' => sizeof($subCat2), 'subCat2'=> $subCat2 ]);
+
+
+    }
+
+    public function save_assign(Request $request){
+
+      $propid = $request->propid;
+      $formData = $request->formData;
+
+    //  print_r($formData);
+
+      $propperty_assign = new assign_property();
+      $propperty_assign->property_id = $propid;
+      $propperty_assign->subcategory_id = $formData['sub_category_code'];
+      $propperty_assign->status = 1;
+      //$propperty_assign->sequence_no = $request->sequence_no;
+
+      $propperty_assign->saveOrFail();
+
+
 
 
     }

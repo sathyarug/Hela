@@ -54,7 +54,7 @@ class CustomerController extends Controller
         $customer->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was saved successfully',
+          'message' => 'Customer saved successfully',
           'customer' => $customer
           ]
         ], Response::HTTP_CREATED );

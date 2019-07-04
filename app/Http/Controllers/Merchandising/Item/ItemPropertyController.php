@@ -62,7 +62,7 @@ class ItemPropertyController extends Controller
 
         $requestData = $request->all();
 
-        itemproperty::create($requestData);
+        ItemProperty::create($requestData);
 
         return redirect('itemproperty')->with('flash_message', 'itemproperty added!');
     }
@@ -70,7 +70,7 @@ class ItemPropertyController extends Controller
 
     public function show($id)
     {
-        $itemproperty = itemproperty::findOrFail($id);
+        $itemproperty = ItemProperty::findOrFail($id);
 
         return view('itemproperty.itemproperty.show', compact('itemproperty'));
     }
@@ -78,7 +78,7 @@ class ItemPropertyController extends Controller
 
     public function edit($id)
     {
-        $itemproperty = itemproperty::findOrFail($id);
+        $itemproperty = ItemProperty::findOrFail($id);
 
         return view('itemproperty.itemproperty.edit', compact('itemproperty'));
     }
@@ -89,7 +89,7 @@ class ItemPropertyController extends Controller
 
         $requestData = $request->all();
 
-        $itemproperty = itemproperty::findOrFail($id);
+        $itemproperty = ItemProperty::findOrFail($id);
         $itemproperty->update($requestData);
 
         return redirect('itemproperty')->with('flash_message', 'itemproperty updated!');
@@ -98,14 +98,14 @@ class ItemPropertyController extends Controller
 
     public function destroy($id)
     {
-        itemproperty::destroy($id);
+        ItemProperty::destroy($id);
 
         return redirect('itemproperty')->with('flash_message', 'itemproperty deleted!');
     }
 
     public function SaveItemProperty(Request $request){
 
-        $item_properties = new itemproperty();
+        $item_properties = new ItemProperty();
 
         $item_properties->property_name = $request->property_name;
         $item_properties->status = 1;
@@ -116,14 +116,14 @@ class ItemPropertyController extends Controller
 
     public function LoadProperties(){
 
-        $item_property = itemproperty::where('status','=','1')->pluck('property_id','property_name');
+        $item_property = ItemProperty::where('status','=','1')->pluck('property_id','property_name');
 
         echo json_encode($item_property);
     }
 
     public function RemoveAssign(Request $request){
 
-        $propperty_assign = new assign_property();
+        $propperty_assign = new AssignProperty();
 
         echo json_encode("Code : ".$request->sub_code);
 
@@ -134,10 +134,10 @@ class ItemPropertyController extends Controller
 
     public function SavePropertyAssign(Request $request){
 
-        $propperty_assign = new assign_property();
+        $propperty_assign = new AssignProperty();
 
 
-        $obj = assign_property::where('property_id',$request->property_id)->where('subcategory_id',$request->subcategory_code);
+        $obj = AssignProperty::where('property_id',$request->property_id)->where('subcategory_id',$request->subcategory_code);
 
         if($obj->count()>0){
              $obj->sequence_no = $request->sequence_no;
@@ -169,7 +169,7 @@ class ItemPropertyController extends Controller
     }
 
     public function LoadUnAssignPropertiesBySubCat(Request $request){
-        $propperty_assign = new itemproperty();
+        $propperty_assign = new ItemProperty();
 
         $subcatcode = $request->subcategory_code;
         $objUnassignPropertiesBySubCat = $propperty_assign->LoadUnAssignPropertiesBySubCat($request);
@@ -179,7 +179,7 @@ class ItemPropertyController extends Controller
     public function CheckProperty(Request $request){
 
         $property_name = $request->property_name;
-        $recCount = itemproperty::where('property_name','=',$property_name)->count();
+        $recCount = ItemProperty::where('property_name','=',$property_name)->count();
 
         echo json_encode(array('recordscount' => $recCount));
 
@@ -193,14 +193,14 @@ class ItemPropertyController extends Controller
 
       $subCat = DB::table('item_property')
       ->select('item_property.property_id','item_property.property_name')
+      ->where('item_property.status' , '<>', 0 )
       ->whereNotIn('item_property.property_id',function($q) use ($subCatCode){
-         $q->select('property_id')->from('item_property_assign')->where('subcategory_id',$subCatCode);})
+         $q->select('property_id')
+         ->from('item_property_assign')
+         ->where('subcategory_id',$subCatCode)
+         ->where('status', '<>', 0 )
+         ;})
          ->get();
-
-      /*$subCat = itemproperty::select('item_property_assign.*','item_property.*')
-         ->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')
-         ->where('item_property_assign.subcategory_id' , '=', $subCatCode )
-         ->get();*/
 
          return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
 
@@ -209,18 +209,166 @@ class ItemPropertyController extends Controller
 
     public function load_un_assign_list2(Request $request){
       $subCatCode2 = $request->subCatCode2;
-      $subCat2 = itemproperty::select('item_property_assign.*','item_property.*')
+      $subCat2 = ItemProperty::select('item_property_assign.*','item_property.*')
          ->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')
          ->where('item_property_assign.subcategory_id' , '=', $subCatCode2 )
+         ->where('item_property_assign.status' , '<>', 0 )
+         ->orderByRaw('sequence_no ASC')
          ->get();
 
          return response([ 'count2' => sizeof($subCat2), 'subCat2'=> $subCat2 ]);
 
     }
 
+
+    public function save_assign(Request $request){
+
+      $propid = $request->propid;
+      $formData = $request->formData;
+
+      $propperty_assign = new AssignProperty();
+      $propperty_assign->property_id = $propid;
+      $propperty_assign->subcategory_id = $formData['sub_category_code'];
+      $propperty_assign->status = 1;
+      $propperty_assign->sequence_no = $this->get_next_line($formData['sub_category_code']);
+
+      $propperty_assign->saveOrFail();
+
+    }
+
+
+
+    private function get_next_line($subid)
+      {
+        $max_no = AssignProperty::where('subcategory_id','=',$subid)->max('sequence_no');
+  	  if($max_no == NULL){ $max_no= 0;}
+        return ($max_no + 1);
+      }
+
     private function load_property_values($property_id){
         $list = PropertyValueAssign::where('property_id', '=', $property_id)->get();
         return $list;
+    }
+
+
+
+
+    public function final_save_assign(Request $request) {
+
+      $List = $request->Assign;
+      //print_r($List);
+
+      for($x = 0 ; $x < sizeof($List) ; $x++) {
+
+
+        DB::table('item_property_assign')
+            ->where('property_assign_id', $List[$x]['property_assign_id'])
+            ->where('property_id', $List[$x]['property_id'])
+            ->update(['sequence_no' => ($x + 1)]);
+
+
+      }
+
+      return response([ 'data' => [
+        'message' => 'Assign Property updated successfully',
+        'proid' => $List[0]['subcategory_id']
+      ]]);
+
+
+
+    }
+
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_code($request->source_id , $request->property_name));
+      }
+    }
+
+    //check Source code already exists
+    private function validate_duplicate_code($id , $code)
+    {
+      $source = ItemProperty::where([['status', '=', '1'],['property_name','=',$code]])->first();
+      //  echo $source;
+      if($source == null){
+        return ['status' => 'success'];
+      }
+      else if($source->property_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'property already exists'];
+      }
+    }
+
+
+
+    public function save_pro_name(Request $request){
+        $pro_name = $request->pro_name;
+        $formData = $request->formData;
+
+        $item_properties = new ItemProperty();
+        $item_properties->property_name = strtoupper($pro_name['property_name']);
+        $item_properties->status = 1;
+        $item_properties->saveOrFail();
+
+        return response([ 'data' => [
+          'message' => 'Property saved successfully',
+          'proid' => $formData['sub_category_code']
+          ]
+        ]);
+    }
+
+    public function remove_assign(Request $request){
+
+        $List = $request->Assign;
+        $proid = $request->proid;
+        $formData = $request->formData;
+
+        DB::table('item_property_assign')
+            ->where('subcategory_id', $formData['sub_category_code'])
+            ->where('property_id', $proid)
+            ->update(['status' => 0]);
+
+        return response([ 'data' => [
+          'message' => 'Property Deleted successfully',
+          'proid' => $formData['sub_category_code']
+          ]
+        ]);
+    }
+
+
+    public function remove_unassign(Request $request){
+
+        $List = $request->UNAssign;
+        $proid = $request->proid;
+        $formData = $request->formData;
+
+        $check = AssignProperty::where([['status', '=', '1'],['property_id','=',$proid]])->first();
+        if($check != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
+
+        DB::table('item_property')
+            ->where('property_id', $proid)
+            ->update(['status' => 0]);
+
+        return response([ 'data' => [
+          'message' => 'Property Deleted successfully',
+          'proid' => $formData['sub_category_code']
+          ]
+        ]);
+      }
+    }
+
+
 
     }
 
