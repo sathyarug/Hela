@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Merchandising\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Merchandising\Item\Category;
 use App\Models\Merchandising\Item\SubCategory;
@@ -81,6 +82,17 @@ class ItemController extends Controller
             $item->master_description = strtoupper($item->master_description);
             $item->status=1;
             $item->save();
+
+            $property_data = $request->property_data;
+            for($x = 0 ; $x < sizeof($property_data) ; $x++){
+              DB::table('item_property_data')->insert([
+                  'master_id' => $item->master_id,
+                  'property_id' => $property_data[$x]['property_id'],
+                  'property_value_id' => $property_data[$x]['selected_property_value_id'],
+                  'other_data' => $property_data[$x]['selected_property_value_data'],
+                  'other_data_type' => $property_data[$x]['other_data_type'],
+              ]);
+            }
 
             $uom_list = $request->uom;
             for($x = 0 ; $x < sizeof($uom_list) ; $x++){

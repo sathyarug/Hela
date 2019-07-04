@@ -3,32 +3,36 @@
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
-use App\BaseValidator;
 use App\Libraries\UniqueIdGenerator;
 use DB;
+
+use App\BaseValidator;
 
 class BulkCosting extends BaseValidator {
 
     protected $table = 'costing_bulk';
-    protected $primaryKey = 'bulk_costing_id';
+    protected $primaryKey = 'id';
 
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
 
     protected $fillable = [
-        'bulk_costing_id', 'seq_id','cust_id', 'division_id',
-        'season_id', 'style_id', 'delivery_id', 'color_id', 
-        'costed_smv_id','style_remark','color_type_id',
-        'total_order_qty','pcd','total_cost','fob','plan_efficiency',
-        'cost_per_min','cost_per_std_min','epm','np_margin','obsolete_date',
-        'user_loc_id',
-        'status'];
+      'style_id', 'bom_stage_id', 'season_id', 'color_type_id', 'revision_no', 'status', 'total_order_qty',
+      'fob', 'planned_efficiency', 'cost_per_std_min', 'pcd', 'cost_per_std_min', 'cost_per_utilised_min',
+      'upcharge_reason', 'revision_reason'];
+
     protected $rules = array(
-        'bulk_costing_id' => '',
-        //'cust_id' => 'required',
-       // 'division_id' => 'required'
+        'style_id' => 'required',
+        'bom_stage_id' => 'required',
+        'season_id' => 'required',
+        'color_type_id' => 'required',
+        //'revision_no' => 'required',
+        //'status' => 'required',
+        'total_order_qty' => 'required',
+        'fob' => 'required',
+        'planned_efficiency' => 'required'
     );
-    
+
 //    public static function boot()
 //    {
 //        static::creating(function ($model) {

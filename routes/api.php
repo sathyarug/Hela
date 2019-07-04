@@ -396,8 +396,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('po-manual','Merchandising\PurchaseOrderManualController');
     Route::apiResource('po-manual-details','Merchandising\PurchaseOrderManualDetailsController');
 
-    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
-    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+    //Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
+    //Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
 
 
   Route::apiResource('po-load','stores\RollPlanController');
@@ -461,7 +461,7 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::apiResource('items','Merchandising\Item\ItemController');
-    
+
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
     Route::apiResource('item-sub-categories','Merchandising\Item\SubCategoryController');
     Route::apiResource('item-content-types','Merchandising\Item\ContentTypeController');

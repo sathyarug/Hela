@@ -3,20 +3,15 @@
 namespace App\Http\Controllers\Merchandising\Item;
 
 use App\Http\Requests;
-<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use App\itemproperty;
-=======
->>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 use App\Models\Merchandising\Item\ItemProperty;
 use App\Models\Merchandising\Item\PropertyValueAssign;
 use App\Models\Merchandising\Item\Category;
 use App\Models\Merchandising\Item\SubCategory;
-use App\assign_property;
+use App\Models\Merchandising\Item\AssignProperty;
 
 class ItemPropertyController extends Controller
 {
@@ -162,15 +157,7 @@ class ItemPropertyController extends Controller
         echo json_encode(array('status' => 'success'));
     }
 
-<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
-    public function LoadAssignProperties(Request $request){
 
-        $propperty_assign = new itemproperty();
-        $obj = $propperty_assign->LoadAssignProperties($request);
-
-        echo json_encode($obj);
-
-=======
     private function load_assign_properties($sub_category){
         $propperty_assign = new ItemProperty();
         $arr = $propperty_assign->load_assign_properties($sub_category);
@@ -179,7 +166,6 @@ class ItemPropertyController extends Controller
           $arr[$x]->data1 = 0;
         }
         return $arr;
->>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
     }
 
     public function LoadUnAssignPropertiesBySubCat(Request $request){
@@ -201,7 +187,6 @@ class ItemPropertyController extends Controller
     }
 
 
-<<<<<<< HEAD:app/Http/Controllers/itempropertyController.php
 
     public function load_un_assign_list(Request $request){
       $subCatCode = $request->subCatCode;
@@ -231,14 +216,12 @@ class ItemPropertyController extends Controller
 
          return response([ 'count2' => sizeof($subCat2), 'subCat2'=> $subCat2 ]);
 
+    }
 
-=======
     private function load_property_values($property_id){
         $list = PropertyValueAssign::where('property_id', '=', $property_id)->get();
         return $list;
->>>>>>> 4017c12dea24851b3c49cc4f85c0b4d3ba38f24e:app/Http/Controllers/Merchandising/Item/ItemPropertyController.php
+
     }
-
-
 
 }
