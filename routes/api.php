@@ -439,13 +439,17 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
     Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
     Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+    Route::get('bom/colorwise','Merchandising\BomController@getColorWiseDetails');
+    Route::get('bom/both','Merchandising\BomController@getBothRatios');
     Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
     Route::get('bom/getratio','Merchandising\BomController@getMatRatio');
+    Route::get('bom/getsalesorder','Merchandising\BomController@getAssignSalesOrder');
 
     Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
     Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
     Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
+    Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
 
 
 });
