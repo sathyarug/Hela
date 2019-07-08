@@ -14,7 +14,7 @@ class MaterialRatio extends \App\BaseValidator
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
     
-    protected $fillable=['bom_id','component_id','master_id','color_id','size_id', 'required_qty'];
+    protected $fillable=['bom_id','component_id','master_id','color_id','size_id', 'required_qty','order_id','status'];
     
     protected $rules=array(
         'bom_id'=>'required',
@@ -33,10 +33,11 @@ class MaterialRatio extends \App\BaseValidator
         return DB::table('mat_ratio')
                 ->join('org_color','mat_ratio.color_id','org_color.color_id')
                 ->join('org_size','mat_ratio.size_id','org_size.size_id')
-                ->select('org_color.color_name','org_size.size_name','mat_ratio.required_qty')
+                ->select('org_color.color_name','org_size.size_name','mat_ratio.required_qty','order_id')
                 ->where('mat_ratio.bom_id',$bomid)
                 ->where('mat_ratio.master_id',$masteritemid)
                 ->where('mat_ratio.component_id',$componentid)
+                ->where('mat_ratio.status','1')
                 ->get();
         
         
