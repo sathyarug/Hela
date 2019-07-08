@@ -51,7 +51,7 @@ class GarmentOperationMasterController extends Controller
         $garmentOperation->save();
 
         return response([ 'data' => [
-          'message' => 'Garment Operation successfully',
+          'message' => 'Garment Operation Saved successfully',
           'garmentOperation' => $garmentOperation
           ]
         ], Response::HTTP_CREATED );

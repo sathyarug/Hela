@@ -60,7 +60,8 @@ class CurrencyController extends Controller
 
           return response([ 'data' => [
             'message' => 'Currency saved successfully',
-            'currency' => $currency
+            'currency' => $currency,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
