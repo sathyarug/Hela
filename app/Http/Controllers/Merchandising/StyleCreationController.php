@@ -14,6 +14,7 @@ use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
 use App\Models\Merchandising\BulkCosting;
+use App\Models\Merchandising\ProductComponent;
 use DB;
 //use Illuminate\Http\Response;
 
@@ -134,7 +135,7 @@ class StyleCreationController extends Controller
 
            // $styleCreation->image =$request->avatar['filename'];
 
-             $styleCreation->saveOrFail();
+            $styleCreation->saveOrFail();
             $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
 
             $styleCreationUpdate->image =$styleCreation->style_id.'.png';
@@ -223,6 +224,7 @@ class StyleCreationController extends Controller
     //get a Section
     public function show($id)
     {
+
         $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
@@ -236,9 +238,11 @@ class StyleCreationController extends Controller
         $productType = ProductType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')
                   ->join('cust_division', 'org_customer_divisions.division_id', '=', 'cust_division.division_id')
-                  ->select('org_customer_divisions.id AS division_id','cust_division.division_code','cust_division.division_description')
+                  ->select('org_customer_divisions.division_id AS division_id','cust_division.division_code','cust_division.division_description')
                   ->where('org_customer_divisions.division_id','=',$style['division_id'])
                   ->get();
+
+                  //echo $divisions;
         // $avatarHidden = null;
 
 
@@ -357,6 +361,18 @@ public function getStyleDetailsForSMV($search){
         else {
             return ['status' => 'error','message' => 'Style no already exists'];
         }
+    }
+
+
+
+    public function pro_listload(Request $request){
+      //$subCatCode2 = $request->subCatCode2;
+      $subCat = ProductComponent::select('*')
+         ->where('status' , '<>', 0 )
+         ->get();
+
+         return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
+
     }
 
 }

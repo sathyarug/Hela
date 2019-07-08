@@ -1,29 +1,24 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: shanilad
- * Date: 9/4/2018
- * Time: 11:46 AM
- */
-
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
 
-class ProductType extends BaseValidator {
+class ProductFeatureComponent extends BaseValidator {
 
-    protected $table = 'product_type';
-    protected $primaryKey = 'pack_type_id';
+    protected $table = 'product_feature_component';
+    protected $primaryKey = 'feature_component_id';
 
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['pack_type_description'];
+    protected $fillable = ['product_feature_id','product_component_id','product_silhouette_id'];
 
     protected $rules = array(
-        'pack_type_description' => 'required'
+        'product_feature_id' => 'required',
+        'product_component_id' => 'required',
+        'product_silhouette_id' => 'required'
 
     );
 
