@@ -869,7 +869,7 @@ ORDER BY item_category.category_id');
     private function getCostSheetListing($styleId){
 
         $bulkHeaderData = BulkCosting::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
-                            ->where('style_id','=',$styleId)->get();
+                            ->where('style_id','=',$styleId)->get();        
                           //  dd($bulkHeaderData);
         return $bulkHeaderData;
     }
