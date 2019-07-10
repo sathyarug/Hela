@@ -52,7 +52,7 @@ class PositionController extends Controller
           $position->save();
 
           return response([ 'data' => [
-            'message' => 'position saved successfully',
+            'message' => 'Position saved successfully',
             'position' => $position
             ]
           ], Response::HTTP_CREATED );

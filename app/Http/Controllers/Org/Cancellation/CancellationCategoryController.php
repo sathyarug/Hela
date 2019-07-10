@@ -53,6 +53,7 @@ class CancellationCategoryController extends Controller
         {
           $category->fill($request->all());
           $category->status = 1;
+          $category->category_code=strtoupper($category->category_code);
           $category->save();
 
           return response([ 'data' => [

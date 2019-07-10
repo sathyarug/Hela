@@ -205,6 +205,7 @@ class SubStoreController extends Controller
 
     //validate anything based on requirements
     public function validate_data(Request $request) {
+      //echo "im here";
         $for = $request->for;
         if ($for == 'duplicate') {
             return response($this->validate_duplicate_substore($request->substore_id, $request->substore_name));
@@ -213,6 +214,7 @@ class SubStoreController extends Controller
 
     //check shipment cterm code code already exists
     private function validate_duplicate_substore($id, $name) {
+
         $bin = SubStore::where('substore_name', '=', $name)->first();
         if ($bin == null) {
             return ['status' => 'success'];
@@ -221,6 +223,7 @@ class SubStoreController extends Controller
         } else {
             return ['status' => 'error', 'message' => 'Sub store already exists'];
         }
+        
     }
 
     public function getSubStoreList(){

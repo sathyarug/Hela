@@ -98,7 +98,11 @@ class ExchangeRateController extends Controller
         $rate = ExchangeRate::find($id);
         if ($rate->validate($request->all()))
         {
+          //echo $request->valid_from;
+          //echo date("Y-m-d", strtotime($request->valid_from) );
           $rate->fill($request->all());
+          $rate->valid_from=date("Y-m-d", strtotime($request->valid_from) );
+
           $rate->save();
 
           return response([ 'data' => [

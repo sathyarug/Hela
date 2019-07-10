@@ -59,7 +59,8 @@ class ServiceTypeController extends Controller
 
           return response([ 'data' => [
             'message' => 'Service Type saved successfully',
-            'servicetype' => $servicetype
+            'servicetype' => $servicetype,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
