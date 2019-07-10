@@ -50,8 +50,22 @@ class ProductFeatureController extends Controller
 
     public function save_product_feature(Request $request){
       $lines = $request->lines;
+      //print_r($lines);
+      //die();
 
       if($lines != null && sizeof($lines) >= 1){
+
+        for($r = 0 ; $r < sizeof($lines) ; $r++)
+        {
+            if(isset($lines[$r]['product_silhouette_description']) == '')
+              {
+                $line_id = $r+1;
+                $err = 'Silhouette Line '.$line_id.' cannot be empty.';
+                return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
+        }
 
         $max_f = DB::table('product_feature')->max('product_feature_id');
         $max_f_n = $max_f + 1;
@@ -59,7 +73,8 @@ class ProductFeatureController extends Controller
         for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
         if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
-        if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else { $washing= 0; }
+        if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else{ $washing= 0; }
+        if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = $lines[$x]['display']; }
 
         $silhouette = ProductSilhouette::select('*')
         ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
@@ -70,7 +85,7 @@ class ProductFeatureController extends Controller
         $PFC->product_component_id = $lines[$x]['pro_com_id'];
         $PFC->product_silhouette_id = $silhouette->product_silhouette_id;
         $PFC->line_no = $a ;
-        $PFC->display_name = $lines[$x]['display'];
+        $PFC->display_name = $dis;
         $PFC->emblishment = $emblishment;
         $PFC->washing = $washing;
         $PFC->status = 1;
@@ -88,11 +103,11 @@ class ProductFeatureController extends Controller
         for($y = 0 ; $y < sizeof($pfc_list) ; $y++) {
           $d = $pfc_list[$y]->Count;
           $e = $pfc_list[$y]->product_component_description;
-          $f = $d.''.$e;
+          $f = $d.' '.$e;
           array_push($a,$f);
         }
 
-        $separated = implode("|", $a);
+        $separated = implode(" | ", $a);
 
         $PF = new productFeature();
         $PF ->product_feature_id = $max_f_n;
@@ -105,7 +120,8 @@ class ProductFeatureController extends Controller
           'data' => [
             'status' => 'success',
             'message' => 'Saved successfully.',
-            'max_f' => $max_f_n
+            'max_f' => $max_f_n,
+            'max_f_d' => strtoupper($separated)
           ]
         ] , 200);
 
@@ -157,6 +173,14 @@ class ProductFeatureController extends Controller
           if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
           if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else { $washing= 0; }
 
+          if($lines[$x]['product_silhouette_description'] == '')
+          {
+            $line_id = $x+1;
+            $err = 'Silhouette Line '.$line_id.' cannot be empty.';
+            //return ['status' => 'error','message' => $err];
+            return response([ 'data' => ['status' => 'error','message' => $err]]);
+          }
+
           $silhouette = ProductSilhouette::select('*')
           ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
           ->first();
@@ -183,11 +207,11 @@ class ProductFeatureController extends Controller
           for($y = 0 ; $y < sizeof($pfc_list) ; $y++) {
             $d = $pfc_list[$y]->Count;
             $e = $pfc_list[$y]->product_component_description;
-            $f = $d.''.$e;
+            $f = $d.' '.$e;
             array_push($a,$f);
           }
 
-          $separated = implode("|", $a);
+          $separated = implode(" | ", $a);
 
           //$PF = new productFeature();
           $PF = productFeature::find($fe_data);
@@ -199,7 +223,8 @@ class ProductFeatureController extends Controller
         return response([ 'data' => [
           'message' => 'Product Feature updated successfully',
           'prod_f' => $PF,
-          'max_f' => $fe_data
+          'max_f' => $fe_data,
+          'max_f_d' => strtoupper($separated)
         ]]);
 
 

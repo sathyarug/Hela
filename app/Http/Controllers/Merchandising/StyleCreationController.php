@@ -127,7 +127,7 @@ class StyleCreationController extends Controller
             $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
             $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
             $styleCreation->customer_id =$request->customer['customer_id'];
-            $styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
+            //$styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
             $styleCreation->division_id =$request->division;
             $styleCreation->style_description =$request->style_description;
             $styleCreation->remark_style =$request->Remarks;
@@ -222,11 +222,7 @@ class StyleCreationController extends Controller
         $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
-        // $productFeature = DB::table('style_product_feature')
-        //           ->join('product_feature', 'style_product_feature.product_feature_id', '=', 'product_feature.product_feature_id')
-        //           ->select('style_product_feature.id AS product_feature_id','product_feature.product_feature_description')
-        //           ->where('style_product_feature.id','=',$style['style_id'])
-        //           ->get();
+        $productFeature = productFeature::find($style['product_feature_id']);
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = ProductType::find($style['pack_type_id']);
@@ -242,7 +238,7 @@ class StyleCreationController extends Controller
 
 // dd($productFeature);
         $style['customer']=$customer;
-        // $style['product_feature']=$productFeature;
+        $style['product_f']=$productFeature;
         $style['ProductSilhouette']=$ProductSilhouette;
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;
@@ -369,7 +365,7 @@ public function getStyleDetailsForSMV($search){
 
     }
 
-    
+
 
 
 
