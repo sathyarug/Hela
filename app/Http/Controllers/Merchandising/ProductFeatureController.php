@@ -74,7 +74,7 @@ class ProductFeatureController extends Controller
 
         if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
         if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else{ $washing= 0; }
-        if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = $lines[$x]['display']; }
+        if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
 
         $silhouette = ProductSilhouette::select('*')
         ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
@@ -121,7 +121,8 @@ class ProductFeatureController extends Controller
             'status' => 'success',
             'message' => 'Saved successfully.',
             'max_f' => $max_f_n,
-            'max_f_d' => strtoupper($separated)
+            'max_f_d' => strtoupper($separated),
+            'max_f_c' => sizeof($lines).'-PACK'
           ]
         ] , 200);
 
@@ -168,18 +169,30 @@ class ProductFeatureController extends Controller
 
       if($lines != null && sizeof($lines) >= 1){
 
+        for($r = 0 ; $r < sizeof($lines) ; $r++)
+        {
+            if(isset($lines[$r]['product_silhouette_description']) == '')
+              {
+                $line_id = $r+1;
+                $err = 'Silhouette Line '.$line_id.' cannot be empty.';
+                return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
+        }
+
           for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
           if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
           if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else { $washing= 0; }
+          if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
 
-          if($lines[$x]['product_silhouette_description'] == '')
-          {
-            $line_id = $x+1;
-            $err = 'Silhouette Line '.$line_id.' cannot be empty.';
-            //return ['status' => 'error','message' => $err];
-            return response([ 'data' => ['status' => 'error','message' => $err]]);
-          }
+          // if($lines[$x]['product_silhouette_description'] == '')
+          // {
+          //   $line_id = $x+1;
+          //   $err = 'Silhouette Line '.$line_id.' cannot be empty.';
+          //   return response([ 'data' => ['status' => 'error','message' => $err]]);
+          // }
 
           $silhouette = ProductSilhouette::select('*')
           ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
@@ -188,7 +201,7 @@ class ProductFeatureController extends Controller
           $PF = ProductFeatureComponent::find($lines[$x]['feature_component_id']);
           $PF->product_silhouette_id = $silhouette->product_silhouette_id;
           $PF->product_component_id = $lines[$x]['pro_com_id'];
-          $PF->display_name = strtoupper($lines[$x]['display']);
+          $PF->display_name = $dis;
           $PF->emblishment = $lines[$x]['emb'];
           $PF->washing = $lines[$x]['wash'];
           $PF->save();
@@ -224,7 +237,8 @@ class ProductFeatureController extends Controller
           'message' => 'Product Feature updated successfully',
           'prod_f' => $PF,
           'max_f' => $fe_data,
-          'max_f_d' => strtoupper($separated)
+          'max_f_d' => strtoupper($separated),
+          'max_f_c' => sizeof($lines).'-PACK'
         ]]);
 
 

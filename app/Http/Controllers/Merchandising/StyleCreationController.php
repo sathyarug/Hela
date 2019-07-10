@@ -129,9 +129,9 @@ class StyleCreationController extends Controller
             $styleCreation->customer_id =$request->customer['customer_id'];
             //$styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
             $styleCreation->division_id =$request->division;
-            $styleCreation->style_description =$request->style_description;
-            $styleCreation->remark_style =$request->Remarks;
-            $styleCreation->remarks_pack =$request->Remarks_pack;
+            $styleCreation->style_description =strtoupper($request->style_description);
+            $styleCreation->remark_style =strtoupper($request->Remarks);
+            $styleCreation->remarks_pack =strtoupper($request->Remarks_pack);
             $styleCreation->saveOrFail();
 
             $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
@@ -239,6 +239,7 @@ class StyleCreationController extends Controller
 // dd($productFeature);
         $style['customer']=$customer;
         $style['product_f']=$productFeature;
+        $style['product_f_pack_c']=$productFeature['count'].'-PACK';
         $style['ProductSilhouette']=$ProductSilhouette;
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;
