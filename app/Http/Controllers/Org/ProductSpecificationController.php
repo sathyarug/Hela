@@ -51,6 +51,7 @@ class  ProductSpecificationController extends Controller
       {
         $productSpecification= new  ProductSpecification ();
         $productSpecification->fill($request->all());
+        $productSpecification->prod_cat_description = strtoupper($request->prod_cat_description);
         $productSpecification->status = 1;
         $productSpecification->save();
 
