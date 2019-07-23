@@ -101,6 +101,7 @@ class GarmentOptionsController extends Controller
         if($garmentoptions->validate($request->all()))
         {
           $garmentoptions->fill($request->all());
+          $garmentoptions->garment_options_description=strtoupper($garmentoptions->garment_options_description);
           $garmentoptions->save();
 
           return response([ 'data' => [

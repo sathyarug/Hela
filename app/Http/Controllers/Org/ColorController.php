@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Org;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Color;
 use App\Libraries\AppAuthorize;
@@ -54,12 +54,15 @@ class ColorController extends Controller
         if($color->validate($request->all()))
         {
           $color->fill($request->all());
+          $color->color_code=strtoupper($color->color_code);
+          $color->color_name=strtoupper($color->color_name);
           $color->status = 1;
           $color->save();
 
           return response([ 'data' => [
             'message' => 'Color saved successfully',
-            'color' => $color
+            'color' => $color,
+            'status'=>1
             ]
           ], Response::HTTP_CREATED );
         }
@@ -97,16 +100,33 @@ class ColorController extends Controller
     {
       if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
+
         $color = Color::find($id);
         if($color->validate($request->all()))
         {
+          $is_exists_costing_finish_goods = DB::table('costing_finish_good_components')->where('color_id', $id)->exists();
+          $is_exists_costing_goods = DB::table('costing_finish_goods')->where('combo_color_id', $id)->exists();
+          $is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
+          $is_exsits_cus_po=DB::table('merc_customer_order_details')->where('style_color', $id)->exists();
+          if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||$is_exists==true||$is_exsits_cus_po==true){
+            return response([ 'data' => [
+              'message' => 'Color Already in Use',
+              'status' =>0
+            ]]);
+          }
+          else{
+
           $color->fill($request->except('color_code'));
+          $color->color_code=strtoupper($color->color_code);
+          $color->color_name=strtoupper($color->color_name);
           $color->save();
 
           return response([ 'data' => [
             'message' => 'Color updated successfully',
-            'color' => $color
+            'color' => $color,
+            'status'=>1
           ]]);
+        }
         }
         else
         {
@@ -126,13 +146,27 @@ class ColorController extends Controller
     {
       if($this->authorize->hasPermission('COLOR_DELETE'))//check permission
       {
+        $is_exists_costing_finish_goods = DB::table('costing_finish_good_components')->where('color_id', $id)->exists();
+        $is_exists_costing_goods = DB::table('costing_finish_goods')->where('combo_color_id', $id)->exists();
+        $is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
+        $is_exsits_cus_po=DB::table('merc_customer_order_details')->where('style_color', $id)->exists();
+        if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||$is_exists==true||$is_exsits_cus_po==true){
+          return response([
+            'data' => [
+              'message' => 'Color Already in Use',
+              'status'=>0,
+            ]
+          ]);
+        }
+
         $color = Color::where('color_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Color was deactivated successfully.',
-            'color' => $color
+            'color' => $color,
+            'status'=>1
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
       else {
         return response($this->authorize->error_response(), 403);

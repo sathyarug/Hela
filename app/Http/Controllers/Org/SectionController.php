@@ -109,15 +109,9 @@ class SectionController extends Controller
             ]
           ]);
         }
-        
+
         if($companySection==null){
-                  return response([
-                    'data' => [
-                      'message' => 'Section is Already in Use',
-                      'status'=>'0'
-                    ]
-                  ]);
-        $section = Section::find($id);
+          $section = Section::find($id);
         if($section->validate($request->all()))
         {
           $section->fill($request->except('section_code'));
@@ -125,7 +119,8 @@ class SectionController extends Controller
 
           return response([ 'data' => [
             'message' => 'Section updated successfully',
-            'section' => $section
+            'section' => $section,
+            'status'=>'1'
           ]]);
         }
       }
@@ -160,7 +155,7 @@ class SectionController extends Controller
               $section = Section::where('section_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Section was deactivated successfully.',
+            'message' => 'Section deactivated successfully.',
             'section' => $section,
             'status'=>'1'
           ]

@@ -97,7 +97,7 @@ class UomController extends Controller
     {
       if($this->authorize->hasPermission('UOM_MANAGE'))//check permission
       {
-        $is_exists = DB::table('item_master')->where('uom_id', $id)->exists();
+        $is_exists = DB::table('item_uom')->where('uom_id', $id)->exists();
         if($is_exists){ // uom already used in item master table
           return response([
             'data' => [

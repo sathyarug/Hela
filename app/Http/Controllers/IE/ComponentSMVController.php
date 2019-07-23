@@ -13,7 +13,7 @@ use App\Models\IE\ComponentSMVDetails;
 use App\Models\IE\ComponentSMVDetailsHistory;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
 use App\Models\IE\GarmentOperationMaster;
-use App\Models\IE\SMVUpdateHistory;
+use App\Models\IE\SMVUpdate;
 use App\Models\IE\ComponentSMVSummary;
 use App\Models\IE\ComponentSMVSummaryHistory;
 use App\Models\Merchandising\StyleCreation;
@@ -43,11 +43,10 @@ class ComponentSMVController extends Controller
 
         return response(['data'=>$this->details_search($styleId,$bomStageId,$colorOptionId)]);
       }
-      else if($type=='checkSMVRange'){
-        $productSilhouetteId=$request->productSilhouetteId;
-        $smv=$request->smv;
-        return ($this->check_smv_range($productSilhouetteId,$smv));
-      }
+    /*  else if($type=='checkSMVRange'){
+      $data=$request->data;
+        return ($this->check_smv_range($data));
+      }*/
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -219,36 +218,51 @@ class ComponentSMVController extends Controller
   }
     }
 
-    public function check_smv_range($productSilhouetteId,$smv){
+    public function check_smv_range(Request $request){
+        $data=$request->data;
+          for($i=0;$i<sizeof($data);$i++){
+          $styleId=$data[$i]['style_id'];
+          $productSilhouetteId=$data[$i]['product_silhouette_id'];
+          $smv=$data[$i]['total_smv'];
+      $smv_devision=SMVUpdate::join('style_creation','smv_update.customer_id','=','style_creation.customer_id')
+        ->where('style_creation.style_id','=',$styleId)
+        ->select('*')
+        ->first();
+      $SMVUpdate=SMVUpdate::join('style_creation','smv_update.customer_id','=','style_creation.customer_id')
+        ->where('style_creation.style_id','=',$styleId)
+       ->where('smv_update.product_silhouette_id','=',$productSilhouetteId)
+       ->where('smv_update.status','=',1)
+       ->where('style_creation.division_id','=',$smv_devision->division_id)
+       ->where('smv_update.min_smv','<=',$smv)
+       ->where('smv_update.max_smv','>=',$smv)
+      ->orderBy('version', 'DESC')
+       ->select('*')
+       ->first();
 
 
 
-      $smvUpdateHistory=SMVUpdateHistory::where('style_creation.style_id','=',$styleId)
-      ->where('ie_smv_his.min_smv','<=',$styleWiseTotalSMV)
-      ->where('ie_smv_his.max_smv','>=',$styleWiseTotalSMV)
-      ->select('*')
-      ->first();
-      //->toSql();
-      //print_r($smvUpdateHistory);
-
-      if($smvUpdateHistory==null){
+      if($SMVUpdate==null){
         return response([
            'data' => [
-             'message' => 'SMV is Not in the Range',
+             'message' => ' is Not in Range',
+             'append'=>'Total SMV of the ',
              'status' => 0,
+             'silhouette'=>$data[$i]['product_silhouette_description'],
            ]
          ]);
 
       }
-      else if($smvUpdateHistory!=null){
-         return response([
-           'data' => [
-             'message' => 'SMV is in the Range',
-             'status' => 1,
-           ]
-         ]);
-        //echo("pass");
-      }
+
+
+    }
+    //
+       return response([
+         'data' => [
+           'message' => 'SMV is in the Range',
+           'status' => 1,
+         ]
+       ]);
+      //echo("pass");
 
 
     }
@@ -276,16 +290,38 @@ $component_smv_summary=ComponentSMVSummary::join('product_component','ie_compone
 ->join('product_silhouette','ie_component_smv_summary.product_silhouette_id','=','product_silhouette.product_silhouette_id')
 ->join('ie_component_smv_header','ie_component_smv_summary.smv_component_header_id','=','ie_component_smv_header.smv_component_header_id')
 ->join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
-->select('product_component.product_component_description','product_silhouette.product_silhouette_description','ie_component_smv_summary.*','style_creation.style_no')
+->select('product_component.product_component_description','product_silhouette.product_silhouette_description','ie_component_smv_summary.*','style_creation.style_no','style_creation.style_id')
 ->where('ie_component_smv_summary.smv_component_header_id','=',$id)
 ->get();
 
 $data=array($component_smv_header_details,$componet_smv_details_list,$component_smv_summary);
 
+$styleId=$component_smv_header_details[0]->style_id;
+$style=StyleCreation::select('*')
+->where('style_id','=',$styleId)
+->first();
+$pFeatureID=$style->product_feature_id;
+$cus=$style->customer_id;
+$devision=$style->division_id;
+$silhouetteList=ProductFeatureComponent::select('*')
+->where('product_feature_id','=',$pFeatureID)
+->get();
+for($i=0;$i<sizeof($silhouetteList);$i++){
+  $checkRange=SMVUpdate::select('*')
+  ->where('customer_id','=',$cus)
+  ->where('division_id','=',$devision)
+  ->where('product_silhouette_id','=',$silhouetteList[$i]['product_silhouette_id'])
+  ->where('status','=',1)
+  ->first();
+if($checkRange==null){
+  return response(['data'=>"Error"]);
 
+}
 
+}
 if($component_smv_header_details == null)
   throw new ModelNotFoundException("Requested Component SMV not found", 1);
+
 else
   return response([ 'data' => $data]);
 
@@ -364,9 +400,34 @@ else
   	}
     private function details_search($styleId,$bomStageID,$colorOptionId){
 
+      $style=StyleCreation::select('*')
+      ->where('style_id','=',$styleId)
+      ->first();
+      $pFeatureID=$style->product_feature_id;
+      $cus=$style->customer_id;
+      $devision=$style->division_id;
+      $silhouetteList=ProductFeatureComponent::select('*')
+      ->where('product_feature_id','=',$pFeatureID)
+      ->get();
+      for($i=0;$i<sizeof($silhouetteList);$i++){
+        $checkRange=SMVUpdate::select('*')
+        ->where('customer_id','=',$cus)
+        ->where('division_id','=',$devision)
+        ->where('status','=',1)
+        ->where('product_silhouette_id','=',$silhouetteList[$i]['product_silhouette_id'])
+        ->first();
+
+        if($checkRange==null){
+          $data=array('','','please set SMV Range to All Silhouettes','1');
+          return $data;
+        }
+
+      }
+
         $component_smv = ComponentSMVHeader::where('style_id','=',$styleId)
         ->where('bom_stage_id','=',$bomStageID)
         ->where('col_opt_id','=',$colorOptionId)
+        ->where('status','=',1)
         ->select('*')
         //->toSql();
         ->first();
@@ -416,6 +477,7 @@ else
       ->get();
       return $details;
     }
+
     }
 
     //get searched Service Types for datatable plugin format
@@ -432,10 +494,13 @@ else
       $component_smv_list = ComponentSMVHeader::join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
       ->join('merc_bom_stage','ie_component_smv_header.bom_stage_id','=','merc_bom_stage.bom_stage_id')
       ->join('merc_color_options','ie_component_smv_header.col_opt_id','=','merc_color_options.col_opt_id')
-        ->select('ie_component_smv_header.smv_component_header_id','ie_component_smv_header.total_smv','merc_bom_stage.bom_stage_description','ie_component_smv_header.revision_no','ie_component_smv_header.comments','style_creation.style_no','merc_color_options.color_option','ie_component_smv_header.status')
+      ->select('ie_component_smv_header.smv_component_header_id','ie_component_smv_header.total_smv','merc_bom_stage.bom_stage_description','ie_component_smv_header.revision_no','ie_component_smv_header.comments','style_creation.style_no','merc_color_options.color_option','ie_component_smv_header.status')
       ->where('ie_component_smv_header.comments'  , 'like', $search.'%' )
       ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
       ->orWhere('merc_color_options.color_option'  , 'like', $search.'%' )
+      ->orWhere('merc_bom_stage.bom_stage_description'  , 'like', $search.'%' )
+      ->orWhere('ie_component_smv_header.total_smv'  , 'like', $search.'%' )
+
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
@@ -446,6 +511,9 @@ else
       ->where('ie_component_smv_header.comments'  , 'like', $search.'%' )
       ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
       ->orWhere('merc_color_options.color_option'  , 'like', $search.'%' )
+      ->orWhere('merc_bom_stage.bom_stage_description'  , 'like', $search.'%' )
+      ->orWhere('ie_component_smv_header.total_smv'  , 'like', $search.'%' )
+
       ->count();
 
       return [

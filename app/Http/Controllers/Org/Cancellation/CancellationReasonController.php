@@ -33,6 +33,10 @@ class CancellationReasonController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type=='reasonforsmv'){
+        $search = $request->search;
+        return response($this->autocompleteSmvChange_search($search));
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -52,6 +56,7 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
+          $cluster->reason_code=strtoupper($cluster->reason_code);
           $cluster->status = 1;
           $cluster->save();
 
@@ -99,6 +104,7 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->except('group_code'));
+          $cluster->reason_code=strtoupper($cluster->reason_code);
           $cluster->save();
 
           return response([ 'data' => [
@@ -187,6 +193,14 @@ class CancellationReasonController extends Controller
   		->where([['reason_description', 'like', '%' . $search . '%'],]) ->get();
   		return $cluster_lists;
   	}
+    //change reasons for smv change;
+    private function autocompleteSmvChange_search($search){
+
+      $reasons_list = CancellationReason::join('org_cancellation_category','org_cancellation_reason.reason_category','=','org_cancellation_category.category_id')
+      ->where('org_cancellation_category.category_code','=','SMV_CAN')
+      ->where([['org_cancellation_reason.reason_description', 'like', '%' . $search . '%'],])->get();
+      return $reasons_list;
+    }
 
 
     //get searched Clusters for datatable plugin format

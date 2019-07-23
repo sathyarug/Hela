@@ -103,7 +103,7 @@ class SeasonController extends Controller
         if($costingBulkFeatureDetails!=null){
           return response([
             'data' => [
-              'message' => 'Sason Already in Use.',
+              'message' => 'Season Already in Use.',
               'status'=>'0',
             ]
           ]);
