@@ -12,6 +12,7 @@ use App\Models\Org\Location\Location;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class LocationController extends Controller
 {
@@ -56,8 +57,7 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->all());
-          $location->loc_code = strtoupper($location->loc_code);
-          $location->loc_name = strtoupper($location->loc_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
   				$location->status = 1;
   				$location->created_by = 1;
   				$result = $location->saveOrFail();

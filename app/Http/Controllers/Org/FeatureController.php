@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Feature;
 use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
+
 
 use Exception;
 
@@ -50,7 +52,7 @@ class FeatureController extends Controller
       {
         $feature->fill($request->all());
         $feature->status = 1;
-        $feature->product_feature_description=strtoupper($feature->product_feature_description);
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($feature);
         $feature->save();
 
         return response([ 'data' => [
@@ -96,7 +98,7 @@ class FeatureController extends Controller
         else{
 
         $feature->fill($request->all());
-        $feature->product_feature_description=strtoupper($feature->product_feature_description);
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($feature);
         $feature->save();
 
         return response([ 'data' => [

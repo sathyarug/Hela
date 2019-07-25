@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationReason;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class CancellationReasonController extends Controller
 {
@@ -58,6 +59,7 @@ class CancellationReasonController extends Controller
           $cluster->fill($request->all());
           $cluster->reason_code=strtoupper($cluster->reason_code);
           $cluster->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -104,7 +106,7 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->except('group_code'));
-          $cluster->reason_code=strtoupper($cluster->reason_code);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [

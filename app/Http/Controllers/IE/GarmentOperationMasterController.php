@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\IE\GarmentOperationMaster;
 use Exception;
+use App\Libraries\CapitalizeAllFields;
 
 class GarmentOperationMasterController extends Controller
 {
@@ -47,6 +48,7 @@ class GarmentOperationMasterController extends Controller
       if($garmentOperation->validate($request->all()))
       {
         $garmentOperation->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($garmentOperation);
         $garmentOperation->status = 1;
         $garmentOperation->save();
 

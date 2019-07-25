@@ -9,18 +9,20 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Color;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 use Exception;
 
 class ColorController extends Controller
 {
     var $authorize = null;
 
+
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
       $this->authorize = new AppAuthorize();
-    }
+        }
 
     //get Color list
     public function index(Request $request)
@@ -50,13 +52,14 @@ class ColorController extends Controller
     {
       if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
+        //$capitalizeAllfields=new CapitalizeAllFields();
         $color = new Color();
         if($color->validate($request->all()))
         {
           $color->fill($request->all());
-          $color->color_code=strtoupper($color->color_code);
-          $color->color_name=strtoupper($color->color_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($color);
           $color->status = 1;
+          //die();
           $color->save();
 
           return response([ 'data' => [
@@ -117,8 +120,7 @@ class ColorController extends Controller
           else{
 
           $color->fill($request->except('color_code'));
-          $color->color_code=strtoupper($color->color_code);
-          $color->color_name=strtoupper($color->color_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($color);
           $color->save();
 
           return response([ 'data' => [

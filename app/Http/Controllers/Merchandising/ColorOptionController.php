@@ -61,7 +61,7 @@ class ColorOptionController extends Controller
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option saved successfully',
+            'message' => 'Color Type saved successfully',
             'originType' => $colorOption,
             'status'=>'1'
             ]
@@ -86,7 +86,7 @@ class ColorOptionController extends Controller
       {
         $colorOption = ColorOption::find($id);
         if($colorOption == null)
-          throw new ModelNotFoundException("Requested Color Option not found", 1);
+          throw new ModelNotFoundException("Requested Color Type not found", 1);
         else
           return response([ 'data' => $colorOption ]);
       }
@@ -104,7 +104,7 @@ class ColorOptionController extends Controller
           $is_exsits=DB::table('costing')->where('color_type_id',$id)->exists();
           if(  $is_exsits==true){
             return response(['data'=>[
-              'message'=>'Color Option Already in Use',
+              'message'=>'Color Type Already in Use',
               'status'=>'0'
               ]]);
           }
@@ -117,7 +117,7 @@ class ColorOptionController extends Controller
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option updated successfully',
+            'message' => 'Color Type updated successfully',
             'colorOption' => $colorOption,
             'status'=>'1'
           ]]);
@@ -144,7 +144,7 @@ class ColorOptionController extends Controller
         if($is_exsits==true){
           return response([
             'data'=>[
-              'message'=>'Color Option Already in Use.',
+              'message'=>'Color Type Already in Use.',
               'status'=>'0'
             ]
           ]);
@@ -153,7 +153,7 @@ class ColorOptionController extends Controller
         $colorOption = ColorOption::where('col_opt_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Color Option deactivated successfully.',
+            'message' => 'Color Type deactivated successfully.',
             'colorOption' => $colorOption,
             'status'=>'1'
           ]
@@ -187,7 +187,7 @@ class ColorOptionController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Color Option already exists'];
+        return ['status' => 'error','message' => 'Color Type already exists'];
       }
     }
 

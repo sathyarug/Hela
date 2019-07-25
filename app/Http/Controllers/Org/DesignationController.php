@@ -11,6 +11,7 @@ use App\Models\Org\Designation;
 use Exception;
 use App\Libraries\AppAuthorize;
 use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 class DesignationController extends Controller
 {
@@ -55,7 +56,7 @@ class DesignationController extends Controller
         {
           $designation->fill($request->all());
           $designation->status = 1;
-          $designation->des_code=strtoupper($designation->des_code);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [
@@ -111,6 +112,7 @@ class DesignationController extends Controller
           }
           else{
           $designation->fill($request->except('des_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [

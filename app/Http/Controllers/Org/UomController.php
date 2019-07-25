@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Http\Controllers\Org;
-
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\UOM;
-use Exception;
+
 use App\Libraries\AppAuthorize;
 
 class UomController extends Controller
@@ -54,6 +55,8 @@ class UomController extends Controller
         if($uom->validate($request->all()))
         {
           $uom->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
+          $uom->uom_code=$request->uom_code;
           $uom->status = 1;
           $uom->save();
 
@@ -111,6 +114,8 @@ class UomController extends Controller
           if($uom->validate($request->all()))
           {
             $uom->fill($request->except('uom_code'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
+            $uom->uom_code=$request->uom_code;
             $uom->save();
 
             return response([ 'data' => [
