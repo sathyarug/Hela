@@ -524,6 +524,12 @@ Route::prefix('core/')->group(function(){
 
 });
 
+Route::prefix('manufacturing/')->group(function(){
+
+    Route::apiResource('prod-order','Manufacturing\ProdOrderController');
+
+});
+
 
 Route::prefix('app/')->group(function(){
 
