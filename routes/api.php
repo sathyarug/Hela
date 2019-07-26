@@ -128,8 +128,10 @@ Route::prefix('org/')->group(function(){
 
     Route::get('customerSizeGrids/validate' , 'Org\CustomerSizeGridController@validate_data');
     Route::apiResource('customerSizeGrids','Org\CustomerSizeGridController');
+
     Route::get('features/validate' , 'Org\FeatureController@validate_data');
     Route::apiResource('features','Org\FeatureController');
+    Route::post('features/load_pro_list', 'Org\FeatureController@load_pro_list');
 
     Route::get('garmentoptions/validate' , 'Org\GarmentOptionsController@validate_data');
     Route::apiResource('garmentoptions','Org\GarmentOptionsController');
@@ -149,8 +151,8 @@ Route::prefix('org/')->group(function(){
     Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
     Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
 
-    Route::get('features/validate' , 'Org\FeatureController@validate_data');
-    Route::apiResource('features','Org\FeatureController');
+    //Route::get('features/validate' , 'Org\FeatureController@validate_data');
+    //Route::apiResource('features','Org\FeatureController');
 
     Route::get('silhouettes/validate' , 'Org\SilhouetteController@validate_data');
     Route::apiResource('silhouettes','Org\SilhouetteController');
@@ -176,8 +178,8 @@ Route::prefix('org/')->group(function(){
   Route::get('silhouette-classification/validate' , 'Org\SilhouetteClassificationController@validate_data');
   Route::apiResource('silhouette-classification','Org\SilhouetteClassificationController');
 
-  Route::get('features/validate' , 'Org\FeatureController@validate_data');
-  Route::apiResource('features','Org\FeatureController');
+  //Route::get('features/validate' , 'Org\FeatureController@validate_data');
+  //Route::apiResource('features','Org\FeatureController');
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
@@ -216,8 +218,9 @@ Route::prefix('ie/')->group(function(){
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
    Route::apiResource('styles','Merchandising\StyleCreationController');
    Route::apiResource('bomStages','Merchandising\BOMStageController');
-   Route::apiResource('ComponentSMVDetails','IE\ComponentSMVController');
-    //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+   Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
+   Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
+   Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
@@ -360,6 +363,8 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('style/validate' , 'Merchandising\StyleCreationController@validate_data');
     Route::apiResource('style','Merchandising\StyleCreationController');
+    Route::post('pro_listload', 'Merchandising\StyleCreationController@pro_listload');
+
 
     Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
     Route::apiResource('rounds','Merchandising\RoundController');
@@ -457,6 +462,33 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
     Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
     Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
+
+    Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
+    Route::apiResource('items','Merchandising\Item\ItemController');
+
+    Route::apiResource('item-categories','Merchandising\Item\CategoryController');
+    Route::apiResource('item-sub-categories','Merchandising\Item\SubCategoryController');
+    Route::apiResource('item-content-types','Merchandising\Item\ContentTypeController');
+    Route::apiResource('item-compositions','Merchandising\Item\CompositionController');
+    Route::get('item-properties/validate','Merchandising\Item\ItemPropertyController@validate_data');
+    Route::apiResource('item-properties','Merchandising\Item\ItemPropertyController');
+    Route::apiResource('item-property-values','Merchandising\Item\ItemPropertyValueController');
+
+    Route::post('load_un_assign_list', 'Merchandising\Item\ItemPropertyController@load_un_assign_list');
+    Route::post('load_un_assign_list2', 'Merchandising\Item\ItemPropertyController@load_un_assign_list2');
+    Route::post('save_assign', 'Merchandising\Item\ItemPropertyController@save_assign');
+    Route::post('final_save_assign', 'Merchandising\Item\ItemPropertyController@final_save_assign');
+    Route::post('save_pro_name', 'Merchandising\Item\ItemPropertyController@save_pro_name');
+    Route::post('remove_assign', 'Merchandising\Item\ItemPropertyController@remove_assign');
+    Route::post('remove_unassign', 'Merchandising\Item\ItemPropertyController@remove_unassign');
+
+
+    Route::apiResource('pro-silhouette','Merchandising\ProductSilhouetteController');
+    Route::post('save_product_feature','Merchandising\ProductFeatureController@save_product_feature');
+    Route::post('pro_listload_edit', 'Merchandising\ProductFeatureController@pro_listload_edit');
+    Route::apiResource('product_feature','Merchandising\ProductFeatureController');
+    Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
+    Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
 
 
 });

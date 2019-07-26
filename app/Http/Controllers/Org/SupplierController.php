@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Org;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Supplier;
@@ -50,11 +51,16 @@ class SupplierController extends Controller
       if($supplier->validate($request->all()))
       {
         $supplier->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($supplier);
+        $supplier->supplier_email=$request->supplier_email;
+        $supplier->supplier_website=$request->supplier_website;
+        $supplier->managing_director_email=$request->managing_director_email;
+        $supplier->finance_director_email=$request->finance_director_email;
         $supplier->status = 1;
         $supplier->save();
 
         return response([ 'data' => [
-          'message' => 'Supplier was saved successfully',
+          'message' => 'Supplier saved successfully',
           'supplier' => $supplier
           ]
         ], Response::HTTP_CREATED );
@@ -101,10 +107,15 @@ class SupplierController extends Controller
       if($supplier->validate($request->all()))
       {
         $supplier->fill($request->except('supplier_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($supplier);
+        $supplier->supplier_email=$request->supplier_email;
+        $supplier->supplier_website=$request->supplier_website;
+        $supplier->managing_director_email=$request->managing_director_email;
+        $supplier->finance_director_email=$request->finance_director_email;
         $supplier->save();
 
         return response([ 'data' => [
-          'message' => 'Supplier was updated successfully',
+          'message' => 'Supplier updated successfully',
           'supplier' => $supplier
         ]]);
       }
@@ -122,7 +133,7 @@ class SupplierController extends Controller
       $supplier = Supplier::where('supplier_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Supplier was deactivated successfully.',
+          'message' => 'Supplier deactivated successfully.',
           'supplier' => $supplier
         ]
       ] , Response::HTTP_NO_CONTENT);

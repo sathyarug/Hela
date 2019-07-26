@@ -48,6 +48,7 @@ class OriginTypeController extends Controller
       {
         $originType->fill($request->all());
         $originType->status = 1;
+        $originType->origin_type=strtoupper($originType->origin_type);
         $originType->save();
 
         return response([ 'data' => [
@@ -82,6 +83,7 @@ class OriginTypeController extends Controller
       if($originType->validate($request->all()))
       {
         $originType->fill($request->except('origin_type'));
+        $originType->origin_type=strtoupper($originType->origin_type);
         $originType->save();
 
         return response([ 'data' => [

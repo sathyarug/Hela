@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\GarmentOptions;
 use Exception;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class GarmentOptionsController extends Controller
 {
@@ -54,6 +55,7 @@ class GarmentOptionsController extends Controller
         {
           $garmentoptions->fill($request->all());
           $garmentoptions->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $garmentoptions->save();
 
           return response([ 'data' => [
@@ -100,6 +102,7 @@ class GarmentOptionsController extends Controller
         if($garmentoptions->validate($request->all()))
         {
           $garmentoptions->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $garmentoptions->save();
 
           return response([ 'data' => [

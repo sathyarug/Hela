@@ -79,7 +79,7 @@ class ProcessApprovalController extends Controller {
       }
 
       return response([ 'data' => [
-        'message' => 'Process levels were saved successfully'
+        'message' => 'Process levels saved successfully'
         ]
       ], Response::HTTP_CREATED );
     }

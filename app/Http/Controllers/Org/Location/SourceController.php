@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Source;
 use App\Models\Org\Location\Cluster;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
 class SourceController extends Controller
 {
     var $authorize = null;
@@ -53,8 +53,7 @@ class SourceController extends Controller
         if($source->validate($request->all()))
         {
           $source->fill($request->all());
-          $source->source_code = strtoupper($source->source_code);
-          $source->source_name = strtoupper($source->source_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $source->status = 1;
           $source->save();
 
@@ -111,7 +110,7 @@ class SourceController extends Controller
             ]);
           }else{
           $source->fill($request->except('source_code'));
-          $source->source_name = strtoupper($source->source_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $source->save();
 
           return response([ 'data' => [

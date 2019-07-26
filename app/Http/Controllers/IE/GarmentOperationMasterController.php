@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\IE\GarmentOperationMaster;
 use Exception;
+use App\Libraries\CapitalizeAllFields;
 
 class GarmentOperationMasterController extends Controller
 {
@@ -47,11 +48,12 @@ class GarmentOperationMasterController extends Controller
       if($garmentOperation->validate($request->all()))
       {
         $garmentOperation->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($garmentOperation);
         $garmentOperation->status = 1;
         $garmentOperation->save();
 
         return response([ 'data' => [
-          'message' => 'Garment Operation successfully',
+          'message' => 'Garment Operation Saved successfully',
           'garmentOperation' => $garmentOperation
           ]
         ], Response::HTTP_CREATED );
@@ -139,9 +141,11 @@ class GarmentOperationMasterController extends Controller
     //search Service Type for autocomplete
     private function autocomplete_search($search)
   	{
-  		$garment_operation_lists = GarmentOperationMaster::select('garment_operation_id','garment_operation_name')
-  		->where([['garment_operation_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $garment_operation_lists;
+  		$garment_operation_lists = GarmentOperationMaster::where([['garment_operation_name', 'like', '%' . $search . '%'],])
+       ->where('status','1')
+      ->pluck('garment_operation_name')
+      ->toArray();
+  		return  json_encode($garment_operation_lists);
   	}
 
 

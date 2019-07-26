@@ -12,6 +12,7 @@ use App\Models\Org\Location\Location;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class LocationController extends Controller
 {
@@ -56,8 +57,7 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->all());
-          $location->loc_code = strtoupper($location->loc_code);
-          $location->loc_name = strtoupper($location->loc_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
   				$location->status = 1;
   				$location->created_by = 1;
   				$result = $location->saveOrFail();
@@ -74,7 +74,7 @@ class LocationController extends Controller
   				$location->costCenters()->saveMany($save_cost_centers);
 
           return response([ 'data' => [
-            'message' => 'Location was saved successfully',
+            'message' => 'Location saved successfully',
             'location' => $location
             ]
           ], Response::HTTP_CREATED );
@@ -253,7 +253,9 @@ class LocationController extends Controller
         $order_type = $order['dir'];
 
         $location_list = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-    		->select('org_location.*', 'org_company.company_name')
+        ->join('fin_currency', 'org_location.currency_code', '=', 'fin_currency.currency_id')
+        ->join('org_country', 'org_location.country_code', '=', 'org_country.country_id')
+    		->select('org_location.*', 'org_company.company_name','fin_currency.currency_code','org_country.country_description')
     		->where('loc_code','like',$search.'%')
     		->orWhere('loc_name', 'like', $search.'%')
     		->orWhere('company_name', 'like', $search.'%')
@@ -261,7 +263,8 @@ class LocationController extends Controller
     		->offset($start)->limit($length)->get();
 
     		$location_count = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-    		->select('org_location.*', 'org_company.company_name')
+        ->join('fin_currency', 'org_location.currency_code', '=', 'fin_currency.currency_id')
+        ->select('org_location.*', 'org_company.company_name')
     		->where('loc_code','like',$search.'%')
     		->orWhere('loc_name', 'like', $search.'%')
     		->orWhere('company_name', 'like', $search.'%')

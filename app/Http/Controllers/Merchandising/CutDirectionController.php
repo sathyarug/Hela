@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Models\Merchandising\CutDirection;
 use Exception;
@@ -50,6 +51,7 @@ class CutDirectionController extends Controller{
     {
       $cutDirection = new CutDirection();
       $cutDirection->fill($request->all());
+      $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cutDirection);
       $cutDirection->status = 1;
       $cutDirection->save();
 
@@ -88,6 +90,7 @@ class CutDirectionController extends Controller{
     {
       $cutDirection = CutDirection::find($id);
       $cutDirection->fill($request->all());
+      $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cutDirection);
       $cutDirection->save();
 
       return response([ 'data' => [

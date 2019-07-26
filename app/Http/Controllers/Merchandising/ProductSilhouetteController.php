@@ -16,6 +16,43 @@ use App\Http\Resources\ProductCategoryResource;
 
 class ProductSilhouetteController extends Controller
 {
+
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
+
+    public function index(Request $request)
+    {
+      $type = $request->type;
+      if($type == 'datatable')   {
+        $data = $request->all();
+        return response($this->datatable_search($data));
+      }
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
+      }
+    }
+
+    private function autocomplete_search($search)
+  	{
+  		$silhouette_lists = ProductSilhouette::where([['product_silhouette_description', 'like', '%' . $search . '%'],])
+       ->where('status','1')
+       ->pluck('product_silhouette_description')
+       ->toArray();
+  		return  json_encode($silhouette_lists);
+  	}
+
+
     public function loadProductSilhouette(Request $request) {
         try{
 //            echo json_encode(ProductCategory::all());

@@ -163,7 +163,9 @@ class CostCenterController extends Controller
     private function autocomplete_search($search)
   	{
   		$cost_center_list = CostCenter::select('cost_center_id','cost_center_name')
-  		->where([['cost_center_code', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['cost_center_name', 'like', '%' . $search . '%'],]) ->get();
+
+      //echo $cost_center_list;die();
   		return $cost_center_list;
   	}
 

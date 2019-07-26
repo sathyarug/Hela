@@ -14,6 +14,7 @@ use App\Models\Org\Division;
 use App\Models\Finance\Accounting\PaymentTerm;
 use App\Currency;
 use App\Http\Resources\CustomerResource;
+use App\Libraries\CapitalizeAllFields;
 
 
 
@@ -51,10 +52,11 @@ class CustomerController extends Controller
       {
         $customer->fill($request->all());
         $customer->status = 1;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($customer);
         $customer->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was saved successfully',
+          'message' => 'Customer saved successfully',
           'customer' => $customer
           ]
         ], Response::HTTP_CREATED );
@@ -85,10 +87,11 @@ class CustomerController extends Controller
       if($customer->validate($request->all()))
       {
         $customer->fill($request->except('customer_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($customer);
         $customer->save();
 
         return response([ 'data' => [
-          'message' => 'Customer was updated successfully',
+          'message' => 'Customer updated successfully',
           'customer' => $customer
         ]]);
       }
@@ -106,7 +109,7 @@ class CustomerController extends Controller
       $customer = Customer::where('customer_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Customer was deactivated successfully.',
+          'message' => 'Customer deactivated successfully.',
           'customer' => $customer
         ]
       ] , Response::HTTP_NO_CONTENT);

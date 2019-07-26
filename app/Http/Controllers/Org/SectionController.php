@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Section;
+use App\Models\Org\CompanySection;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
 class SectionController extends Controller
 {
     var $authorize = null;
@@ -51,7 +52,10 @@ class SectionController extends Controller
           $section = new Section();
           if($section->validate($request->all()))
           {
+            //$request->section_code=strtoupper($request->section_code);
+            //echo($request->section_code);
             $section->fill($request->all());
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
             $section->status = 1;
             $section->save();
 
@@ -95,17 +99,32 @@ class SectionController extends Controller
     {
       if($this->authorize->hasPermission('SECTION_MANAGE'))//check permission
       {
-        $section = Section::find($id);
+        $companySection=CompanySection::where([['section_id','=',$id]])->first();
+
+        if($companySection!=null){
+          return response([
+            'data' => [
+              'message' => 'Section is Already in Use',
+              'status'=>'0'
+            ]
+          ]);
+        }
+
+        if($companySection==null){
+          $section = Section::find($id);
         if($section->validate($request->all()))
         {
           $section->fill($request->except('section_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
           $section->save();
 
           return response([ 'data' => [
             'message' => 'Section updated successfully',
-            'section' => $section
+            'section' => $section,
+            'status'=>'1'
           ]]);
         }
+      }
         else
         {
           $errors = $section->errors();// failure, get errors
@@ -123,14 +142,27 @@ class SectionController extends Controller
     {
       if($this->authorize->hasPermission('SECTION_DELETE'))//check permission
       {
-        $section = Section::where('section_id', $id)->update(['status' => 0]);
+        $companySection=CompanySection::where([['section_id','=',$id]])->first();
+
+        if($companySection!=null){
+          return response([
+            'data' => [
+              'message' => 'Section is Already in Use',
+              'status'=>'0'
+            ]
+          ]);
+        }
+            else if($companySection==null){
+              $section = Section::where('section_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Section was deactivated successfully.',
-            'section' => $section
+            'message' => 'Section deactivated successfully.',
+            'section' => $section,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
+    }
       else {
         return response($this->authorize->error_response(), 401);
       }

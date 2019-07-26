@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Country;
 use App\Http\Resources\Org\CountryResource;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 class CountryController extends Controller
 {
@@ -50,14 +52,17 @@ class CountryController extends Controller
         if($country->validate($request->all()))
         {
           $country->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
           $country->status = 1;
           $country->save();
           return response([
             'data' => [
               'message' => 'Country saved successfully',
-              'country' => $country
+              'country' => $country,
+              'status'=>'1'
             ]
           ] , Response::HTTP_CREATED );
+
         }
         else{
           $errors = $department->errors();// failure, get errors
@@ -95,16 +100,35 @@ class CountryController extends Controller
         $country = Country::find($id);
         if($country->validate($request->all()))
         {
-          $country->fill($request->except('country_code'));
-          $country->save();
+          $is_exsits_in_company=DB::table('org_company')->where('country_code',$id)->exists();
+          $is_exsits_in_location=DB::table('org_location')->where('country_code',$id)->exists();
+          $is_exsits_in_customer=DB::table('cust_customer')->where('customer_country',$id)->exists();
+          $is_exsits_in_so=DB::table('merc_customer_order_details')->where('country',$id)->exists();
+          $is_exsits_in_costing=DB::table('costing_finish_good_component_items')->where('country_id',$id)->exists();
+          $is_exsits_in_supplier=DB::table('org_supplier')->where('supplier_country',$id)->exists();
 
+          if($is_exsits_in_company==true||$is_exsits_in_location==true||$is_exsits_in_customer==true||$is_exsits_in_so==true||$is_exsits_in_costing==true||$is_exsits_in_supplier==true){
+
+            return response([
+              'data' => [
+                'message' => 'Country Already In use',
+                'status' => '0'
+              ]
+            ]);
+          }
+            else{
+              $country->fill($request->except('country_code'));
+              $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
+              $country->save();
           return response([
             'data' => [
               'message' => 'Country updated successfully',
-              'country' => $country
+              'country' => $country,
+              'status'=>'1'
             ]
           ]);
         }
+      }
         else
         {
           $errors = $country->errors();// failure, get errors
@@ -122,14 +146,34 @@ class CountryController extends Controller
     {
       if($this->authorize->hasPermission('COUNTRY_DELETE'))//check permission
       {
+        $is_exsits_in_company=DB::table('org_company')->where('country_code',$id)->exists();
+        $is_exsits_in_location=DB::table('org_location')->where('country_code',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('customer_country',$id)->exists();
+        $is_exsits_in_so=DB::table('merc_customer_order_details')->where('country',$id)->exists();
+        $is_exsits_in_costing=DB::table('costing_finish_good_component_items')->where('country_id',$id)->exists();
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('supplier_country',$id)->exists();
+
+        if($is_exsits_in_company==true||$is_exsits_in_location==true||$is_exsits_in_customer==true||$is_exsits_in_so==true||$is_exsits_in_costing==true||$is_exsits_in_supplier==true){
+
+          return response([
+            'data' => [
+              'message' => 'Country Already In use',
+              'status' => '0'
+            ]
+          ]);
+        }
+
+          else{
         $country = Country::where('country_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Country was deactivated successfully.',
-            'country' => $country
+            'country' => $country,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
+    }
       else{
         return response($this->authorize->error_response(), 401);
       }
