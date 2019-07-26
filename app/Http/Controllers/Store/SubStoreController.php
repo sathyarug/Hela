@@ -113,7 +113,7 @@ class SubStoreController extends Controller
             $subStore->save();
 
             return response(['data' => [
-                    'message' => 'SubStore is updated successfully',
+                    'message' => 'Sub Store is updated successfully',
                     'subStore' => $subStore
             ]]);
         } else {
