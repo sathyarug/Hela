@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CustomerOrderDetails;
+use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderSize;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
+use App\Models\Merchandising\Costing\Costing;
 
 class CustomerOrderDetailsController extends Controller
 {
@@ -64,6 +66,7 @@ class CustomerOrderDetailsController extends Controller
         $order_details->version_no = 0;
         $order_details->line_no = $this->get_next_line_no($order_details->order_id);
         $order_details->type_created = 'CREATE';
+        $order_details->active_status = 'ACTIVE';
         $order_details->save();
         //$order_details = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details->details_id);
         $order_details = $this->get_delivery_details($order_details->details_id);
@@ -86,6 +89,14 @@ class CustomerOrderDetailsController extends Controller
     public function show($id)
     {
       $detail = CustomerOrderDetails::with(['order_country','order_location'])->find($id);
+
+      $colour_type = CustomerOrderDetails::select('merc_color_options.col_opt_id', 'merc_color_options.color_option')
+                   ->join('merc_color_options', 'merc_customer_order_details.colour_type', '=', 'merc_color_options.col_opt_id')
+                   ->where('merc_customer_order_details.details_id', '=', $id)
+                   ->get();
+
+      $detail['col_type'] = $colour_type;
+
       if($detail == null)
         throw new ModelNotFoundException("Requested order details not found", 1);
       else
@@ -115,8 +126,14 @@ class CustomerOrderDetailsController extends Controller
           $order_details_new->merged_line_nos = $order_details->merged_line_nos;
           $order_details_new->merged_line_ids = $order_details->merged_line_ids;
           $order_details_new->merge_generated_line_id = $order_details->merge_generated_line_id;
-
+          $order_details_new->active_status = 'ACTIVE';
           $order_details_new->save();
+
+          DB::table('merc_customer_order_details')
+              ->where('details_id', $id)
+              ->update(['active_status' => 'INACTIVE']);
+
+
 
           $balance = $order_details_new->planned_qty - $order_details->planned_qty;
           if($order_details_new->order_qty == $order_details->order_qty){
@@ -164,6 +181,73 @@ class CustomerOrderDetailsController extends Controller
           'customer' => null
         ]
       ] , Response::HTTP_NO_CONTENT);
+    }
+
+    public function copy_line(Request $request){
+
+      $check = $request->check;
+      $line_id = $request->line_id;
+
+      $order_details = CustomerOrderDetails::find($line_id);
+
+        $order_details_new = new CustomerOrderDetails();
+        $order_details_new->order_id = $order_details->order_id;
+        $order_details_new->style_color = $order_details->style_color;
+        $order_details_new->style_description = $order_details->style_description;
+        $order_details_new->pcd = $order_details->pcd;
+        $order_details_new->rm_in_date = $order_details->rm_in_date;
+        $order_details_new->po_no = $order_details->po_no;
+        $order_details_new->planned_delivery_date = $order_details->planned_delivery_date;
+        $order_details_new->fob = $order_details->fob;
+        $order_details_new->country = $order_details->country;
+        $order_details_new->projection_location = $order_details->projection_location;
+        $order_details_new->order_qty = $order_details->order_qty;
+        $order_details_new->excess_presentage = $order_details->excess_presentage;
+        $order_details_new->planned_qty = $order_details->planned_qty;
+        $order_details_new->ship_mode = $order_details->ship_mode;
+        $order_details_new->delivery_status = $order_details->delivery_status;
+        $order_details_new->type_created = 'CREATE';
+        $order_details_new->ex_factory_date = $order_details->ex_factory_date;
+        $order_details_new->ac_date = $order_details->ac_date;
+        $order_details_new->version_no = 0;
+        $order_details_new->line_no = $this->get_next_line_no($order_details->order_id);
+
+        $order_details_new->active_status = 'ACTIVE';
+        $order_details_new->save();
+
+        if($check == 1){
+
+          $sizes = CustomerOrderSize::where('details_id','=',$line_id)->get();
+          //echo $sizes ;
+          for($y = 0 ; $y < sizeof($sizes) ; $y++){
+
+            $new_size = new CustomerOrderSize();
+            $new_size->details_id = $order_details_new->details_id;
+            $new_size->size_id = $sizes[$y]['size_id'];
+            $new_size->order_qty = $sizes[$y]['order_qty'];
+            $new_size->excess_presentage = $sizes[$y]['excess_presentage'];
+            $new_size->planned_qty = $sizes[$y]['planned_qty'];
+            $new_size->version_no = $sizes[$y]['version_no'];
+            $new_size->line_no = $sizes[$y]['line_no'];
+            $new_size->status = $sizes[$y]['status'];
+            $new_size->save();
+
+
+          }
+
+
+
+
+        }
+
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Successfully Copied.'
+          ]
+        ] , 200);
+
+
     }
 
 
@@ -248,6 +332,9 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->parent_line_id = $delivery->details_id;
         $delivery_new->parent_line_no = $delivery->line_no;
         $delivery_new->type_created = 'GFS';
+        $delivery_new->ex_factory_date = $delivery['ex_factory_date'];
+        $delivery_new->ac_date = $delivery['ac_date'];
+        $delivery_new->active_status = 'ACTIVE';
         $delivery_new->save();
 
         array_push($new_delivery_ids , $delivery_new->details_id);
@@ -291,6 +378,7 @@ class CustomerOrderDetailsController extends Controller
       $delivery->split_lines = $new_delivery_ids_str;
       $delivery->delivery_status = 'CANCEL';
       $delivery->type_modified = 'SPLIT';
+      $delivery->active_status = 'INACTIVE';
       $delivery->save();
 
       return response([ 'data' => [
@@ -300,6 +388,8 @@ class CustomerOrderDetailsController extends Controller
       ], Response::HTTP_CREATED );
 
     }
+
+
 
 
     public function merge(Request $request){
@@ -340,6 +430,9 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->merged_line_nos = json_encode($merged_lines);
         $delivery_new->merged_line_ids = json_encode($merged_ids);
         $delivery_new->type_created = 'GFM';
+        $delivery_new->ex_factory_date = $delivery['ex_factory_date'];
+        $delivery_new->ac_date = $delivery['ac_date'];
+        $delivery_new->active_status = 'ACTIVE';
         $delivery_new->save();
 
         //$new_sizes = [];
@@ -347,6 +440,7 @@ class CustomerOrderDetailsController extends Controller
           $delivery = CustomerOrderDetails::find($lines[$x]);
           $delivery->delivery_status = 'CANCEL';
           $delivery->type_modified = 'MERGE';
+          //$delivery->active_status = 'INACTIVE';
           $delivery->merge_generated_line_id = $delivery_new->details_id;
           $delivery->save();
         }
@@ -491,7 +585,7 @@ class CustomerOrderDetailsController extends Controller
           });
       })
       ->get();*/
-      $order_details = DB::select('select a.*,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
+      $order_details = DB::select('select a.*,(a.order_qty * a.fob) as total_value,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
        from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
@@ -578,6 +672,24 @@ class CustomerOrderDetailsController extends Controller
     {
       $max_no = CustomerOrderSize::where('details_id','=',$details_id)->max('line_no');
       return ($max_no + 1);
+    }
+
+    public function load_colour_type(Request $request){
+
+      $style_id = $request->style_id;
+      $colour_type = Costing::select('merc_color_options.col_opt_id', 'merc_color_options.color_option')
+                   ->join('merc_color_options', 'costing.color_type_id', '=', 'merc_color_options.col_opt_id')
+                   ->where('style_id', '=', $style_id)
+                   ->groupBy('costing.color_type_id')
+                   ->get();
+
+      $arr['colour_type'] = $colour_type;
+
+      if($arr == null)
+          throw new ModelNotFoundException("Requested section not found", 1);
+      else
+          return response([ 'data' => $arr ]);
+
     }
 
 

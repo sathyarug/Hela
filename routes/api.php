@@ -344,6 +344,10 @@ Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
+    Route::post('load_header_season' , 'Merchandising\CustomerOrderController@load_header_season');
+    Route::post('load_header_stage' , 'Merchandising\CustomerOrderController@load_header_stage');
+    Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
+    Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
@@ -489,6 +493,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('product_feature','Merchandising\ProductFeatureController');
     Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
     Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
+
+
 
 
 });
