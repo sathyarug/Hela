@@ -217,7 +217,7 @@ Route::prefix('ie/')->group(function(){
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
    Route::apiResource('styles','Merchandising\StyleCreationController');
-   Route::apiResource('bomStages','Merchandising\BOMStageController');
+  // Route::apiResource('bomStages','Merchandising\BOMStageController');
    Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
     //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
@@ -383,13 +383,22 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('loadCostingData','Merchandising\PurchaseOrder@getCostingData');
     Route::apiResource('purchase-order-data','Merchandising\PurchaseOrder');
 
-    Route::get('bulk-costing/validate' , 'Merchandising\BulkCosting\BulkCostingController@validate_data');
-    Route::apiResource('bulk-costing','Merchandising\BulkCosting\BulkCostingController');
+    Route::get('loadCostingDataForCombine','Merchandising\Costing\CostingController@getCostingDataForCombine');
+    Route::get('costing/validate' , 'Merchandising\Costing\CostingController@validate_data');
+    Route::post('costing/finish-good/copy','Merchandising\Costing\CostingController@copy_finish_good');
+    Route::post('costing/finish-good/delete','Merchandising\Costing\CostingController@delete_finish_good');
 
-    Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
-    Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
+    Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
+    Route::apiResource('costing','Merchandising\Costing\CostingController');
 
-    Route::get('loadCostingDataForCombine','Merchandising\BulkCosting\BulkCostingController@getCostingDataForCombine');
+    Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
+    Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
+    Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+
+  //  Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
+  //  Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
+
+
     //Route::get('loadSoList','Merchandising\BulkCosting\BulkCostingController@getSOByStyle');
     Route::apiResource('so-combine', 'Merchandising\CombineSOController');
 

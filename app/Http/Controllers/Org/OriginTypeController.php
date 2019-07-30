@@ -22,13 +22,19 @@ class OriginTypeController extends Controller
     public function index(Request $request)
     {
       $type = $request->type;
-      if($type == 'datatable')   {
+      if($type == 'datatable'){
         $data = $request->all();
         return response($this->datatable_search($data));
       }
-      else if($type == 'auto')    {
+      else if($type == 'auto'){
         $search = $request->search;
         return response($this->autocomplete_search($search));
+      }
+      else if($type == 'handsontable'){
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
       }
       else {
         $active = $request->active;
@@ -186,6 +192,13 @@ class OriginTypeController extends Controller
           "recordsFiltered" => $origin_type_count,
           "data" => $origin_type_list
       ];
+    }
+
+
+    private function handsontable_search($search){
+      $list = OriginType::where('origin_type', 'like', $search.'%')
+      ->where('status', '=', 1)->get()->pluck('origin_type');
+      return $list;
     }
 
 }

@@ -35,6 +35,12 @@ class CountryController extends Controller
          $search = $request->search;
          return response($this->autocomplete_search($search));
        }
+       else if($type == 'handsontable')    {
+         $search = $request->search;
+         return response([
+           'data' => $this->handsontable_search($search)
+         ]);
+       }
        else{
          return response([]);
        }
@@ -207,6 +213,13 @@ class CountryController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+
+
+    private function handsontable_search($search){
+      $list = Country::where('country_description', 'like', $search.'%' )
+      ->where('status', '=', 1)->get()->pluck('country_description');
+      return $list;
     }
 
 }

@@ -34,6 +34,12 @@ class GarmentOptionsController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -222,6 +228,12 @@ class GarmentOptionsController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+
+    private function handsontable_search($search){
+      $list = GarmentOptions::where('garment_options_description'  , 'like', $search.'%' )
+      ->where('status', '=', 1)->get()->pluck('garment_options_description');
+      return $list;
     }
 
 }

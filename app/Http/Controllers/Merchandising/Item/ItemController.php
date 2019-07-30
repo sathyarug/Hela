@@ -41,6 +41,13 @@ class ItemController extends Controller
           $search = $request->search;
           return response($this->autocomplete_search($search));
         }
+        else if($type == 'handsontable')    {
+          $search = $request->search;
+          $category = $request->category;
+          return response([
+            'data' => $this->handsontable_list($category, $search)
+          ]);
+        }
         /*else if($type == 'check_and_generate'){
           $item_data = $request->item_data;
           $property_data = $request->property_data;
@@ -360,6 +367,15 @@ class ItemController extends Controller
 
 
 
+    private function handsontable_list($category, $search){
+      $list = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->where('item_category.category_name', '=', $category)
+      ->where('item_master.master_description', 'like', '%' . $search . '%')->get()->pluck('master_description');
+      return $list;
+    }
+
+
     private function is_item_exist($item_description){
         $rowCount = Item::where('master_description', '=', $item_description)->count();
         if($rowCount > 0)
@@ -367,6 +383,7 @@ class ItemController extends Controller
         else
           return false;
     }
+
 
   /*  public function GetItemList(Request $data){
 

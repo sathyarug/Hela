@@ -21,9 +21,17 @@ class CategoryController extends Controller
     {
         //$active = $request->active;
         //$fields = $request->fields;
-        return response([
-          'data' => $this->list()
-        ]);
+        $type = $request->type;
+        if($type == 'handsontable'){
+          return response([
+            'data' => $this->handsontable_list()
+          ]);
+        }
+        else{
+          return response([
+            'data' => $this->list()
+          ]);
+        }
     }
 
     public function store(Request $request)
@@ -48,8 +56,14 @@ class CategoryController extends Controller
      {
      }
 
-     public function list(){
+
+     private function list(){
        $category_list = Category::where('status','=','1')->get();
+       return $category_list;
+     }
+
+     private function handsontable_list(){
+       $category_list = Category::where('status','=','1')->get()->pluck('category_name');
        return $category_list;
      }
 
