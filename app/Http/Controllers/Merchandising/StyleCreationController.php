@@ -16,6 +16,7 @@ use App\Models\Merchandising\StyleProductFeature;
 use App\Models\Merchandising\BulkCosting;
 use App\Models\Merchandising\ProductComponent;
 use DB;
+
 //use Illuminate\Http\Response;
 
 class StyleCreationController extends Controller
@@ -123,41 +124,36 @@ class StyleCreationController extends Controller
         if ($styleCreation->validate($request->all())) {
 
             $styleCreation->style_no =strtoupper($request->style_no);
-            // $styleCreation->product_feature_id =$request->ProductFeature['product_feature_id'];
+            $styleCreation->product_feature_id =$request->ProductFeature;
             $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
             $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
             $styleCreation->customer_id =$request->customer['customer_id'];
-            $styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
+            //$styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
             $styleCreation->division_id =$request->division;
-            $styleCreation->style_description =$request->style_description;
-            $styleCreation->remark_style =$request->Remarks;
-            $styleCreation->remarks_pack =$request->Remarks_pack;
-
-           // $styleCreation->image =$request->avatar['filename'];
-
+            $styleCreation->style_description =strtoupper($request->style_description);
+            $styleCreation->remark_style =strtoupper($request->Remarks);
+            $styleCreation->remarks_pack =strtoupper($request->Remarks_pack);
+            //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($styleCreation);
             $styleCreation->saveOrFail();
-            $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
 
+            $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
             $styleCreationUpdate->image =$styleCreation->style_id.'.png';
             $styleCreationUpdate->save();
-//            dd($request->avatarHidden );
-//            print_r($styleCreation->style_id);exit;
-  // dd($request->ProductSilhouette['product_silhouette_id']);
+
             if($request->avatarHidden !=null){
                 $this->saveImage($request->avatar['value'],$styleCreation->style_id);
             }
-            $insertedId = $styleCreation->style_id;
+            //$insertedId = $styleCreation->style_id;
 
-            DB::table('style_product_feature')->where('style_id', '=', $insertedId)->delete();
-    				$product_features = $request->get('ProductFeature');
-    				$save_product_features = array();
-    				if($product_features != '') {
-    		  		foreach($product_features as $product_feature)		{
-    						array_push($save_product_features,productFeature::find($product_feature['product_feature_id']));
-    					}
-    				}
-    				$styleCreation->productFeature()->saveMany($save_product_features);
-          //  $this->saveImage($request->avatar['value'],$styleCreation->style_id);
+            //DB::table('style_product_feature')->where('style_id', '=', $insertedId)->delete();
+    				//$product_features = $request->get('ProductFeature');
+    				//$save_product_features = array();
+    				//if($product_features != '') {
+    		  	//	foreach($product_features as $product_feature)		{
+    				//		array_push($save_product_features,productFeature::find($product_feature['product_feature_id']));
+    				//	}
+    				//}
+    				//$styleCreation->productFeature()->saveMany($save_product_features);
 
           if($request->style_id != null)
           {
@@ -228,11 +224,7 @@ class StyleCreationController extends Controller
         $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
-        // $productFeature = DB::table('style_product_feature')
-        //           ->join('product_feature', 'style_product_feature.product_feature_id', '=', 'product_feature.product_feature_id')
-        //           ->select('style_product_feature.id AS product_feature_id','product_feature.product_feature_description')
-        //           ->where('style_product_feature.id','=',$style['style_id'])
-        //           ->get();
+        $productFeature = productFeature::find($style['product_feature_id']);
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = ProductType::find($style['pack_type_id']);
@@ -248,7 +240,8 @@ class StyleCreationController extends Controller
 
 // dd($productFeature);
         $style['customer']=$customer;
-        // $style['product_feature']=$productFeature;
+        $style['product_f']=$productFeature;
+        $style['product_f_pack_c']=$productFeature['count'].'-PACK';
         $style['ProductSilhouette']=$ProductSilhouette;
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;
@@ -374,5 +367,9 @@ public function getStyleDetailsForSMV($search){
          return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
 
     }
+
+
+
+
 
 }

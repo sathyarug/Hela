@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\Position;
 use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
+use App\Libraries\CapitalizeAllFields;
 class PositionController extends Controller
 {
 
@@ -54,11 +55,12 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->status = 1;
           $position->save();
 
           return response([ 'data' => [
-            'message' => 'position saved successfully',
+            'message' => 'Position saved successfully',
             'position' => $position
             ]
           ], Response::HTTP_CREATED );
@@ -89,6 +91,7 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->save();
 
           return response([ 'data' => [

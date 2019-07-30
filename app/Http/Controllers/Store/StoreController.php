@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store\Store;
 use Exception;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
 class StoreController extends Controller
 {
     var $authorize = null;
@@ -53,6 +53,8 @@ class StoreController extends Controller
         if($store->validate($request->all()))
         {
           $store->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($store);
+          $store->email=$request->email;
           $store->status = 1;
           $store->save();
 
@@ -100,6 +102,8 @@ class StoreController extends Controller
         if($store->validate($request->all()))
         {
           $store->fill($request->except('store_name'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($store);
+          $store->email=$request->email;
           $store->save();
 
           return response([ 'data' => [
@@ -189,7 +193,7 @@ class StoreController extends Controller
       $location=$user->location;
   		$store_lists = Store::select('store_id','store_name')
   		->where([['store_name', 'like', '%' . $search . '%'],])
-      ->where('loc_id','=',$location)  
+      ->where('loc_id','=',$location)
       ->get();
   		return $store_lists;
   	}

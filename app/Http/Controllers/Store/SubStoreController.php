@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store\SubStore;
 use App\Models\Store\StoreBin;
 use App\Models\Store\Stock;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Libraries\AppAuthorize;
 
@@ -55,6 +56,7 @@ class SubStoreController extends Controller
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->all());
             $subStore->status = 1;
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
 
             return response(['data' => [
@@ -107,10 +109,11 @@ class SubStoreController extends Controller
         $subStore = SubStore::find($id);
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->except('substore_name'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
 
             return response(['data' => [
-                    'message' => 'SubStore is updated successfully',
+                    'message' => 'Sub Store is updated successfully',
                     'subStore' => $subStore
             ]]);
         } else {
@@ -205,6 +208,7 @@ class SubStoreController extends Controller
 
     //validate anything based on requirements
     public function validate_data(Request $request) {
+      //echo "im here";
         $for = $request->for;
         if ($for == 'duplicate') {
             return response($this->validate_duplicate_substore($request->substore_id, $request->substore_name));
@@ -213,6 +217,7 @@ class SubStoreController extends Controller
 
     //check shipment cterm code code already exists
     private function validate_duplicate_substore($id, $name) {
+
         $bin = SubStore::where('substore_name', '=', $name)->first();
         if ($bin == null) {
             return ['status' => 'success'];
@@ -221,6 +226,7 @@ class SubStoreController extends Controller
         } else {
             return ['status' => 'error', 'message' => 'Sub store already exists'];
         }
+
     }
 
     public function getSubStoreList(){

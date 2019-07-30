@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\GoodsType;
+use App\Models\Org\Supplier;
 use App\Libraries\AppAuthorize;
 
 class GoodsTypeController extends Controller
@@ -56,7 +57,8 @@ class GoodsTypeController extends Controller
 
         return response([ 'data' => [
           'message' => 'Goods type saved successfully',
-          'goodsType' => $goodsType
+          'goodsType' => $goodsType,
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -87,13 +89,21 @@ class GoodsTypeController extends Controller
     {
       if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
       {
+        $supplier=Supplier::where('type_of_service','=',$id)->first();
+        if($supplier!=null){
+          return response([ 'data' => [
+            'message' => 'Goods type Already in Use',
+            'status'=>'0'
+          ]]);
+        }
         $goodsType = GoodsType::find($id);
         $goodsType->goods_type_description = $request->goods_type_description;
         $goodsType->save();
 
         return response([ 'data' => [
           'message' => 'Goods type updated successfully',
-          'goodsType' => $goodsType
+          'goodsType' => $goodsType,
+          'status'=>'1'
         ]]);
       }
       else{
@@ -106,13 +116,23 @@ class GoodsTypeController extends Controller
     {
       if($this->authorize->hasPermission('GOODS_TYPE_DELETE'))//check permission
       {
+        $supplier=Supplier::where('type_of_service','=',$id)->first();
+        if($supplier!=null){
+          return response([ 'data' => [
+            'message' => 'Goods type Already in Use',
+            'status'=>'0'
+          ]]);
+        }
+        else if($supplier==null){
         $goodsType = GoodsType::where('goods_type_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Goods type was deactivated successfully.',
-            'goodsType' => $goodsType
+            'goodsType' => $goodsType,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

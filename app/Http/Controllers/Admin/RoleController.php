@@ -68,7 +68,7 @@ class RoleController extends Controller {
         $role->save();
 
         return response([ 'data' => [
-          'message' => 'Permission role was saved successfully',
+          'message' => 'Permission role saved successfully',
           'role' => $role
           ]
         ], Response::HTTP_CREATED );
@@ -115,7 +115,7 @@ class RoleController extends Controller {
         $role->save();
 
         return response([ 'data' => [
-          'message' => 'Role was updated successfully',
+          'message' => 'Role updated successfully',
           'role' => $role
         ]]);
       }
@@ -137,7 +137,7 @@ class RoleController extends Controller {
       $role = Role::where('role_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Role was deactivated successfully.',
+          'message' => 'Role deactivated successfully.',
           'role' => $role
         ]
       ] , Response::HTTP_NO_CONTENT);

@@ -14,6 +14,7 @@ use App\Models\Org\Division;
 use App\Models\Finance\Accounting\PaymentTerm;
 use App\Currency;
 use App\Http\Resources\CustomerResource;
+use App\Libraries\CapitalizeAllFields;
 
 
 
@@ -51,6 +52,7 @@ class CustomerController extends Controller
       {
         $customer->fill($request->all());
         $customer->status = 1;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($customer);
         $customer->save();
 
         return response([ 'data' => [
@@ -85,6 +87,7 @@ class CustomerController extends Controller
       if($customer->validate($request->all()))
       {
         $customer->fill($request->except('customer_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($customer);
         $customer->save();
 
         return response([ 'data' => [

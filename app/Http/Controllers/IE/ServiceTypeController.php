@@ -11,6 +11,7 @@ use App\Models\IE\ServiceType;
 use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class ServiceTypeController extends Controller
 {
@@ -54,12 +55,14 @@ class ServiceTypeController extends Controller
         if($servicetype->validate($request->all()))
         {
           $servicetype->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($servicetype);
           $servicetype->status = 1;
           $servicetype->save();
 
           return response([ 'data' => [
             'message' => 'Service Type saved successfully',
-            'servicetype' => $servicetype
+            'servicetype' => $servicetype,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -111,6 +114,7 @@ class ServiceTypeController extends Controller
         if($servicetype->validate($request->all()))
         {
           $servicetype->fill($request->except('service_type_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($servicetype);
           $servicetype->save();
 
           return response([ 'data' => [

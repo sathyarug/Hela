@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Feature;
+use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 
 use Exception;
@@ -50,6 +52,7 @@ class FeatureController extends Controller
       {
         $feature->fill($request->all());
         $feature->status = 1;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($feature);
         $feature->save();
 
         return response([ 'data' => [
@@ -80,16 +83,29 @@ class FeatureController extends Controller
     //update a Feature
     public function update(Request $request, $id)
     {
-      $feature = Feature::find($id);
+        $feature = Feature::find($id);
       if($feature->validate($request->all()))
       {
+        $is_exsist=DB::table('style_creation')->where('product_feature_id',$id)->exists();
+        if($is_exsist){
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => 'Cannot deactivate Feature. Already use in Style creation.'
+            ]
+          ] , 200);
+        }
+        else{
+
         $feature->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($feature);
         $feature->save();
 
         return response([ 'data' => [
           'message' => 'Feature was updated successfully',
           'feature' => $feature
         ]]);
+      }
       }
       else
       {

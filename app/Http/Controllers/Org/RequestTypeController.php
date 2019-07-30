@@ -51,7 +51,7 @@ class RequestTypeController extends Controller
         $requestType->save();
 
         return response([ 'data' => [
-          'message' => 'Request Type was saved successfully',
+          'message' => 'Request Type saved successfully',
           'requestType' => $requestType
           ]
         ], Response::HTTP_CREATED );

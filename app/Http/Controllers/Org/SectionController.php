@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Section;
 use App\Models\Org\CompanySection;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
 class SectionController extends Controller
 {
     var $authorize = null;
@@ -55,8 +55,8 @@ class SectionController extends Controller
             //$request->section_code=strtoupper($request->section_code);
             //echo($request->section_code);
             $section->fill($request->all());
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
             $section->status = 1;
-            $section->section_code=strtoupper($section->section_code);
             $section->save();
 
             return response([ 'data' => [
@@ -109,23 +109,19 @@ class SectionController extends Controller
             ]
           ]);
         }
-        
+
         if($companySection==null){
-                  return response([
-                    'data' => [
-                      'message' => 'Section is Already in Use',
-                      'status'=>'0'
-                    ]
-                  ]);
-        $section = Section::find($id);
+          $section = Section::find($id);
         if($section->validate($request->all()))
         {
           $section->fill($request->except('section_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
           $section->save();
 
           return response([ 'data' => [
             'message' => 'Section updated successfully',
-            'section' => $section
+            'section' => $section,
+            'status'=>'1'
           ]]);
         }
       }
@@ -160,7 +156,7 @@ class SectionController extends Controller
               $section = Section::where('section_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Section was deactivated successfully.',
+            'message' => 'Section deactivated successfully.',
             'section' => $section,
             'status'=>'1'
           ]

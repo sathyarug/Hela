@@ -57,7 +57,7 @@ class ExchangeRateController extends Controller
           $rate->save();
 
           return response([ 'data' => [
-            'message' => 'Exchange rate was saved successfully',
+            'message' => 'Exchange rate saved successfully',
             'exchangeRate' => $rate
             ]
           ], Response::HTTP_CREATED );
@@ -98,11 +98,15 @@ class ExchangeRateController extends Controller
         $rate = ExchangeRate::find($id);
         if ($rate->validate($request->all()))
         {
+          //echo $request->valid_from;
+          //echo date("Y-m-d", strtotime($request->valid_from) );
           $rate->fill($request->all());
+          $rate->valid_from=date("Y-m-d", strtotime($request->valid_from) );
+
           $rate->save();
 
           return response([ 'data' => [
-            'message' => 'Exchange rate was updated successfully',
+            'message' => 'Exchange rate updated successfully',
             'exchangeRate' => $rate
           ]]);
         }
@@ -125,7 +129,7 @@ class ExchangeRateController extends Controller
         $rate = ExchangeRate::where('id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Exchange rate was deactivated successfully.',
+            'message' => 'Exchange rate deactivated successfully.',
             'exchangeRate' => $rate
           ]
         ] , Response::HTTP_NO_CONTENT);

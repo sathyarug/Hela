@@ -220,7 +220,7 @@ Route::prefix('ie/')->group(function(){
   // Route::apiResource('bomStages','Merchandising\BOMStageController');
    Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
-    //Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+   Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
@@ -365,6 +365,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('style','Merchandising\StyleCreationController');
     Route::post('pro_listload', 'Merchandising\StyleCreationController@pro_listload');
 
+
     Route::get('rounds/validate' , 'Merchandising\RoundController@validate_data');
     Route::apiResource('rounds','Merchandising\RoundController');
 
@@ -489,6 +490,16 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('save_pro_name', 'Merchandising\Item\ItemPropertyController@save_pro_name');
     Route::post('remove_assign', 'Merchandising\Item\ItemPropertyController@remove_assign');
     Route::post('remove_unassign', 'Merchandising\Item\ItemPropertyController@remove_unassign');
+
+
+    Route::apiResource('pro-silhouette','Merchandising\ProductSilhouetteController');
+    Route::post('save_product_feature','Merchandising\ProductFeatureController@save_product_feature');
+    Route::post('pro_listload_edit', 'Merchandising\ProductFeatureController@pro_listload_edit');
+    Route::apiResource('product_feature','Merchandising\ProductFeatureController');
+    Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
+    Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
+
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -551,6 +562,12 @@ Route::prefix('store/')->group(function(){
 Route::prefix('core/')->group(function(){
 
     Route::apiResource('status','Core\StatusController');
+
+});
+
+Route::prefix('manufacturing/')->group(function(){
+
+    Route::apiResource('prod-order','Manufacturing\ProdOrderController');
 
 });
 

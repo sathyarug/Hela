@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\BOMStage;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
+use App\Models\IE\componentSMVHeader;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -60,7 +61,8 @@ class BOMStageController extends Controller
 
           return response([ 'data' => [
             'message' => 'BOM Stage saved successfully',
-            'bomstage' => $bomstage
+            'bomstage' => $bomstage,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -99,21 +101,24 @@ class BOMStageController extends Controller
       if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
       {
         $bulkCostingFeatureDetails=BulkCostingFeatureDetails::where([['bom_stage','=',$id]])->first();
-        if($bulkCostingFeatureDetails!=null){
+        $ComponentSmv=componentSMVHeader::where([['bom_stage_id','=',$id]])->first();
+        if($bulkCostingFeatureDetails!=null||$ComponentSmv!=null){
           return response([ 'data' => [
             'status' => '0',
                 ]]);
         }
-        else if($bulkCostingFeatureDetails==null){
+        else if($bulkCostingFeatureDetails==null&&$ComponentSmv==null){
         $bomstage = BOMStage::find($id);
         if($bomstage->validate($request->all()))
         {
           $bomstage->fill($request->all());
+          $bomstage->bom_stage_description=strtoupper($bomstage->bom_stage_description);
           $bomstage->save();
 
           return response([ 'data' => [
             'message' => 'BOM Stage updated successfully',
-            'bomstage' => $bomstage
+            'bomstage' => $bomstage,
+            'status'=>'1'
           ]]);
         }
       }
