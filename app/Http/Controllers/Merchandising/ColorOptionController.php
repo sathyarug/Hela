@@ -11,6 +11,7 @@ use App\Models\Merchandising\ColorOption;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
 
 class ColorOptionController extends Controller
 {
@@ -60,8 +61,9 @@ class ColorOptionController extends Controller
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option saved successfully',
-            'originType' => $colorOption
+            'message' => 'Color Type saved successfully',
+            'originType' => $colorOption,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -84,7 +86,7 @@ class ColorOptionController extends Controller
       {
         $colorOption = ColorOption::find($id);
         if($colorOption == null)
-          throw new ModelNotFoundException("Requested Color Option not found", 1);
+          throw new ModelNotFoundException("Requested Color Type not found", 1);
         else
           return response([ 'data' => $colorOption ]);
       }
@@ -99,22 +101,23 @@ class ColorOptionController extends Controller
     {
       if($this->authorize->hasPermission('COLOR_OPTION_MANAGE'))//check permission
       {
-        $bulkCostingfeature=BulkCostingFeatureDetails::where('col_opt_id','=',$id)->first();
-          if($bulkCostingfeature!=null){
+          $is_exsits=DB::table('costing')->where('color_type_id',$id)->exists();
+          if(  $is_exsits==true){
             return response(['data'=>[
-              'message'=>'Color Option Already in Use',
+              'message'=>'Color Type Already in Use',
               'status'=>'0'
               ]]);
           }
-          else if($bulkCostingfeature==null){
+          else{
         $colorOption = ColorOption::find($id);
         if($colorOption->validate($request->all()))
         {
           $colorOption->fill($request->all());
+          $colorOption->color_option=strtoupper($colorOption->color_option);
           $colorOption->save();
 
           return response([ 'data' => [
-            'message' => 'Color Option updated successfully',
+            'message' => 'Color Type updated successfully',
             'colorOption' => $colorOption,
             'status'=>'1'
           ]]);
@@ -137,20 +140,20 @@ class ColorOptionController extends Controller
     {
       if($this->authorize->hasPermission('COLOR_OPTION_DELETE'))//check permission
       {
-        $bulkCostingfeature=BulkCostingFeatureDetails::where('col_opt_id','=',$id)->first();
-        if($bulkCostingfeature!=null){
+        $is_exsits=DB::table('costing')->where('color_type_id',$id)->exists();
+        if($is_exsits==true){
           return response([
             'data'=>[
-              'message'=>'Color Option Already in Use.',
+              'message'=>'Color Type Already in Use.',
               'status'=>'0'
             ]
           ]);
         }
-        else if($bulkCostingfeature==null){
+        else{
         $colorOption = ColorOption::where('col_opt_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Color Option deactivated successfully.',
+            'message' => 'Color Type deactivated successfully.',
             'colorOption' => $colorOption,
             'status'=>'1'
           ]
@@ -184,7 +187,7 @@ class ColorOptionController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Color Option already exists'];
+        return ['status' => 'error','message' => 'Color Type already exists'];
       }
     }
 

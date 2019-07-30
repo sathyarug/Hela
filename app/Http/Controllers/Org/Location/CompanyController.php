@@ -13,6 +13,7 @@ use App\Models\Org\Location\Location;
 use App\Models\Org\Department;
 use App\Models\Org\Section;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class CompanyController extends Controller
 {
@@ -56,8 +57,9 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->all());
-          $company->company_code = strtoupper($company->company_code);
-          $company->company_name = strtoupper($company->company_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
+          $company->company_email=$request->company_email;
+          $company->company_web=$request->company_web;
           $company->status = 1;
           $company->created_by = 1;
           $result = $company->saveOrFail();
@@ -151,7 +153,11 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->except('company_code'));
-          $company->company_name = strtoupper($company->company_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
+          $company->company_email=$request->company_email;
+          $company->company_web=$request->company_web;
+
+
           $company->save();
 
           DB::table('org_company_departments')->where('company_id', '=', $id)->delete();

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\Position;
 use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
+use App\Libraries\CapitalizeAllFields;
 class PositionController extends Controller
 {
 
@@ -31,6 +32,12 @@ class PositionController extends Controller
           $search = $request->search;
           return response($this->autocomplete_search($search));
         }
+        else if($type == 'handsontable')    {
+          $search = $request->search;
+          return response([
+            'data' => $this->handsontable_search($search)
+          ]);
+        }
         else {
           $active = $request->active;
           $fields = $request->fields;
@@ -48,6 +55,7 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->status = 1;
           $position->save();
 
@@ -83,6 +91,7 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->save();
 
           return response([ 'data' => [
@@ -201,10 +210,10 @@ class PositionController extends Controller
         ];
       }
 
-
-
-
-
+      private function handsontable_search($search){
+        $list = Position::where('position'  , 'like', $search.'%')->get()->pluck('position');
+        return $list;
+      }
 
 
 }

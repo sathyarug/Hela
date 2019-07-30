@@ -6,11 +6,12 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Currency;
 use App\Models\Org\Supplier;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 
 class CurrencyController extends Controller
 {
@@ -55,6 +56,7 @@ class CurrencyController extends Controller
         if ($currency->validate($request->all()))
         {
           $currency->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($currency);
           $currency->status = 1;
           $currency->save();
 
@@ -98,8 +100,10 @@ class CurrencyController extends Controller
     {
       if($this->authorize->hasPermission('CURRENCY_MANAGE'))//check permission
       {
-        $supplier=Supplier::where([['currency','=',$id]])->first();
-        if($supplier!=null){
+        //$is_exsits_in_company=DB::table('org_company')->where('country_code',$id)->exists();
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('currency',$id)->exists();
+        $is_exsits_in_company=DB::table('org_company')->where('default_currency',$id)->exists();
+        if($is_exsits_in_supplier==true||$is_exsits_in_company==true){
           return response([
             'data' => [
               'status'=>'0',
@@ -107,12 +111,13 @@ class CurrencyController extends Controller
               ]
           ]);
         }
-        else if($supplier==null){
+        else {
         $currency = Currency::find($id);
         if ($currency->validate($request->all()))
         {
 
           $currency->fill($request->except('currency_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($currency);
           $currency->save();
 
           return response([ 'data' => [
@@ -138,8 +143,9 @@ class CurrencyController extends Controller
     {
       if($this->authorize->hasPermission('CURRENCY_DELETE'))//check permission
       {
-          $supplier=Supplier::where([['currency','=',$id]])->first();
-          if($supplier!=null){
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('currency',$id)->exists();
+        $is_exsits_in_company=DB::table('org_company')->where('default_currency',$id)->exists();
+            if($is_exsits_in_supplier==true||$is_exsits_in_company==true){
             return response([
               'data' => [
                 'message' => 'Currency already in use.',
@@ -147,7 +153,7 @@ class CurrencyController extends Controller
               ]
             ]);
           }
-          if($supplier==null){
+          else {
         $currency = Currency::where('currency_id', $id)->update(['status' => 0]);
         return response([
           'data' => [

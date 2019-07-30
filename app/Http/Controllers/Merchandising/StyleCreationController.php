@@ -16,6 +16,7 @@ use App\Models\Merchandising\StyleProductFeature;
 use App\Models\Merchandising\BulkCosting;
 use App\Models\Merchandising\ProductComponent;
 use DB;
+
 //use Illuminate\Http\Response;
 
 class StyleCreationController extends Controller
@@ -132,6 +133,7 @@ class StyleCreationController extends Controller
             $styleCreation->style_description =strtoupper($request->style_description);
             $styleCreation->remark_style =strtoupper($request->Remarks);
             $styleCreation->remarks_pack =strtoupper($request->Remarks_pack);
+            //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($styleCreation);
             $styleCreation->saveOrFail();
 
             $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);

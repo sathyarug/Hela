@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Org;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Supplier;
@@ -33,6 +34,12 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->currency_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -50,6 +57,11 @@ class SupplierController extends Controller
       if($supplier->validate($request->all()))
       {
         $supplier->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($supplier);
+        $supplier->supplier_email=$request->supplier_email;
+        $supplier->supplier_website=$request->supplier_website;
+        $supplier->managing_director_email=$request->managing_director_email;
+        $supplier->finance_director_email=$request->finance_director_email;
         $supplier->status = 1;
         $supplier->save();
 
@@ -101,6 +113,11 @@ class SupplierController extends Controller
       if($supplier->validate($request->all()))
       {
         $supplier->fill($request->except('supplier_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($supplier);
+        $supplier->supplier_email=$request->supplier_email;
+        $supplier->supplier_website=$request->supplier_website;
+        $supplier->managing_director_email=$request->managing_director_email;
+        $supplier->finance_director_email=$request->finance_director_email;
         $supplier->save();
 
         return response([ 'data' => [
@@ -229,6 +246,12 @@ class SupplierController extends Controller
          ]
        ], Response::HTTP_CREATED );
         //return response([ 'data' => $supplier ]);
+    }
+
+
+    private function handsontable_search($search){
+      $suppliers = Supplier::where('supplier_name', 'like', $search.'%')->get()->pluck('supplier_name');
+      return $suppliers;
     }
 
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\GarmentOptions;
 use Exception;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class GarmentOptionsController extends Controller
 {
@@ -34,6 +35,12 @@ class GarmentOptionsController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -54,7 +61,7 @@ class GarmentOptionsController extends Controller
         {
           $garmentoptions->fill($request->all());
           $garmentoptions->status = 1;
-          $garmentoptions->garment_options_description=strtoupper($garmentoptions->garment_options_description);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $garmentoptions->save();
 
           return response([ 'data' => [
@@ -101,6 +108,7 @@ class GarmentOptionsController extends Controller
         if($garmentoptions->validate($request->all()))
         {
           $garmentoptions->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $garmentoptions->save();
 
           return response([ 'data' => [
@@ -222,6 +230,12 @@ class GarmentOptionsController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+
+    private function handsontable_search($search){
+      $list = GarmentOptions::where('garment_options_description'  , 'like', $search.'%' )
+      ->where('status', '=', 1)->get()->pluck('garment_options_description');
+      return $list;
     }
 
 }

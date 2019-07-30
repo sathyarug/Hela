@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Department;
 use App\Libraries\AppAuthorize;
 use Exception;
-
+use App\Libraries\CapitalizeAllFields;
 class DepartmentController extends Controller
 {
     var $authorize = null;
@@ -54,7 +54,7 @@ class DepartmentController extends Controller
         {
           $department->fill($request->all());
           $department->status = 1;
-          $department->dep_code=strtoupper($department->dep_code);
+         $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
           $department->save();
 
           return response([ 'data' => [
@@ -103,6 +103,7 @@ class DepartmentController extends Controller
         if($department->validate($request->all()))
         {
           $department->fill($request->except('dep_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
           $department->save();
 
           return response([ 'data' => [

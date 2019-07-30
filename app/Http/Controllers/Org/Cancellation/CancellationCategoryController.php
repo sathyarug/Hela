@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationCategory;
 use App\Models\Org\Cancellation\CancellationReason;
+use App\Libraries\CapitalizeAllFields;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -53,7 +54,7 @@ class CancellationCategoryController extends Controller
         {
           $category->fill($request->all());
           $category->status = 1;
-          $category->category_code=strtoupper($category->category_code);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
@@ -100,6 +101,7 @@ class CancellationCategoryController extends Controller
         if($category->validate($request->all()))
         {
           $category->fill($request->except('category_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [

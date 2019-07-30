@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store\SubStore;
 use App\Models\Store\StoreBin;
 use App\Models\Store\Stock;
+use App\Libraries\CapitalizeAllFields;
 
 use App\Libraries\AppAuthorize;
 
@@ -55,6 +56,7 @@ class SubStoreController extends Controller
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->all());
             $subStore->status = 1;
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
 
             return response(['data' => [
@@ -107,10 +109,11 @@ class SubStoreController extends Controller
         $subStore = SubStore::find($id);
         if ($subStore->validate($request->all())) {
             $subStore->fill($request->except('substore_name'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
 
             return response(['data' => [
-                    'message' => 'SubStore is updated successfully',
+                    'message' => 'Sub Store is updated successfully',
                     'subStore' => $subStore
             ]]);
         } else {
@@ -223,7 +226,7 @@ class SubStoreController extends Controller
         } else {
             return ['status' => 'error', 'message' => 'Sub store already exists'];
         }
-        
+
     }
 
     public function getSubStoreList(){

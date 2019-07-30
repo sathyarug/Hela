@@ -28,6 +28,11 @@ class Item extends BaseValidator
         return $this->belongsToMany('App\Models\Org\UOM', 'item_uom', 'master_id', 'uom_id');
     }
 
+    public function item_properties() {
+        return $this->belongsToMany('App\Models\Merchandising\Item\ItemProperty', 'item_property_data', 'master_id', 'property_id')
+        ->withPivot('property_value_id', 'other_data', 'other_data_type');;
+    }
+
     public function LoadItems(){
         return DB::table('item_master')
            ->join('item_subcategory','item_subcategory.subcategory_id','=','item_master.subcategory_id')

@@ -22,6 +22,9 @@ use App\Models\Finance\Cost\FinanceCost;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductFeatureComponent;
+use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
+use App\Models\Org\UOM;
+use App\Models\Org\Color;
 
 
 class CostingController extends Controller {
@@ -91,6 +94,23 @@ class CostingController extends Controller {
         elseif ($type == 'finance_cost'){
             return response($this->finance_cost());
         }
+        elseif ($type == 'total_smv'){
+            return response([
+              'data' => $this->total_smv($request->style_id, $request->bom_stage_id, $request->color_type_id)
+            ]);
+        }
+        elseif ($type == 'artical_numbers') {
+          $search = $request->search;
+          return response([
+            'data' => $this->get_artical_numbers($search)
+          ]);
+        }
+        elseif ($type == 'item_uom') {
+          $item_description = $request->item_description;
+          return response([
+            'data' => $this->get_item_uom($item_description)
+          ]);
+        }
         else if($type == 'datatable') {
             $data = $request->all();
             $this->datatable_search($data);
@@ -128,16 +148,26 @@ class CostingController extends Controller {
               $finance_cost = 0;
               $cpm_front_end = 0;
               $cpum = 0;
+              $cpm_factory = 0;
 
               if ($finance_details != false && $finance_details != null) {
                  $finance_cost = $finance_details['finance_cost'];
                  $cpm_front_end = $finance_details['cpmfront_end'];
                  $cpum = $finance_details['cpum'];
+                 $cpm_factory = $cpum * $costing->planned_efficiency;
               }
+
+              $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);
+              $labour_cost = $total_smv * $cpm_factory;
+              $coperate_cost = $total_smv * $cpm_front_end;
 
               $costing->finance_charges = $finance_cost;
               $costing->cpm_front_end = $cpm_front_end;
-              $costing->cpum = $cpum;
+              $costing->cost_per_utilised_min = $cpum;
+              $costing->total_smv = $total_smv;
+              $costing->cpm_factory = $cpm_factory;
+              $costing->labour_cost = $labour_cost;
+              $costing->coperate_cost = $coperate_cost;
               $costing->revision_no = 1;
               $costing->status = 1;
               //$costing->fob=$request->fob;
@@ -157,7 +187,7 @@ class CostingController extends Controller {
                   'status' => 'success',
                   'message' => 'Costing saved successfully',
                   'costing' => $costing,
-                  /*'product_feature' => $product_feature,*/
+                  'feature_component_count' => sizeof($finish_goods),
                   'finish_goods' => $finish_goods
                 ]
               ], Response::HTTP_CREATED);
@@ -174,16 +204,22 @@ class CostingController extends Controller {
        $costing = Costing::with(['style', 'bom_stage', 'season', 'color_type'])->find($id);
        $finish_goods_count = CostingFinishGood::where('costing_id', '=', $costing->id)->count();
        $finish_goods = [];
+
        if($finish_goods_count > 0){
          $finish_goods = $this->get_saved_finish_good($id);
        }
        else{
          $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id);
        }
+        $feature_component_count = 0;
+        if(sizeof($finish_goods) > 0){ //get component count of a product feature
+          $feature_component_count = ProductFeature::find($finish_goods[0]->product_feature_id)->count;
+        }
         return response([
           'data' => [
             'costing' => $costing,
-            'finish_goods' => $finish_goods
+            'finish_goods' => $finish_goods,
+            'feature_component_count' => $feature_component_count,
             ]
         ]);
     }
@@ -191,44 +227,77 @@ class CostingController extends Controller {
 
     public function update(Request $request, $id){
       $costing = Costing::find($id);
-      $style = Style::find($id);
+      $style = StyleCreation::find($costing->style_id);
+      $product_feature = ProductFeature::find($style->product_feature_id);
       $finish_goods = $request->finish_goods;
 
-      $current_pack = -1;
-      for($x = 0 ; $x < sizeof($finish_goods) ; $x++){
-        if($current_pack == $finish_goods[$x]['pack_no']){
-          continue;
-        }
-        else{
-          $current_pack = $finish_goods[$x]['pack_no'];
+      $costing->total_order_qty = $request->total_order_qty;
+      $costing->fob = $request->fob;
+      $costing->planned_efficiency = $request->planned_efficiency;
+      $costing->cost_per_std_min = $request->cost_per_std_min;
+      $costing->pcd = $request->pcd;
+      $costing->upcharge = $request->upcharge;
+      $costing->upcharge_reason = $request->upcharge_reason;
 
+      $cpm_factory = $costing->cost_per_utilised_min * $costing->planned_efficiency;
+      $labour_cost = $costing->total_smv * $cpm_factory;
+      //  $coperate_cost = $total_smv * $cpm_front_end;
+      $costing->cpm_factory = $cpm_factory;
+      $costing->labour_cost = $labour_cost;
+      //$costing->coperate_cost = $coperate_cost;
+      //$costing->revision_no = 1;
+      $costing->save();
+
+      $current_pack = -1;
+      for($x = 0 ; $x < sizeof($finish_goods) ; ($x = $x + $product_feature->count)){
+          $fg = null;
           if($finish_goods[$x]['fg_id'] == 0){ //new finish good
             $fg = new CostingFinishGood();
             $fg->costing_id = $costing->id;
-            $fg->pack_no = $finish_goods[$x]['pack_no'];
-            $fg->combo_color_id = 1;//$finish_goods[$x]['combo_color'];
-            $fg->feature_id = $finish_goods[$x]['product_feature_id'];
-            $fg->epm = 0;
-            $fg->np = 0;
-            $fg->save();
           }
           else{
             $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);
-
           }
+          $combo_color = Color::where('color_name', '=', $finish_goods[$x]['combo_color'])->first();
+          $fg->pack_no = $finish_goods[$x]['pack_no'];
+          $fg->combo_color_id = $combo_color->color_id;
+          $fg->product_feature = $finish_goods[$x]['product_feature_id'];
+          $fg->epm = 0;
+          $fg->np = 0;
+          $fg->save();
 
+          for($y = $x ; $y < ($x + $product_feature->count) ; $y++){
 
-          $finish_good_component = new CostingFinishGoodComponent();
-          $finish_good_component->fg_id
+            if($finish_goods[$y]['id'] == 0){ //new component
+              $finish_good_component = new CostingFinishGoodComponent();
+              $finish_good_component->fg_id = $fg->fg_id;
+            }
+            else{
+              $finish_good_component = CostingFinishGoodComponent::find($finish_goods[$y]['id']);
+            }
+
+            $color = Color::where('color_name', '=', $finish_goods[$y]['color'])->first();
+
+            $finish_good_component->product_component_id = $finish_goods[$y]['product_component_id'];
+            $finish_good_component->product_silhouette_id = $finish_goods[$y]['product_silhouette_id'];
+            $finish_good_component->line_no = $finish_goods[$y]['line_no'];
+            $finish_good_component->surcharge = $finish_goods[$y]['surcharge'];
+            $finish_good_component->color_id = $color->color_id;
+            $finish_good_component->mcq = $finish_goods[$y]['mcq'];
+            $finish_good_component->smv = $finish_goods[$y]['smv'];
+            $finish_good_component->status = 1;
+            $finish_good_component->save();
+          }
         }
-      }
-      echo json_encode($request->finish_goods);
-      /*return response([
-        'data' => [
-          'status' => 'success',
-          'message' => 'Costing updated successfully'
-        ]
-      ]);*/
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Costing updated successfully',
+            'costing' => $costing,
+            'finish_goods' => $this->get_saved_finish_good($costing->id),
+            'feature_component_count' => $product_feature->count,
+          ]
+        ]);
     }
 
 
@@ -236,26 +305,6 @@ class CostingController extends Controller {
 
     }
 
-    /*private function getSeasonList() {
-        //return \App\Models\Org\Customer::getActiveCustomerList();
-        return \App\Models\Org\Season::select('season_id', 'season_name')
-                        ->where([['status', '=', 1]])->get();
-    }*/
-
-    /*private function getColorType() {
-        return \App\Models\Merchandising\ColorOption::select('col_opt_id', 'color_option')
-                        ->where([['status', '=', 1]])->get();
-    }*/
-
-    /*private function getBomStage() {
-        return \App\Models\Merchandising\BOMStage::select('bom_stage_id', 'bom_stage_description')
-            ->where([['status', '=', 1]])->get();
-    }*/
-
-    /*private function getStyleList($search) {
-        return \App\Models\Merchandising\StyleCreation::select('style_id', 'style_no')
-                        ->where([['style_no', 'like', '%' . $search . '%'],])->get();
-    }*/
 
     private function getStyleData($style_id) {
        $dataArr = array();
@@ -677,7 +726,7 @@ $count++;
                 $blkApp->save();
 
 
-                $upate =DB::table('costing_bulk')
+                $upate =DB::table('costing')
                     ->where('bulk_costing_id', $blkApp->costing_id)
                     ->update(['costing_approval_user' => $request->ur,'costing_approval_time'=>now(),'costing_status'=>'approved']);
 
@@ -695,18 +744,18 @@ item_master.master_description,
 item_master.master_code,
 item_subcategory.subcategory_name,
 item_category.category_name,
-costing_bulk.style_id,
-costing_bulk.bulk_costing_id,
+costing.style_id,
+costing.bulk_costing_id,
 costing_bulk_feature_details.blk_feature_id,
 costing_bulk_details.item_id,
-costing_bulk.pcd,
-costing_bulk.plan_efficiency,
-costing_bulk.fob,
-costing_bulk.finance_charges,
-costing_bulk.cost_per_min,
-costing_bulk.cost_per_std_min,
-costing_bulk.epm,
-costing_bulk.np_margin,
+costing.pcd,
+costing.plan_efficiency,
+costing.fob,
+costing.finance_charges,
+costing.cost_per_min,
+costing.cost_per_std_min,
+costing.epm,
+costing.np_margin,
 sum((costing_bulk_details.unit_price*costing_bulk_details.gross_consumption)) AS total,
 \'\' AS updated_date,
 \'\' AS User
@@ -716,14 +765,14 @@ INNER JOIN item_master ON item_master.master_id = costing_bulk_details.main_item
 INNER JOIN item_subcategory ON item_master.subcategory_id = item_subcategory.subcategory_id
 INNER JOIN item_category ON item_category.category_id = item_subcategory.category_id
 INNER JOIN costing_bulk_feature_details ON costing_bulk_feature_details.blk_feature_id = costing_bulk_details.bulkheader_id
-INNER JOIN costing_bulk ON costing_bulk_feature_details.bulkheader_id = costing_bulk.bulk_costing_id
+INNER JOIN costing ON costing_bulk_feature_details.bulkheader_id = costing.bulk_costing_id
 WHERE
-costing_bulk.style_id ='.$request->style_id.'
+costing.style_id ='.$request->style_id.'
 GROUP BY
 item_category.category_name');
 
         $getAllDataHis=DB::select('SELECT
-costing_bulk.style_id,
+costing.style_id,
 costing_bulk_revision.revision,
 his_costing_bulk.pcd,
 his_costing_bulk_feature_details.blk_feature_id,
@@ -743,8 +792,8 @@ costing_bulk_revision.created_date,
 costing_bulk_revision.updated_date,
 CONCAT(usr_profile.first_name, " ", usr_profile.last_name, "-", costing_bulk_revision.created_by) AS User
 FROM
-costing_bulk
-INNER JOIN costing_bulk_revision ON costing_bulk.bulk_costing_id = costing_bulk_revision.costing_id
+costing
+INNER JOIN costing_bulk_revision ON costing.bulk_costing_id = costing_bulk_revision.costing_id
 INNER JOIN his_costing_bulk ON costing_bulk_revision.revision = his_costing_bulk.revistion_id AND costing_bulk_revision.costing_id = his_costing_bulk.bulk_costing_id
 INNER JOIN his_costing_bulk_feature_details ON his_costing_bulk.revistion_id = his_costing_bulk_feature_details.revistion_id AND his_costing_bulk.bulk_costing_id = his_costing_bulk_feature_details.bulkheader_id
 INNER JOIN his_costing_bulk_details ON his_costing_bulk_feature_details.revistion_id = his_costing_bulk_details.revistion_id AND his_costing_bulk_feature_details.blk_feature_id = his_costing_bulk_details.bulkheader_id
@@ -753,7 +802,7 @@ INNER JOIN item_subcategory ON item_master.subcategory_id = item_subcategory.sub
 INNER JOIN item_category ON item_subcategory.category_id = item_category.category_id
 INNER JOIN usr_profile ON usr_profile.user_id = costing_bulk_revision.created_by
 WHERE
-costing_bulk.style_id='.$request->style_id.'
+costing.style_id='.$request->style_id.'
 GROUP BY
 costing_bulk_revision.revision,item_category.category_name
 ORDER BY
@@ -907,16 +956,125 @@ ORDER BY item_category.category_id');
                             ->where('costing_bulk.bulk_costing_id',$costingId)
                             ->get();*/
 
-        $costingHeader = \DB::table('costing_bulk')
-                            ->select(DB::raw('costing_bulk.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing_bulk.bulk_costing_id) AS Tot_Qty'))
+        $costingHeader = \DB::table('costing')
+                            ->select(DB::raw('costing.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing.bulk_costing_id) AS Tot_Qty'))
                             ->distinct()
-                            ->join('costing_bulk_feature_details','costing_bulk.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
+                            ->join('costing_bulk_feature_details','costing.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
                             ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')
-                            ->where('costing_bulk.bulk_costing_id',$costingId)
+                            ->where('costing.bulk_costing_id',$costingId)
                             ->get();
 
         return $costingHeader;
 
+    }
+
+
+    public function copy_finish_good(Request $request){
+      $fg_id = $request->fg_id;
+      $finish_good = CostingFinishGood::find($fg_id);
+      $finish_good_copy = $finish_good->replicate();
+      $finish_good_copy->pack_no = DB::table('costing_finish_goods')->where('costing_id', '=', $finish_good->costing_id)->max('pack_no') + 1;
+      $finish_good_copy->save();
+
+      $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
+      for($x = 0 ; $x < sizeof($components) ; $x++){
+        $component_copy = $components[$x]->replicate();
+        $component_copy->fg_id = $finish_good_copy->fg_id;
+        $component_copy->save();
+
+        $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$x]['id'])->get();
+        for($y = 0 ; $y < sizeof($component_items) ; $y++){
+          $component_item_copy = $component_items[$y]->replicate();
+          $component_item_copy->fg_component_id = $component_copy->id;
+          $component_item_copy->save();
+        }
+      }
+
+      $finish_goods = $this->get_saved_finish_good($finish_good->costing_id);
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Finish good copied successfully',
+          'feature_component_count' => sizeof($components),
+          'finish_goods' => $finish_goods
+        ]
+      ]);
+
+    }
+
+
+    public function copy(Request $request){
+      $costing = Costing::find($request->costing_id);
+      $bom_stage_id = $request->bom_stage_id;
+      $season_id = $request->season_id;
+      $color_type_id = $request->color_type_id;
+    //  echo $bom_stage_id;die();
+      $costing_count = Costing::where('style_id', '=', $costing->style_id)->where('bom_stage_id', '=', $bom_stage_id)
+      ->where('season_id', '=', $season_id)->where('color_type_id', '=', $color_type_id)->count();
+
+      if($costing_count > 0){
+        return response(['data' => [
+            'status' => 'error',
+            'message' => 'Costing already exists'
+          ]
+        ]);
+      }
+      else{
+        $costing_copy = $costing->replicate();
+        $costing_copy->bom_stage_id = $bom_stage_id;
+        $costing_copy->season_id = $season_id;
+        $costing_copy->color_type_id;
+        $costing_copy->save();
+
+        $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
+        for($x = 0 ; $x < sizeof($finish_goods); $x++){
+          $finish_good_copy = $finish_goods[$x]->replicate();
+          $finish_good_copy->costing_id = $costing_copy->id;
+          $finish_good_copy->save();
+
+          $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_goods[$x]->fg_id)->get();
+          for($y = 0 ; $y < sizeof($components) ; $y++){
+            $component_copy = $components[$y]->replicate();
+            $component_copy->fg_id = $finish_good_copy->fg_id;
+            $component_copy->save();
+
+            $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$y]['id'])->get();
+            for($z = 0 ; $z < sizeof($component_items) ; $z++){
+              $component_item_copy = $component_items[$z]->replicate();
+              $component_item_copy->fg_component_id = $component_copy->id;
+              $component_item_copy->save();
+            }
+          }
+        }
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Costing coppied successfully'
+          ]
+        ]);
+      }
+    }
+
+
+    public function delete_finish_good(Request $request){
+      $fg_id = $request->fg_id;
+      $finish_good = CostingFinishGood::find($fg_id);
+
+      $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
+      for($x = 0 ; $x < sizeof($components) ; $x++){
+        CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$x]['id'])->delete();
+      }
+
+      CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->delete();
+      $finish_good->delete();
+
+      return response([
+        'data' => [
+          'message' => 'Finisg good deleted successfully.',
+          'feature_component_count' => sizeof($components),
+          'finish_goods' => $this->get_saved_finish_good($finish_good->costing_id)
+        ]
+      ] , Response::HTTP_OK);
     }
 
 
@@ -927,6 +1085,7 @@ ORDER BY item_category.category_id');
       $finance_details = FinanceCost::where('effective_from', '<=', $current_timestamp)
       ->where('effective_to', '>=', $current_timestamp)
       ->where('status', 1)->first();
+
       if($finance_details != null && $finance_details != false){
         return [
           'status' => 'success',
@@ -942,11 +1101,64 @@ ORDER BY item_category.category_id');
     }
 
 
+    private function total_smv($style_id, $bom_stage_id, $color_type_id){
+      $style_id = 41;
+      $bom_stage_id = 1;
+      $color_type_id = 1;
+      $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)
+      ->where('bom_stage_id', '=', $bom_stage_id)
+      ->where('col_opt_id', '=', $color_type_id)
+      ->where('status', '=', 1)->first();
+
+      if($total_smv == null || $total_smv == false){
+        return [
+          'status' => 'error',
+          'message' => 'SMV details not avaliable. Contact IE team.'
+        ];
+      }
+      else{
+        return [
+          'status' => 'success',
+          'total_smv' => $total_smv->total_smv
+        ];
+      }
+    }
+
+
+    private function get_total_smv($style_id, $bom_stage_id, $color_type_id){
+      $style_id = 41;
+      $bom_stage_id = 1;
+      $color_type_id = 1;
+      $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)
+      ->where('bom_stage_id', '=', $bom_stage_id)
+      ->where('col_opt_id', '=', $color_type_id)
+      ->where('status', '=', 1)->first();
+
+      if($total_smv == null || $total_smv == false){
+        return 0;
+      }
+      else{
+        return $total_smv->total_smv;
+      }
+    }
+
+    private function calculate_fg_component_rm_cost($fg_component_id){
+      $cost = CostingFinishGoodComponentItem::where('fg_component_id', '=', $fg_component_id)->sum('total_cost');
+      return $cost;
+    }
+
+    private function calculate_fg_rm_cost($fg_id){
+      $cost = CostingFinishGoodComponentItem::join('costing_finish_good_components', 'costing_finish_good_components.id', '=', 'costing_finish_good_component_items.fg_component_id')
+      ->where('costing_finish_good_components.id', '=', $fg_id)->sum('costing_finish_good_component_items.total_cost');
+      return $cost;
+    }
+
+
     private function get_finish_good($style_id, $bom_stage){
       //$costing = BulkCosting::find($id);
-    //$style = StyleCreation::find(/*$style_id*/41);
-$style_id = 41;
-$bom_stage = 1;
+     //$style = StyleCreation::find(/*$style_id*/41);
+      $style_id = 41;
+      $bom_stage = 1;
 
       $product_feature_components = DB::select("SELECT
         ie_component_smv_summary.product_component_id,
@@ -965,7 +1177,7 @@ $bom_stage = 1;
         '1' AS pack_no,
         '' AS combo_color,
         '' AS color,
-        '0' AS fg_id,
+        '0' AS fg_id
         FROM ie_component_smv_summary
         INNER JOIN ie_component_smv_header ON ie_component_smv_header.smv_component_header_id = ie_component_smv_summary.smv_component_header_id
         INNER JOIN product_component ON product_component.product_component_id = ie_component_smv_summary.product_component_id
@@ -984,21 +1196,25 @@ $bom_stage = 1;
       //$style = StyleCreation::find($costing->style_id);
 
       $product_feature_components = DB::select("SELECT
-        costing_bulk_components.*,
-        costing_bulk_finish_goods.pack_no,
-        costing_bulk_finish_goods.combo_color,
-        costing_bulk_finish_goods.emp,
-        costing_bulk_finish_goods.np,
+        costing_finish_good_components.*,
+        costing_finish_goods.pack_no,
+        costing_finish_goods.combo_color_id,
+        costing_finish_goods.epm,
+        costing_finish_goods.np,
         product_feature.product_feature_id,
         product_component.product_component_description,
         product_silhouette.product_silhouette_description,
-        product_feature.product_feature_description
-        FROM costing_bulk_components
-        INNER JOIN costing_bulk_finish_goods ON costing_bulk_finish_goods.fg_id = costing_bulk_components.fg_id
-        INNER JOIN product_component ON product_component.product_component_id = costing_bulk_components.product_component_id
-        INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = costing_bulk_components.product_silhouette_id
-        INNER JOIN product_feature ON product_feature.product_feature_id = costing_bulk_finish_goods.product_feature_id
-        WHERE costing_bulk_finish_goods.costing_id = ? ", [$id]);
+        product_feature.product_feature_description,
+        color1.color_name AS combo_color,
+        color2.color_name AS color
+        FROM costing_finish_good_components
+        INNER JOIN costing_finish_goods ON costing_finish_goods.fg_id = costing_finish_good_components.fg_id
+        INNER JOIN product_component ON product_component.product_component_id = costing_finish_good_components.product_component_id
+        INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = costing_finish_good_components.product_silhouette_id
+        INNER JOIN product_feature ON product_feature.product_feature_id = costing_finish_goods.product_feature
+        INNER JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
+        INNER JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
+        WHERE costing_finish_goods.costing_id = ? ", [$id]);
 
         return $product_feature_components;
     }
@@ -1014,13 +1230,13 @@ $bom_stage = 1;
           $order_column = $data['columns'][$order['column']]['data'];
           $order_type = $order['dir'];
 
-          $costing_list = Costing::select('costing_bulk.*','style_creation.style_no','merc_bom_stage.bom_stage_description',
+          $costing_list = Costing::select('costing.*','style_creation.style_no','merc_bom_stage.bom_stage_description',
             'org_season.season_name', 'merc_color_options.color_option')
-          ->join('style_creation', 'style_creation.style_id', '=', 'costing_bulk.style_id')
-          ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing_bulk.bom_stage_id')
-          ->join('org_season', 'org_season.season_id', '=', 'costing_bulk.season_id')
-          ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing_bulk.color_type_id')
-          ->where('costing_bulk.id'  , 'like', $search.'%' )
+          ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
+          ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
+          ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
+          ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
+          ->where('costing.id'  , 'like', $search.'%' )
           ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
           ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
           ->orWhere('org_season.season_name','like',$search.'%')
@@ -1028,11 +1244,11 @@ $bom_stage = 1;
           ->orderBy($order_column, $order_type)
           ->offset($start)->limit($length)->get();
 
-          $costing_count = Costing::join('style_creation', 'style_creation.style_id', '=', 'costing_bulk.style_id')
-          ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing_bulk.bom_stage_id')
-          ->join('org_season', 'org_season.season_id', '=', 'costing_bulk.season_id')
-          ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing_bulk.color_type_id')
-          ->where('costing_bulk.id'  , 'like', $search.'%' )
+          $costing_count = Costing::join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
+          ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
+          ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
+          ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
+          ->where('costing.id'  , 'like', $search.'%' )
           ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
           ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
           ->orWhere('org_season.season_name','like',$search.'%')
@@ -1045,6 +1261,21 @@ $bom_stage = 1;
               "recordsFiltered" => $costing_count,
               "data" => $costing_list
           ]);
+    }
+
+
+    private function get_artical_numbers($search){
+      $list = DB::table('costing_finish_good_component_items')->where('article_no', 'like', $search . '%')
+      ->distinct('article_no')->get()->pluck('article_no');
+      return $list;
+    }
+
+    private function get_item_uom($item_description){
+      $list = DB::table('item_uom')
+      ->join('org_uom', 'org_uom.uom_id', '=', 'item_uom.uom_id')
+      ->join('item_master', 'item_master.master_id', '=', 'item_uom.master_id')
+      ->where('item_master.master_description', '=', $item_description)->get()->pluck('uom_code');
+      return $list;
     }
 
 

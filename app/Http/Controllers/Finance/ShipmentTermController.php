@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\ShipmentTerm;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 class ShipmentTermController extends Controller
 {
@@ -35,6 +37,12 @@ class ShipmentTermController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else{
         $active = $request->active;
         $fields = $request->fields;
@@ -51,12 +59,14 @@ class ShipmentTermController extends Controller
       {
         $shipTerm = new ShipmentTerm();
         $shipTerm->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
         $shipTerm->status = 1;
         $shipTerm->save();
 
         return response([ 'data' => [
           'message' => 'Shipment term saved successfully',
-          'shipTerm' => $shipTerm
+          'shipTerm' => $shipTerm,
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -87,14 +97,26 @@ class ShipmentTermController extends Controller
     {
       if($this->authorize->hasPermission('SHIP_TERM_MANAGE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('ship_terms_agreed',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('ship_terms_agreed',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([ 'data' => [
+            'message' => 'Shipment term Already in Use',
+            'status' => '0'
+          ]]);
+
+        }else{
         $shipTerm = ShipmentTerm::find($id);
         $shipTerm->fill($request->except('ship_term_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
         $shipTerm->save();
 
         return response([ 'data' => [
           'message' => 'Shipment term updated successfully',
-          'shipTerm' => $shipTerm
+          'shipTerm' => $shipTerm,
+          'status'=>'1'
         ]]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -106,13 +128,25 @@ class ShipmentTermController extends Controller
     {
       if($this->authorize->hasPermission('SHIP_TERM_DELETE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('ship_terms_agreed',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('ship_terms_agreed',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([ 'data' => [
+            'message' => 'Shipment term Already in Use',
+            'status' => '0'
+          ]]);
+        }
+
+        else{
         $shipTerm = ShipmentTerm::where('ship_term_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Shipment term was deactivated successfully.',
-            'shipTerm' => $shipTerm
+            'shipTerm' => $shipTerm,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -207,5 +241,13 @@ class ShipmentTermController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
+
+
+    private function handsontable_search($search){
+      $list = ShipmentTerm::where('ship_term_description'  , 'like', $search.'%' )
+      ->where('status', '=', 1 )->get()->pluck('ship_term_description');
+      return $list;
+    }
+
 
 }

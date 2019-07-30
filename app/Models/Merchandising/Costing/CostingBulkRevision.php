@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Merchandising;
+namespace App\Models\Merchandising\Costing;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class CostingBulkRevision extends BaseValidator {
 
     protected $fillable = [];
 
-   
-   
+
+
 
 }

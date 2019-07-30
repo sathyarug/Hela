@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Cluster;
 use App\Models\Org\Location\Company;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class ClusterController extends Controller
 {
@@ -53,8 +54,7 @@ class ClusterController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
-          $cluster->group_code = strtoupper($cluster->group_code);
-          $cluster->group_name = strtoupper($cluster->group_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->status = 1;
           $cluster->save();
 
@@ -111,7 +111,7 @@ class ClusterController extends Controller
             ]);
           }else{
           $cluster->fill($request->except('group_code'));
-          $cluster->group_name = strtoupper($cluster->group_name);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [

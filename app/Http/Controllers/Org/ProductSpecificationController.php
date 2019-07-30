@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\ProductSpecification;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class  ProductSpecificationController extends Controller
 {
@@ -51,7 +52,7 @@ class  ProductSpecificationController extends Controller
       {
         $productSpecification= new  ProductSpecification ();
         $productSpecification->fill($request->all());
-        $productSpecification->prod_cat_description = strtoupper($request->prod_cat_description);
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($productSpecification);
         $productSpecification->status = 1;
         $productSpecification->save();
 
@@ -90,6 +91,7 @@ class  ProductSpecificationController extends Controller
       {
         $productSpecification =  ProductSpecification::find($id);
         $productSpecification->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($productSpecification);
         $productSpecification->save();
 
         return response([ 'data' => [

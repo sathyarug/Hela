@@ -11,6 +11,7 @@ use App\Models\Org\Season;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class SeasonController extends Controller
 {
@@ -54,9 +55,9 @@ class SeasonController extends Controller
         if($season->validate($request->all()))
         {
           $season->fill($request->all());
-          $season->season_code = strtoupper($season->season_code);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($season);
           $season->status = 1;
-          $season->season_code=strtoupper($season->season_code);
+          //$season->season_code=strtoupper($season->season_code);
           $season->save();
 
           return response([ 'data' => [
@@ -103,7 +104,7 @@ class SeasonController extends Controller
         if($costingBulkFeatureDetails!=null){
           return response([
             'data' => [
-              'message' => 'Sason Already in Use.',
+              'message' => 'Season Already in Use.',
               'status'=>'0',
             ]
           ]);
@@ -113,6 +114,7 @@ class SeasonController extends Controller
         if($season->validate($request->all()))
         {
           $season->fill($request->except('season_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($season);
           $season->save();
 
           return response([ 'data' => [
