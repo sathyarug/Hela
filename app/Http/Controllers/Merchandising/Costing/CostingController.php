@@ -29,68 +29,20 @@ use App\Models\Org\Color;
 
 class CostingController extends Controller {
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request) {
         $type = $request->type;
-
-        /*if ($type == 'getSeasonList') {
-            return response($this->getSeasonList());
-        }*/
-        /*if ($type == 'getColorType') {
-            return response($this->getColorType());
-        }*/
-        /*elseif ($type == 'getBomStage') {
-            return response($this->getBomStage());
-        } */
-        /*if ($type == 'auto') {
-            $search = $request->search;
-            return response($this->getStyle
-
-
-            ($search));
-        }*/
         if ($type == 'getStyleData') {
             return response($this->getStyleData($request->style_id));
-        }elseif($type == 'getCostListing'){
-            return response($this->getCostSheetListing($request->style_id));
-        }elseif($type == 'getCostingHeader'){
-            return response($this->getCostingHeaderDetails($request->costing_id));
-        } elseif ($type == 'getFinishGood') {
-          //  $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
-            return response($this->getFinishGood($request->id));
-        }elseif ($type == 'SentToApproval') {
-            $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
-            return response($this->SentToApproval($request->style_id,$data));
-        }elseif ($type == 'revision') {
-            $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
-            return response($this->revision($request->style_id,$data));
-        }elseif ($type == 'item'){
-            $search = $request->search;
-            return response($this->getItemList($search));
-        }elseif ($type == 'getItemData'){
-            $item = $request->item;
-            return response($this->getItemDetails($item));
-        }elseif ($type == 'getColorForDivision'){
+        }
+        elseif ($type == 'getColorForDivision'){
             $division_id = $request->division_id;
             $query = $request->query;
             return response($this->getColorForDivision($division_id,$query));
-        }elseif ($type == 'getColorForDivisionCode'){
-            $division_id = $request->division_id;
-            $query = $request->query;
-            return response($this->getColorForDivisionCode($division_id,$query));
-        }elseif ($type == 'apv'){
-            $this->Approval($request);
-        }elseif ($type == 'report-balk'){
-            $this->reportBalk($request);
-        }elseif ($type == 'report-flash'){
-            $this->reportFlash($request);
         }
-
-        //new functions
+        elseif ($type == 'getFinishGood') {
+            return response($this->getFinishGood($request->id));
+        }
         elseif ($type == 'finance_cost'){
             return response($this->finance_cost());
         }
@@ -115,6 +67,42 @@ class CostingController extends Controller {
             $data = $request->all();
             $this->datatable_search($data);
         }
+        /*elseif($type == 'getCostListing'){
+            return response($this->getCostSheetListing($request->style_id));
+        }*/
+        /*elseif($type == 'getCostingHeader'){
+            return response($this->getCostingHeaderDetails($request->costing_id));
+        } */
+
+        /*elseif ($type == 'revision') {
+            $data=array('blkNo'=>$request->blk,'bom'=>$request->bom,'season'=>$request->sea,'colType'=>$request->col);
+            return response($this->revision($request->style_id,$data));
+        }*/
+        /*elseif ($type == 'item'){
+            $search = $request->search;
+            return response($this->getItemList($search));
+        }*/
+        /*elseif ($type == 'getItemData'){
+            $item = $request->item;
+            return response($this->getItemDetails($item));
+        }*/
+
+        /*elseif ($type == 'getColorForDivisionCode'){
+            $division_id = $request->division_id;
+            $query = $request->query;
+            return response($this->getColorForDivisionCode($division_id,$query));
+        }*/
+        /*elseif ($type == 'apv'){
+            $this->Approval($request);
+        }
+        /*elseif ($type == 'report-balk'){
+            $this->reportBalk($request);
+        }*/
+        /*elseif ($type == 'report-flash'){
+            $this->reportFlash($request);
+        }*/
+        //new functions
+
     }
 
 
@@ -122,7 +110,7 @@ class CostingController extends Controller {
         $costing_count = Costing::where('style_id', '=', $request->style_id)->where('bom_stage_id', '=', $request->bom_stage_id)
         ->where('season_id', '=', $request->season_id)->where('color_type_id', '=', $request->color_type_id)->count();
 
-        if($costing_count > 0){
+        if($costing_count > 0){ //chek costing already exixts for same style, bom stage, season and color type
           return response(['data' => [
               'status' => 'error',
               'message' => 'Duplicate costing'
@@ -133,35 +121,37 @@ class CostingController extends Controller {
         {
           $costing = new Costing();
 
-          if ($costing->validate($request->all())) {
-              //$costing->style_id=$request->Style['style_id'];
+          if ($costing->validate($request->all())) { //validate costing details
+             //fill data -> style_id, bom_stage_id, season_id, color_type_id, total_order_qty, fob, planned_efficiency, cost_per_std_min,
+             //pcd, cost_per_std_min, upcharge, upcharge_reason
               $costing->fill($request->all());
-
               $pcd_date = date_create($costing->pcd);
-              $costing->pcd = date_format($pcd_date,"Y-m-d");
+              $costing->pcd = date_format($pcd_date,"Y-m-d");//change pcd date format to save in database
 
+              //chek finance details
               $current_timestamp = date("Y-m-d H:i:s");
               $finance_details = FinanceCost::where('effective_from', '<=', $current_timestamp)
               ->where('effective_to', '>=', $current_timestamp)
               ->where('status', 1)->first();
 
-              $finance_cost = 0;
+              $finance_charges = 0;
               $cpm_front_end = 0;
               $cpum = 0;
               $cpm_factory = 0;
 
-              if ($finance_details != false && $finance_details != null) {
-                 $finance_cost = $finance_details['finance_cost'];
+              if ($finance_details != false && $finance_details != null) { //if has finance details
+                 $finance_charges = $finance_details['finance_cost'];
                  $cpm_front_end = $finance_details['cpmfront_end'];
                  $cpum = $finance_details['cpum'];
                  $cpm_factory = $cpum * $costing->planned_efficiency;
               }
 
-              $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);
-              $labour_cost = $total_smv * $cpm_factory;
-              $coperate_cost = $total_smv * $cpm_front_end;
+              $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);//get smv details
+              $labour_cost = $total_smv * $cpm_factory;//calculate labour cost
+              $coperate_cost = $total_smv * $cpm_front_end;//calculate coperate cost
 
-              $costing->finance_charges = $finance_cost;
+              $costing->finance_charges = $finance_charges;
+              $costing->finance_cost = 0; //finance cost = total rm cost * finance charges
               $costing->cpm_front_end = $cpm_front_end;
               $costing->cost_per_utilised_min = $cpum;
               $costing->total_smv = $total_smv;
@@ -169,20 +159,11 @@ class CostingController extends Controller {
               $costing->labour_cost = $labour_cost;
               $costing->coperate_cost = $coperate_cost;
               $costing->revision_no = 1;
-              $costing->status = 1;
-              //$costing->fob=$request->fob;
-              //$costing->plan_efficiency=$request->plan_efficiency;
-              //$costing->finance_charges=$request->finance_charges;
-              //$costing->cost_per_std_min=$request->cost_per_std_min;
-              //$costing->epm=$request->epm;
-              //$costing->np_margin=$request->np_margin;
-              //$costing->cost_per_min=$request->cost_per_min;
-              //$costing->finance_charges=$request->finance_charges;
+              $costing->status = 'CREATE';
               $costing->save();
-
-            //get product feature components from style
-            $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id);
-
+              //get product feature components from style
+              $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);
+              //send response
               return response(['data' => [
                   'status' => 'success',
                   'message' => 'Costing saved successfully',
@@ -205,11 +186,11 @@ class CostingController extends Controller {
        $finish_goods_count = CostingFinishGood::where('costing_id', '=', $costing->id)->count();
        $finish_goods = [];
 
-       if($finish_goods_count > 0){
-         $finish_goods = $this->get_saved_finish_good($id);
+       if($finish_goods_count > 0){ //chek already saved finishgood
+         $finish_goods = $this->get_saved_finish_good($id); //get saved finish good details
        }
        else{
-         $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id);
+         $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id, $costing->color_type_id); //get finishgood data from smv table
        }
         $feature_component_count = 0;
         if(sizeof($finish_goods) > 0){ //get component count of a product feature
@@ -227,77 +208,107 @@ class CostingController extends Controller {
 
     public function update(Request $request, $id){
       $costing = Costing::find($id);
-      $style = StyleCreation::find($costing->style_id);
-      $product_feature = ProductFeature::find($style->product_feature_id);
-      $finish_goods = $request->finish_goods;
-
-      $costing->total_order_qty = $request->total_order_qty;
-      $costing->fob = $request->fob;
-      $costing->planned_efficiency = $request->planned_efficiency;
-      $costing->cost_per_std_min = $request->cost_per_std_min;
-      $costing->pcd = $request->pcd;
-      $costing->upcharge = $request->upcharge;
-      $costing->upcharge_reason = $request->upcharge_reason;
-
-      $cpm_factory = $costing->cost_per_utilised_min * $costing->planned_efficiency;
-      $labour_cost = $costing->total_smv * $cpm_factory;
-      //  $coperate_cost = $total_smv * $cpm_front_end;
-      $costing->cpm_factory = $cpm_factory;
-      $costing->labour_cost = $labour_cost;
-      //$costing->coperate_cost = $coperate_cost;
-      //$costing->revision_no = 1;
-      $costing->save();
-
-      $current_pack = -1;
-      for($x = 0 ; $x < sizeof($finish_goods) ; ($x = $x + $product_feature->count)){
-          $fg = null;
-          if($finish_goods[$x]['fg_id'] == 0){ //new finish good
-            $fg = new CostingFinishGood();
-            $fg->costing_id = $costing->id;
-          }
-          else{
-            $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);
-          }
-          $combo_color = Color::where('color_name', '=', $finish_goods[$x]['combo_color'])->first();
-          $fg->pack_no = $finish_goods[$x]['pack_no'];
-          $fg->combo_color_id = $combo_color->color_id;
-          $fg->product_feature = $finish_goods[$x]['product_feature_id'];
-          $fg->epm = 0;
-          $fg->np = 0;
-          $fg->save();
-
-          for($y = $x ; $y < ($x + $product_feature->count) ; $y++){
-
-            if($finish_goods[$y]['id'] == 0){ //new component
-              $finish_good_component = new CostingFinishGoodComponent();
-              $finish_good_component->fg_id = $fg->fg_id;
-            }
-            else{
-              $finish_good_component = CostingFinishGoodComponent::find($finish_goods[$y]['id']);
-            }
-
-            $color = Color::where('color_name', '=', $finish_goods[$y]['color'])->first();
-
-            $finish_good_component->product_component_id = $finish_goods[$y]['product_component_id'];
-            $finish_good_component->product_silhouette_id = $finish_goods[$y]['product_silhouette_id'];
-            $finish_good_component->line_no = $finish_goods[$y]['line_no'];
-            $finish_good_component->surcharge = $finish_goods[$y]['surcharge'];
-            $finish_good_component->color_id = $color->color_id;
-            $finish_good_component->mcq = $finish_goods[$y]['mcq'];
-            $finish_good_component->smv = $finish_goods[$y]['smv'];
-            $finish_good_component->status = 1;
-            $finish_good_component->save();
-          }
-        }
+      //check costing status. cannot update PENDING and REJECTED costings
+      if($costing->status == 'PENDING' || $costing->status == 'REJECTED') {
         return response([
           'data' => [
-            'status' => 'success',
-            'message' => 'Costing updated successfully',
-            'costing' => $costing,
-            'finish_goods' => $this->get_saved_finish_good($costing->id),
-            'feature_component_count' => $product_feature->count,
+            'status' => 'error',
+            'message' => 'Cannot update '. $costing->status .'costing'
           ]
         ]);
+      }
+      else {
+        $style = StyleCreation::find($costing->style_id);
+        $product_feature = ProductFeature::find($style->product_feature_id);
+        $finish_goods = $request->finish_goods;//get finisg goods list
+
+        if($costing->status == 'APPROVED'){ //if costing is an APPROVED one, add revision data to history table and save new data as a new revision
+          $this->save_costing_revision($costing->id, $costing->revision_no, $request->revision_reason);
+          $costing->revision_no = ($costing->revision_no + 1); //update revision no
+          $costing->status = 'CREATE'; //clear approval details and save as a new revision
+          $costing->approval_user = null;
+          $costing->approval_date = null;
+          $costing->approval_sent_date = null;
+          $costing->approval_sent_user = null;
+        }
+
+        $costing->total_order_qty = $request->total_order_qty;
+        $costing->fob = $request->fob;
+        $costing->planned_efficiency = $request->planned_efficiency;
+        $costing->cost_per_std_min = $request->cost_per_std_min;
+        $costing->pcd = $request->pcd;
+        $costing->upcharge = $request->upcharge;
+        $costing->upcharge_reason = $request->upcharge_reason;
+
+        $cpm_factory = $costing->cost_per_utilised_min * $costing->planned_efficiency;
+        $labour_cost = $costing->total_smv * $cpm_factory;
+        // no need to update corperate cost. Because it will not change based on user inut data
+        $costing->cpm_factory = $cpm_factory;
+        $costing->labour_cost = $labour_cost;
+        $costing->save();
+
+        $current_pack = -1;
+        for($x = 0 ; $x < sizeof($finish_goods) ; ($x = $x + $product_feature->count)){
+            $fg = null;
+            if($finish_goods[$x]['fg_id'] == 0){ //new finish good
+              $fg = new CostingFinishGood();
+              $fg->costing_id = $costing->id;
+            }
+            else{
+              $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);// get existing finish good
+            }
+
+            if($finish_goods[$x]['combo_color'] != null && $finish_goods[$x]['combo_color'] != '') {//get combo color if exists
+              $combo_color = Color::where('color_name', '=', $finish_goods[$x]['combo_color'])->first();
+              $fg->combo_color_id = $combo_color->color_id;
+            }
+            else {// no combo color
+              $fg->combo_color_id = null;
+            }
+
+            $fg->pack_no = $finish_goods[$x]['pack_no'];
+            $fg->product_feature = $finish_goods[$x]['product_feature_id'];
+            $fg->epm = 0;
+            $fg->np = 0;
+            $fg->save();
+
+            for($y = $x ; $y < ($x + $product_feature->count) ; $y++) {
+              if($finish_goods[$y]['id'] == 0){ //new component
+                $finish_good_component = new CostingFinishGoodComponent();
+                $finish_good_component->fg_id = $fg->fg_id;
+              }
+              else{
+                $finish_good_component = CostingFinishGoodComponent::find($finish_goods[$y]['id']);
+              }
+
+              if($finish_goods[$y]['color'] != null && $finish_goods[$y]['color'] != '') {//get garment color if exists
+                $color = Color::where('color_name', '=', $finish_goods[$y]['color'])->first();
+                $finish_good_component->color_id = $color->color_id;
+              }
+              else {//no garment color
+                $finish_good_component->color_id = null;
+              }
+
+              $finish_good_component->product_component_id = $finish_goods[$y]['product_component_id'];
+              $finish_good_component->product_silhouette_id = $finish_goods[$y]['product_silhouette_id'];
+              $finish_good_component->line_no = $finish_goods[$y]['line_no'];
+              $finish_good_component->surcharge = $finish_goods[$y]['surcharge'];
+              $finish_good_component->mcq = $finish_goods[$y]['mcq'];
+              $finish_good_component->smv = $finish_goods[$y]['smv'];
+              $finish_good_component->status = 1;
+              $finish_good_component->save();
+            }
+          }
+          return response([
+            'data' => [
+              'status' => 'success',
+              'message' => 'Costing updated successfully',
+              'costing' => $costing,
+              'finish_goods' => $this->get_saved_finish_good($costing->id),
+              'feature_component_count' => $product_feature->count,
+            ]
+          ]);
+      }
     }
 
 
@@ -307,43 +318,24 @@ class CostingController extends Controller {
 
 
     private function getStyleData($style_id) {
-       $dataArr = array();
+        $dataArr = array();
         $styleData = StyleCreation::find($style_id);
-        $hader = Costing::where('style_id', $style_id)->get()->toArray();
-        $country = \App\Models\Org\Country::find($styleData->customer->customer_country);
-
+        //$hader = Costing::where('style_id', $style_id)->get()->toArray();
+        //$country = \App\Models\Org\Country::find($styleData->customer->customer_country);
 
         $dataArr['remark_style'] = $styleData->remark_style;
         $dataArr['division_name'] = $styleData->division->division_description;
         $dataArr['division_id'] = $styleData->division->division_id;
         $dataArr['style_desc'] = $styleData->style_description;
         $dataArr['cust_name'] = $styleData->customer->customer_name;
-
-
         $dataArr['style_desc'] = $styleData->style_description;
         $dataArr['style_id'] = $styleData->style_id;
         $dataArr['style_no'] = $styleData->style_no;
         $dataArr['image'] = $styleData->image;
 
-        //$dataArr['cust_id'] = $styleData->customer->customer_id;
-      //  $dataArr['division_name'] = $styleData->division->division_description;
-      //  $dataArr['division_id'] = $styleData->division->division_id;
-
-        //echo json_encode($styleData->customer);
-        //$dataArr['country'] = $country->country_description;
-
-
-
-       // $sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
-
-        //$sumStyleSmvComp=\App\Models\ie\StyleSMV::where('style_id', $styleData->style_id)->orderBy('smv_comp_id', 'desc')->first();
-        //  echo json_encode($styleData->style_id);
-
-//        dd($sumStyleSmvComp->created_date);exit;
-
-        if(count($hader)>0){
-            $costed_smv=0;
-            $blkCostFea = [];//\App\Models\Merchandising\BulkCostingFeatureDetails::where('bulkheader_id',$hader[0]['bulk_costing_id'])->where('status',1)->get();
+      /*  if(count($hader)>0){
+            $costed_smv = 0;
+            $blkCostFea = [];
 
             if(count($blkCostFea)>0){
                 $sum=0;
@@ -356,8 +348,6 @@ class CostingController extends Controller {
             $dataArr['blk_hader'] = $hader[0];
             $dataArr['blk_hader']['smv_received']='';
             $dataArr['blk_hader']['costed_smv_id']=$costed_smv;
-
-
 
         }else{
             $financeCost=\App\Models\Finance\Cost\FinanceCost::first();
@@ -380,113 +370,15 @@ class CostingController extends Controller {
 
             $dataArr['blk_hader']['costing_status']=0;
 
-        }
+        }*/
         return $dataArr;
     }
 
 
     private function getFinishGood($id) {
-
       return [
-        'product_feature_components' => $this->get_finish_good(51)
-        ];
-
-    /*  for($x = 0 ; $x < sizeof($product_feature_components) ; $x++){
-        $a = [
-
-        ];
-      }*/
-
-      /*  $productFeatureList = StyleProductFeature::where('style_id', $style_id)->get()->toArray();
-
-        $count=1;
-        $lineNo=0;
-        foreach ($productFeatureList AS $productFeature){
-
-            $featureList=\App\Models\Org\FeatureComponent::where('product_feature_id', $productFeature['product_feature_id'])->where('status',1)->get()->toArray();
-
-
-            $epmNnp['epm']=0;
-            $epmNnp['np']=0;
-
-            if(!is_null($data['blkNo'])){
-                $epmNnp = \App\Models\Merchandising\BulkCostingFeatureDetails::getEmpNp($productFeature['id'],$data);
-            }
-
-            foreach ($featureList As $feature){
-                $surcharge=false;
-                $mcq=false;
-                $colordata='';$blkHeadId=0;$colorComboData='';$smv=0;
-                $featureData=\App\Models\Org\Feature::find($feature['product_feature_id']);
-                $component=\App\Models\Org\Component::find($feature['product_component_id']);
-
-                $blk=$data['blkNo'];
-                $bom=$data['bom'];
-                $season=$data['season'];
-                $colType=$data['colType'];
-
-                $blkCostFea = \App\Models\Merchandising\BulkCostingFeatureDetails::where('style_feature_id', $productFeature['id'])->where('feature_id', $featureData->product_feature_id)->where('component_id',$component->product_component_id)->where('bulkheader_id',$blk)->where('bom_stage',$bom)->where('season_id',$season)->where('col_opt_id',$colType)->where('status',1)->first();
-                if(isset($blkCostFea->mcq) && $blkCostFea->mcq==1){
-                        $mcq=true;
-                    }else{
-                        $mcq=false;
-                    }
-
-                if(isset($blkCostFea->surcharge) && $blkCostFea->surcharge==1){
-                    $surcharge=true;
-                }else{
-                    $surcharge=false;
-                }
-
-
-                if(isset($blkCostFea->color_ID)){
-
-                    $color=\App\Models\Org\Color::find($blkCostFea->color_ID)->first();
-                    $colordata=$color->color_name;
-
-
-                }
-                if(isset($blkCostFea->combo_color)){
-
-                   $color=\App\Models\Org\Color::find($blkCostFea->combo_color);
-                    $colorComboData=$color->color_code;
-                }
-                if(isset($blkCostFea->blk_feature_id)){
-                    $blkHeadId=$blkCostFea->blk_feature_id;
-                }
-
-                if(isset($blkCostFea->smv) && (!is_null($blkCostFea->smv))){
-                	$smv=$blkCostFea->smv;
-                }
-
-
-                $productFeatureArray[]=array(
-                    'pack_name'=>'PACK-'.$count,
-                    'id'=>$component->product_component_id,
-                    'style_feature_id'=>$productFeature['id'],
-                    'description'=>$component->product_component_description,
-                    'main_featureName'=>$featureData->product_feature_description,
-                    'mcq'=>$mcq,
-                    'surcharge'=>$surcharge,
-                    'color'=>$colordata,
-                    'color_combo'=>$colorComboData,
-                    'blkHead'=>$blkHeadId,
-                    'smv'=>$smv,
-                    'epm'=>round($epmNnp['epm'],3),
-                    'np'=>round($epmNnp['np'],3),
-                    'main_featureName_id'=>$featureData->product_feature_id,
-                    'success'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-success-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">save</i> </a>',
-                    'primary'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-primary-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Copy</i> </a>',
-                    'danger'=>'<a  style="min-height: 12px !important;padding: 1px 10px;font-size: 6px; line-height: 1; border-radius: 2px;margin: 1px;"  class="btn bg-warning-400 btn-rounded  btn-icon btn-xs-new"><i class="letter-icon">Open</i> </a>'
-
-                );$lineNo++;
-            }
-
-
-$count++;
-}*/
-
-      //  return $arr;
+        'finish_goods' => $this->get_saved_finish_good($id)
+      ];
     }
 
 //    private function getEmpNp($product_feature_id,$data) {
@@ -539,23 +431,25 @@ $count++;
 //    }
 
 
-    private function SentToApproval($style_id,$data) {
-        $blk = Costing::find($data['blkNo']);
-        $blk->costing_status='SentToApproval';
-        $blk->save();
-        $bulk_costing_id =$blk->bulk_costing_id;
+    public function send_to_approval(Request $request) {
+        $user = auth()->user();
+        $costing = Costing::find($request->costing_id);
+        $costing->status = 'PENDING';
+        $costing->approval_user = 19;
+        $costing->approval_sent_user = $user->user_id;
+        $costing->approval_sent_date = date("Y-m-d H:i:s");
+        $costing->save();
 
-        $keyVal = $bulk_costing_id;
-        $keyCode=md5($keyVal);
-        $BulkCostingApproval = new BulkCostingApproval;
-        $BulkCostingApproval->costing_id = $blk->bulk_costing_id;
-        $BulkCostingApproval->approval_key = $keyCode;
-        $BulkCostingApproval->save();
-
-        return($this->getFinishGood($style_id,$data));
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Costing sent for approval',
+            'costing' => $costing
+          ]
+        ]);
     }
 
-    private function revision($style_id,$data) {
+    /*private function revision($style_id,$data) {
         $max=CostingBulkRevision::where('costing_id',$data['blkNo'])->max('revision');
         $newMax=$max+1;
 
@@ -643,9 +537,10 @@ $count++;
         $blk->costing_status='Edit';
         $blk->save();
         return($this->getFinishGood($style_id,$data));
-    }
+    }*/
 
-    private function saveLineHeader($request,$data){
+
+    /*private function saveLineHeader($request,$data){
         $color=\App\Models\Org\Color::where('color_name', $request->color)->first();
         $color_combo=\App\Models\Org\Color::where('color_code', $request->color_combo)->first();
 
@@ -687,14 +582,14 @@ $count++;
 
 //        return $bulkCostingDetails->blk_feature_id;
 
-    }
+}*/
 
-    public function getItemList($search){
+    /*public function getItemList($search){
         return \App\itemCreation::select('master_id', 'master_description')
             ->where([['master_description', 'like', '%' . $search . '%'],])->get();
-    }
+    }*/
 
-    public function getItemDetails($id){
+    /*public function getItemDetails($id){
         $master= \App\itemCreation::find($id)->toArray();
         $SubCategory= \App\Models\Finance\Item\SubCategory::find($master['subcategory_id'])->toArray();
         $category= \App\Models\Finance\Item\Category::find($SubCategory['category_id'])->toArray();
@@ -702,7 +597,7 @@ $count++;
         $serviceType= \App\Models\IE\ServiceType::where('status', 1)->get()->toArray();
 
         return array('category'=>$category,'supplier'=>$supplier,'pOptions'=>$serviceType);
-    }
+    }*/
 
     public  function getColorForDivision($division_id,$query){
 //        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
@@ -710,34 +605,33 @@ $count++;
         return json_encode($color);
     }
 
-    public  function getColorForDivisionCode($division_id,$query){
+    /*public  function getColorForDivisionCode($division_id,$query){
 //        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_code')->toArray();
         $color=\App\Models\Org\Color::pluck('color_code')->toArray();
         return json_encode($color);
-    }
+    }*/
 
-    public  function Approval($request){
+
+    /*public  function Approval($request){
         $BulkCosting = Costing::find($request->blk);
         if(isset($request->ur)){
             if($BulkCosting->costing_status =='SentToApproval'){
-//            $CostingBulkRevision=BulkCostingApproval::where('costing_id',$request->blk)->where('approval_key',$request->approval_key)->where('id',$request->aid)->get();
+               //$CostingBulkRevision=BulkCostingApproval::where('costing_id',$request->blk)->where('approval_key',$request->approval_key)->where('id',$request->aid)->get();
                 $blkApp = BulkCostingApproval::find($request->aid);
                 $blkApp->lock_status=1;
                 $blkApp->save();
 
-
                 $upate =DB::table('costing')
                     ->where('bulk_costing_id', $blkApp->costing_id)
                     ->update(['costing_approval_user' => $request->ur,'costing_approval_time'=>now(),'costing_status'=>'approved']);
-
-//            $user = auth()->user();
+                    //$user = auth()->user();
             }else{
-
             }
         }
+    }*/
 
-    }
-    public  function reportBalk($request){
+
+    /*public  function reportBalk($request){
 
         $getAllData=DB::select('SELECT
 item_master.master_description,
@@ -904,12 +798,12 @@ if(count($getAllData)>0){
 
 
         $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
-//        dd($styleData->image);
-print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;
+        //dd($styleData->image);
+        print_r(json_encode(array('image'=>$styleData->image,'data'=>$fullData)));exit;
 
-    }
+    }*/
 
-    public  function reportFlash($request){
+    /*public  function reportFlash($request){
         $styleData = \App\Models\Merchandising\StyleCreation::find($request->style_id);
         $flashHaderData = \App\Models\Merchandising\Costing\Flash\cost_flash_header::find($request->style_id);
 
@@ -935,38 +829,27 @@ WHERE cost_flash_header.style_id = '.$request->style_id.'
 ORDER BY item_category.category_id');
 
         print_r(json_encode(array('image'=>$styleData->image,'data'=>$flashHaderData, 'details'=>$getAllDataFlash)));exit;
-    }
+    }*/
 
-    private function getCostSheetListing($styleId){
 
+    /*private function getCostSheetListing($styleId){
         $bulkHeaderData = Costing::select(DB::raw("*, LPAD(bulk_costing_id,6,'0') AS CostingNo"))
-                            ->where('style_id','=',$styleId)->get();
-                          //  dd($bulkHeaderData);
+        ->where('style_id','=',$styleId)->get();
+        //  dd($bulkHeaderData);
         return $bulkHeaderData;
-    }
+    }*/
 
-    private function getCostingHeaderDetails($costingId){
 
-       /* $costingHeader = BulkCosting::select("*")
-                            ->where('bulk_costing_id','=',$costingId)->get();*/
-
-        /*$costingHeader = \DB::table('costing_bulk')
-                            ->join('org_season','org_season.season_id','=','costing_bulk.season_id')
-                            ->select('costing_bulk.*','org_season.season_name')
-                            ->where('costing_bulk.bulk_costing_id',$costingId)
-                            ->get();*/
-
+    /*private function getCostingHeaderDetails($costingId){
         $costingHeader = \DB::table('costing')
-                            ->select(DB::raw('costing.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing.bulk_costing_id) AS Tot_Qty'))
-                            ->distinct()
-                            ->join('costing_bulk_feature_details','costing.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
-                            ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')
-                            ->where('costing.bulk_costing_id',$costingId)
-                            ->get();
-
+        ->select(DB::raw('costing.*,org_season.season_name,(select sum(merc_costing_so_combine.qty) from merc_costing_so_combine where merc_costing_so_combine.costing_id = costing.bulk_costing_id) AS Tot_Qty'))
+        ->distinct()
+        ->join('costing_bulk_feature_details','costing.bulk_costing_id','=','costing_bulk_feature_details.bulkheader_id')
+        ->join('org_season','org_season.season_id','=','costing_bulk_feature_details.season_id')
+        ->where('costing.bulk_costing_id',$costingId)
+        ->get();
         return $costingHeader;
-
-    }
+    }*/
 
 
     public function copy_finish_good(Request $request){
@@ -1024,6 +907,11 @@ ORDER BY item_category.category_id');
         $costing_copy->bom_stage_id = $bom_stage_id;
         $costing_copy->season_id = $season_id;
         $costing_copy->color_type_id;
+        $costing_copy->approval_user = null;
+        $costing_copy->approval_date = null;
+        $costing_copy->approval_sent_date = null;
+        $costing_copy->approval_sent_user = null;
+        $costing_copy->status = 'CREATE';
         $costing_copy->save();
 
         $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
@@ -1101,10 +989,7 @@ ORDER BY item_category.category_id');
     }
 
 
-    private function total_smv($style_id, $bom_stage_id, $color_type_id){
-      $style_id = 41;
-      $bom_stage_id = 1;
-      $color_type_id = 1;
+    private function total_smv($style_id, $bom_stage_id, $color_type_id) {
       $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)
       ->where('bom_stage_id', '=', $bom_stage_id)
       ->where('col_opt_id', '=', $color_type_id)
@@ -1126,9 +1011,6 @@ ORDER BY item_category.category_id');
 
 
     private function get_total_smv($style_id, $bom_stage_id, $color_type_id){
-      $style_id = 41;
-      $bom_stage_id = 1;
-      $color_type_id = 1;
       $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)
       ->where('bom_stage_id', '=', $bom_stage_id)
       ->where('col_opt_id', '=', $color_type_id)
@@ -1154,17 +1036,12 @@ ORDER BY item_category.category_id');
     }
 
 
-    private function get_finish_good($style_id, $bom_stage){
-      //$costing = BulkCosting::find($id);
-     //$style = StyleCreation::find(/*$style_id*/41);
-      $style_id = 41;
-      $bom_stage = 1;
-
+    private function get_finish_good($style_id, $bom_stage, $color_type) {
       $product_feature_components = DB::select("SELECT
         ie_component_smv_summary.product_component_id,
         ie_component_smv_summary.product_silhouette_id,
         ie_component_smv_summary.line_no,
-        ie_component_smv_summary.smv,
+        ie_component_smv_summary.total_smv AS smv,
         product_feature.product_feature_id,
         product_component.product_component_description,
         product_silhouette.product_silhouette_description,
@@ -1185,7 +1062,8 @@ ORDER BY item_category.category_id');
         INNER JOIN product_feature ON product_feature.product_feature_id = ie_component_smv_header.product_feature_id
         WHERE ie_component_smv_header.style_id = ?
         AND ie_component_smv_header.bom_stage_id = ?
-        AND ie_component_smv_header.status = ? ", [$style_id, $bom_stage, 1]);
+        AND ie_component_smv_header.col_opt_id = ?
+        AND ie_component_smv_header.status = ? ", [$style_id, $bom_stage, $color_type, 1]);
 
         return $product_feature_components;
     }
@@ -1212,7 +1090,7 @@ ORDER BY item_category.category_id');
         INNER JOIN product_component ON product_component.product_component_id = costing_finish_good_components.product_component_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = costing_finish_good_components.product_silhouette_id
         INNER JOIN product_feature ON product_feature.product_feature_id = costing_finish_goods.product_feature
-        INNER JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
+        LEFT JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
         INNER JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
         WHERE costing_finish_goods.costing_id = ? ", [$id]);
 
@@ -1278,5 +1156,39 @@ ORDER BY item_category.category_id');
       return $list;
     }
 
+
+    private function save_costing_revision($id, $revision_no, $revision_reason){
+
+      $costing = (array)DB::table('costing')->where('id', '=', $id)->first();
+      $costing = json_decode( json_encode($costing), true);//convert resullset to array
+      $costing['revision_reason'] = $revision_reason;
+      DB::table('costing_history')->insert($costing);
+
+      $finish_goods = DB::table('costing_finish_goods')->where('costing_id', '=', $id)->get();
+      $finish_goods = json_decode( json_encode($finish_goods), true);//convert resullset to array
+      $fg_id_arr = [];
+      for($x = 0 ; $x < sizeof($finish_goods); $x++){
+        $finish_goods[$x]['revision_no'] = $revision_no;
+        array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
+      }
+      DB::table('costing_finish_goods_history')->insert($finish_goods);
+
+      $fg_components = DB::table('costing_finish_good_components')->whereIn('fg_id', $fg_id_arr)->get();
+      $fg_components = json_decode( json_encode($fg_components), true);//convert resullset to array
+      $fg_components_id_arr = [];
+      for($x = 0 ; $x < sizeof($fg_components); $x++){
+        $fg_components[$x]['revision_no'] = $revision_no;
+        array_push($fg_components_id_arr, $fg_components[$x]['id']);
+      }
+      DB::table('costing_finish_good_components_history')->insert($fg_components);
+
+      $fg_component_items = DB::table('costing_finish_good_component_items')->whereIn('fg_component_id', $fg_components_id_arr)->get();
+      $fg_component_items = json_decode( json_encode($fg_component_items), true);//convert resullset to array
+      for($x = 0 ; $x < sizeof($fg_component_items); $x++){
+        $fg_component_items[$x]['revision_no'] = $revision_no;
+      }
+      DB::table('costing_finish_good_component_items_history')->insert($fg_component_items);
+
+    }
 
 }

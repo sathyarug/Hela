@@ -215,9 +215,9 @@ Route::prefix('ie/')->group(function(){
   Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
   Route::apiResource('servicetypes','IE\ServiceTypeController');
   Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
-  Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
    Route::apiResource('styles','Merchandising\StyleCreationController');
-  // Route::apiResource('bomStages','Merchandising\BOMStageController');
+   Route::apiResource('bomStages','Merchandising\BOMStageController');
    Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
    Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
@@ -390,6 +390,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/finish-good/delete','Merchandising\Costing\CostingController@delete_finish_good');
 
     Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
+    Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
