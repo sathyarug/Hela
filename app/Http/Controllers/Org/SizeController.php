@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Size;
+use App\Models\Org\CustomerSizeGrid;
 use Exception;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
+
 
 class SizeController extends Controller
 {
@@ -54,11 +57,13 @@ class SizeController extends Controller
         {
           $size->fill($request->all());
           $size->status = 1;
+          $size->size_name=strtoupper($size->size_name);
           $size->save();
 
           return response([ 'data' => [
             'message' => 'Size saved successfully',
-            'size' => $size
+            'size' => $size,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -96,16 +101,29 @@ class SizeController extends Controller
     {
       if($this->authorize->hasPermission('SIZE_MANAGE'))//check permission
       {
-        $size = Size::find($id);
+          $size = Size::find($id);
+
         if($size->validate($request->all()))
         {
+          $is_exists_cust=DB::table('cust_size_grid')->where('size_id', $id)->exists();
+          $is_exists_sales=DB::table('merc_customer_order_size',$id)->exists();
+          if($is_exists_cust==true||$is_exists_sales==true){
+            return response([ 'data' => [
+              'message' => 'Size Already in Use',
+              'size' => $size,
+              'status'=>'0'
+            ]]);
+          }
+          else {
           $size->fill($request->except('size_name'));
           $size->save();
 
           return response([ 'data' => [
             'message' => 'Size updated successfully',
-            'size' => $size
+            'size' => $size,
+            'status'=>'1'
           ]]);
+        }
         }
         else
         {
@@ -124,13 +142,26 @@ class SizeController extends Controller
     {
       if($this->authorize->hasPermission('SIZE_DELETE'))//check permission
       {
+        $is_exists_cust=DB::table('cust_size_grid')->where('size_id', $id)->exists();
+        $is_exists_sales=DB::table('merc_customer_order_size',$id)->exists();
+
+      if($is_exists_cust==true||$is_exists_sales==true){
+        return response([
+          'data' => [
+            'status'=>'0',
+            ]
+        ]);
+      }
+      else {
         $size = Size::where('size_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
+            'status'=>'1',
             'message' => 'Size was deactivated successfully.',
             'size' => $size
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

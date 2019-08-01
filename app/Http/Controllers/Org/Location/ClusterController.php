@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Cluster;
+use App\Models\Org\Location\Company;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class ClusterController extends Controller
 {
@@ -52,6 +54,7 @@ class ClusterController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->status = 1;
           $cluster->save();
 
@@ -98,13 +101,24 @@ class ClusterController extends Controller
         $cluster = Cluster::find($id);
         if($cluster->validate($request->all()))
         {
+          $check_company = Company::where([['status', '=', '1'],['group_id','=',$id]])->first();
+          if($check_company != null)
+          {
+            return response([
+              'data'=>[
+                'status'=>'0',
+              ]
+            ]);
+          }else{
           $cluster->fill($request->except('group_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
             'message' => 'Cluster updated successfully',
             'cluster' => $cluster
           ]]);
+         }
         }
         else
         {
@@ -123,13 +137,23 @@ class ClusterController extends Controller
     {
       if($this->authorize->hasPermission('CLUSTER_DELETE'))//check permission
       {
+        $check_company = Company::where([['status', '=', '1'],['group_id','=',$id]])->first();
+        if($check_company != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
         $cluster = Cluster::where('group_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Cluster was deactivated successfully.',
             'cluster' => $cluster
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+       }
       }
       else{
         return response($this->authorize->error_response(), 401);

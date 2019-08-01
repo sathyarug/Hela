@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Location\Location;
+use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Finance\Accounting\CostCenter;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class LocationController extends Controller
 {
@@ -55,6 +57,7 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
   				$location->status = 1;
   				$location->created_by = 1;
   				$result = $location->saveOrFail();
@@ -71,7 +74,7 @@ class LocationController extends Controller
   				$location->costCenters()->saveMany($save_cost_centers);
 
           return response([ 'data' => [
-            'message' => 'Location was saved successfully',
+            'message' => 'Location saved successfully',
             'location' => $location
             ]
           ], Response::HTTP_CREATED );
@@ -113,7 +116,18 @@ class LocationController extends Controller
         $location = Location::find($id);
         if($location->validate($request->all()))
         {
+          $customer_order = CustomerOrderDetails::where([['delivery_status', '<>', 'CANCEL'],['projection_location','=',$id]])->first();
+          if($customer_order != null)
+          {
+            return response([
+              'data'=>[
+                'status'=>'0',
+              ]
+            ]);
+          }else{
+
           $location->fill($request->except('loc_code'));
+          $location->loc_name = strtoupper($location->loc_name);
           $location->save();
 
           DB::table('org_location_cost_centers')->where('loc_id', '=', $id)->delete();
@@ -127,9 +141,10 @@ class LocationController extends Controller
   				$location->costCenters()->saveMany($save_cost_centers);
 
           return response([ 'data' => [
-            'message' => 'Location was updated successfully',
+            'message' => 'Location updated successfully',
             'location' => $location
           ]]);
+         }
         }
         else
         {
@@ -148,13 +163,23 @@ class LocationController extends Controller
     {
       if($this->authorize->hasPermission('LOC_DELETE'))//check permission
       {
+        $customer_order = CustomerOrderDetails::where([['delivery_status', '<>', 'CANCEL'],['projection_location','=',$id]])->first();
+        if($customer_order != null)
+        {
+          return response([
+            'data'=>[
+              'status'=>'0',
+            ]
+          ]);
+        }else{
         $location = Location::where('loc_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Location was deactivated successfully.',
+            'message' => 'Location deactivated successfully.',
             'location' => $location
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+       }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -228,7 +253,9 @@ class LocationController extends Controller
         $order_type = $order['dir'];
 
         $location_list = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-    		->select('org_location.*', 'org_company.company_name')
+        ->join('fin_currency', 'org_location.currency_code', '=', 'fin_currency.currency_id')
+        ->join('org_country', 'org_location.country_code', '=', 'org_country.country_id')
+    		->select('org_location.*', 'org_company.company_name','fin_currency.currency_code','org_country.country_description')
     		->where('loc_code','like',$search.'%')
     		->orWhere('loc_name', 'like', $search.'%')
     		->orWhere('company_name', 'like', $search.'%')
@@ -236,7 +263,8 @@ class LocationController extends Controller
     		->offset($start)->limit($length)->get();
 
     		$location_count = Location::join('org_company', 'org_location.company_id', '=', 'org_company.company_id')
-    		->select('org_location.*', 'org_company.company_name')
+        ->join('fin_currency', 'org_location.currency_code', '=', 'fin_currency.currency_id')
+        ->select('org_location.*', 'org_company.company_name')
     		->where('loc_code','like',$search.'%')
     		->orWhere('loc_name', 'like', $search.'%')
     		->orWhere('company_name', 'like', $search.'%')

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
 
-class productType extends BaseValidator {
+class ProductType extends BaseValidator {
 
     protected $table = 'product_type';
     protected $primaryKey = 'pack_type_id';

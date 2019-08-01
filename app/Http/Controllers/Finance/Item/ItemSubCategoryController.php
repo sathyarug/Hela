@@ -40,14 +40,14 @@ class ItemSubCategoryController extends Controller
             }else{
                 $IsInspectionAllowed = 1;
             }
-            
+
             if(is_null($request->is_display)){
                 $IsDisplay = 0;
             }else{
                 $IsDisplay = 1;
             }
-            
-            
+
+
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
                 $sub_category->category_id = $request->category_code;
@@ -72,8 +72,8 @@ class ItemSubCategoryController extends Controller
             $errors = $sub_category->errors_tostring();
             echo json_encode(array('status' => 'error' , 'message' => $errors));
         }
-                
-         
+
+
       /*}
       else{
         return response($this->authorize->error_response(), 401);
@@ -121,7 +121,7 @@ class ItemSubCategoryController extends Controller
     }
 
     public function get_category_list(){
-        $category_list = Category::all();
+        $category_list = Category::where('status','=','1')->get();
         echo json_encode($category_list);
     }
 
@@ -160,7 +160,7 @@ class ItemSubCategoryController extends Controller
       }
       else{
         return response($this->authorize->error_response(), 401);
-      }        
+      }
     }
 
 }

@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Designation;
 use Exception;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 
 class DesignationController extends Controller
 {
@@ -54,11 +56,13 @@ class DesignationController extends Controller
         {
           $designation->fill($request->all());
           $designation->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [
             'message' => 'Designation saved successfully',
-            'designation' => $designation
+            'designation' => $designation,
+            'status'=>1
             ]
           ], Response::HTTP_CREATED );
         }
@@ -99,13 +103,24 @@ class DesignationController extends Controller
         $designation = Designation::find($id);
         if($designation->validate($request->all()))
         {
+          $is_exsits=DB::table('usr_profile')->where('desig_id',$id)->exists();
+          if($is_exsits==true){
+            return response([ 'data' => [
+              'message' => 'Designation Already In use',
+              'status'=>0
+            ]]);
+          }
+          else{
           $designation->fill($request->except('des_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [
             'message' => 'Designation updated successfully',
-            'designation' => $designation
+            'designation' => $designation,
+            'status'=>1
           ]]);
+        }
         }
         else
         {
@@ -124,13 +139,25 @@ class DesignationController extends Controller
     {
       if($this->authorize->hasPermission('DESIGNATION_DELETE'))//check permission
       {
+        $is_exsits=DB::table('usr_profile')->where('desig_id',$id)->exists();
+        if($is_exsits==true){
+          return response([
+            'data' => [
+              'message' => 'Designation Already in Use.',
+              'status' =>0
+            ]
+          ]);
+        }
+        else{
         $designation = Designation::where('des_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Designation was deactivated successfully.',
-            'department' => $designation
+            'message' => 'Designation  deactivated successfully.',
+            'department' => $designation,
+            'status'=>0
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

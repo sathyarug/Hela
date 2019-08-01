@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CustomerOrder;
+use App\Models\Merchandising\Costing\Costing;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 use App\Libraries\SearchQueryBuilder;
@@ -74,7 +75,7 @@ class CustomerOrderController extends Controller
         $order->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order was saved successfully',
+          'message' => 'Customer order saved successfully',
           'customerOrder' => $order
           ]
         ], Response::HTTP_CREATED );
@@ -91,6 +92,25 @@ class CustomerOrderController extends Controller
     public function show($id)
     {
       $customerOrder = CustomerOrder::with(['style','customer','division'])->find($id);
+
+      $season = CustomerOrder::select('org_season.season_id', 'org_season.season_name')
+                   //->join('costing', 'merc_customer_order_header.order_style', '=', 'costing.style_id')
+                   ->join('org_season', 'merc_customer_order_header.order_season', '=', 'org_season.season_id')
+                   ->where('merc_customer_order_header.order_id', '=', $id)
+
+                   ->get();
+
+      $customerOrder['season1'] = $season;
+
+      $bom_stage = CustomerOrder::select('merc_bom_stage.bom_stage_id', 'merc_bom_stage.bom_stage_description')
+                   //->join('costing', 'merc_customer_order_header.order_style', '=', 'costing.style_id')
+                   ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
+                   ->where('merc_customer_order_header.order_id', '=', $id)
+                   
+                   ->get();
+
+      $customerOrder['bom_stage1']  = $bom_stage;
+
       if($customerOrder == null)
         throw new ModelNotFoundException("Requested customer order not found", 1);
       else
@@ -108,7 +128,7 @@ class CustomerOrderController extends Controller
         $customerOrder->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order was updated successfully',
+          'message' => 'Customer order updated successfully',
           'customerOrder' => $customerOrder
         ]]);
       }
@@ -216,9 +236,9 @@ class CustomerOrderController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		/*$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $customer_lists;*/
+  		$customer_lists = CustomerOrder::select('order_id','order_code')
+  		->where([['order_code', 'like', '%' . $search . '%'],]) ->get();
+  		return $customer_lists;
   	}
 
 
@@ -248,14 +268,14 @@ class CustomerOrderController extends Controller
       $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
       ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
-      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
+      //->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
       ->join('core_status', 'core_status.status', '=', 'merc_customer_order_header.order_status')
       ->select('merc_customer_order_header.*','style_creation.style_no','cust_customer.customer_name',
-          'cust_division.division_description','merc_customer_order_type.order_type as order_type_name','core_status.color');
+          'cust_division.division_description',/*'merc_customer_order_type.order_type as order_type_name',*/'core_status.color');
 
       $customer_count = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
-      ->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
+      //->join('merc_customer_order_type', 'merc_customer_order_type.order_type_id', '=', 'merc_customer_order_header.order_type')
       ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division');
 
       if(sizeof($fields) > 0)  {
@@ -350,6 +370,49 @@ class CustomerOrderController extends Controller
             ->toArray();
 
         return $cusOrder;
+    }
+
+    public function load_header_season(Request $request){
+
+      $style_id = $request->style_id;
+
+      $season = Costing::select('org_season.season_id', 'org_season.season_name')
+                   ->join('org_season', 'costing.season_id', '=', 'org_season.season_id')
+                   ->where('style_id', '=', $style_id)
+                   ->groupBy('costing.season_id')
+                   ->get();
+
+      $arr['season']      = $season;
+
+      if($arr == null)
+          throw new ModelNotFoundException("Requested section not found", 1);
+      else
+          return response([ 'data' => $arr ]);
+
+    }
+
+    public function load_header_stage(Request $request){
+      //print_r($request->style_id);
+      //die();
+    $style_id = $request->style_id;
+    $season_id= $request->season_id;
+
+
+
+    $bom_stage = Costing::select('merc_bom_stage.bom_stage_id', 'merc_bom_stage.bom_stage_description')
+                 ->join('merc_bom_stage', 'costing.bom_stage_id', '=', 'merc_bom_stage.bom_stage_id')
+                 ->where('style_id', '=', $style_id)
+                 ->where('season_id', '=', $season_id)
+                 ->groupBy('costing.bom_stage_id')
+                 ->get();
+
+    $arr['bom_stage']  = $bom_stage;
+
+    if($arr == null)
+      throw new ModelNotFoundException("Requested section not found", 1);
+    else
+      return response([ 'data' => $arr ]);
+
     }
 
 

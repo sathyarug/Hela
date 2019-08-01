@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Transaction ;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class TransactionController extends Controller
 {
@@ -51,6 +52,7 @@ class TransactionController extends Controller
       {
         $transaction = new Transaction();
         $transaction->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
         $transaction->status = 1;
         $transaction->save();
 
@@ -89,6 +91,7 @@ class TransactionController extends Controller
       {
         $transaction = Transaction::find($id);
         $transaction->fill($request->except('trans_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
         $transaction->save();
 
         return response([ 'data' => [

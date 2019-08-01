@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationCategory;
+use App\Models\Org\Cancellation\CancellationReason;
+use App\Libraries\CapitalizeAllFields;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -52,6 +54,7 @@ class CancellationCategoryController extends Controller
         {
           $category->fill($request->all());
           $category->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
@@ -98,6 +101,7 @@ class CancellationCategoryController extends Controller
         if($category->validate($request->all()))
         {
           $category->fill($request->except('category_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
@@ -122,13 +126,26 @@ class CancellationCategoryController extends Controller
     {
       if($this->authorize->hasPermission('CANCEL_CAT_DELETE'))//check permission
       {
+        $cancellationReason=CancellationReason::where([['reason_category','=',$id]]);
+        if($cancellationReason!=null){
+          return response([
+            'data'=>[
+              'status'=>'0',
+              'message'=>'Cancellation Category Already in use'
+
+            ]
+          ]);
+        }
+        else if($cancellationReason==null){
         $category = CancellationCategory::where('category_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Cancellation category was deactivated successfully.',
-            'cancellationCategory' => $category
+            'cancellationCategory' => $category,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
