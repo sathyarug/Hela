@@ -11,6 +11,7 @@ use App\Models\Finance\Item\SubCategory;
 use App\Models\Org\UOM;
 use App\Models\Org\SupplierTolarance;
 
+use App\Libraries\CapitalizeAllFields;
 
 
 class SupplierTolaranceController extends Controller{

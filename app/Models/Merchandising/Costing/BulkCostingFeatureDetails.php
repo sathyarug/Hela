@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Merchandising;
+namespace App\Models\Merchandising\Costing;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;

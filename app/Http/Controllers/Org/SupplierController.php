@@ -34,6 +34,12 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->currency_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -240,6 +246,12 @@ class SupplierController extends Controller
          ]
        ], Response::HTTP_CREATED );
         //return response([ 'data' => $supplier ]);
+    }
+
+
+    private function handsontable_search($search){
+      $suppliers = Supplier::where('supplier_name', 'like', $search.'%')->get()->pluck('supplier_name');
+      return $suppliers;
     }
 
 }

@@ -15,13 +15,14 @@ class CustomerOrder extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['order_style','order_customer','order_division','order_type','order_status'];
+    protected $fillable=['order_style','order_customer','order_division',/*'order_type',*/'order_status','order_buy_name','order_season','order_stage'];
 
     protected $rules=array(
         'order_style'=>'required',
         'order_customer'=>'required',
         'order_division' => 'required',
-        'order_type' => 'required',
+        'order_stage' => 'required',
+        'order_season' => 'required',
         /*'order_status' => 'required'*/
     );
 

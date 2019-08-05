@@ -32,6 +32,12 @@ class PositionController extends Controller
           $search = $request->search;
           return response($this->autocomplete_search($search));
         }
+        else if($type == 'handsontable')    {
+          $search = $request->search;
+          return response([
+            'data' => $this->handsontable_search($search)
+          ]);
+        }
         else {
           $active = $request->active;
           $fields = $request->fields;
@@ -204,10 +210,10 @@ class PositionController extends Controller
         ];
       }
 
-
-
-
-
+      private function handsontable_search($search){
+        $list = Position::where('position'  , 'like', $search.'%')->get()->pluck('position');
+        return $list;
+      }
 
 
 }

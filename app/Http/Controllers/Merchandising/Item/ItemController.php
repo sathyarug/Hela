@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Merchandising\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Merchandising\Item\Category;
 use App\Models\Merchandising\Item\SubCategory;
@@ -39,6 +40,13 @@ class ItemController extends Controller
         else if($type == 'auto')    {
           $search = $request->search;
           return response($this->autocomplete_search($search));
+        }
+        else if($type == 'handsontable')    {
+          $search = $request->search;
+          $category = $request->category;
+          return response([
+            'data' => $this->handsontable_list($category, $search)
+          ]);
         }
         /*else if($type == 'check_and_generate'){
           $item_data = $request->item_data;
@@ -81,6 +89,17 @@ class ItemController extends Controller
             $item->master_description = strtoupper($item->master_description);
             $item->status=1;
             $item->save();
+
+            $property_data = $request->property_data;
+            for($x = 0 ; $x < sizeof($property_data) ; $x++){
+              DB::table('item_property_data')->insert([
+                  'master_id' => $item->master_id,
+                  'property_id' => $property_data[$x]['property_id'],
+                  'property_value_id' => $property_data[$x]['selected_property_value_id'],
+                  'other_data' => $property_data[$x]['selected_property_value_data'],
+                  'other_data_type' => $property_data[$x]['other_data_type'],
+              ]);
+            }
 
             $uom_list = $request->uom;
             for($x = 0 ; $x < sizeof($uom_list) ; $x++){
@@ -348,6 +367,15 @@ class ItemController extends Controller
 
 
 
+    private function handsontable_list($category, $search){
+      $list = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->where('item_category.category_name', '=', $category)
+      ->where('item_master.master_description', 'like', '%' . $search . '%')->get()->pluck('master_description');
+      return $list;
+    }
+
+
     private function is_item_exist($item_description){
         $rowCount = Item::where('master_description', '=', $item_description)->count();
         if($rowCount > 0)
@@ -355,6 +383,7 @@ class ItemController extends Controller
         else
           return false;
     }
+
 
   /*  public function GetItemList(Request $data){
 

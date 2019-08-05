@@ -6,6 +6,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+
 use App\Models\Merchandising\Item\ItemProperty;
 use App\Models\Merchandising\Item\PropertyValueAssign;
 use App\Models\Merchandising\Item\Category;
@@ -219,6 +220,7 @@ class ItemPropertyController extends Controller
 
     }
 
+
     public function save_assign(Request $request){
 
       $propid = $request->propid;
@@ -234,6 +236,8 @@ class ItemPropertyController extends Controller
 
     }
 
+
+
     private function get_next_line($subid)
       {
         $max_no = AssignProperty::where('subcategory_id','=',$subid)->max('sequence_no');
@@ -244,8 +248,9 @@ class ItemPropertyController extends Controller
     private function load_property_values($property_id){
         $list = PropertyValueAssign::where('property_id', '=', $property_id)->get();
         return $list;
-
     }
+
+
 
 
     public function final_save_assign(Request $request) {
@@ -365,5 +370,6 @@ class ItemPropertyController extends Controller
 
 
 
+    }
 
 }

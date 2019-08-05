@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Finance\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Models\Finance\Item\SubCategory;
 use App\Models\Finance\Item\Category;
 use Exception;
@@ -51,12 +53,13 @@ class ItemSubCategoryController extends Controller
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
                 $sub_category->category_id = $request->category_code;
-                $sub_category->subcategory_name = $request->subcategory_name;
+                $sub_category->subcategory_name = strtoupper($request->subcategory_name);
                 $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
                 $sub_category->is_display = $IsDisplay;
             }
             else{
               $sub_category->fill($request->all());
+              $sub_category->subcategory_name = strtoupper($request->subcategory_name);
               $sub_category->category_id = $request->category_code;
               $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
               $sub_category->is_display = $IsDisplay;
@@ -83,7 +86,7 @@ class ItemSubCategoryController extends Controller
     public function get_sub_category_list(){
         //$sub_category_list = SubCategory::all();
         $sub_category_list = SubCategory::GetSubCategoryList();
-        echo json_encode($sub_category_list);
+        echo json_encode($sub_category_list);        
     }
 
 
@@ -146,8 +149,13 @@ class ItemSubCategoryController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $sub_category_list = SubCategory::GetSubCategoryList();
-
+        //$sub_category_list = SubCategory::GetSubCategoryList();
+        $sub_category_list = DB::table('item_subcategory')
+                                    ->join('item_category','item_category.category_id','=','item_subcategory.category_id')
+                                    ->select('item_subcategory.*','item_category.category_name')
+                                    ->where('subcategory_code','like',$search.'%')
+                                    ->orWhere('item_category.category_name'  , 'like', $search.'%' )
+                                    ->get();
         $subCategoryCount = SubCategory::GetSubCategoryCount();
 
         echo json_encode(array(

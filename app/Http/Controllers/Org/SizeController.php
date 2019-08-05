@@ -37,6 +37,9 @@ class SizeController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'loadsizes'){
+          return response($this->LoadSizes());
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -255,6 +258,11 @@ class SizeController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+    
+    private function LoadSizes(){
+        $sizeList = Size::all()->where('status','=','1');
+        return $sizeList;         
     }
 
 }

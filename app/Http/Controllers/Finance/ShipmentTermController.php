@@ -37,6 +37,12 @@ class ShipmentTermController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else{
         $active = $request->active;
         $fields = $request->fields;
@@ -235,5 +241,13 @@ class ShipmentTermController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
+
+
+    private function handsontable_search($search){
+      $list = ShipmentTerm::where('ship_term_description'  , 'like', $search.'%' )
+      ->where('status', '=', 1 )->get()->pluck('ship_term_description');
+      return $list;
+    }
+
 
 }
