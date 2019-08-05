@@ -57,6 +57,7 @@ class SupplierTolaranceController extends Controller{
       {
           $suplierTolarnce = new SupplierTolarance();
           $suplierTolarnce->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($suplierTolarnce);
           $suplierTolarnce->status = 1;
           $suplierTolarnce->save();
 
