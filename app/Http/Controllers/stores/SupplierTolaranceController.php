@@ -10,7 +10,7 @@ use App\Models\Finance\Item\Category ;
 use App\Models\Finance\Item\SubCategory;
 use App\Models\Org\UOM;
 use App\Models\Org\SupplierTolarance;
-
+use App\Libraries\CapitalizeAllFields;
 
 
 class SupplierTolaranceController extends Controller{
@@ -57,6 +57,7 @@ class SupplierTolaranceController extends Controller{
       {
           $suplierTolarnce = new SupplierTolarance();
           $suplierTolarnce->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($suplierTolarnce);
           $suplierTolarnce->status = 1;
           $suplierTolarnce->save();
 

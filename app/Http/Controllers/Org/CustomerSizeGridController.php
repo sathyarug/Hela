@@ -54,7 +54,7 @@ class CustomerSizeGridController extends Controller
           $customerSizeGrid->save();
 
           return response([ 'data' => [
-            'message' => 'Saved successfully',
+            'message' => 'Customer Size Grid Saved successfully',
             'customerSizeGrid' => $customerSizeGrid
             ]
           ], Response::HTTP_CREATED );
@@ -114,7 +114,7 @@ class CustomerSizeGridController extends Controller
           $customerSizeGrid =CustomerSizeGrid::where('id', $id)->update(['status' => 0]);
           return response([
             'data' => [
-              'message' => 'Deactivated successfully.',
+              'message' => ' Customer Size Grid Deactivated successfully.',
               'customerSizeGrid' => $customerSizeGrid
             ]
           ] , Response::HTTP_NO_CONTENT);
@@ -136,7 +136,7 @@ class CustomerSizeGridController extends Controller
       private function validate_duplicate_code($id, $customer_name, $product_silhouette_description, $size_name)
     {
 
-      
+
       $customerSizeGrid =CustomerSizeGrid :: where([['customer_id','=',$customer_name],['product_silhouette_id','=',$product_silhouette_description],['size_id','=',$size_name]])->first();
 
 

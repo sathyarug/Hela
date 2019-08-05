@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\PoOrderHeader;
 
 use Illuminate\Support\Facades\DB;
-
+use PDF;
 class PurchaseOrder extends Controller
 {
     /**
@@ -154,6 +154,7 @@ class PurchaseOrder extends Controller
     //generate pdf
         public function generate_pdf(Request $request)
         {
+
            // $result = PoOrderHeader::select('po_number','po_date','po_status','po_sup_code','po_deli_loc')->where('po_number', $request->po_no)->get();
 
                     $result = DB::table('merc_po_order_header')
@@ -163,17 +164,24 @@ class PurchaseOrder extends Controller
                             'org_supplier.supplier_city','org_supplier.supplier_country','org_location.loc_name','org_location.loc_address_1','org_location.loc_address_2')
                             ->where('merc_po_order_header.po_number', $request->po_no)->get();
 
+
+
             $total_qty=PoOrderDetails::select('tot_qty')->where('po_no',$request->po_no)->sum('tot_qty');
+
+
            // $list=PoOrderDetails::select('*')->where('po_no', $request->po_no)->get();
             $list=DB::table('merc_po_order_details')
                     ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
                     ->join('style_creation', 'merc_po_order_details.style', '=', 'style_creation.style_id')
                     ->join('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
-                    ->join('org_size', 'merc_po_order_details.size', '=', 'org_size.size_id')
+                    ->leftjoin('org_size', 'merc_po_order_details.size', '=', 'org_size.size_id')
                     ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
                     ->select('merc_po_order_details.*', 'item_master.master_code', 'item_master.master_description',
                     'style_creation.style_no','org_color.color_name','org_size.size_name','org_uom.uom_code')
                     ->where('merc_po_order_details.po_no', $request->po_no)->get();
+
+                    //print_r($list);
+                    //die();
 
                 if($result){
                     $data=[

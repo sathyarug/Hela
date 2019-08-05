@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Org\Silhouette;
+use App\Models\Merchandising\StyleCreation;
 use Exception;
-
+use Illuminate\Support\Facades\DB;
+use App\Libraries\CapitalizeAllFields;
 class SilhouetteController extends Controller
 {
     public function __construct()
@@ -47,12 +49,14 @@ class SilhouetteController extends Controller
       if($silhouette->validate($request->all()))
       {
         $silhouette->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($silhouette);
         $silhouette->status = 1;
         $silhouette->save();
 
         return response([ 'data' => [
-          'message' => 'Silhouette was saved successfully',
-          'silhouette' => $silhouette
+          'message' => 'Silhouette saved successfully',
+          'silhouette' => $silhouette,
+            'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -78,17 +82,29 @@ class SilhouetteController extends Controller
     //update a Silhouette
     public function update(Request $request, $id)
     {
+      //$styleCreation=StyleCreation::where([['product_silhouette_id','=',$id]]);
+      $is_exsits_in_style=DB::table('style_creation')->where('product_silhouette_id',$id)->exists();
       $silhouette = Silhouette::find($id);
       if($silhouette->validate($request->all()))
       {
+        if($is_exsits_in_style==true){
+          return response([ 'data' => [
+            'message' => 'Product Silhouette Already in Use',
+            'status'=>'0'
+          ]]);
+        }
+        else if($is_exsits_in_style==false){
         $silhouette->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($silhouette);
         $silhouette->save();
 
         return response([ 'data' => [
-          'message' => 'Silhouette was updated successfully',
-          'silhouette' => $silhouette
+          'message' => 'Silhouette updated successfully',
+          'silhouette' => $silhouette,
+          'status'=>'1'
         ]]);
       }
+    }
       else
       {
         $errors = $silhouette->errors();// failure, get errors
@@ -100,13 +116,27 @@ class SilhouetteController extends Controller
     //deactivate a Silhouette
     public function destroy($id)
     {
+      $styleCreation=StyleCreation::where([['product_silhouette_id','=',$id]]);
+      $is_exsits_in_style=DB::table('style_creation')->where('product_silhouette_id',$id)->exists();
+      if($is_exsits_in_style==true){
+        return response([
+          'data'=>[
+            'message'=>'Product Silhouatte Alaredy in Use.',
+            'status'=>'0'
+          ]
+        ]);
+      }
+      else {
       $silhouette = Silhouette::where('product_silhouette_id', $id)->update(['status' => 0]);
+
       return response([
         'data' => [
-          'message' => 'Silhouette was deactivated successfully.',
-          'silhouette' => $silhouette
+          'message' => 'Silhouette deactivated successfully.',
+          'silhouette' => $silhouette,
+          'status'=>'1'
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ]);
+    }
     }
 
 
@@ -131,7 +161,7 @@ class SilhouetteController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Silhouette code already exists'];
+        return ['status' => 'error','message' => 'Silhouette description already exists'];
       }
     }
 

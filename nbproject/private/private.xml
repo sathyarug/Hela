@@ -6,10 +6,10 @@
             <file>file:/C:/xampp/htdocs/surfacedev/app/Models/Merchandising/CustomerOrderDetails.php</file>
             <file>file:/C:/xampp/htdocs/surfacedev/app/Models/Merchandising/MaterialRatio.php</file>
             <file>file:/C:/xampp/htdocs/surfacedev/routes/api.php</file>
-            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Finance/Item/ItemSubCategoryController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Models/Merchandising/BulkCostingDetails.php</file>
             <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/BulkCosting/BulkCostingController.php</file>
             <file>file:/C:/xampp/htdocs/surfacedev/app/Models/Merchandising/BOMHeader.php</file>
-            <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Org/ColorController.php</file>
+            <file>file:/C:/xampp/htdocs/surfacedev/app/Models/Merchandising/CustomerOrder.php</file>
             <file>file:/C:/xampp/htdocs/surfacedev/app/Http/Controllers/Merchandising/BomController.php</file>
         </group>
     </open-files>

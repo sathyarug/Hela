@@ -162,8 +162,10 @@ class CostCenterController extends Controller
     //search cost center for autocomplete
     private function autocomplete_search($search)
   	{
-  		$cost_center_list = CostCenter::select('cost_center_id','cost_center_code')
-  		->where([['cost_center_code', 'like', '%' . $search . '%'],]) ->get();
+  		$cost_center_list = CostCenter::select('cost_center_id','cost_center_name')
+  		->where([['cost_center_name', 'like', '%' . $search . '%'],]) ->get();
+
+      //echo $cost_center_list;die();
   		return $cost_center_list;
   	}
 
@@ -196,7 +198,7 @@ class CostCenterController extends Controller
             "recordsTotal" => $cost_center_count,
             "recordsFiltered" => $cost_center_count,
             "data" => $cost_center_list
-        ];      
+        ];
       }
       else{
         return response($this->authorize->error_response(), 401);

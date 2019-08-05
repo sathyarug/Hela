@@ -30,6 +30,12 @@ class ShipModeController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'handsontable')    {
+        $search = $request->search;
+        return response([
+          'data' => $this->handsontable_search($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -90,6 +96,10 @@ class ShipModeController extends Controller
       return $query->get();
     }
 
-
+    private function handsontable_search($search){
+      $list = ShipMode::where('ship_mode', 'like', $search.'%')
+      ->where('status', '=', 1)->get()->pluck('ship_mode');
+      return $list;
+    }
 
 }

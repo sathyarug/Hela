@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationReason;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class CancellationReasonController extends Controller
 {
@@ -31,7 +32,12 @@ class CancellationReasonController extends Controller
       }
       else if($type == 'auto')    {
         $search = $request->search;
-        return response($this->autocomplete_search($search));
+        $category_code = $request->category_code;
+        return response($this->autocomplete_search($search, $category_code));
+      }
+      else if($type=='reasonforsmv'){
+        $search = $request->search;
+        return response($this->autocompleteSmvChange_search($search));
       }
       else {
         $active = $request->active;
@@ -52,7 +58,9 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
+          $cluster->reason_code=strtoupper($cluster->reason_code);
           $cluster->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -99,6 +107,7 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->except('group_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -181,12 +190,30 @@ class CancellationReasonController extends Controller
     }
 
     //search Cluster for autocomplete
-    private function autocomplete_search($search)
+    private function autocomplete_search($search, $category_code = null)
   	{
-  		$cluster_lists = CancellationReason::select('reason_id','reason_description')
-  		->where([['reason_description', 'like', '%' . $search . '%'],]) ->get();
-  		return $cluster_lists;
+      $reasons = null;
+      if($category_code == null || $category_code == false){
+        $reasons = CancellationReason::select('reason_id','reason_description')
+    		->where([['reason_description', 'like', '%' . $search . '%'],]) ->get();
+      }
+  		else{
+        $reasons = CancellationReason::select('org_cancellation_reason.reason_id','org_cancellation_reason.reason_description')
+        ->join('org_cancellation_category', 'org_cancellation_category.category_id', '=', 'org_cancellation_reason.reason_category')
+        ->where('org_cancellation_category.category_code', '=', $category_code)
+    		->where('reason_description', 'like', '%' . $search . '%')->get();
+      }
+  		return $reasons;
   	}
+
+    //change reasons for smv change;
+    private function autocompleteSmvChange_search($search){
+
+      $reasons_list = CancellationReason::join('org_cancellation_category','org_cancellation_reason.reason_category','=','org_cancellation_category.category_id')
+      ->where('org_cancellation_category.category_code','=','SMV_CAN')
+      ->where([['org_cancellation_reason.reason_description', 'like', '%' . $search . '%'],])->get();
+      return $reasons_list;
+    }
 
 
     //get searched Clusters for datatable plugin format

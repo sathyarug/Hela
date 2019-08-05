@@ -91,7 +91,7 @@ class UserController extends Controller {
         }
 
         return response([ 'data' => [
-          'message' => 'User profile was saved successfully',
+          'message' => 'User profile saved successfully',
           'user_profile' => $profile,
           'user' => $login
           ]
@@ -104,11 +104,28 @@ class UserController extends Controller {
       }
     }
 
+    //deactivate a Designation
+    public function destroy($id)
+    {
+        $user = UsrProfile::where('user_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'User deactivated successfully.',
+            'department' => $user,
+            'status'=>'1'
+          ]
+        ]);
+
+        }
 
     //get a Company
     public function show($id)
     {
-      $user = UsrProfile::find($id);
+      $user = UsrProfile::join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
+      ->join('usr_login', 'usr_login.user_id', '=', 'usr_profile.user_id')
+      ->select('usr_profile.*','org_designation.des_name','org_designation.des_id','usr_login.user_name','usr_login.password')
+      ->where('usr_profile.user_id','=',$id)
+      ->first();
       if($user == null)
         throw new ModelNotFoundException("Requested user not found", 1);
       else
@@ -149,11 +166,27 @@ class UserController extends Controller {
         return datatables()->of(DB::table('usr_profile as t1')
             ->select("t1.user_id", "t1.first_name", "t1.last_name", "t1.emp_number", "t1.email", "t2.dept_name", "t3.desig_name", "t4.loc_name" )
             ->join("usr_department AS t2", "t1.dept_id", "=", "t2.dept_id")
-            ->join("usr_designation AS t3", "t1.desig_id", "=", "t3.desig_id")
+            ->join("org_designation AS t3", "t1.desig_id", "=", "t3.des_id")
             ->join("org_location AS t4", "t1.loc_id", "=", "t4.loc_id")
             ->get())->toJson();
 
         //return datatables()->query(DB::table('users'))->toJson();
+
+
+}
+//update user profile
+public function update(Request $request, $id)
+{
+    $user = UsrProfile::find($id);
+      $user->fill($request->all());
+      $user->save();
+
+      return response([
+        'data' => [
+          'message' => 'User Updated Successfully',
+          'country' => $user
+        ]
+      ]);
 
 
 }
@@ -309,8 +342,9 @@ class UserController extends Controller {
 
     $user_list = UsrProfile::join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
     ->join('org_departments', 'usr_profile.dept_id', '=', 'org_departments.dep_id')
+    ->join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
     //->join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
-    ->select('usr_profile.*','org_location.loc_name','org_departments.dep_name')
+    ->select('usr_profile.*','org_location.loc_name','org_departments.dep_name','org_designation.des_name')
     ->where('first_name'  , 'like', $search.'%' )
     ->orWhere('last_name'  , 'like', $search.'%' )
     ->orWhere('emp_number'  , 'like', $search.'%' )
@@ -319,6 +353,7 @@ class UserController extends Controller {
 
     $user_count = UsrProfile::join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
     ->join('org_departments', 'usr_profile.dept_id', '=', 'org_departments.dep_id')
+    ->join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
     ->where('first_name'  , 'like', $search.'%' )
     ->orWhere('last_name'  , 'like', $search.'%' )
     ->orWhere('emp_number'  , 'like', $search.'%' )

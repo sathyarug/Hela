@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\IE\ServiceType;
+use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
 
 class ServiceTypeController extends Controller
 {
@@ -53,12 +55,14 @@ class ServiceTypeController extends Controller
         if($servicetype->validate($request->all()))
         {
           $servicetype->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($servicetype);
           $servicetype->status = 1;
           $servicetype->save();
 
           return response([ 'data' => [
             'message' => 'Service Type saved successfully',
-            'servicetype' => $servicetype
+            'servicetype' => $servicetype,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -96,15 +100,27 @@ class ServiceTypeController extends Controller
     {
       if($this->authorize->hasPermission('SERVICE_TYPE_MANAGE'))//check permission
       {
+        $bulkCostingFeatureDetails=BulkCostingDetails::where([['process_option','=',$id]])->first();
+        if($bulkCostingFeatureDetails!=null){
+          return response([
+            'data'=>[
+              'status'=>'0',
+              'message'=>'Service Type Already in use'
+            ]
+          ]);
+        }
+
         $servicetype = ServiceType::find($id);
         if($servicetype->validate($request->all()))
         {
           $servicetype->fill($request->except('service_type_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($servicetype);
           $servicetype->save();
 
           return response([ 'data' => [
             'message' => 'Service Type updated successfully',
-            'servicetype' => $servicetype
+            'servicetype' => $servicetype,
+            'status'=>'1',
           ]]);
         }
         else
@@ -124,13 +140,23 @@ class ServiceTypeController extends Controller
     {
       if($this->authorize->hasPermission('SERVICE_TYPE_DELETE'))//check permission
       {
+        $bulkCostingFeatureDetails=BulkCostingDetails::where([['process_option','=',$id]])->first();
+        if($bulkCostingFeatureDetails!=null){
+          return response([
+            'data'=>[
+              'status'=>'0',
+              'message'=>'Service Type Already in use'
+            ]
+          ]);
+        }
+
         $servicetype = ServiceType::where('service_type_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Service Type was deactivated successfully.',
             'servicetype' => $servicetype
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
       }
       else{
         return response($this->authorize->error_response(), 401);

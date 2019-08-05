@@ -76,7 +76,7 @@ class ApprovalStageController extends Controller {
         }
 
         return response([ 'data' => [
-          'message' => 'Approval stage was saved successfully',
+          'message' => 'Approval stage saved successfully',
           'approval_stage' => $approval_stage
           ]
         ], Response::HTTP_CREATED );
@@ -140,7 +140,7 @@ class ApprovalStageController extends Controller {
         }
 
         return response([ 'data' => [
-          'message' => 'Approval stage was updated successfully',
+          'message' => 'Approval stage updated successfully',
           'approval_stage' => $approval_stage
         ]]);
       }
@@ -162,7 +162,7 @@ class ApprovalStageController extends Controller {
       $stage = ApprovalStage::where('stage_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Approval stage was deactivated successfully.',
+          'message' => 'Approval stage deactivated successfully.',
           'role' => $stage
         ]
       ] , Response::HTTP_NO_CONTENT);

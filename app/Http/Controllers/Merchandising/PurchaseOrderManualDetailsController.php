@@ -12,6 +12,7 @@ use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\PoOrderDetails;
 use App\Models\Merchandising\PoOrderDetailsRevision;
 use App\Models\Merchandising\PoOrderHeaderRevision;
+use App\Models\Merchandising\PoOrderDeliverySplit;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 
@@ -297,6 +298,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $lines = $request->lines;
       $formData = $request->formData;
       $po = $formData['po_number'];
+      $prl_id = $formData['prl_id'];
     //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
 
@@ -308,7 +310,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->combine_id = $lines[$x]['combine_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
-        $po_details->style = $lines[$x]['master_id'];
+        $po_details->style = $lines[$x]['style_id'];
         $po_details->colour = $lines[$x]['color_id'];
         $po_details->size = $lines[$x]['size_id'];
         $po_details->unit_price = $lines[$x]['sumunit_price'];
@@ -319,9 +321,14 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->remarks = '';
         $po_details->status = '1';
         $po_details->base_unit_price = $lines[$x]['unit_price'];
-
+        $po_details->component_id = $lines[$x]['component_id'];
+        $po_details->so_com_id = $lines[$x]['so_com_id'];
 
         $po_details->save();
+
+        DB::table('merc_purchase_req_lines')
+            ->where('merge_no', $prl_id)
+            ->update(['status_user' => 'RELEASED']);
 
         }
 
@@ -350,6 +357,7 @@ class PurchaseOrderManualDetailsController extends Controller
             ->where('po_no', $formData['po_number'])
             ->where('bom_id', $lines[$x]['bom_id'])
             ->where('combine_id', $lines[$x]['combine_id'])
+            ->where('line_no', $lines[$x]['line_no'])
             ->update(['req_qty' => $lines[$x]['tra_qty'],'tot_qty' => $lines[$x]['value_sum'],'po_status' => 'PLANNED']);
 
 
@@ -369,6 +377,7 @@ class PurchaseOrderManualDetailsController extends Controller
     public function save_line_details_revision(Request $request){
       $lines = $request->lines;
       $formData = $request->formData;
+
       //print_r($formData);
       $po = $formData['po_number'];
 
@@ -604,6 +613,8 @@ class PurchaseOrderManualDetailsController extends Controller
        ->where('po_number'  , '=', $po_number )
        ->get();
 
+
+
        //$count = $load_list->count();
       // for()
       // if($load_list[0]->polineststus == 1)
@@ -619,6 +630,83 @@ class PurchaseOrderManualDetailsController extends Controller
          ]
        ], Response::HTTP_CREATED );
 
+    }
+
+
+    public function load_reqline_2(Request $request)
+    {
+      $prl_id = $request->prl_id;
+
+      $load_list = PoOrderDetails::join("bom_details",function($join){
+               $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
+                    ->on("bom_details.combine_id","=","merc_po_order_details.combine_id")
+                    ->on("bom_details.master_id","=","merc_po_order_details.item_code")
+                    ->on("bom_details.item_color","=","merc_po_order_details.colour");
+            })
+
+       ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
+       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+       ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
+       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+       ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+       ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+       //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
+       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price')
+       ->where('prl_id'  , '=', $prl_id )
+       ->get();
+
+       //print_r($load_list);
+       return response([ 'data' => [
+         'load_list' => $load_list,
+         'prl_id' => $prl_id,
+         'count' => sizeof($load_list)
+         ]
+       ], Response::HTTP_CREATED );
+
+    }
+
+
+    public function po_delivery_split(Request $request){
+
+      $formData = $request->formData;
+      //print_r($formData);
+    //  die()
+      $po_details_split = new PoOrderDeliverySplit();
+
+      $po_details_split->po_details_id = $formData['po_details_id'];
+      $po_details_split->line_no =$formData['line_no'];
+      $po_details_split->split_qty = $formData['split_qty'];
+      $po_details_split->delivery_date = $formData['delivery_date'];
+
+      $po_details_split->save();
+
+      return response([
+              'data' => [
+              'status' => 'success',
+              'message' => 'Saved successfully.'
+          ]
+         ] , 200);
+
+    }
+
+
+    public function po_delivery_split_load(Request $request){
+
+        $delivery = DB::select('SELECT * FROM merc_po_order_split WHERE
+                     merc_po_order_split.po_details_id = "'.$request->line_id.'" ');
+
+        $delivery_sum = DB::select('SELECT IFNULL(Sum(POS.split_qty),0) AS split_qty_sum FROM merc_po_order_split AS POS
+                        WHERE POS.po_details_id = "'.$request->line_id.'" ');
+
+
+        $pors_arr['delivery']=$delivery;
+        $pors_arr['delivery_sum']=$delivery_sum;
+
+        if($pors_arr == null)
+            throw new ModelNotFoundException("Requested section not found", 1);
+        else
+            return response([ 'data' => $pors_arr ]);
     }
 
 

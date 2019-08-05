@@ -19,6 +19,7 @@ class FinanceCostController extends Controller
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
+  
 
     //get SMVUpdate list
     public function index(Request $request)
@@ -89,7 +90,7 @@ class FinanceCostController extends Controller
         $finCost->save();
 
         return response([ 'data' => [
-          'message' => 'Finance Cost was updated successfully',
+          'message' => 'Finance Cost updated successfully',
           'finCost' => $finCost
         ]]);
       }
