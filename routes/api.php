@@ -221,6 +221,7 @@ Route::prefix('ie/')->group(function(){
    Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
    Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
+   Route::post('componentSMVDetails/checkCopyStatus' , 'IE\ComponentSMVController@check_copy_status');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 

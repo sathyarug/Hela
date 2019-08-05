@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Accounting\PaymentMethod;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 class PaymentMethodController extends Controller
 {
     var $authorize = null;
@@ -51,12 +52,14 @@ class PaymentMethodController extends Controller
       {
         $paymentMethod = new PaymentMethod();
         $paymentMethod->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
         $paymentMethod->status = 1;
         $paymentMethod->save();
 
         return response([ 'data' => [
-          'message' => 'Payment Method was saved successfully',
-          'paymentMethod' => $paymentMethod
+          'message' => 'Payment Method saved successfully',
+          'paymentMethod' => $paymentMethod,
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -87,14 +90,28 @@ class PaymentMethodController extends Controller
     {
       if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('payment_mode',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('payment_mode',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([ 'data' => [
+            'message' => 'Payment Method Already in Use',
+            'status' => '0',
+          ]]);
+        }
+
+        else{
+
         $paymentMethod = PaymentMethod::find($id);
         $paymentMethod->fill( $request->except('payment_method_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
         $paymentMethod->save();
 
         return response([ 'data' => [
-          'message' => 'Payment method was updated successfully',
-          'paymentMethod' => $paymentMethod
+          'message' => 'Payment method updated successfully',
+          'paymentMethod' => $paymentMethod,
+          'status'=>'1',
         ]]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -106,13 +123,24 @@ class PaymentMethodController extends Controller
     {
       if($this->authorize->hasPermission('PAYMENT_METHOD_DELETE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('payment_mode',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('payment_mode',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([ 'data' => [
+            'message' => 'Payment Method Already in Use',
+            'status' => '0',
+          ]]);
+        }
+        else{
         $paymentMethod = PaymentMethod::where('payment_method_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Payment method was deactivated successfully.',
-            'paymentMethod' => $paymentMethod
+            'message' => 'Payment method deactivated successfully.',
+            'paymentMethod' => $paymentMethod,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
