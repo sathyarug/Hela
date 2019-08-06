@@ -258,12 +258,11 @@ class CostingController extends Controller {
               $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);// get existing finish good
             }
 
-            if($finish_goods[$x]['combo_color'] != null && $finish_goods[$x]['combo_color'] != '') {//get combo color if exists
-              $combo_color = Color::where('color_name', '=', $finish_goods[$x]['combo_color'])->first();
-              $fg->combo_color_id = $combo_color->color_id;
+            if($product_feature->count == 1) {//single pack, then set combo color to garment color
+              $fg->combo_color_id = $this->get_color_id_from_name($finish_goods[$x]['color']);
             }
-            else {// no combo color
-              $fg->combo_color_id = null;
+            else {// multiple pack
+              $fg->combo_color_id = $this->get_color_id_from_name($finish_goods[$x]['combo_color']);
             }
 
             $fg->pack_no = $finish_goods[$x]['pack_no'];
@@ -281,14 +280,7 @@ class CostingController extends Controller {
                 $finish_good_component = CostingFinishGoodComponent::find($finish_goods[$y]['id']);
               }
 
-              if($finish_goods[$y]['color'] != null && $finish_goods[$y]['color'] != '') {//get garment color if exists
-                $color = Color::where('color_name', '=', $finish_goods[$y]['color'])->first();
-                $finish_good_component->color_id = $color->color_id;
-              }
-              else {//no garment color
-                $finish_good_component->color_id = null;
-              }
-
+              $finish_good_component->color_id = $this->get_color_id_from_name($finish_goods[$y]['color']);
               $finish_good_component->product_component_id = $finish_goods[$y]['product_component_id'];
               $finish_good_component->product_silhouette_id = $finish_goods[$y]['product_silhouette_id'];
               $finish_good_component->line_no = $finish_goods[$y]['line_no'];
@@ -432,21 +424,64 @@ class CostingController extends Controller {
 
 
     public function send_to_approval(Request $request) {
-        $user = auth()->user();
+        //check all finish goods have connected sales order deliveries
         $costing = Costing::find($request->costing_id);
-        $costing->status = 'PENDING';
-        $costing->approval_user = 19;
-        $costing->approval_sent_user = $user->user_id;
-        $costing->approval_sent_date = date("Y-m-d H:i:s");
-        $costing->save();
+        $user = auth()->user();
+        
+        $fg_list = DB::select("SELECT
+            	costing_finish_goods.fg_id,
+            	(
+            		SELECT COUNT(merc_customer_order_details.details_id) FROM merc_customer_order_details
+            		WHERE merc_customer_order_details.fg_id = costing_finish_goods.fg_id
+            	) AS delivery_count
+            FROM
+            	costing_finish_goods
+            WHERE costing_finish_goods.costing_id = ?", [$request->costing_id]);
 
-        return response([
-          'data' => [
-            'status' => 'success',
-            'message' => 'Costing sent for approval',
-            'costing' => $costing
-          ]
-        ]);
+        if($fg_list != null && sizeof($fg_list) > 0) {//has finish goods
+          //check all finish goods have connected deliveries
+          $err = false;
+          for($x = 0 ; $x < sizeof($fg_list); $x++){
+            if($fg_list[$x]->delivery_count <= 0) { //has not connected fg
+              $err = true;
+              break;
+            }
+          }
+
+          if($err == true) {
+            return response([
+              'data' => [
+                'status' => 'error',
+                'message' => "Cannot approve costing. All finish goods don't have connected deliveries.",
+                'costing' => $costing
+              ]
+            ]);
+          }
+          else { //no erro, can approve
+            $costing->status = 'PENDING';
+            $costing->approval_user = 19;
+            $costing->approval_sent_user = $user->user_id;
+            $costing->approval_sent_date = date("Y-m-d H:i:s");
+            $costing->save();
+
+            return response([
+              'data' => [
+                'status' => 'success',
+                'message' => 'Costing sent for approval',
+                'costing' => $costing
+              ]
+            ]);
+          }
+        }
+        else { //no finish goods
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => 'Cannot approve costing. There is no finish goods for this costing.',
+              'costing' => $costing
+            ]
+          ]);
+        }
     }
 
     /*private function revision($style_id,$data) {
@@ -1091,7 +1126,7 @@ ORDER BY item_category.category_id');
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = costing_finish_good_components.product_silhouette_id
         INNER JOIN product_feature ON product_feature.product_feature_id = costing_finish_goods.product_feature
         LEFT JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
-        INNER JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
+        LEFT JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
         WHERE costing_finish_goods.costing_id = ? ", [$id]);
 
         return $product_feature_components;
@@ -1189,6 +1224,17 @@ ORDER BY item_category.category_id');
       }
       DB::table('costing_finish_good_component_items_history')->insert($fg_component_items);
 
+    }
+
+
+    private function get_color_id_from_name($color_name){
+      if($color_name == null || $color_name == false || $color_name == ''){
+        return null;
+      }
+      else{
+         $color = Color::where('color_name', '=', $color_name)->first();
+         return $color->color_id;
+      }
     }
 
 }
