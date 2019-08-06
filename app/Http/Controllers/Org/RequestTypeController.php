@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\RequestType;
 use Exception;
+use App\Libraries\CapitalizeAllFields;
 
 class RequestTypeController extends Controller
 {
@@ -48,6 +49,7 @@ class RequestTypeController extends Controller
       {
         $requestType->fill($request->all());
         $requestType->status = 1;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
         $requestType->save();
 
         return response([ 'data' => [
@@ -82,6 +84,7 @@ class RequestTypeController extends Controller
       if($requestType->validate($request->all()))
       {
         $requestType->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
         $requestType->save();
 
         return response([ 'data' => [

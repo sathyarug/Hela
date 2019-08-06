@@ -140,6 +140,8 @@ class SMVUpdateHistoryController extends Controller
       ->join('cust_division', 'ie_smv_his.division_id', '=' , 'cust_division.division_id')
       ->select('ie_smv_his.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description','cust_division.division_description')
       ->where('cust_customer.customer_name'  , 'like', $search.'%' )
+      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      ->orwhere('ie_smv_his.version'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
@@ -148,6 +150,8 @@ class SMVUpdateHistoryController extends Controller
       ->join('cust_division', 'ie_smv_his.division_id', '=' , 'cust_division.division_id')
       ->select('ie_smv_his.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description','cust_division.division_description')
       ->where('cust_customer.customer_name'  , 'like', $search.'%' )
+      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      ->orwhere('ie_smv_his.version'  , 'like', $search.'%' )
       ->count();
 
       return [

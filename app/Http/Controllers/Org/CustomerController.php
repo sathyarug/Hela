@@ -219,7 +219,8 @@ class CustomerController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $customer_list = Customer::select('*')
+      $customer_list = Customer::join('fin_goods_type','cust_customer.type_of_service','=','fin_goods_type.goods_type_id')
+      ->select('cust_customer.*','fin_goods_type.goods_type_description')
       ->where('customer_code'  , 'like', $search.'%' )
       ->orWhere('customer_name'  , 'like', $search.'%' )
       ->orWhere('customer_short_name'  , 'like', $search.'%' )

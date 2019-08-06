@@ -271,6 +271,7 @@ public function update(Request $request, $id)
     else if($type == 'not_assigned')
     {
       $notAssigned = Location::select('loc_id','loc_name')
+      ->where('status','=',1)
       ->whereNotIn('loc_id' , function($notSelected) use ($user_id){
           $notSelected->select('loc_id')
           ->from('user_locations')

@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use App\Libraries\CapitalizeAllFields;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Accounting\CostCenter;
 
@@ -52,11 +52,12 @@ class CostCenterController extends Controller
       {
         $costCenter = new CostCenter();
         $costCenter->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
         $costCenter->status = 1;
         $costCenter->save();
 
         return response([ 'data' => [
-          'message' => 'Cost center was saved successfully',
+          'message' => 'Cost center saved successfully',
           'CostCenter' => $costCenter
           ]
         ], Response::HTTP_CREATED );
@@ -84,10 +85,11 @@ class CostCenterController extends Controller
       {
         $costCenter = CostCenter::find($id);
         $costCenter->fill( $request->except('cost_center_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
         $costCenter->save();
 
         return response([ 'data' => [
-          'message' => 'Cost center was updated successfully',
+          'message' => 'Cost center updated successfully',
           'CostCenter' => $costCenter
         ]]);
       }
@@ -104,7 +106,7 @@ class CostCenterController extends Controller
         $costCenter = CostCenter::where('cost_center_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Cost center was deactivated successfully.',
+            'message' => 'Cost center deactivated successfully.',
             'CostCenter' => $costCenter
           ]
         ] , Response::HTTP_NO_CONTENT);
@@ -146,15 +148,22 @@ class CostCenterController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = CostCenter::select('*');
+        $query = CostCenter::select('*')
+        ->where('status','=',1);
+
       }
       else{
         $fields = explode(',', $fields);
         $query = CostCenter::select($fields);
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
+          //echo("djdjjdjd2");
+
         }
+        $query = CostCenter::select('*')
+        ->where('status','=',1);
       }
+
       return $query->get();
     }
 
@@ -163,7 +172,8 @@ class CostCenterController extends Controller
     private function autocomplete_search($search)
   	{
   		$cost_center_list = CostCenter::select('cost_center_id','cost_center_name')
-  		->where([['cost_center_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['cost_center_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',1) ->get();
 
       //echo $cost_center_list;die();
   		return $cost_center_list;

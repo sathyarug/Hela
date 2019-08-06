@@ -212,6 +212,7 @@ Route::prefix('ie/')->group(function(){
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
 
+<<<<<<< HEAD
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
     Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
@@ -221,6 +222,18 @@ Route::prefix('ie/')->group(function(){
     Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
     Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
     Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
+=======
+  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
+  Route::apiResource('servicetypes','IE\ServiceTypeController');
+  Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+   Route::apiResource('styles','Merchandising\StyleCreationController');
+   Route::apiResource('bomStages','Merchandising\BOMStageController');
+   Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
+   Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
+   Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
+   Route::post('componentSMVDetails/checkCopyStatus' , 'IE\ComponentSMVController@check_copy_status');
+>>>>>>> 5b2e51ee5c026c62db66395876cfc8f21aae0a5d
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
@@ -404,6 +417,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/finish-good/delete','Merchandising\Costing\CostingController@delete_finish_good');
 
     Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
+    Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
@@ -478,8 +492,11 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
     Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
     Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+    Route::get('bom/colorwise','Merchandising\BomController@getColorWiseDetails');
+    Route::get('bom/both','Merchandising\BomController@getBothRatios');
     Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
     Route::get('bom/getratio','Merchandising\BomController@getMatRatio');
+    Route::get('bom/getsalesorder','Merchandising\BomController@getAssignSalesOrder');
 
     Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
     Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
@@ -514,6 +531,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
 
 
+    Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
 
 
 });

@@ -11,6 +11,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Finance\GoodsType;
 use App\Models\Org\Supplier;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 
 class GoodsTypeController extends Controller
 {
@@ -53,6 +55,7 @@ class GoodsTypeController extends Controller
         $goodsType = new GoodsType();
         $goodsType->goods_type_description = $request->goods_type_description;
         $goodsType->status = 1;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
         $goodsType->save();
 
         return response([ 'data' => [
@@ -88,16 +91,19 @@ class GoodsTypeController extends Controller
     public function update(Request $request, $id)
     {
       if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
-      {
-        $supplier=Supplier::where('type_of_service','=',$id)->first();
-        if($supplier!=null){
-          return response([ 'data' => [
-            'message' => 'Goods type Already in Use',
-            'status'=>'0'
-          ]]);
-        }
+        {
+          $is_exsits_in_supplier=DB::table('org_supplier')->where('type_of_service',$id)->exists();
+          $is_exsits_in_customer=DB::table('cust_customer')->where('type_of_service',$id)->exists();
+          if($is_exsits_in_supplier||$is_exsits_in_customer){
+            return response([ 'data' => [
+              'message' => 'Goods Type Already in Use',
+              'status' => '0'
+            ]]);
+
+          }else{
         $goodsType = GoodsType::find($id);
         $goodsType->goods_type_description = $request->goods_type_description;
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
         $goodsType->save();
 
         return response([ 'data' => [
@@ -106,6 +112,8 @@ class GoodsTypeController extends Controller
           'status'=>'1'
         ]]);
       }
+    }
+
       else{
         return response($this->authorize->error_response(), 401);
       }
@@ -116,14 +124,15 @@ class GoodsTypeController extends Controller
     {
       if($this->authorize->hasPermission('GOODS_TYPE_DELETE'))//check permission
       {
-        $supplier=Supplier::where('type_of_service','=',$id)->first();
-        if($supplier!=null){
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('type_of_service',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('type_of_service',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
           return response([ 'data' => [
             'message' => 'Goods type Already in Use',
-            'status'=>'0'
+            'status' => '0'
           ]]);
         }
-        else if($supplier==null){
+        else{
         $goodsType = GoodsType::where('goods_type_id', $id)->update(['status' => 0]);
         return response([
           'data' => [

@@ -141,7 +141,7 @@ class ShipmentTermController extends Controller
         $shipTerm = ShipmentTerm::where('ship_term_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Shipment term was deactivated successfully.',
+            'message' => 'Shipment term deactivated successfully.',
             'shipTerm' => $shipTerm,
             'status'=>'1'
           ]

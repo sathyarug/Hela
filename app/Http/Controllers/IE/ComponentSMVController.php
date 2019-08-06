@@ -19,7 +19,7 @@ use App\Models\IE\ComponentSMVSummaryHistory;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Merchandising\ProductFeatureComponent;
 use Exception;
-
+use Illuminate\Support\Facades\DB;
 class ComponentSMVController extends Controller
 {
     public function __construct()
@@ -212,7 +212,7 @@ class ComponentSMVController extends Controller
            }
 
            return response(['data'=>[
-             'message'=>"Component SMV  Revised Sucessfully",
+             'message'=>"Component SMV  Revised Successfully",
              ]
            ]);
   }
@@ -263,6 +263,55 @@ class ComponentSMVController extends Controller
          ]
        ]);
       //echo("pass");
+
+
+    }
+    public function check_copy_status(Request $request){
+      //echo("hdhhdhdhdhhdhd");
+      $styleId=$request->styleId;
+      $prodcutFeatureId=DB::table('style_creation')->where('style_id','=',$styleId)->first();
+      $style=StyleCreation::Join('product_feature_component','style_creation.product_feature_id','=','product_feature_component.product_feature_id')
+              ->SELECT('product_feature_component.*')
+              ->where('style_creation.product_feature_id','=',$prodcutFeatureId->product_feature_id)
+              ->get();
+                if(sizeof($style)>1){
+                  $prodcutComponentId=$style[0]->product_component_id;
+                  $productSilhouetteId=$style[0]->product_silhouette_id;
+                  $style=json_decode(json_encode($style), true);
+                //  dd($style[0]['product_feature_id']!=$prodcutFeatureId);
+                  for($i=0;$i<sizeof($style);$i++){
+                    if($style[$i]['product_feature_id']!=$prodcutFeatureId->product_feature_id||$style[$i]['product_component_id']!=$prodcutComponentId||$style[$i]['product_silhouette_id']!=$productSilhouetteId){
+                      return response([
+                        'data' => [
+                          'message' => 'This Function can be use Only for Same type of Components',
+                          'status' => '0',
+                        ]
+                      ]);
+                    }
+
+                  }
+                  return response([
+                    'data' => [
+                      'message' => 'success',
+                      'status' => '1',
+                    ]
+                  ]);
+
+                }
+              /*->groupBy('product_feature_component.product_feature_id')
+              ->groupBy('product_feature_component.product_component_id')
+              ->groupBy('product_feature_component.product_silhouette_id')*/
+
+              //dd($style);
+              else{
+              return response([
+                'data' => [
+                  'message' => 'This Function can be use Only for Same type of Components',
+                  'status' => '0',
+                ]
+              ]);
+              //dd($style);
+            }
 
 
     }
