@@ -36,6 +36,9 @@ class ColorController extends Controller
             $search = $request->search;
             return response($this->autocomplete_search($search));
           }
+          else if($type == 'colorListing'){
+            return response($this->LoadColors());
+          }
           else {
             $active = $request->active;
             $fields = $request->fields;
@@ -269,6 +272,12 @@ class ColorController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+    
+    private function LoadColors(){
+        $colorList = Color::all()->where('status','=','1');
+        return $colorList; 
+        
     }
 
 }

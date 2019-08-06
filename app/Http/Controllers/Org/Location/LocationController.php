@@ -216,17 +216,22 @@ class LocationController extends Controller
     //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
+
       $query = null;
       if($fields == null || $fields == '') {
-        $query = Location::select('*');
+        $query = Location::select('*')
+        ->where('status','=',$active);
       }
       else{
         $fields = explode(',', $fields);
         $query = Location::select($fields);
         if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
+          $query->where([['status', '=', 1]]);
         }
+        $query = Location::select('*')
+        ->where('status','=',1);
       }
+        //dd($query->get());
       return $query->get();
     }
 
@@ -234,7 +239,8 @@ class LocationController extends Controller
     private function autocomplete_search($search)
   	{
   		$location_lists = Location::select('loc_id','loc_name')
-  		->where([['loc_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['loc_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',1) ->get();
   		return $location_lists;
   	}
 

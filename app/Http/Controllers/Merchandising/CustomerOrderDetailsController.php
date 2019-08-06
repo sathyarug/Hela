@@ -251,6 +251,33 @@ class CustomerOrderDetailsController extends Controller
     }
 
 
+    public function delete_line(Request $request){
+
+      $details_id   = $request->details_id;
+      $status       = $request->status;
+      $order_id     = $request->order_id;
+
+      if($status == 'PLANNED'){
+        CustomerOrderDetails::where('details_id','=',$details_id)->delete();
+      }
+      else if ($status == 'CANCELED'){
+
+        CustomerOrderDetails::where('details_id', $details_id)
+            ->update(['active_status' => 'INACTIVE']);
+
+      }
+
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Successfully Deleted.'
+        ]
+      ] , 200);
+
+
+  }
+
+
     //validate anything based on requirements
     public function validate_data(Request $request){
       /*$for = $request->for;

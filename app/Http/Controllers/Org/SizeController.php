@@ -37,6 +37,9 @@ class SizeController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'loadsizes'){
+          return response($this->LoadSizes());
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -106,8 +109,8 @@ class SizeController extends Controller
         if($size->validate($request->all()))
         {
           $is_exists_cust=DB::table('cust_size_grid')->where('size_id', $id)->exists();
-          $is_exists_sales=DB::table('merc_customer_order_size',$id)->exists();
-          if($is_exists_cust==true||$is_exists_sales==true){
+          $is_exists_sales=DB::table('merc_customer_order_size')->where('size_id', $id)->exists();
+          if($is_exists_cust||$is_exists_sales){
             return response([ 'data' => [
               'message' => 'Size Already in Use',
               'size' => $size,
@@ -143,12 +146,13 @@ class SizeController extends Controller
       if($this->authorize->hasPermission('SIZE_DELETE'))//check permission
       {
         $is_exists_cust=DB::table('cust_size_grid')->where('size_id', $id)->exists();
-        $is_exists_sales=DB::table('merc_customer_order_size',$id)->exists();
+        $is_exists_sales=DB::table('merc_customer_order_size')->where('size_id', $id)->exists();
 
-      if($is_exists_cust==true||$is_exists_sales==true){
+      if($is_exists_cust||$is_exists_sales){
         return response([
           'data' => [
             'status'=>'0',
+              'message'=>'Size Already in Use',
             ]
         ]);
       }
@@ -254,6 +258,11 @@ class SizeController extends Controller
       else{
         return response($this->authorize->error_response(), 401);
       }
+    }
+    
+    private function LoadSizes(){
+        $sizeList = Size::all()->where('status','=','1');
+        return $sizeList;         
     }
 
 }

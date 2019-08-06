@@ -65,6 +65,22 @@ class ProductFeatureController extends Controller
 
               }
 
+              if(isset($lines[$r]['emb']) == '')
+                {
+                  $line_id = $r+1;
+                  $err = 'Emblishment Line '.$line_id.' cannot be empty.';
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                }
+
+              if(isset($lines[$r]['wash']) == '')
+                {
+                    $line_id = $r+1;
+                    $err = 'Washing Line '.$line_id.' cannot be empty.';
+                    return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                }
+
         }
 
         $max_f = DB::table('product_feature')->max('product_feature_id');
@@ -72,8 +88,8 @@ class ProductFeatureController extends Controller
         $a = 1;
         for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
-        if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
-        if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else{ $washing= 0; }
+        if($lines[$x]['emb'] == "YES"){ $emblishment = 1; }else { $emblishment = 0; }
+        if($lines[$x]['wash'] == "YES"){ $washing = 1; }else{ $washing= 0; }
         if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
 
         $silhouette = ProductSilhouette::select('*')
@@ -151,11 +167,48 @@ class ProductFeatureController extends Controller
 
     public function destroy($id)
     {
+
+
+      $fe_data = ProductFeatureComponent::select('product_feature_id')->where('feature_component_id','=',$id)->first();
+
+      //echo $fe_data['product_feature_id'];
+      //die();
       $pro_f = ProductFeatureComponent::where('feature_component_id', $id)->update(['status' => 0]);
+      $lines = ProductFeatureComponent::select('*')
+      ->where([['status', '=', '1'],['product_feature_id','=',$fe_data['product_feature_id']]])
+      ->get();
+
+      $pfc_list= ProductFeatureComponent::select(DB::raw('Count(product_component.product_component_description) as Count'),'product_component.product_component_description')
+      ->join('product_component','product_feature_component.product_component_id','=','product_component.product_component_id')
+      ->where('product_feature_component.product_feature_id','=',$fe_data['product_feature_id'])
+      ->where('product_feature_component.status' , '<>', 0 )
+      ->groupBy('product_feature_component.product_component_id')
+      ->get();
+
+      $f = '';$a=array();
+      for($y = 0 ; $y < sizeof($pfc_list) ; $y++) {
+        $d = $pfc_list[$y]->Count;
+        $e = $pfc_list[$y]->product_component_description;
+        $f = $d.' '.$e;
+        array_push($a,$f);
+      }
+
+      $separated = implode(" | ", $a);
+
+      //$PF = new productFeature();
+      $PF = productFeature::find($fe_data['product_feature_id']);
+      $PF ->product_feature_description = strtoupper($separated);
+      $PF ->count = sizeof($lines);
+      $PF ->save();
+
+
       return response([
         'data' => [
           'message' => 'Product Feature deactivated successfully.',
-          'prod_f' => $pro_f
+          'max_f' => $fe_data['product_feature_id'],
+          'prod_f' => $pro_f,
+          'max_f_d' => strtoupper($separated),
+          'max_f_c' => sizeof($lines).'-PACK'
         ]
       ]);
 
@@ -164,8 +217,8 @@ class ProductFeatureController extends Controller
     public function update_product_feature(Request $request){
       $lines = $request->lines;
       $fe_data = $request->fe_data;
-      //print_r($lines) ;
-      //die();
+      //print_r($lines);
+    //  die();
 
       if($lines != null && sizeof($lines) >= 1){
 
@@ -179,12 +232,28 @@ class ProductFeatureController extends Controller
 
               }
 
+            if(isset($lines[$r]['emb']) == '')
+              {
+                  $line_id = $r+1;
+                  $err = 'Emblishment Line '.$line_id.' cannot be empty.';
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
+            if(isset($lines[$r]['wash']) == '')
+              {
+                    $line_id = $r+1;
+                    $err = 'Washing Line '.$line_id.' cannot be empty.';
+                    return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
         }
 
           for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
-          if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
-          if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else { $washing= 0; }
+          if($lines[$x]['emb'] == "YES"){ $emblishment = 1; }else { $emblishment = 0; }
+          if($lines[$x]['wash'] == "YES"){ $washing = 1; }else { $washing= 0; }
           if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
 
           // if($lines[$x]['product_silhouette_description'] == '')
@@ -202,8 +271,8 @@ class ProductFeatureController extends Controller
           $PF->product_silhouette_id = $silhouette->product_silhouette_id;
           $PF->product_component_id = $lines[$x]['pro_com_id'];
           $PF->display_name = $dis;
-          $PF->emblishment = $lines[$x]['emb'];
-          $PF->washing = $lines[$x]['wash'];
+          $PF->emblishment = $emblishment;
+          $PF->washing = $washing;
           $PF->save();
 
           }

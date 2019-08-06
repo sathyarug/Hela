@@ -11,7 +11,9 @@ use App\Models\Org\Season;
 use App\Models\Merchandising\BulkCostingFeatureDetails;
 use Exception;
 use App\Libraries\AppAuthorize;
+use Illuminate\Support\Facades\DB;
 use App\Libraries\CapitalizeAllFields;
+
 
 class SeasonController extends Controller
 {
@@ -62,7 +64,8 @@ class SeasonController extends Controller
 
           return response([ 'data' => [
             'message' => 'Season saved successfully',
-            'season' => $season
+            'season' => $season,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -100,8 +103,8 @@ class SeasonController extends Controller
     {
       if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
       {
-        $costingBulkFeatureDetails=BulkCostingFeatureDetails::where([['season_id','=',$id]])->first();
-        if($costingBulkFeatureDetails!=null){
+        $is_exsits=DB::table('costing')->where('season_id',$id)->exsits();
+        if($is_exsits){
           return response([
             'data' => [
               'message' => 'Season Already in Use.',
@@ -109,7 +112,7 @@ class SeasonController extends Controller
             ]
           ]);
           }
-          else if($costingBulkFeatureDetails==null){
+          else{
         $season = Season::find($id);
         if($season->validate($request->all()))
         {
@@ -142,8 +145,8 @@ class SeasonController extends Controller
       if($this->authorize->hasPermission('SEASON_DELETE'))//check permission
       {
 
-        $costingBulkFeatureDetails=BulkCostingFeatureDetails::where([['season_id','=',$id]])->first();
-        if($costingBulkFeatureDetails!=null){
+        $is_exsits=DB::table('costing')->where('season_id',$id)->exsits();
+        if($is_exsits){
           return response([
             'data' => [
               'message' => 'Sason Already in Use.',
@@ -151,7 +154,7 @@ class SeasonController extends Controller
             ]
           ]);
           }
-        else if($costingBulkFeatureDetails==null){
+        else{
         $season = Season::where('season_id', $id)->update(['status' => 0]);
         return response([
           'data' => [

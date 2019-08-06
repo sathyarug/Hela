@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\ProductSpecification;
 use App\Libraries\AppAuthorize;
 use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 
 class  ProductSpecificationController extends Controller
 {
@@ -57,8 +58,9 @@ class  ProductSpecificationController extends Controller
         $productSpecification->save();
 
         return response([ 'data' => [
-          'message' => ' Product Specification saved successfully',
-          'productSpecification' => $productSpecification
+          'message' => 'Product Type saved successfully',
+          'productSpecification' => $productSpecification,
+          'status'=>1
           ]
         ], Response::HTTP_CREATED );
       }
@@ -89,15 +91,26 @@ class  ProductSpecificationController extends Controller
     {
       if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
       {
+        $is_exists=DB::table('prod_category')->where('prod_cat_id',$id)->exists();
+        if($is_exists==true){
+
+          return response([ 'data' => [
+            'message' => 'Product Type Already in Use',
+            'status' => '0'
+          ]]);
+        }
+        else {
         $productSpecification =  ProductSpecification::find($id);
         $productSpecification->fill($request->all());
         $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($productSpecification);
         $productSpecification->save();
 
         return response([ 'data' => [
-          'message' => ' Product Specification updated successfully',
-          'transaction' => $productSpecification
+          'message' => 'Product Type updated successfully',
+          'transaction' => $productSpecification,
+          'status'=>'1'
         ]]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -111,14 +124,23 @@ class  ProductSpecificationController extends Controller
     {
       if($this->authorize->hasPermission('PROD_SPEC_DELETE'))//check permission
       {
+        $is_exists=DB::table('prod_category')->where('prod_cat_id',$id)->exists();
+        if($is_exists==true){
+          return response([ 'data' => [
+            'message' => 'Product Type Already in Use',
+            'status' => '0'
+          ]]);
+        }
+
+        else {
         $productSpecification =ProductSpecification::where('prod_cat_id', $id)->update(['status' => 0]);
-        return response([
-          'data' => [
-            'message' => 'Shipment term was deactivated successfully.',
-            'transaction' => $productSpecification
-          ]
-        ] , Response::HTTP_NO_CONTENT);
+        return response([ 'data' => [
+          'message' => 'Product Type Already in Use',
+          'status' => '0',
+          'productSpesication'=>$productSpecification
+        ]]);
       }
+    }
       else{
         return response($this->authorize->error_response(), 401);
       }

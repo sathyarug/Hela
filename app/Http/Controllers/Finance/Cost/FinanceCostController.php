@@ -12,6 +12,7 @@ use App\Models\Finance\Cost\FinanceCost;
 use App\Models\Finance\Cost\FinanceCostHistory;
 
 
+
 class FinanceCostController extends Controller
 {
     public function __construct()
@@ -19,7 +20,7 @@ class FinanceCostController extends Controller
       //add functions names to 'except' paramert to skip authentication
       $this->middleware('jwt.verify', ['except' => ['index']]);
     }
-  
+
 
     //get SMVUpdate list
     public function index(Request $request)
@@ -137,7 +138,10 @@ class FinanceCostController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $fin_cost_list = FinanceCost::select('*')
+     $fin_cost_list = FinanceCost::select( DB::raw("DATE_FORMAT(effective_from, '%d-%b-%Y') 'from_date'"),DB::raw("DATE_FORMAT(effective_to, '%d-%b-%Y')'to_date'"),'fin_cost_id','status','finance_cost','cpmfront_end','cpum','effective_from','effective_to',)
+     //->select('*')
+      //$fin_cost_list=DB::table('fin_fin_cost')
+      //->select(DB::raw('DATE_FORMAT("effective_from", "%d %b %Y")'))
       ->where('finance_cost'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
