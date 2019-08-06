@@ -13,7 +13,7 @@ use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
-use App\Models\Merchandising\BulkCosting;
+use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\ProductComponent;
 use DB;
 
@@ -104,7 +104,7 @@ class StyleCreationController extends Controller
 //        $payload = $request->avatar;
         if($request->style_id != null){
 
-          $check_style = BulkCosting::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
+          $check_style = Costing::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
           if($check_style != null)
           {
             return response([
@@ -284,7 +284,7 @@ class StyleCreationController extends Controller
     //deactivate a style
     public function destroy($id)
     {
-      $check_style = BulkCosting::where([['status', '=', '1'],['style_id','=',$id]])->first();
+      $check_style = Costing::where([['status', '=', '1'],['style_id','=',$id]])->first();
       if($check_style != null)
       {
         return response([

@@ -212,15 +212,15 @@ Route::prefix('ie/')->group(function(){
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
 
-  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
-  Route::apiResource('servicetypes','IE\ServiceTypeController');
-  Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
-  Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
-   Route::apiResource('styles','Merchandising\StyleCreationController');
-  // Route::apiResource('bomStages','Merchandising\BOMStageController');
-   Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
-   Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
-   Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
+    Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
+    Route::apiResource('servicetypes','IE\ServiceTypeController');
+    Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
+    Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+    Route::apiResource('styles','Merchandising\StyleCreationController');
+    Route::apiResource('bomStages','Merchandising\BOMStageController');
+    Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
+    Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
+    Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
 
@@ -340,6 +340,15 @@ Route::prefix('stores/')->group(function(){
 
 });
 
+Route::prefix('fastreact/')->group(function(){
+
+    Route::apiResource('get-data','Fastreact\FastReactController');
+    Route::post('load_fr_Details','Fastreact\FastReactController@load_fr_Details');
+
+});
+
+
+
 Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
@@ -348,6 +357,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('load_header_stage' , 'Merchandising\CustomerOrderController@load_header_stage');
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
+    Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
