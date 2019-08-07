@@ -212,7 +212,6 @@ Route::prefix('ie/')->group(function(){
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
 
-<<<<<<< HEAD
     Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
     Route::apiResource('servicetypes','IE\ServiceTypeController');
     Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
@@ -222,19 +221,7 @@ Route::prefix('ie/')->group(function(){
     Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
     Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
     Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
-=======
-  Route::get('servicetypes/validate' , 'IE\ServiceTypeController@validate_data');
-  Route::apiResource('servicetypes','IE\ServiceTypeController');
-  Route::get('garment_operations/validate' , 'IE\GarmentOperationMasterController@validate_data');
-   Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
-   Route::apiResource('styles','Merchandising\StyleCreationController');
-   Route::apiResource('bomStages','Merchandising\BOMStageController');
-   Route::apiResource('componentSMVDetails','IE\ComponentSMVController');
-   Route::post('componentSMVDetails/saveDataset','IE\ComponentSMVController@storeDataset');
-   Route::post('componentSMVDetails/checkSMVRange' , 'IE\ComponentSMVController@check_smv_range');
-   Route::post('componentSMVDetails/checkCopyStatus' , 'IE\ComponentSMVController@check_copy_status');
->>>>>>> 5b2e51ee5c026c62db66395876cfc8f21aae0a5d
-    //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
+    Route::post('componentSMVDetails/checkCopyStatus' , 'IE\ComponentSMVController@check_copy_status');
 
 
 });
@@ -529,6 +516,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('product_feature','Merchandising\ProductFeatureController');
     Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
     Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
+    Route::post('delete_feature_temp','Merchandising\ProductFeatureController@delete_feature_temp');
 
 
     Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');

@@ -35,7 +35,7 @@ class MenuController extends Controller
 
     function get_menus($menu = null, $user_id) {
       if($menu == null){
-        $menus = DB::select('select * from app_menu where level = ?' , [1]);
+        $menus = DB::select('select * from app_menu where level = ? ORDER BY app_menu.order ASC' , [1]);
       }
       else{
         $menus = DB::select('select app_menu.* from app_menu where app_menu.parent_menu = ? AND

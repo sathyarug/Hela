@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
-use App\Models\Merchandising\productFeature;
+use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\ProductType;
@@ -224,7 +224,7 @@ class StyleCreationController extends Controller
         $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
-        $productFeature = productFeature::find($style['product_feature_id']);
+        $productFeature = ProductFeature::find($style['product_feature_id']);
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = ProductType::find($style['pack_type_id']);
