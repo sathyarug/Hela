@@ -411,6 +411,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
     Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
 
+    Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
+
   //  Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
   //  Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
 
