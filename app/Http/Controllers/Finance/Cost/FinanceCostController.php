@@ -138,7 +138,7 @@ class FinanceCostController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-     $fin_cost_list = FinanceCost::select( DB::raw("DATE_FORMAT(effective_from, '%d-%b-%Y') 'from_date'"),DB::raw("DATE_FORMAT(effective_to, '%d-%b-%Y')'to_date'"),'fin_cost_id','status','finance_cost','cpmfront_end','cpum','effective_from','effective_to',)
+     $fin_cost_list = FinanceCost::select( DB::raw("DATE_FORMAT(effective_from, '%d-%b-%Y') 'from_date'"),DB::raw("DATE_FORMAT(effective_to, '%d-%b-%Y')'to_date'"),'fin_cost_id','status','finance_cost','cpmfront_end','cpum','effective_from','effective_to')
      //->select('*')
       //$fin_cost_list=DB::table('fin_fin_cost')
       //->select(DB::raw('DATE_FORMAT("effective_from", "%d %b %Y")'))

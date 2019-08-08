@@ -518,6 +518,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('product_feature','Merchandising\ProductFeatureController');
     Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
     Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
+    Route::post('delete_feature_temp','Merchandising\ProductFeatureController@delete_feature_temp');
 
 
     Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
