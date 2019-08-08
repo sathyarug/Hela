@@ -103,7 +103,11 @@ class ItemController extends Controller
 
             $uom_list = $request->uom;
             for($x = 0 ; $x < sizeof($uom_list) ; $x++){
-              $item->uoms()->create([
+              /*$item->uoms()->create([
+                  'master_id' => $item->master_id,
+                  'uom_id' => $uom_list[$x]['uom_id']
+              ]);*/
+              DB::table('item_uom')->insert([
                   'master_id' => $item->master_id,
                   'uom_id' => $uom_list[$x]['uom_id']
               ]);
