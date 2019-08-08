@@ -1131,7 +1131,8 @@ ORDER BY item_category.category_id');
         INNER JOIN product_feature ON product_feature.product_feature_id = costing_finish_goods.product_feature
         LEFT JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
         LEFT JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
-        WHERE costing_finish_goods.costing_id = ? ", [$id]);
+        WHERE costing_finish_goods.costing_id = ?
+        ORDER BY costing_finish_good_components.fg_id, costing_finish_good_components.id", [$id]);
 
         return $product_feature_components;
     }
