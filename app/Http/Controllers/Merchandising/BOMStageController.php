@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\BOMStage;
-use App\Models\Merchandising\BulkCostingFeatureDetails;
-use App\Models\IE\componentSMVHeader;
+use App\Models\Merchandising\Costing\Costing;
+use App\Models\IE\ComponentSMVHeader;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -100,8 +100,8 @@ class BOMStageController extends Controller
     {
       if($this->authorize->hasPermission('BOM_STAGE_MANAGE'))//check permission
       {
-        $bulkCostingFeatureDetails=BulkCostingFeatureDetails::where([['bom_stage','=',$id]])->first();
-        $ComponentSmv=componentSMVHeader::where([['bom_stage_id','=',$id]])->first();
+        $bulkCostingFeatureDetails = Costing::where([['bom_stage_id','=',$id]])->first();
+        $ComponentSmv=ComponentSMVHeader::where([['bom_stage_id','=',$id]])->first();
         if($bulkCostingFeatureDetails!=null||$ComponentSmv!=null){
           return response([ 'data' => [
             'status' => '0',
@@ -139,7 +139,7 @@ class BOMStageController extends Controller
     {
       if($this->authorize->hasPermission('BOM_STAGE_DELETE'))//check permission
       {
-        $bulkCostingFeatureDetails=BulkCostingFeatureDetails::where([['bom_stage','=',$id]])->first();
+        $bulkCostingFeatureDetails=Costing::where([['bom_stage_id','=',$id]])->first();
         if($bulkCostingFeatureDetails!=null){
           return response([
             'data'=>[

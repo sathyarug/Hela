@@ -158,7 +158,7 @@ class CostingController extends Controller {
               $costing->cpm_factory = $cpm_factory;
               $costing->labour_cost = $labour_cost;
               $costing->coperate_cost = $coperate_cost;
-              $costing->revision_no = 1;
+              $costing->revision_no = 0;
               $costing->status = 'CREATE';
               $costing->save();
               //get product feature components from style
@@ -266,6 +266,7 @@ class CostingController extends Controller {
             }
 
             $fg->pack_no = $finish_goods[$x]['pack_no'];
+            $fg->pack_no_code = 'FG'.str_pad($fg->pack_no, 3, '0', STR_PAD_LEFT);
             $fg->product_feature = $finish_goods[$x]['product_feature_id'];
             $fg->epm = 0;
             $fg->np = 0;
@@ -427,7 +428,7 @@ class CostingController extends Controller {
         //check all finish goods have connected sales order deliveries
         $costing = Costing::find($request->costing_id);
         $user = auth()->user();
-        
+
         $fg_list = DB::select("SELECT
             	costing_finish_goods.fg_id,
             	(
@@ -636,7 +637,7 @@ class CostingController extends Controller {
 
     public  function getColorForDivision($division_id,$query){
 //        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
-        $color=\App\Models\Org\Color::pluck('color_name')->toArray();
+        $color=\App\Models\Org\Color::pluck('color_code')->toArray();
         return json_encode($color);
     }
 
@@ -892,6 +893,7 @@ ORDER BY item_category.category_id');
       $finish_good = CostingFinishGood::find($fg_id);
       $finish_good_copy = $finish_good->replicate();
       $finish_good_copy->pack_no = DB::table('costing_finish_goods')->where('costing_id', '=', $finish_good->costing_id)->max('pack_no') + 1;
+      $finish_good_copy->pack_no_code = 'FG'.str_pad($finish_good_copy->pack_no, 3, '0', STR_PAD_LEFT);
       $finish_good_copy->save();
 
       $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
@@ -1087,6 +1089,7 @@ ORDER BY item_category.category_id');
         '0' AS np,
         '0' AS id,
         '1' AS pack_no,
+        'FG001' AS pack_no_code,
         '' AS combo_color,
         '' AS color,
         '0' AS fg_id
@@ -1111,6 +1114,7 @@ ORDER BY item_category.category_id');
       $product_feature_components = DB::select("SELECT
         costing_finish_good_components.*,
         costing_finish_goods.pack_no,
+        costing_finish_goods.pack_no_code,
         costing_finish_goods.combo_color_id,
         costing_finish_goods.epm,
         costing_finish_goods.np,
@@ -1118,8 +1122,8 @@ ORDER BY item_category.category_id');
         product_component.product_component_description,
         product_silhouette.product_silhouette_description,
         product_feature.product_feature_description,
-        color1.color_name AS combo_color,
-        color2.color_name AS color
+        color1.color_code AS combo_color,
+        color2.color_code AS color
         FROM costing_finish_good_components
         INNER JOIN costing_finish_goods ON costing_finish_goods.fg_id = costing_finish_good_components.fg_id
         INNER JOIN product_component ON product_component.product_component_id = costing_finish_good_components.product_component_id
@@ -1127,7 +1131,8 @@ ORDER BY item_category.category_id');
         INNER JOIN product_feature ON product_feature.product_feature_id = costing_finish_goods.product_feature
         LEFT JOIN org_color AS color1 ON color1.color_id = costing_finish_goods.combo_color_id
         LEFT JOIN org_color AS color2 ON color2.color_id = costing_finish_good_components.color_id
-        WHERE costing_finish_goods.costing_id = ? ", [$id]);
+        WHERE costing_finish_goods.costing_id = ?
+        ORDER BY costing_finish_good_components.fg_id, costing_finish_good_components.id", [$id]);
 
         return $product_feature_components;
     }
@@ -1179,7 +1184,7 @@ ORDER BY item_category.category_id');
 
     private function get_artical_numbers($search){
       $list = DB::table('costing_finish_good_component_items')->where('article_no', 'like', $search . '%')
-      ->distinct('article_no')->get()->pluck('article_no');
+      ->distinct()->select('article_no')->get()->pluck('article_no');
       return $list;
     }
 
@@ -1232,7 +1237,7 @@ ORDER BY item_category.category_id');
         return null;
       }
       else{
-         $color = Color::where('color_name', '=', $color_name)->first();
+         $color = Color::where('color_code', '=', $color_name)->first();
          return $color->color_id;
       }
     }
