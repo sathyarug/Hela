@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductFeatureComponent;
 use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Merchandising\StyleCreation;
+use App\Models\IE\ComponentSMVHeader;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCategoryResource;
 use App\Libraries\AppAuthorize;
@@ -167,12 +169,22 @@ class ProductFeatureController extends Controller
 
     public function destroy($id)
     {
-
-
       $fe_data = ProductFeatureComponent::select('product_feature_id')->where('feature_component_id','=',$id)->first();
-
-      //echo $fe_data['product_feature_id'];
+      $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data['product_feature_id'])->first();
+      //echo $style_id['style_id'];
       //die();
+
+      $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+      if($check_smv_table != null)
+      {
+        return response([
+          'data'=>[
+            'status'=>'0',
+          ]
+        ]);
+      }else{
+
+
       $pro_f = ProductFeatureComponent::where('feature_component_id', $id)->update(['status' => 0]);
       $lines = ProductFeatureComponent::select('*')
       ->where([['status', '=', '1'],['product_feature_id','=',$fe_data['product_feature_id']]])
@@ -212,13 +224,22 @@ class ProductFeatureController extends Controller
         ]
       ]);
 
+      }
+
     }
 
     public function update_product_feature(Request $request){
       $lines = $request->lines;
       $fe_data = $request->fe_data;
-      //print_r($lines);
-    //  die();
+
+      $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data)->first();
+      $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+      if($check_smv_table != null)
+      {
+        
+        $err = "Can't Update , Product Feature already in use.";
+        return response([ 'data' => ['status' => 'error','message' => $err]]);
+      }else{
 
       if($lines != null && sizeof($lines) >= 1){
 
@@ -246,6 +267,18 @@ class ProductFeatureController extends Controller
                     $err = 'Washing Line '.$line_id.' cannot be empty.';
                     return response([ 'data' => ['status' => 'error','message' => $err]]);
 
+              }
+
+            if(isset($lines[$r]['feature_component_id']) == '')
+              {
+                $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data)->first();
+                $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+                if($check_smv_table != null)
+                {
+                  $line_id = $r+1;
+                  $err = "Product Feature already in use Line '.$line_id.'";
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+                }
               }
 
         }
@@ -316,6 +349,8 @@ class ProductFeatureController extends Controller
 
 
       }
+
+    }
 
 
     }
