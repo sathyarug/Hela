@@ -9,9 +9,11 @@
 namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
-use App\Models\Merchandising\productFeature;
+use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductFeatureComponent;
 use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Merchandising\StyleCreation;
+use App\Models\IE\ComponentSMVHeader;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCategoryResource;
 use App\Libraries\AppAuthorize;
@@ -28,7 +30,7 @@ class ProductFeatureController extends Controller
 //        print_r('sss');exit;
         try{
 //            echo json_encode(ProductCategory::all());
-            echo json_encode(productFeature::where('product_feature_description', 'LIKE', '%'.$request->search.'%')
+            echo json_encode(ProductFeature::where('product_feature_description', 'LIKE', '%'.$request->search.'%')
             ->where('status',1)->get());
 //            return ProductCategoryResource::collection(ProductCategory::where('prod_cat_description', 'LIKE', '%'.$request->search.'%')->get() );
         }
@@ -65,6 +67,22 @@ class ProductFeatureController extends Controller
 
               }
 
+              if(isset($lines[$r]['emb']) == '')
+                {
+                  $line_id = $r+1;
+                  $err = 'Emblishment Line '.$line_id.' cannot be empty.';
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                }
+
+              if(isset($lines[$r]['wash']) == '')
+                {
+                    $line_id = $r+1;
+                    $err = 'Washing Line '.$line_id.' cannot be empty.';
+                    return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                }
+
         }
 
         $max_f = DB::table('product_feature')->max('product_feature_id');
@@ -72,8 +90,8 @@ class ProductFeatureController extends Controller
         $a = 1;
         for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
-        if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
-        if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else{ $washing= 0; }
+        if($lines[$x]['emb'] == "YES"){ $emblishment = 1; }else { $emblishment = 0; }
+        if($lines[$x]['wash'] == "YES"){ $washing = 1; }else{ $washing= 0; }
         if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
 
         $silhouette = ProductSilhouette::select('*')
@@ -109,7 +127,7 @@ class ProductFeatureController extends Controller
 
         $separated = implode(" | ", $a);
 
-        $PF = new productFeature();
+        $PF = new ProductFeature();
         $PF ->product_feature_id = $max_f_n;
         $PF ->product_feature_description = strtoupper($separated);
         $PF ->status = 1;
@@ -151,21 +169,77 @@ class ProductFeatureController extends Controller
 
     public function destroy($id)
     {
+      $fe_data = ProductFeatureComponent::select('product_feature_id')->where('feature_component_id','=',$id)->first();
+      $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data['product_feature_id'])->first();
+      //echo $style_id['style_id'];
+      //die();
+
+      $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+      if($check_smv_table != null)
+      {
+        return response([
+          'data'=>[
+            'status'=>'0',
+          ]
+        ]);
+      }else{
+
+
       $pro_f = ProductFeatureComponent::where('feature_component_id', $id)->update(['status' => 0]);
+      $lines = ProductFeatureComponent::select('*')
+      ->where([['status', '=', '1'],['product_feature_id','=',$fe_data['product_feature_id']]])
+      ->get();
+
+      $pfc_list= ProductFeatureComponent::select(DB::raw('Count(product_component.product_component_description) as Count'),'product_component.product_component_description')
+      ->join('product_component','product_feature_component.product_component_id','=','product_component.product_component_id')
+      ->where('product_feature_component.product_feature_id','=',$fe_data['product_feature_id'])
+      ->where('product_feature_component.status' , '<>', 0 )
+      ->groupBy('product_feature_component.product_component_id')
+      ->get();
+
+      $f = '';$a=array();
+      for($y = 0 ; $y < sizeof($pfc_list) ; $y++) {
+        $d = $pfc_list[$y]->Count;
+        $e = $pfc_list[$y]->product_component_description;
+        $f = $d.' '.$e;
+        array_push($a,$f);
+      }
+
+      $separated = implode(" | ", $a);
+
+      //$PF = new productFeature();
+      $PF = ProductFeature::find($fe_data['product_feature_id']);
+      $PF ->product_feature_description = strtoupper($separated);
+      $PF ->count = sizeof($lines);
+      $PF ->save();
+
+
       return response([
         'data' => [
           'message' => 'Product Feature deactivated successfully.',
-          'prod_f' => $pro_f
+          'max_f' => $fe_data['product_feature_id'],
+          'prod_f' => $pro_f,
+          'max_f_d' => strtoupper($separated),
+          'max_f_c' => sizeof($lines).'-PACK'
         ]
       ]);
+
+      }
 
     }
 
     public function update_product_feature(Request $request){
       $lines = $request->lines;
       $fe_data = $request->fe_data;
-      //print_r($lines) ;
-      //die();
+
+      $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data)->first();
+      $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+      if($check_smv_table != null)
+      {
+        
+        $err = "Can't Update , Product Feature already in use.";
+        return response([ 'data' => ['status' => 'error','message' => $err]]);
+      }else{
 
       if($lines != null && sizeof($lines) >= 1){
 
@@ -179,31 +253,62 @@ class ProductFeatureController extends Controller
 
               }
 
+            if(isset($lines[$r]['emb']) == '')
+              {
+                  $line_id = $r+1;
+                  $err = 'Emblishment Line '.$line_id.' cannot be empty.';
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
+            if(isset($lines[$r]['wash']) == '')
+              {
+                    $line_id = $r+1;
+                    $err = 'Washing Line '.$line_id.' cannot be empty.';
+                    return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
+            if(isset($lines[$r]['feature_component_id']) == '')
+              {
+                $style_id = StyleCreation::select('style_id')->where('product_feature_id','=',$fe_data)->first();
+                $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
+                if($check_smv_table != null)
+                {
+                  $line_id = $r+1;
+                  $err = "Product Feature already in use Line '.$line_id.'";
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+                }
+              }
+
         }
 
           for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
-          if(isset($lines[$x]['emb']) == 1){ $emblishment = 1; }else { $emblishment = 0; }
-          if(isset($lines[$x]['wash']) == 1){ $washing = 1; }else { $washing= 0; }
+          if($lines[$x]['emb'] == "YES"){ $emblishment = 1; }else { $emblishment = 0; }
+          if($lines[$x]['wash'] == "YES"){ $washing = 1; }else { $washing= 0; }
           if(isset($lines[$x]['display'])== ''){$dis = '';}else{ $dis = strtoupper($lines[$x]['display']); }
-
-          // if($lines[$x]['product_silhouette_description'] == '')
-          // {
-          //   $line_id = $x+1;
-          //   $err = 'Silhouette Line '.$line_id.' cannot be empty.';
-          //   return response([ 'data' => ['status' => 'error','message' => $err]]);
-          // }
+          if(isset($lines[$x]['feature_component_id']) == '')
+          {
+            $max_id_temp = ProductFeatureComponent::where('product_feature_id','=',$fe_data)->max('line_no');
+            $id = ProductFeatureComponent::insertGetId(['status' => 0, 'line_no' => $max_id_temp+1]);
+            $fc_id = $id;
+          }else{
+            $fc_id = $lines[$x]['feature_component_id'];
+          }
 
           $silhouette = ProductSilhouette::select('*')
           ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
           ->first();
 
-          $PF = ProductFeatureComponent::find($lines[$x]['feature_component_id']);
+          $PF = ProductFeatureComponent::find($fc_id);
+          $PF->product_feature_id= $fe_data;
           $PF->product_silhouette_id = $silhouette->product_silhouette_id;
           $PF->product_component_id = $lines[$x]['pro_com_id'];
           $PF->display_name = $dis;
-          $PF->emblishment = $lines[$x]['emb'];
-          $PF->washing = $lines[$x]['wash'];
+          $PF->emblishment = $emblishment;
+          $PF->washing = $washing;
+          $PF->status = 1;
           $PF->save();
 
           }
@@ -227,7 +332,7 @@ class ProductFeatureController extends Controller
           $separated = implode(" | ", $a);
 
           //$PF = new productFeature();
-          $PF = productFeature::find($fe_data);
+          $PF = ProductFeature::find($fe_data);
           $PF ->product_feature_description = strtoupper($separated);
           $PF ->count = sizeof($lines);
           $PF ->save();
@@ -244,6 +349,8 @@ class ProductFeatureController extends Controller
 
 
       }
+
+    }
 
 
     }
@@ -275,6 +382,31 @@ class ProductFeatureController extends Controller
       return response([ 'count'   => sizeof($subCat), 'subCat'=> $subCat]);
 
     }
+
+  /*  public function delete_feature_temp(Request $request){
+        $fe_data = $request->fe_data;
+
+        $pf = ProductFeatureComponent::select('feature_component_id')
+        ->where('product_silhouette_id','=',null)
+        ->where('product_feature_id','=',$fe_data)
+        ->first();
+        //echo $pf->feature_component_id;
+        //die();
+        //ProductFeatureComponent::where('feature_component_id','=',$pf->feature_component_id)->delete();
+        if($pf != null){
+          return response(['error' => ['status' => 'error',]], 200);
+
+        }else{
+
+          return response([ 'data' => [ 'status' => 'success' ] ] , 200);
+
+
+        }
+
+
+
+
+    }*/
 
 
 

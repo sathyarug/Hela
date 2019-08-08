@@ -60,7 +60,7 @@ class StyleCreation extends BaseValidator {
     //Style Product Feature
     public function productFeature()
     {
-        return $this->belongsToMany('App\Models\Merchandising\productFeature','style_product_feature','style_id','product_feature_id')
+        return $this->belongsToMany('App\Models\Merchandising\ProductFeature','style_product_feature','style_id','product_feature_id')
         ->withPivot('id');
     }
 

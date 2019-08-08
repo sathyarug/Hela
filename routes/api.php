@@ -224,7 +224,6 @@ Route::prefix('ie/')->group(function(){
    Route::post('componentSMVDetails/checkCopyStatus' , 'IE\ComponentSMVController@check_copy_status');
     //Route::apiResource('garment_operations','IE\GarmentOperationMasterController');
 
-
 });
 
 Route::prefix('items/')->group(function(){
@@ -341,6 +340,15 @@ Route::prefix('stores/')->group(function(){
 
 });
 
+Route::prefix('fastreact/')->group(function(){
+
+    Route::apiResource('get-data','Fastreact\FastReactController');
+    Route::post('load_fr_Details','Fastreact\FastReactController@load_fr_Details');
+
+});
+
+
+
 Route::prefix('merchandising/')->group(function(){
 
 //  Route::get('g/validate' , 'Finance\GoodsTypeController@validate_data');
@@ -349,6 +357,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('load_header_stage' , 'Merchandising\CustomerOrderController@load_header_stage');
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
+    Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
+    Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');
@@ -401,6 +411,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
     Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
     Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+
+    Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
 
   //  Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
   //  Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
@@ -507,6 +519,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('product_feature','Merchandising\ProductFeatureController');
     Route::post('update_product_feature','Merchandising\ProductFeatureController@update_product_feature');
     Route::post('save_line_fe', 'Merchandising\ProductFeatureController@save_line_fe');
+    Route::post('delete_feature_temp','Merchandising\ProductFeatureController@delete_feature_temp');
 
 
     Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');

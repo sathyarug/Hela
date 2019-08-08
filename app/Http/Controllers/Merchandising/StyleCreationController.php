@@ -8,12 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
-use App\Models\Merchandising\productFeature;
+use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductSilhouette;
 use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
-use App\Models\Merchandising\BulkCosting;
+use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\ProductComponent;
 use DB;
 
@@ -101,25 +101,19 @@ class StyleCreationController extends Controller
     }
 
     public function saveStyleCreation(Request $request) {
-//        $payload = $request->avatar;
+
         if($request->style_id != null){
 
-          $check_style = BulkCosting::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
+          $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
           if($check_style != null)
           {
-            return response([
-              'data'=>[
-                'status'=>'0',
-              ]
-            ]);
-            }else{
+            return response(['data'=>['status'=>'0',]]);
+          }else{
             $styleCreation = StyleCreation::find($request->style_id);
           }
         }else{
             $styleCreation = new StyleCreation();
         }
-        // echo "hello"; exit;
-
 
         if ($styleCreation->validate($request->all())) {
 
@@ -224,7 +218,7 @@ class StyleCreationController extends Controller
         $style = StyleCreation::with(['productFeature'])->find($id);
 
         $customer = Customer::find($style['customer_id']);
-        $productFeature = productFeature::find($style['product_feature_id']);
+        $productFeature = ProductFeature::find($style['product_feature_id']);
         $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = ProductType::find($style['pack_type_id']);
@@ -284,7 +278,7 @@ class StyleCreationController extends Controller
     //deactivate a style
     public function destroy($id)
     {
-      $check_style = BulkCosting::where([['status', '=', '1'],['style_id','=',$id]])->first();
+      $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$id]])->first();
       if($check_style != null)
       {
         return response([

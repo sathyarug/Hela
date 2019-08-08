@@ -216,7 +216,7 @@ class CostingFinishGoodItemController extends Controller
       }
       //item color
       if($item_data['color_name'] != null && $item_data['color_name'] != ''){
-        $item_data['color_id'] = Color::where('color_name', '=', $item_data['color_name'])->first()->color_id;
+        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_name'])->first()->color_id;
       }
       else{
         $item_data['color_id'] = null;

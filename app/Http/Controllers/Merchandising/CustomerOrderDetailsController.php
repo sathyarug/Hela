@@ -89,6 +89,7 @@ class CustomerOrderDetailsController extends Controller
     public function show($id)
     {
       $detail = CustomerOrderDetails::with(['order_country','order_location'])->find($id);
+      $header = CustomerOrder::find($detail['order_id']);
 
       $colour_type = CustomerOrderDetails::select('merc_color_options.col_opt_id', 'merc_color_options.color_option')
                    ->join('merc_color_options', 'merc_customer_order_details.colour_type', '=', 'merc_color_options.col_opt_id')
@@ -96,6 +97,17 @@ class CustomerOrderDetailsController extends Controller
                    ->get();
 
       $detail['col_type'] = $colour_type;
+
+      $st_colour = Costing::select('org_color.color_id', 'org_color.color_code')
+                   ->join('costing_finish_goods', 'costing.id', '=', 'costing_finish_goods.costing_id')
+                   ->join('org_color', 'costing_finish_goods.combo_color_id', '=', 'org_color.color_id')
+                   ->where('style_id', '=', $header['order_style'])
+                   ->where('bom_stage_id', '=', $header['order_stage'])
+                   ->where('season_id', '=', $header['order_season'])
+                   ->where('color_type_id', '=', $detail['colour_type'])
+                   ->get();
+
+      $detail['style_colour']  = $st_colour;
 
       if($detail == null)
         throw new ModelNotFoundException("Requested order details not found", 1);
@@ -249,6 +261,33 @@ class CustomerOrderDetailsController extends Controller
 
 
     }
+
+
+    public function delete_line(Request $request){
+
+      $details_id   = $request->details_id;
+      $status       = $request->status;
+      $order_id     = $request->order_id;
+
+      if($status == 'PLANNED'){
+        CustomerOrderDetails::where('details_id','=',$details_id)->delete();
+      }
+      else if ($status == 'CANCELED'){
+
+        CustomerOrderDetails::where('details_id', $details_id)
+            ->update(['active_status' => 'INACTIVE']);
+
+      }
+
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Successfully Deleted.'
+        ]
+      ] , 200);
+
+
+  }
 
 
     //validate anything based on requirements
@@ -689,6 +728,31 @@ class CustomerOrderDetailsController extends Controller
           throw new ModelNotFoundException("Requested section not found", 1);
       else
           return response([ 'data' => $arr ]);
+
+    }
+
+    public function change_style_colour(Request $request){
+
+    $style_id  = $request->style_id;
+    $season_id = $request->season_id;
+    $stage_id  = $request->stage_id;
+    $color_t   = $request->color_t;
+
+    $st_colour = Costing::select('org_color.color_id', 'org_color.color_code')
+                 ->join('costing_finish_goods', 'costing.id', '=', 'costing_finish_goods.costing_id')
+                 ->join('org_color', 'costing_finish_goods.combo_color_id', '=', 'org_color.color_id')
+                 ->where('style_id', '=', $style_id)
+                 ->where('bom_stage_id', '=', $stage_id)
+                 ->where('season_id', '=', $season_id)
+                 ->where('color_type_id', '=', $color_t)
+                 ->get();
+
+    $arr['style_colour']  = $st_colour;
+
+    if($arr == null)
+      throw new ModelNotFoundException("Requested section not found", 1);
+    else
+      return response([ 'data' => $arr ]);
 
     }
 
