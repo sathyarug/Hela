@@ -16,7 +16,7 @@ class CustomerOrderDetails extends BaseValidator
     const CREATED_AT='created_date';
 
     protected $fillable=['order_id','style_color','style_description','pcd','rm_in_date','po_no','planned_delivery_date','revised_delivery_date',
-  'fob','country','projection_location','order_qty','excess_presentage','planned_qty','ship_mode','ex_factory_date','ac_date','active_status','colour_type'/*,'delivery_status'*/];
+  'fob','country','projection_location','order_qty','excess_presentage','planned_qty','ship_mode','ex_factory_date','ac_date','active_status','colour_type','cus_style_manual'/*,'delivery_status'*/];
 
     protected $rules=array(
       /*  'order_id'=>'required',
@@ -97,7 +97,7 @@ class CustomerOrderDetails extends BaseValidator
                 ->where('merc_customer_order_details.delivery_status','RELEASED')
                 ->groupBy('org_size.size_id','org_size.size_name')
                 ->get();
-     
+
     }
 
     public function getCustomerColors($orderId){
@@ -111,7 +111,7 @@ class CustomerOrderDetails extends BaseValidator
                 ->groupBy('org_color.color_id','org_color.color_name')
                 ->get();
     }
-    
+
     public function getBothRatios($orderId){
 
         return DB::table('merc_customer_order_details')
