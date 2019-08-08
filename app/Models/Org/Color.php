@@ -13,7 +13,7 @@ class Color extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['color_code','color_name','color_id','pantone_no'];
+    protected $fillable=['color_code','color_name','color_id','color_category','col_quality'];
 
   protected $rules=array(
         'color_code'=>'required',

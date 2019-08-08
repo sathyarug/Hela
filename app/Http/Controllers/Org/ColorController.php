@@ -39,6 +39,17 @@ class ColorController extends Controller
           else if($type == 'colorListing'){
             return response($this->LoadColors());
           }
+          else if($type=='colorCategoryloding'){
+            $active = $request->active;
+            $fields = $request->fields;
+              return response([
+              'data' => $this->loadColorCategory($active , $fields)
+            ]);
+          }
+          else if($type=='colorqulityloding'){
+          $search=$request->id;
+          return response(['data'=>$this->colorqulityLoding($search)]);
+          }
           else {
             $active = $request->active;
             $fields = $request->fields;
@@ -60,6 +71,7 @@ class ColorController extends Controller
         if($color->validate($request->all()))
         {
           $color->fill($request->all());
+
           $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($color);
           $color->status = 1;
           //die();
@@ -90,10 +102,18 @@ class ColorController extends Controller
       if($this->authorize->hasPermission('COLOR_MANAGE'))//check permission
       {
         $color = Color::find($id);
+        $color=Color::join('org_color_quality','org_color.col_quality','=','org_color.col_quality')
+        ->where('org_color.color_id','=',$id)
+        ->select('org_color.*','org_color_quality.*')
+        ->first();
+        $quality=DB::table('org_color_quality')->select('*')->get();
+        $color['quality']=$quality;
+
         if($color == null)
           throw new ModelNotFoundException("Requested color not found", 1);
         else
-          return response([ 'data' => $color ]);
+          return response([ 'data' => $color
+                              ]);
       }
       else {
         return response($this->authorize->error_response(), 401);
@@ -184,15 +204,15 @@ class ColorController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->color_id , $request->color_code,$request->color_name,$request->pantone_no));
+        return response($this->validate_duplicate_code($request->color_id , $request->color_code,$request->color_name,$request->color_category,$request->col_quality));
       }
     }
 
 
     //check Color code already exists
-    private function validate_duplicate_code($id , $code,$colorName,$pantoneNo)
+    private function validate_duplicate_code($id , $code,$colorName,$colorCategory,$colorQuality)
     {
-      $color = Color::where([['color_code','=',$code],['color_name','=',$colorName],['pantone_no','=',$pantoneNo]])->first();
+      $color = Color::where([['color_code','=',$code],['color_name','=',$colorName],['color_category','=',$colorCategory],['col_quality','=',$colorQuality]])->first();
       if($color == null){
         return ['status' => 'success'];
       }
@@ -228,6 +248,30 @@ class ColorController extends Controller
 
     }
 
+
+
+
+    //get filtered fields only(color_catgory)
+    private function loadColorCategory($active = 0 , $fields = null)
+    {
+        $query = null;
+        if($fields == null || $fields == '') {
+          $query = DB::table('org_color_category')
+          ->select('*');
+        }
+        else{
+          $fields = explode(',', $fields);
+          $query = DB::table('org_color_category')
+          ->select($fields);
+          if($active != null && $active != ''){
+            $query->where([['status', '=', $active]]);
+          }
+        }
+        return $query->get();
+
+
+    }
+
     //search Color for autocomplete
     private function autocomplete_search($search)
   	{
@@ -236,7 +280,15 @@ class ColorController extends Controller
   		return $color_lists;
   	}
 
+    private function colorqulityLoding($search){
+      $color_qulity_list=DB::table('org_color_category')
+      ->join('org_color_quality','org_color_category.color_category_id','=','org_color_quality.color_category_id')
+      ->where('org_color_quality.color_category_id','=',$search)
+      ->select('org_color_quality.*')
+      ->get();
+      return $color_qulity_list;
 
+    }
     //get searched Colors for datatable plugin format
     private function datatable_search($data)
     {
@@ -251,15 +303,22 @@ class ColorController extends Controller
           $order_column = $data['columns'][$order['column']]['data'];
           $order_type = $order['dir'];
 
-          $color_list = Color::select('*')
-          ->where('color_code'  , 'like', $search.'%' )
-          ->orWhere('Color_name'  , 'like', $search.'%' )
-          ->orWhere('pantone_no','like',$search.'%')
+          $color_list = Color::join('org_color_category','org_color.color_category','=','org_color_category.color_category_id')
+
+          ->select('org_color.*','org_color_category.color_category')
+          ->where('org_color.color_code'  , 'like', $search.'%' )
+          ->orWhere('org_color.color_name'  , 'like', $search.'%' )
+          ->orWhere('org_color_category.color_category','like',$search.'%')
+          ->orWhere('org_color.col_quality','like',$search.'%')
           ->orderBy($order_column, $order_type)
           ->offset($start)->limit($length)->get();
 
-          $color_count = Color::where('color_code'  , 'like', $search.'%' )
-          ->orWhere('color_name'  , 'like', $search.'%' )
+          $color_count = Color::join('org_color_category','org_color.color_category','=','org_color_category.color_category_id')
+          ->where('org_color.color_code'  , 'like', $search.'%' )
+          ->orWhere('org_color.color_name'  , 'like', $search.'%' )
+          ->orWhere('org_color_category.color_category','like',$search.'%')
+          ->orWhere('org_color_category.color_category','like',$search.'%')
+          ->orWhere('org_color.col_quality','like',$search.'%')
           ->count();
 
           echo json_encode([
@@ -273,11 +332,11 @@ class ColorController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
-    
+
     private function LoadColors(){
         $colorList = Color::all()->where('status','=','1');
-        return $colorList; 
-        
+        return $colorList;
+
     }
 
 }
