@@ -101,25 +101,19 @@ class StyleCreationController extends Controller
     }
 
     public function saveStyleCreation(Request $request) {
-//        $payload = $request->avatar;
+
         if($request->style_id != null){
 
-          $check_style = Costing::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
+          $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
           if($check_style != null)
           {
-            return response([
-              'data'=>[
-                'status'=>'0',
-              ]
-            ]);
-            }else{
+            return response(['data'=>['status'=>'0',]]);
+          }else{
             $styleCreation = StyleCreation::find($request->style_id);
           }
         }else{
             $styleCreation = new StyleCreation();
         }
-        // echo "hello"; exit;
-
 
         if ($styleCreation->validate($request->all())) {
 
@@ -284,7 +278,7 @@ class StyleCreationController extends Controller
     //deactivate a style
     public function destroy($id)
     {
-      $check_style = Costing::where([['status', '=', '1'],['style_id','=',$id]])->first();
+      $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$id]])->first();
       if($check_style != null)
       {
         return response([
