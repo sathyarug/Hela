@@ -143,7 +143,7 @@ class CostingController extends Controller {
                  $finance_charges = $finance_details['finance_cost'];
                  $cpm_front_end = $finance_details['cpmfront_end'];
                  $cpum = $finance_details['cpum'];
-                 $cpm_factory = $cpum * $costing->planned_efficiency;
+                 $cpm_factory = ($cpum / 100) * $costing->planned_efficiency;
               }
 
               $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);//get smv details
@@ -240,7 +240,7 @@ class CostingController extends Controller {
         $costing->upcharge = $request->upcharge;
         $costing->upcharge_reason = $request->upcharge_reason;
 
-        $cpm_factory = $costing->cost_per_utilised_min * $costing->planned_efficiency;
+        $cpm_factory = ($costing->cost_per_utilised_min / 100) * $costing->planned_efficiency;
         $labour_cost = $costing->total_smv * $cpm_factory;
         // no need to update corperate cost. Because it will not change based on user inut data
         $costing->cpm_factory = $cpm_factory;
@@ -890,36 +890,49 @@ ORDER BY item_category.category_id');
 
     public function copy_finish_good(Request $request){
       $fg_id = $request->fg_id;
-      $finish_good = CostingFinishGood::find($fg_id);
-      $finish_good_copy = $finish_good->replicate();
-      $finish_good_copy->pack_no = DB::table('costing_finish_goods')->where('costing_id', '=', $finish_good->costing_id)->max('pack_no') + 1;
-      $finish_good_copy->pack_no_code = 'FG'.str_pad($finish_good_copy->pack_no, 3, '0', STR_PAD_LEFT);
-      $finish_good_copy->save();
-
-      $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
-      for($x = 0 ; $x < sizeof($components) ; $x++){
-        $component_copy = $components[$x]->replicate();
-        $component_copy->fg_id = $finish_good_copy->fg_id;
-        $component_copy->save();
-
-        $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$x]['id'])->get();
-        for($y = 0 ; $y < sizeof($component_items) ; $y++){
-          $component_item_copy = $component_items[$y]->replicate();
-          $component_item_copy->fg_component_id = $component_copy->id;
-          $component_item_copy->save();
-        }
+      //count finish good items
+      $fg_item_count = CostingFinishGoodComponentItem::join('costing_finish_good_components', 'costing_finish_good_components.id', '=', 'costing_finish_good_component_items.fg_component_id')
+      ->where('costing_finish_good_components.fg_id', '=', $fg_id)
+      ->count();
+      if($fg_item_count == null || $fg_item_count <= 0) {
+        return response([
+          'data' => [
+            'status' => 'error',
+            'message' => 'You must add items before copy finish good'
+          ]
+        ]);
       }
+      else {
+        $finish_good = CostingFinishGood::find($fg_id);
+        $finish_good_copy = $finish_good->replicate();
+        $finish_good_copy->pack_no = DB::table('costing_finish_goods')->where('costing_id', '=', $finish_good->costing_id)->max('pack_no') + 1;
+        $finish_good_copy->pack_no_code = 'FG'.str_pad($finish_good_copy->pack_no, 3, '0', STR_PAD_LEFT);
+        $finish_good_copy->save();
 
-      $finish_goods = $this->get_saved_finish_good($finish_good->costing_id);
-      return response([
-        'data' => [
-          'status' => 'success',
-          'message' => 'Finish good copied successfully',
-          'feature_component_count' => sizeof($components),
-          'finish_goods' => $finish_goods
-        ]
-      ]);
+        $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
+        for($x = 0 ; $x < sizeof($components) ; $x++){
+          $component_copy = $components[$x]->replicate();
+          $component_copy->fg_id = $finish_good_copy->fg_id;
+          $component_copy->save();
 
+          $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$x]['id'])->get();
+          for($y = 0 ; $y < sizeof($component_items) ; $y++){
+            $component_item_copy = $component_items[$y]->replicate();
+            $component_item_copy->fg_component_id = $component_copy->id;
+            $component_item_copy->save();
+          }
+        }
+
+        $finish_goods = $this->get_saved_finish_good($finish_good->costing_id);
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Finish good copied successfully',
+            'feature_component_count' => sizeof($components),
+            'finish_goods' => $finish_goods
+          ]
+        ]);
+      }
     }
 
 
@@ -939,44 +952,56 @@ ORDER BY item_category.category_id');
           ]
         ]);
       }
-      else{
-        $costing_copy = $costing->replicate();
-        $costing_copy->bom_stage_id = $bom_stage_id;
-        $costing_copy->season_id = $season_id;
-        $costing_copy->color_type_id;
-        $costing_copy->approval_user = null;
-        $costing_copy->approval_date = null;
-        $costing_copy->approval_sent_date = null;
-        $costing_copy->approval_sent_user = null;
-        $costing_copy->status = 'CREATE';
-        $costing_copy->save();
+      else {
 
-        $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
-        for($x = 0 ; $x < sizeof($finish_goods); $x++){
-          $finish_good_copy = $finish_goods[$x]->replicate();
-          $finish_good_copy->costing_id = $costing_copy->id;
-          $finish_good_copy->save();
+        $new_total_smv = $this->get_total_smv($costing->style_id, $bom_stage_id, $color_type_id);
+        if($new_total_smv <= 0) { //check total smv for new costing, if smv == 0, then send error message
+          return response(['data' => [
+              'status' => 'error',
+              'message' => 'No SMV details avaliable for selected costing combination.'
+            ]
+          ]);
+        }
+        else {
+          $costing_copy = $costing->replicate();
+          $costing_copy->bom_stage_id = $bom_stage_id;
+          $costing_copy->season_id = $season_id;
+          $costing_copy->color_type_id;
+          $costing_copy->approval_user = null;
+          $costing_copy->approval_date = null;
+          $costing_copy->approval_sent_date = null;
+          $costing_copy->approval_sent_user = null;
+          $costing_copy->total_smv = $new_total_smv;
+          $costing_copy->status = 'CREATE';
+          $costing_copy->save();
 
-          $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_goods[$x]->fg_id)->get();
-          for($y = 0 ; $y < sizeof($components) ; $y++){
-            $component_copy = $components[$y]->replicate();
-            $component_copy->fg_id = $finish_good_copy->fg_id;
-            $component_copy->save();
+          $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
+          for($x = 0 ; $x < sizeof($finish_goods); $x++){
+            $finish_good_copy = $finish_goods[$x]->replicate();
+            $finish_good_copy->costing_id = $costing_copy->id;
+            $finish_good_copy->save();
 
-            $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$y]['id'])->get();
-            for($z = 0 ; $z < sizeof($component_items) ; $z++){
-              $component_item_copy = $component_items[$z]->replicate();
-              $component_item_copy->fg_component_id = $component_copy->id;
-              $component_item_copy->save();
+            $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_goods[$x]->fg_id)->get();
+            for($y = 0 ; $y < sizeof($components) ; $y++){
+              $component_copy = $components[$y]->replicate();
+              $component_copy->fg_id = $finish_good_copy->fg_id;
+              $component_copy->save();
+
+              $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$y]['id'])->get();
+              for($z = 0 ; $z < sizeof($component_items) ; $z++){
+                $component_item_copy = $component_items[$z]->replicate();
+                $component_item_copy->fg_component_id = $component_copy->id;
+                $component_item_copy->save();
+              }
             }
           }
+          return response([
+            'data' => [
+              'status' => 'success',
+              'message' => 'Costing copied successfully'
+            ]
+          ]);
         }
-        return response([
-          'data' => [
-            'status' => 'success',
-            'message' => 'Costing coppied successfully'
-          ]
-        ]);
       }
     }
 
