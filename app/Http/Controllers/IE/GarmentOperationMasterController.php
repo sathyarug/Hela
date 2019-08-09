@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\IE\GarmentOperationMaster;
 use Exception;
 use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 
 class GarmentOperationMasterController extends Controller
 {
@@ -54,7 +55,8 @@ class GarmentOperationMasterController extends Controller
 
         return response([ 'data' => [
           'message' => 'Garment Operation Saved successfully',
-          'garmentOperation' => $garmentOperation
+          'garmentOperation' => $garmentOperation,
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -85,13 +87,23 @@ class GarmentOperationMasterController extends Controller
     //deactivate a Service Type
     public function destroy($id)
     {
+      $is_exsits=DB::table('ie_component_smv_details')->where('garment_operation_id','=',$id)->exists();
+      if($is_exsits==true){
+        return response([
+          'data' => [
+            'message' => 'Garment Operation is Already In use.',
+            'status'=>'0'
+          ]
+        ]);
+      }
       $garmentOperation = GarmentOperationMaster::where('garment_operation_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
           'message' => 'Garment Operation was deactivated successfully.',
-          'garmentOperation' => $garmentOperation
+          'garmentOperation' => $garmentOperation,
+          'status'=>'1'
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ]);
     }
 
 

@@ -121,7 +121,7 @@ class SilhouetteController extends Controller
       if($is_exsits_in_style==true){
         return response([
           'data'=>[
-            'message'=>'Product Silhouatte Alaredy in Use.',
+            'message'=>'Product Silhouette Alaredy in Use.',
             'status'=>'0'
           ]
         ]);

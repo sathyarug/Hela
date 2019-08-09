@@ -51,7 +51,7 @@ class SMVUpdateController extends Controller
         $smvupdate->save();
 
         return response([ 'data' => [
-          'message' => 'SMV was saved successfully',
+          'message' => 'SMV saved successfully',
           'smvupdate' => $smvupdate
           ]
         ], Response::HTTP_CREATED );
@@ -68,7 +68,7 @@ class SMVUpdateController extends Controller
     public function show($id)
     {
 
-      $smvupdate = SMVUpdate::with(['customer','silhouette'])->find($id);
+      $smvupdate = SMVUpdate::with(['customer','silhouette','division'])->find($id);
 
       if($smvupdate == null)
         throw new ModelNotFoundException("Requested SMV not found", 1);
@@ -88,7 +88,7 @@ class SMVUpdateController extends Controller
         $smvupdate->save();
 
         return response([ 'data' => [
-          'message' => 'SMV was updated successfully',
+          'message' => 'SMV updated successfully',
           'smvupdate' => $smvupdate
         ]]);
       }
@@ -106,7 +106,7 @@ class SMVUpdateController extends Controller
       $smvupdate = SMVUpdate::where('smv_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'SMV was deactivated successfully.',
+          'message' => 'SMV deactivated successfully.',
           'smvupdate' => $smvupdate
         ]
       ] , Response::HTTP_NO_CONTENT);
@@ -140,7 +140,7 @@ class SMVUpdateController extends Controller
     //
     // }
 
-  
+
 
 
     //check SMVUpdate already exists
@@ -184,6 +184,8 @@ class SMVUpdateController extends Controller
       ->join('product_silhouette', 'smv_update.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
       ->select('smv_update.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description')
       ->where('cust_customer.customer_name'  , 'like', $search.'%' )
+      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      ->orwhere('smv_update.version'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
@@ -191,6 +193,8 @@ class SMVUpdateController extends Controller
       ->join('product_silhouette', 'smv_update.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
       ->select('smv_update.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description')
       ->where('cust_customer.customer_name'  , 'like', $search.'%' )
+      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      ->orwhere('smv_update.version'  , 'like', $search.'%' )
       ->count();
 
       return [

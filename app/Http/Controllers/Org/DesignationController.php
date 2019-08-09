@@ -154,7 +154,7 @@ class DesignationController extends Controller
           'data' => [
             'message' => 'Designation  deactivated successfully.',
             'department' => $designation,
-            'status'=>0
+            'status'=>1
           ]
         ]);
       }

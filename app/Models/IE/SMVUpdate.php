@@ -19,7 +19,10 @@ class SMVUpdate extends BaseValidator
         'division_id'=>'required',
         'product_silhouette_id'=>'required'
     );
-
+    protected $casts = [
+    'min_smv' => 'double',
+    'max_smv'=>'double'
+  ];
     public function __construct() {
         parent::__construct();
     }
@@ -33,4 +36,9 @@ class SMVUpdate extends BaseValidator
 		{
 			 return $this->belongsTo('App\Models\Org\Silhouette' , 'product_silhouette_id')->select(['product_silhouette_id','product_silhouette_description']);
 		}
+    public function division()
+    {
+       return $this->belongsTo('App\Models\Org\Division' , 'division_id')->select(['division_id','division_description']);
+    }
+
 }

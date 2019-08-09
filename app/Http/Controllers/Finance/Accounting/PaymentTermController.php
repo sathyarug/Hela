@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Accounting\PaymentTerm;
 use App\Libraries\AppAuthorize;
+use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 
 class PaymentTermController extends Controller
 {
@@ -51,12 +53,14 @@ class PaymentTermController extends Controller
       {
         $paymentTerm = new PaymentTerm();
         $paymentTerm->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
         $paymentTerm->status = 1;
         $paymentTerm->save();
 
         return response([ 'data' => [
-          'message' => 'Payment term was saved successfully',
-          'PaymentTerm' => $paymentTerm
+          'message' => 'Payment term saved successfully',
+          'PaymentTerm' => $paymentTerm,
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
@@ -87,14 +91,26 @@ class PaymentTermController extends Controller
     {
       if($this->authorize->hasPermission('PAYMENT_TERM_MANAGE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('payemnt_terms',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('payemnt_terms',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([ 'data' => [
+            'message' => 'Payment term Already in Use',
+            'status' => '0',
+          ]]);
+        }
+        else{
         $paymentTerm = PaymentTerm::find($id);
         $paymentTerm->fill( $request->except('payment_code'));
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
         $paymentTerm->save();
 
         return response([ 'data' => [
-          'message' => 'Payment term was updated successfully',
-          'PaymentTerm' => $paymentTerm
+          'message' => 'Payment term updated successfully',
+          'PaymentTerm' => $paymentTerm,
+          'status'=>'1'
         ]]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -106,13 +122,26 @@ class PaymentTermController extends Controller
     {
       if($this->authorize->hasPermission('PAYMENT_TERM_DELETE'))//check permission
       {
+        $is_exsits_in_supplier=DB::table('org_supplier')->where('payemnt_terms',$id)->exists();
+        $is_exsits_in_customer=DB::table('cust_customer')->where('payemnt_terms',$id)->exists();
+        if($is_exsits_in_supplier||$is_exsits_in_customer){
+          return response([
+            'data' => [
+              'message' => 'Payment term Already in Use',
+              'status' => '0'
+            ]
+          ]);
+        }
+        else{
         $paymentTerm = PaymentTerm::where('payment_term_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Payment term was deactivated successfully.',
-            'PaymentTerm' => $paymentTerm
+            'message' => 'Payment term deactivated successfully.',
+            'PaymentTerm' => $paymentTerm,
+            'status'=>'1'
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

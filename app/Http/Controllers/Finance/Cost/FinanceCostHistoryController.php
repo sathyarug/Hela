@@ -160,9 +160,10 @@ class FinanceCostHistoryController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $fin_cost_his_list = FinanceCostHistory::select('*')
+      $fin_cost_his_list = FinanceCostHistory::select( DB::raw("DATE_FORMAT(effective_from, '%d-%b-%Y') 'from_date'"),DB::raw("DATE_FORMAT(effective_to, '%d-%b-%Y')'to_date'"),'fin_cost_id','finance_cost','cpmfront_end','cpum','effective_from','effective_to')
       ->where('finance_cost'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
+      //->orderBy($order_column, $order_type)
+      ->orderBy('created_date','DESC')
       ->offset($start)->limit($length)->get();
 
       $fin_cost_his_count = FinanceCostHistory::where('finance_cost'  , 'like', $search.'%' )

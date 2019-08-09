@@ -244,7 +244,6 @@ class BomController extends Controller
             $customerOrderDetails = new CustomerOrderDetails();
             $result = $customerOrderDetails->getCustomerOrderSizes($request->orderId);
 
-
         }catch( \Exception $ex){
             $result = $ex->getMessage();
         }
@@ -274,17 +273,64 @@ class BomController extends Controller
         echo json_encode($result);
     }
     
+    public function clearMatRatio(Request $request){
+        
+        try{
+            
+            $materialRatio = new MaterialRatio();
+            if(MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->exists()){
+                MaterialRatio::where('bom_id','=',$request->bom_id)
+                            ->where('component_id','=',$request->component_id)
+                            ->where('master_id','=',$request->master_id)                           
+                            ->update(['status'=>'0']);
+            }
+            
+            
+        } catch ( \Exception $ex) {
+
+        }
+    }
+    
     public function saveMaterialRatio(Request $request){
+        
+        try{
+            
+            $materialRatio = new MaterialRatio();
+           // $res = MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->where('color_id','=',$request->color_id)->where('size_id','=',$request->size_id)->exists();
+           
+            
+            if(MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->where('color_id','=',$request->color_id)->where('size_id','=',$request->size_id)->exists()){
+               // $materialRatio->required_qty    = $request->required_qty;  
+                MaterialRatio::where('bom_id','=',$request->bom_id)
+                            ->where('component_id','=',$request->component_id)
+                            ->where('master_id','=',$request->master_id)
+                            ->where('color_id','=',$request->color_id)
+                            ->where('size_id','=',$request->size_id)
+                            ->update(['required_qty'=>$request->required_qty,'status'=>'1']);
+                           
+            }else{
+                
+                $materialRatio->bom_id          = $request->bom_id;
+                $materialRatio->component_id    = $request->component_id;
+                $materialRatio->master_id       = $request->master_id;
+                $materialRatio->color_id        = $request->color_id;
+                $materialRatio->size_id         = $request->size_id;
+                $materialRatio->required_qty    = $request->required_qty;
+                $materialRatio->order_id        = $request->orderid;
+                $materialRatio->status          = '1';
+                $materialRatio->saveOrFail();
+                
+            }
 
-        $materialRatio = new MaterialRatio();
-        $materialRatio->bom_id          = $request->bom_id;
-        $materialRatio->component_id    = $request->component_id;
-        $materialRatio->master_id       = $request->master_id;
-        $materialRatio->color_id        = $request->color_id;
-        $materialRatio->size_id         = $request->size_id;
-        $materialRatio->required_qty    = $request->required_qty;
+            
+            
+            $result = "Ratio Saved";
+            
+        } catch ( \Exception $ex) {
+            $result = $ex->getMessage();
+        }
 
-        $materialRatio->saveOrFail();
+        echo json_encode($result);
     }
     
     public function getColorCombo(Request $request){
@@ -308,7 +354,17 @@ class BomController extends Controller
         }catch( \Exception $ex){
             $resultMaterialRatio = $ex->getMessage();
         }
-        echo json_encode($resultMaterialRatio);
+        echo json_encode($resultMaterialRatio);        
+    }
+    
+    public function getAssignSalesOrder(Request $request){
+        try{
+            $SOAllocation = BOMSOAllocation::select("order_id")->where("bom_id",$request->bomId)->get();            
+
+        }catch( \Exception $ex){
+            $SOAllocation = $ex->getMessage();
+        }
+        echo json_encode($SOAllocation);
         
     }
 }

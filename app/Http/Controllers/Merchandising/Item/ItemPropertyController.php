@@ -369,7 +369,4 @@ class ItemPropertyController extends Controller
     }
 
 
-
-    }
-
 }

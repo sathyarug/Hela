@@ -11,6 +11,7 @@ use App\Models\Org\Department;
 use App\Libraries\AppAuthorize;
 use Exception;
 use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 class DepartmentController extends Controller
 {
     var $authorize = null;
@@ -59,7 +60,8 @@ class DepartmentController extends Controller
 
           return response([ 'data' => [
             'message' => 'Department saved successfully',
-            'department' => $department
+            'department' => $department,
+            'status'=>'1'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -102,14 +104,24 @@ class DepartmentController extends Controller
         $department = Department::find($id);
         if($department->validate($request->all()))
         {
+          $is_exsits=DB::table('usr_profile')->where('dept_id',$id)->exists();
+          if($is_exsits){
+            return response([ 'data' => [
+              'message' => 'Department Already in Use',
+              'status' => '0'
+            ]]);
+          }
+          else {
           $department->fill($request->except('dep_code'));
           $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
           $department->save();
 
           return response([ 'data' => [
             'message' => 'Department updated successfully',
-            'department' => $department
+            'department' => $department,
+            'status'=>'1'
           ]]);
+        }
         }
         else
         {
@@ -128,13 +140,22 @@ class DepartmentController extends Controller
     {
       if($this->authorize->hasPermission('DEPARTMENT_DELETE'))//check permission
       {
+        $is_exsits=DB::table('usr_profile')->where('dept_id',$id)->exists();
+        if($is_exsits){
+          return response([ 'data' => [
+            'message' => 'Department Already in Use',
+            'status' => '0'
+          ]]);
+        }
+        else{
         $department = Department::where('dep_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
             'message' => 'Department was deactivated successfully.',
             'department' => $department
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ]);
+      }
       }
       else {
         return response($this->authorize->error_response(), 401);
@@ -182,6 +203,8 @@ class DepartmentController extends Controller
           $query->where([['status', '=', $active]]);
         }
       }
+      $query = Department::select('*')
+      ->where('status','=',1);
       return $query->get();
     }
 
