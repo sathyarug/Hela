@@ -150,7 +150,8 @@ class FastReactController extends Controller
     INNER JOIN product_component ON ie_component_smv_details.product_component_id = product_component.product_component_id
 
     GROUP BY
-    ie_component_smv_details.product_silhouette_id
+    ie_component_smv_details.product_silhouette_id,
+    ie_component_smv_details.smv_component_header_id
     ");
 
 
