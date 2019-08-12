@@ -156,7 +156,7 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select('store_grn_header.grn_number', 'store_grn_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select('store_grn_header.grn_id', 'store_grn_header.grn_number', 'store_grn_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('merc_po_order_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('org_substore', 'store_grn_header.sub_store', '=', 'org_substore.substore_id')
