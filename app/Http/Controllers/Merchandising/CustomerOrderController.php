@@ -67,24 +67,44 @@ class CustomerOrderController extends Controller
     //create a customer
     public function store(Request $request)
     {
-      $order = new CustomerOrder();
-      if($order->validate($request->all()))
-      {
-        $order->fill($request->except(['order_status']));
-        $order->order_status = 'PLANNED';
-        $order->save();
 
-        return response([ 'data' => [
-          'message' => 'Customer order saved successfully',
-          'customerOrder' => $order
-          ]
-        ], Response::HTTP_CREATED );
+      $style = $request->order_style;
+      $season = $request->order_season;
+      $stage = $request->order_stage;
+
+      $check_stage = CustomerOrder::select(DB::raw('count(*) as po_count'))
+                     ->where('order_style', '=', $style)
+                     ->where('order_stage', '=', $stage)
+                     ->where('order_season', '=', $season)
+                     ->where('order_status', '=', 'PLANNED')
+                     ->get();
+      if($check_stage[0]['po_count'] >=1 ){
+
+        return response([ 'data' => ['status' => 'error','message' => '( Style -> Season -> Stage ) already exists !']]);
+
+      }else{
+
+        $order = new CustomerOrder();
+        if($order->validate($request->all()))
+        {
+          $order->fill($request->except(['order_status']));
+          $order->order_status = 'PLANNED';
+          $order->save();
+
+          return response([ 'data' => [
+            'message' => 'Customer order saved successfully',
+            'customerOrder' => $order
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+            $errors = $order->errors();// failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
       }
-      else
-      {
-          $errors = $order->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
+
     }
 
 
@@ -106,7 +126,7 @@ class CustomerOrderController extends Controller
                    //->join('costing', 'merc_customer_order_header.order_style', '=', 'costing.style_id')
                    ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
                    ->where('merc_customer_order_header.order_id', '=', $id)
-                   
+
                    ->get();
 
       $customerOrder['bom_stage1']  = $bom_stage;
