@@ -453,6 +453,8 @@ class CustomerOrderDetailsController extends Controller
         $merge_planned_qty = 0;
         $merged_lines = [];
         $merged_ids = [];
+        $deli_st = [];
+        $deli_check = null;
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
           $delivery = CustomerOrderDetails::find($lines[$x]);
@@ -460,10 +462,18 @@ class CustomerOrderDetailsController extends Controller
           $merge_planned_qty += $delivery['planned_qty'];
           array_push($merged_lines , $delivery->line_no);
           array_push($merged_ids , $delivery->details_id);
+          array_push($deli_st , $delivery->delivery_status);
         }
 
         $first = CustomerOrderDetails::find($lines[0]);
         $delivery_new = new CustomerOrderDetails();
+
+        for($x = 0 ; $x < sizeof($deli_st) ; $x++)
+        {
+          if($deli_check != null  &&  $deli_check != $deli_st[$x])
+            { $new_deli_status = 'CONNECTED'; }else{$new_deli_status=$first['delivery_status'];}
+              $deli_check = $deli_st[$x];
+        }
 
         $delivery_new->order_id = $first['order_id'];
         $delivery_new->style_color = $first['style_color'];
@@ -476,7 +486,7 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->country = $first['country'];
         $delivery_new->excess_presentage = $first['excess_presentage'];
         $delivery_new->ship_mode = $first['ship_mode'];
-        $delivery_new->delivery_status = $first['delivery_status'];
+        $delivery_new->delivery_status = $new_deli_status;
         $delivery_new->order_qty = $merge_order_qty;
         $delivery_new->planned_qty = $merge_planned_qty;
         $delivery_new->line_no = $this->get_next_line_no($first->order_id);

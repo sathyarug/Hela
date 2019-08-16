@@ -111,6 +111,8 @@ class LocationController extends Controller
     //update a Location
     public function update(Request $request, $id)
     {
+    //  dd($request);
+
       if($this->authorize->hasPermission('LOC_MANAGE'))//check permission
       {
         $location = Location::find($id);
@@ -128,6 +130,7 @@ class LocationController extends Controller
 
           $location->fill($request->except('loc_code'));
           $location->loc_name = strtoupper($location->loc_name);
+          $location->opr_start_date=date("Y-m-d", strtotime($request->opr_start_date) );
           $location->save();
 
           DB::table('org_location_cost_centers')->where('loc_id', '=', $id)->delete();
