@@ -58,6 +58,9 @@ class LocationController extends Controller
         {
           $location->fill($request->all());
           $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
+          $location->loc_email=$request->loc_email;
+          $location->loc_web=$request->loc_web;
+          $location->loc_google=$request->loc_google;
   				$location->status = 1;
   				$location->created_by = 1;
   				$result = $location->saveOrFail();
