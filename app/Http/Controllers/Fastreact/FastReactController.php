@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\IE\ComponentSMVHeader;
 use App\Models\IE\ComponentSMVDetails;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\FrCsvDownload;
 use DB;
 
 
@@ -56,6 +58,7 @@ class FastReactController extends Controller
       ];
 
     }
+
 
 
 
@@ -165,6 +168,15 @@ class FastReactController extends Controller
        ], Response::HTTP_CREATED );
 
   	}
+
+
+    public function export_csv(Request $request)
+    {
+
+      return (new FrCsvDownload)->download('PRODUCTS.CSV', \Maatwebsite\Excel\Excel::CSV,
+      ['Content-Type' => 'text/csv']);
+
+    }
 
 
 
