@@ -92,7 +92,7 @@ class CustomerOrderController extends Controller
           $order->save();
 
           return response([ 'data' => [
-            'message' => 'Customer order saved successfully',
+            'message' => 'Sales order saved successfully',
             'customerOrder' => $order
             ]
           ], Response::HTTP_CREATED );
