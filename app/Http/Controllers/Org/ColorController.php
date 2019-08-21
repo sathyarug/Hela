@@ -273,11 +273,11 @@ class ColorController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
-    
+
     private function LoadColors(){
-        $colorList = Color::all()->where('status','=','1');
-        return $colorList; 
-        
+        $colorList = Color::where('status','=','1')->get();
+        return $colorList;
+
     }
 
 }

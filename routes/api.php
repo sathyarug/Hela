@@ -406,6 +406,7 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
     Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
+    Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
@@ -473,25 +474,28 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
 
-    Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
-    Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
-    Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
+    //Route::get('bom/custorders','Merchandising\BomController@getCustOrders');
+    //Route::get('bom/custorderQty','Merchandising\BomController@getCustomerOrderQty');
+    //Route::get('bom/assigncustorders','Merchandising\BomController@getAssignCustOrders');
 
-    Route::get('bom/rmdetails','Merchandising\BomController@getCostingRMDetails');
-    Route::get('bom/bomlist','Merchandising\BomController@ListBOMS');
-    Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
-    Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
-    Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
-    Route::get('bom/colorwise','Merchandising\BomController@getColorWiseDetails');
-    Route::get('bom/both','Merchandising\BomController@getBothRatios');
-    Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
-    Route::get('bom/getratio','Merchandising\BomController@getMatRatio');
-    Route::get('bom/getsalesorder','Merchandising\BomController@getAssignSalesOrder');
+    //Route::get('bom/rmdetails','Merchandising\BomController@getCostingRMDetails');
+    //Route::get('bom/bomlist','Merchandising\BomController@ListBOMS');
+    //Route::get('bom/bominfolisting','Merchandising\BomController@getBOMDetails');
+    //Route::get('bom/bomorderqty','Merchandising\BomController@getBOMOrderQty');
+    //Route::get('bom/sizewise','Merchandising\BomController@getSizeWiseDetails');
+    //Route::get('bom/colorwise','Merchandising\BomController@getColorWiseDetails');
+    //Route::get('bom/both','Merchandising\BomController@getBothRatios');
+    //Route::get('bom/colorcombolist','Merchandising\BomController@getColorCombo');
+    //Route::get('bom/getratio','Merchandising\BomController@getMatRatio');
+    //Route::get('bom/getsalesorder','Merchandising\BomController@getAssignSalesOrder');
 
-    Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
-    Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
-    Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
-    Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
+  //  Route::post('bom/savebomheader','Merchandising\BomController@saveBOMHeader');
+  //  Route::post('bom/savebomdetail','Merchandising\BomController@saveBOMDetails');
+  //  Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
+  //  Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
+
+    Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::apiResource('items','Merchandising\Item\ItemController');
@@ -522,7 +526,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('delete_feature_temp','Merchandising\ProductFeatureController@delete_feature_temp');
 
 
-    Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
+    //Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
 
 
 });

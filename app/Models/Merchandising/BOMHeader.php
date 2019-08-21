@@ -7,27 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 class BOMHeader extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
+
     protected $table = 'bom_header';
-
-    /**
-    * The database primary key value.
-    *
-    * @var string
-    */
     protected $primaryKey = 'bom_id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-
-    public $timestamps = false;
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
 
     protected $fillable = ['bom_id', 'costing_id'];
 
@@ -40,15 +24,15 @@ class BOMHeader extends Model
               ->where('delivery_status','RELEASED')->get();
 
     }
-    
+
     public function getColorCombpoByCosting($costingId){
-        
+
         return DB::table('costing_bulk_feature_details')
                 ->join('org_color','org_color.color_id','=','costing_bulk_feature_details.combo_color')
                 ->select('org_color.color_id','org_color.color_name')
                 ->where('costing_bulk_feature_details.bulkheader_id',$costingId)
                 ->groupBy('org_color.color_id','org_color.color_name')
                 ->get();
-        
+
     }
 }
