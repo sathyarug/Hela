@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\IE\ComponentSMVHeader;
 use App\Models\IE\ComponentSMVDetails;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\FrCsvDownload;
 use DB;
 
 
@@ -56,6 +58,7 @@ class FastReactController extends Controller
       ];
 
     }
+
 
 
 
@@ -150,7 +153,8 @@ class FastReactController extends Controller
     INNER JOIN product_component ON ie_component_smv_details.product_component_id = product_component.product_component_id
 
     GROUP BY
-    ie_component_smv_details.product_silhouette_id
+    ie_component_smv_details.product_silhouette_id,
+    ie_component_smv_details.smv_component_header_id
     ");
 
 
@@ -164,6 +168,15 @@ class FastReactController extends Controller
        ], Response::HTTP_CREATED );
 
   	}
+
+
+    public function export_csv(Request $request)
+    {
+
+      return (new FrCsvDownload)->download('PRODUCTS.CSV', \Maatwebsite\Excel\Excel::CSV,
+      ['Content-Type' => 'text/csv']);
+
+    }
 
 
 

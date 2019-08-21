@@ -59,6 +59,15 @@ class ProductFeatureController extends Controller
 
         for($r = 0 ; $r < sizeof($lines) ; $r++)
         {
+
+            if(isset($lines[$r]['assign']) == '')
+              {
+                $line_id = $r+1;
+                $err = 'Product Feature Line '.$line_id.' cannot be empty.';
+                return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
             if(isset($lines[$r]['product_silhouette_description']) == '')
               {
                 $line_id = $r+1;
@@ -236,7 +245,7 @@ class ProductFeatureController extends Controller
       $check_smv_table = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$style_id['style_id']]])->first();
       if($check_smv_table != null)
       {
-        
+
         $err = "Can't Update , Product Feature already in use.";
         return response([ 'data' => ['status' => 'error','message' => $err]]);
       }else{
@@ -245,6 +254,14 @@ class ProductFeatureController extends Controller
 
         for($r = 0 ; $r < sizeof($lines) ; $r++)
         {
+            if(isset($lines[$r]['assign']) == '')
+              {
+                $line_id = $r+1;
+                $err = 'Product Feature Line '.$line_id.' cannot be empty.';
+                return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+              }
+
             if(isset($lines[$r]['product_silhouette_description']) == '')
               {
                 $line_id = $r+1;

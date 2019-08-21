@@ -217,7 +217,7 @@ class CustomerOrderDetailsController extends Controller
         $order_details_new->excess_presentage = $order_details->excess_presentage;
         $order_details_new->planned_qty = $order_details->planned_qty;
         $order_details_new->ship_mode = $order_details->ship_mode;
-        $order_details_new->delivery_status = $order_details->delivery_status;
+        $order_details_new->delivery_status = 'PLANNED';
         $order_details_new->type_created = 'CREATE';
         $order_details_new->ex_factory_date = $order_details->ex_factory_date;
         $order_details_new->ac_date = $order_details->ac_date;
@@ -270,7 +270,20 @@ class CustomerOrderDetailsController extends Controller
       $order_id     = $request->order_id;
 
       if($status == 'PLANNED'){
-        CustomerOrderDetails::where('details_id','=',$details_id)->delete();
+        $line = CustomerOrderDetails::find($details_id);
+        if($line['delivery_status'] == 'PLANNED'){
+          $updateDetails = ['active_status' => 'INACTIVE','delivery_status' => 'CANCELED'];
+          CustomerOrderDetails::where('details_id', $details_id)->update($updateDetails);
+        }else{
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => "This line alredy connected with costing."
+            ]
+          ] , 200);
+        }
+
+
       }
       else if ($status == 'CANCELED'){
 
@@ -374,6 +387,8 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->ex_factory_date = $delivery['ex_factory_date'];
         $delivery_new->ac_date = $delivery['ac_date'];
         $delivery_new->active_status = 'ACTIVE';
+        $delivery_new->costing_id = $delivery['costing_id'];
+        $delivery_new->fg_id = $delivery['fg_id'];
         $delivery_new->save();
 
         array_push($new_delivery_ids , $delivery_new->details_id);
@@ -415,7 +430,7 @@ class CustomerOrderDetailsController extends Controller
 
       $new_delivery_ids_str = json_encode($new_delivery_ids);
       $delivery->split_lines = $new_delivery_ids_str;
-      $delivery->delivery_status = 'CANCEL';
+      $delivery->delivery_status = 'CANCELED';
       $delivery->type_modified = 'SPLIT';
       $delivery->active_status = 'INACTIVE';
       $delivery->save();
@@ -438,6 +453,8 @@ class CustomerOrderDetailsController extends Controller
         $merge_planned_qty = 0;
         $merged_lines = [];
         $merged_ids = [];
+        $deli_st = [];
+        $deli_check = null;
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
           $delivery = CustomerOrderDetails::find($lines[$x]);
@@ -445,10 +462,18 @@ class CustomerOrderDetailsController extends Controller
           $merge_planned_qty += $delivery['planned_qty'];
           array_push($merged_lines , $delivery->line_no);
           array_push($merged_ids , $delivery->details_id);
+          array_push($deli_st , $delivery->delivery_status);
         }
 
         $first = CustomerOrderDetails::find($lines[0]);
         $delivery_new = new CustomerOrderDetails();
+
+        for($x = 0 ; $x < sizeof($deli_st) ; $x++)
+        {
+          if($deli_check != null  &&  $deli_check != $deli_st[$x])
+            { $new_deli_status = 'CONNECTED'; }else{$new_deli_status=$first['delivery_status'];}
+              $deli_check = $deli_st[$x];
+        }
 
         $delivery_new->order_id = $first['order_id'];
         $delivery_new->style_color = $first['style_color'];
@@ -461,7 +486,7 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->country = $first['country'];
         $delivery_new->excess_presentage = $first['excess_presentage'];
         $delivery_new->ship_mode = $first['ship_mode'];
-        $delivery_new->delivery_status = $first['delivery_status'];
+        $delivery_new->delivery_status = $new_deli_status;
         $delivery_new->order_qty = $merge_order_qty;
         $delivery_new->planned_qty = $merge_planned_qty;
         $delivery_new->line_no = $this->get_next_line_no($first->order_id);
@@ -472,12 +497,14 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->ex_factory_date = $delivery['ex_factory_date'];
         $delivery_new->ac_date = $delivery['ac_date'];
         $delivery_new->active_status = 'ACTIVE';
+        $delivery_new->costing_id = $delivery['costing_id'];
+        $delivery_new->fg_id = $delivery['fg_id'];
         $delivery_new->save();
 
         //$new_sizes = [];
         for($x = 0 ; $x < sizeof($lines) ; $x++){
           $delivery = CustomerOrderDetails::find($lines[$x]);
-          $delivery->delivery_status = 'CANCEL';
+          $delivery->delivery_status = 'CANCELED';
           $delivery->type_modified = 'MERGE';
           //$delivery->active_status = 'INACTIVE';
           $delivery->merge_generated_line_id = $delivery_new->details_id;
@@ -624,17 +651,26 @@ class CustomerOrderDetailsController extends Controller
           });
       })
       ->get();*/
-      $order_details = DB::select('select a.*,(a.order_qty * a.fob) as total_value,org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
-       from merc_customer_order_details a
+      $order_details = DB::select("select DATE_FORMAT(a.ac_date, '%d-%b-%Y') as ac_date_01,
+      DATE_FORMAT(a.rm_in_date, '%d-%b-%Y') as rm_in_date_01,
+      DATE_FORMAT(a.planned_delivery_date, '%d-%b-%Y') as planned_delivery_date_01,
+      DATE_FORMAT(a.ex_factory_date, '%d-%b-%Y') as ex_factory_date_01,
+      DATE_FORMAT(a.pcd, '%d-%b-%Y') as pcd_01,
+       a.*,(a.order_qty * a.fob) as total_value,
+      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
+      from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
       inner join org_color on a.style_color = org_color.color_id
       where
       a.order_id = ? and
-      a.delivery_status != ? and
-      a.version_no = (select MAX(b.version_no) from merc_customer_order_details b where b.order_id = a.order_id and a.line_no=b.line_no)
-      order by a.line_no',
-      [$order_id , 'CANCEL']);
+      #a.delivery_status != ? and
+      a.type_modified is null and
+      a.version_no = (select MAX(b.version_no)
+      from merc_customer_order_details b where b.order_id = a.order_id and a.line_no=b.line_no)
+
+      order by a.active_status ASC,a.line_no ASC",
+      [$order_id , 'CONNECTED']);
       return $order_details;
     }
 
@@ -692,7 +728,7 @@ class CustomerOrderDetailsController extends Controller
       $deliveries = CustomerOrderDetails::join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
       ->join('org_location', 'org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
       ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
-      ->select('merc_customer_order_details.*','org_country.country_description','org_location.loc_name','org_color.color_code','org_color.color_name')
+      ->select(DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date_01'"),'merc_customer_order_details.*','org_country.country_description','org_location.loc_name','org_color.color_code','org_color.color_name')
       ->where('merc_customer_order_details.details_id', '=', $details_id)
       ->first();
       return $deliveries;
@@ -748,6 +784,15 @@ class CustomerOrderDetailsController extends Controller
                  ->get();
 
     $arr['style_colour']  = $st_colour;
+
+    $fob = Costing::select('fob')
+    ->where('style_id', '=', $style_id)
+    ->where('bom_stage_id', '=', $stage_id)
+    ->where('season_id', '=', $season_id)
+    ->where('color_type_id', '=', $color_t)
+    ->get();
+
+    $arr['fob']  = $fob;
 
     if($arr == null)
       throw new ModelNotFoundException("Requested section not found", 1);
