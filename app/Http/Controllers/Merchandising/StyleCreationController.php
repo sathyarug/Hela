@@ -82,12 +82,14 @@ class StyleCreationController extends Controller
       $cluster_list = StyleCreation::select('*')
       ->where('style_no','like',$search.'%')
       ->orWhere('style_description'  , 'like', $search.'%' )
+      ->orWhere('remark_style'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $cluster_count = StyleCreation::select('*')
       ->where('style_no','like',$search.'%')
       ->orWhere('style_description'  , 'like', $search.'%' )
+      ->orWhere('remark_style'  , 'like', $search.'%' )
       ->count();
 
       return [
@@ -102,6 +104,7 @@ class StyleCreationController extends Controller
 
     public function saveStyleCreation(Request $request) {
 
+      
         if($request->style_id != null){
 
           $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
@@ -137,17 +140,7 @@ class StyleCreationController extends Controller
             if($request->avatarHidden !=null){
                 $this->saveImage($request->avatar['value'],$styleCreation->style_id);
             }
-            //$insertedId = $styleCreation->style_id;
 
-            //DB::table('style_product_feature')->where('style_id', '=', $insertedId)->delete();
-    				//$product_features = $request->get('ProductFeature');
-    				//$save_product_features = array();
-    				//if($product_features != '') {
-    		  	//	foreach($product_features as $product_feature)		{
-    				//		array_push($save_product_features,productFeature::find($product_feature['product_feature_id']));
-    				//	}
-    				//}
-    				//$styleCreation->productFeature()->saveMany($save_product_features);
 
           if($request->style_id != null)
           {
