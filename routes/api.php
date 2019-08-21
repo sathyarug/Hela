@@ -299,6 +299,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::post('grn/filterData','Store\GrnController@fiterData');
   //sub store bin validate
   Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
   Route::apiResource('substore','Store\StoreBinController');
@@ -344,6 +345,7 @@ Route::prefix('fastreact/')->group(function(){
 
     Route::apiResource('get-data','Fastreact\FastReactController');
     Route::post('load_fr_Details','Fastreact\FastReactController@load_fr_Details');
+    Route::get('export_csv' , 'Fastreact\FastReactController@export_csv');
 
 });
 
@@ -359,6 +361,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
+    Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
     Route::post('customer-order-details/merge','Merchandising\CustomerOrderDetailsController@merge');

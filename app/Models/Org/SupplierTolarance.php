@@ -7,7 +7,7 @@ use App\BaseValidator;
 
 class SupplierTolarance extends BaseValidator
 {
-    protected $table = 'org_supplier_tolerance';
+    protected $table = 'org_supplier_tolarance';
     protected $primaryKey = 'id';
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';

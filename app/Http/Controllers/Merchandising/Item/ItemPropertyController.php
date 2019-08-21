@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 use App\Models\Merchandising\Item\ItemProperty;
+use App\Models\Merchandising\Item\Item;
 use App\Models\Merchandising\Item\PropertyValueAssign;
 use App\Models\Merchandising\Item\Category;
 use App\Models\Merchandising\Item\SubCategory;
@@ -270,7 +271,7 @@ class ItemPropertyController extends Controller
       }
 
       return response([ 'data' => [
-        'message' => 'Assign Property updated successfully',
+        'message' => 'Item Property assigned successfully',
         'proid' => $List[0]['subcategory_id']
       ]]);
 
@@ -323,20 +324,36 @@ class ItemPropertyController extends Controller
 
     public function remove_assign(Request $request){
 
+
+
         $List = $request->Assign;
         $proid = $request->proid;
         $formData = $request->formData;
+        $check_ = Item::select(DB::raw('count(*) as sub_count'))
+                     ->where('subcategory_id', '=', $formData['sub_category_code'])
+                     ->where('status', '<>', 0)
+                     ->get();
+        if($check_[0]['sub_count'] >=1 ){
 
-        DB::table('item_property_assign')
+        return response([ 'data' => ['status' => 'error','message' => 'Sub Category already exists !']]);
+
+        }else{
+
+          DB::table('item_property_assign')
             ->where('subcategory_id', $formData['sub_category_code'])
             ->where('property_id', $proid)
             ->update(['status' => 0]);
 
-        return response([ 'data' => [
+          return response([ 'data' => [
           'message' => 'Property Deleted successfully',
           'proid' => $formData['sub_category_code']
           ]
         ]);
+
+      }
+
+
+
     }
 
 

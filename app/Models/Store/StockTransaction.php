@@ -18,7 +18,7 @@ class StockTransaction extends Model
     const CREATED_AT='created_date';
     const UPDATED_AT = null;
 
-    protected $fillable=['doc_num','doc_type','combine_id', 'item_code', 'so','main_store', 'sub_store', 'location', 'bin', 'size', 'color','qty', 'uom', 'status'];
+    protected $fillable=['doc_num','doc_type','combine_id', 'item_code','customer_po_id' ,'so','main_store', 'sub_store', 'location', 'bin', 'size', 'color','qty', 'uom', 'status'];
 
     protected $rules=array(
         ////'color_code'=>'required',

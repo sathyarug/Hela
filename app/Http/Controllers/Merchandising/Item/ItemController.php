@@ -131,9 +131,9 @@ class ItemController extends Controller
     //search itemmaster for autocomplete
     private function autocomplete_search($search)
   	{
-  		/*$master_lists = itemCreation::select('master_id','master_description')
+  		$master_lists = Item::select('master_id','master_description')
   		->where([['master_description', 'like', '%' . $search . '%'],]) ->get();
-  		return $master_lists;*/
+  		return $master_lists;
   	}
 
     public function validate_data(Request $request){

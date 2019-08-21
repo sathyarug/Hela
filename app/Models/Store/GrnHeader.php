@@ -20,7 +20,7 @@ class GrnHeader extends Model
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['grn_number','po_number', 'inv_number', 'sup_code', 'note'];
+    protected $fillable=['grn_number','po_number', 'inv_number', 'sup_id', 'note'];
 
     protected $rules=array(
         ////'color_code'=>'required',
