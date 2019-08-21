@@ -17,13 +17,13 @@ use App\Models\Store\GrnHeader;
 use App\Models\Store\GrnDetail;
 use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\PoOrderDetails;
-
+use Illuminate\Support\Facades\DB;
 
 class GrnController extends Controller
 {
     public function grnDetails() {
         return view('grn.grn_details');
-        
+
     }
 
     public function index(Request $request){
@@ -34,6 +34,7 @@ class GrnController extends Controller
             $data = $request->all();
             return response($this->datatable_search($data));
         }
+
     }
 
     public function store(Request $request){
@@ -42,10 +43,13 @@ class GrnController extends Controller
          if(empty($request['grn_id'])) {
 
                  //Update GRN Header
-                 $header = new GrnHeader;
-                 $unId = UniqueIdGenerator::generateUniqueId('GRN', auth()->payload()['loc_id']);
+                  $header = new GrnHeader;
+                  $locId=auth()->payload()['loc_id'];
+                  $unId = UniqueIdGenerator::generateUniqueId('GRN', auth()->payload()['loc_id']);
+
+
                  $header->grn_number = $unId;
-                 $header->po_number = $request['po_no']['po_id'];
+                 $header->po_number = $request->header['po_id'];
 
             }else{
                  $header = GrnHeader::find($request['grn_id']);
@@ -55,48 +59,55 @@ class GrnController extends Controller
                  GrnDetail::where('grn_id', $request['grn_id'])->delete();
             }
             //Get Main store
-            $store = SubStore::find($request['sub_store']['substore_id']);
+            $store = SubStore::find($request->header['substore_id']);
 
-            $header->batch_no = $request['batch_no'];
-            $header->inv_number = $request['invoice_no'];
-            $header->note = $request['note'];
+            $header->batch_no = $request->header['batch_no'];
+            $header->inv_number = $request->header['invoice_no'];
+            $header->note = $request->header['note'];
             $header->location = auth()->payload()['loc_id'];
             $header->main_store = $store->store_id;
             $header->sub_store = $store->substore_id;
+            $header->sup_id=$request->header['sup_id'];
             $header->created_by = auth()->payload()['user_id'];
 
             $header->save();
 
              $i = 1;
 
-             $valTol = $this->validateSupplierTolerance($request['grn_lines'], $request->sup_id);
+             //$valTol = $this->validateSupplierTolerance($request['dataset'], $request->header['sup_id']);
 
-             foreach ($request['grn_lines'] as $rec){
+             //for tempary
+             $valTol=true;
+             foreach ($request['dataset'] as $rec){
 
                  if($valTol) {
 
-                     $poDetails = PoOrderDetails::find($rec['po_line_id']);
+                     $poDetails = PoOrderDetails::find($rec['id']);
 
                      $grnDetails = new GrnDetail;
+
                      $grnDetails->grn_id = $header->grn_id;
+                     $grnDetails->po_number=$request->header['po_id'];
                      $grnDetails->grn_line_no = $i;
                      $grnDetails->style_id = $poDetails->style;
+                     $grnDetails->po_details_id=$rec['id'];
                      $grnDetails->combine_id = $poDetails->comb_id;
                      $grnDetails->color = $poDetails->colour;
                      $grnDetails->size = $poDetails->size;
                      $grnDetails->uom = $poDetails->uom;
                      $grnDetails->po_qty = (double)$poDetails->tot_qty;
                      $grnDetails->grn_qty = (double)$rec['qty'];
-                     $grnDetails->bal_qty = (double)$poDetails->tot_qty - (double)$rec['qty'];
+                     $grnDetails->bal_qty =(double)$rec['bal_qty'];
+                     //$grnDetails->bal_qty = (double)$poDetails->tot_qty - (double)$rec['qty'];
                      $grnDetails->item_code = $poDetails->item_code;
 
                      $grnDetails->save();
 
                      $i++;
-
+                     //dd($store->substore_id);
                      //Get Quarantine Bin
                      $bin = StoreBin::where('substore_id', $store->substore_id)
-                         ->where('quarantine', 1)
+                         ->where('quarantine','=',1)
                          ->first();
 
 
@@ -114,8 +125,10 @@ class GrnController extends Controller
                      $st->size = $poDetails->size;
                      $st->color = $poDetails->colour;
                      $st->uom = $poDetails->uom;
+                     $st->customer_po_id=$rec['order_id'];
                      $st->qty = (double)$rec['qty'];
                      $st->location = auth()->payload()['loc_id'];
+                     //dd($bin);
                      $st->bin = $bin->store_bin_id;
                      $st->created_by = auth()->payload()['user_id'];
                      if (!$st->save()) {
@@ -147,6 +160,7 @@ class GrnController extends Controller
 
     }
 
+
     public function datatable_search($data){
         $start = $data['start'];
         $length = $data['length'];
@@ -156,12 +170,18 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select('store_grn_header.grn_id', 'store_grn_header.grn_number', 'store_grn_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select('store_grn_header.grn_number', 'merc_po_order_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
+                        //->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         ->leftjoin('merc_po_order_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('org_substore', 'store_grn_header.sub_store', '=', 'org_substore.substore_id')
                         ->leftjoin('org_store', 'org_substore.store_id', '=', 'org_store.store_id')
                         ->leftjoin('org_supplier', 'store_grn_header.sup_id', '=', 'org_supplier.supplier_id')
+                        ->orWhere('supplier_name', 'like', $search.'%')
+                        ->orWhere('substore_name', 'like', $search.'%')
+                        ->orWhere('grn_number', 'like', $search.'%')
+                        ->orWhere('merc_po_order_header.po_number', 'like', $search.'%')
+                        ->orderBy($order_column, $order_type)
                         ->orderBy('store_grn_header.created_date',$order_column.' DESC', $order_type)
                         ->groupBy('store_grn_header.grn_id')
                         ->offset($start)->limit($length)->get();
@@ -181,12 +201,13 @@ class GrnController extends Controller
     }
 
     public function validateSupplierTolerance($dataArr, $suppId){
+    //  dd($dataArr);
 
         $poQty = 0;
         $qty = 0;
         foreach ($dataArr as $data){
             $qty += $data['qty'];
-            $poQty += $data['po_qty'];
+            $poQty += $data['tot_qty'];
 
         }
 
@@ -290,6 +311,96 @@ class GrnController extends Controller
         dd($request);
     }
 
+    public function fiterData(Request $request){
+      //dd($request);
+  /*  if($request['customer_name']==null){
+    $customer_id=0;
+   }
+   if($request['customer_po']==null){
+     $customer_po=0;
+   }
+   if($request['color']==null){
+     $color=0;
+   }
+   if($request['item_description']==null){
+     $itemDesacription=nul;
+   }
+   if($request['pcd_date']==null){
+     $pcd=null;
+   }
+   if($request['rm_in_date']==null){
+     $rm_in_date=null;
+   }*/
+    $customer_id=$request['customer_name']['customer_id'];
+    $customer_po=$request['customer_po']['order_id'];
+    $color=$request['color']['color_id'];
+    $itemDesacription=$request['item_description']['master_id'];
+    $pcd=$request['pcd_date'];
+    $rm_in_date=$request['rm_in_date'];
+
+
+
+                              $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
+                                           cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
+                                           item_master.master_description,
+                                           org_color.color_name,
+                                          org_size.size_name,
+                                          org_uom.uom_code,
+                                          merc_po_order_details.tot_qty,
+                                          merc_customer_order_details.rm_in_date,
+                                          merc_customer_order_details.pcd,
+                                          merc_customer_order_details.po_no,
+                                           merc_customer_order_header.order_id,
+                                           item_master.master_id,
+                                           (SELECT
+                                          SUM(SGD.grn_qty)
+                                          FROM
+                                         store_grn_detail AS SGD
+
+                                         WHERE
+                                        SGD.po_details_id = merc_po_order_details.id
+                                       ) AS tot_grn_qty
+
+                                  FROM
+                                 merc_po_order_header
+                                INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
+                             LEFT JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number
+                             INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
+                           INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
+                           INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
+                           INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
+                          INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+                          INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
+                           INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
+                         INNER JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+
+                        /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
+
+                         WHERE merc_customer_order_header.order_id like  '%".$customer_po."'
+                        AND cust_customer.customer_id like  '%".$customer_id."'
+                        AND org_color.color_id like '%".$color."'
+                        AND item_master.master_id like '%".$itemDesacription."'
+                        AND merc_customer_order_details.pcd like '%".$pcd."'
+                        AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."'
+                        GROUP BY merc_po_order_details.id
+                        /*AND store_grn_header.grn_id=*/
+
+                ");
+
+
+                return response([
+                    'data' => $poData
+                ]);
+                  ///return $poData;
+
+
+
+
+
+
+
+    }
+
     public function destroy($id)
     {
        GrnDetail::where('id',$id)->delete();
@@ -303,7 +414,7 @@ class GrnController extends Controller
     }
 
     public function getAddedBins(Request $request){
-      //    dd($request);
+        //dd($request);
        $grnData = GrnDetail::getGrnLineDataWithBins($request->id);
 
         return response([
