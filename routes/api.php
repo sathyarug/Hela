@@ -299,6 +299,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
+  Route::post('grn/filterData','Store\GrnController@fiterData');
   //sub store bin validate
   Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
   Route::apiResource('substore','Store\StoreBinController');

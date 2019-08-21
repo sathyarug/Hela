@@ -22,7 +22,7 @@ class GrnDetail extends Model
     //const UPDATED_AT='updated_date';
     //const CREATED_AT='created_date';
 
-    protected $fillable=['grn_id','grn_number','po_number', 'inv_number', 'sup_id', 'note', 'main_store', 'sub_store', 'location'];
+    protected $fillable=['grn_id','grn_number','po_number','po_details_id', 'inv_number', 'sup_id', 'note', 'main_store', 'sub_store', 'location'];
 
     protected $rules=array(
         ////'color_code'=>'required',

@@ -506,7 +506,7 @@ else
           ->join('product_silhouette','ie_component_smv_summary.product_silhouette_id','=','product_silhouette.product_silhouette_id')
           ->join('ie_component_smv_header','ie_component_smv_summary.smv_component_header_id','=','ie_component_smv_header.smv_component_header_id')
           ->join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
-          ->select('product_component.product_component_description','product_silhouette.product_silhouette_description','ie_component_smv_summary.*','style_creation.style_no')
+          ->select('product_component.product_component_description','product_silhouette.product_silhouette_description','ie_component_smv_summary.*','style_creation.style_no','style_creation.style_id')
           ->where('ie_component_smv_summary.smv_component_header_id','=',$id)
           ->get();
 
