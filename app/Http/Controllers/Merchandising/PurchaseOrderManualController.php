@@ -423,7 +423,7 @@ class PurchaseOrderManualController extends Controller
                                     INNER JOIN item_master ON bom_details.master_id = item_master.master_id
                                     LEFT JOIN org_color ON bom_details.color_id = org_color.color_id
                                     LEFT JOIN mat_ratio ON bom_details.id = mat_ratio.bom_detail_id
-                                    INNER JOIN org_size ON mat_ratio.size_id = org_size.size_id
+                                    LEFT JOIN org_size ON mat_ratio.size_id = org_size.size_id
                                     INNER JOIN org_uom ON bom_details.uom_id = org_uom.uom_id
                                     INNER JOIN org_supplier ON bom_details.supplier_id = org_supplier.supplier_id
                                     INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
