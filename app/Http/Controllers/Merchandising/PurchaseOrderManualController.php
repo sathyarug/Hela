@@ -335,7 +335,7 @@ class PurchaseOrderManualController extends Controller
     $order_code = $request->salesorder['order_code'];
     //print_r($customer_name);
 
-    $load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
+    /*$load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
                                 	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
                                   costing_bulk.style_id,
                                 	style_creation.style_no,
@@ -378,10 +378,65 @@ class PurchaseOrderManualController extends Controller
                                   #AND MPRL.status_user <> 'HOLD'
                                   GROUP BY
                                   B.bom_id,B.combine_id,B.master_id,B.item_color,B.component_id
-                      ");
+                      ");*/
 
 
-
+                      $load_list = DB::select(" SELECT
+                                    bom_details.bom_id,
+                                    merc_customer_order_details.po_no,
+                                    bom_details.master_id,
+                                    item_master.master_description,
+                                    org_color.color_name AS color_name,
+                                    mat_ratio.color_id AS material_color,
+                                    org_size.size_name AS size_name,
+                                    org_uom.uom_code,
+                                    org_supplier.supplier_name,
+                                    bom_details.bom_unit_price AS unit_price,
+                                    bom_details.required_qty AS total_qty,
+                                    bom_details.moq,
+                                    bom_details.mcq,
+                                    merc_customer_order_details.pcd,
+                                    org_location.loc_name,
+                                    bom_details.id AS bom_detail_id,
+                                    mat_ratio.id as mat_id,
+                                    bom_details.color_id,
+                                    mat_ratio.size_id,
+                                    org_uom.uom_id,
+                                    org_supplier.supplier_id,
+                                    (SELECT Sum(MPD.req_qty)AS req_qty
+                                      FROM merc_po_order_details AS MPD
+                                      WHERE
+                                      MPD.bom_id = bom_details.bom_id AND
+                                      MPD.bom_detail_id = bom_details.id AND
+                                      MPD.mat_id = mat_ratio.id
+                                    ) AS req_qty,
+                                    ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
+                                      FROM merc_po_order_details AS MPOD WHERE
+                                      MPOD.bom_id = bom_details.bom_id AND
+                                      MPOD.bom_detail_id = bom_details.id AND
+                                      MPOD.mat_id = mat_ratio.id
+                                    )AS po_nos
+                                    FROM
+                                    bom_details
+                                    INNER JOIN bom_header ON bom_header.bom_id = bom_details.bom_id
+                                    INNER JOIN merc_customer_order_details ON bom_header.delivery_id = merc_customer_order_details.details_id
+                                    INNER JOIN item_master ON bom_details.master_id = item_master.master_id
+                                    LEFT JOIN org_color ON bom_details.color_id = org_color.color_id
+                                    LEFT JOIN mat_ratio ON bom_details.id = mat_ratio.bom_detail_id
+                                    INNER JOIN org_size ON mat_ratio.size_id = org_size.size_id
+                                    INNER JOIN org_uom ON bom_details.uom_id = org_uom.uom_id
+                                    INNER JOIN org_supplier ON bom_details.supplier_id = org_supplier.supplier_id
+                                    INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
+                                    INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
+                                    INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
+                                    INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
+                                    #LEFT JOIN merc_purchase_req_lines ON bom_details.bom_id = merc_purchase_req_lines.bom_id AND bom_details.id = merc_purchase_req_lines.bom_detail_id AND mat_ratio.id = merc_purchase_req_lines.mat_id
+                                    WHERE
+                                    cust_customer.customer_name LIKE '%$customer_name%' AND
+                                    style_creation.style_no LIKE '%".$style_no."%' AND
+                                    merc_customer_order_header.order_code LIKE '%".$order_code."%'
+                                    #AND MRL.status_user = 'HOLD'
+                                    ");
 
        //return $customer_list;
        return response([ 'data' => [
@@ -406,30 +461,23 @@ class PurchaseOrderManualController extends Controller
 
         $temp_line = new PurchaseReqLines();
         $temp_line->bom_id = $lines[$x]['bom_id'];
-        $temp_line->combine_id = $lines[$x]['combine_id'];
-        $temp_line->order_id = $lines[$x]['order_id'];
-        $temp_line->cpo_no = $lines[$x]['po_no'];
+        $temp_line->bom_detail_id= $lines[$x]['bom_detail_id'];//
+        $temp_line->mat_id= $lines[$x]['mat_id'];//
         $temp_line->merge_no = $max_no;
         $temp_line->item_code = $lines[$x]['master_id'];
-        $temp_line->item_desc = $lines[$x]['master_description'];
-        $temp_line->item_color = $lines[$x]['item_color'];
-        $temp_line->color_name = $lines[$x]['color_name'];
-        $temp_line->item_size = $lines[$x]['item_size'];
-        $temp_line->size_name = $lines[$x]['size_name'];
+        $temp_line->item_color = $lines[$x]['color_id'];
+        $temp_line->mat_colour = $lines[$x]['material_color'];//
+        $temp_line->item_size = $lines[$x]['size_id'];
         $temp_line->uom_id = $lines[$x]['uom_id'];
-        $temp_line->uom_code = $lines[$x]['uom_code'];
         $temp_line->supplier_id = $lines[$x]['supplier_id'];
-        $temp_line->supplier_name = $lines[$x]['supplier_name'];
         $temp_line->unit_price = $lines[$x]['unit_price'];
         $temp_line->total_qty = $lines[$x]['total_qty'];
-        $temp_line->moq = '0';
-        $temp_line->mcq = '0';
+        $temp_line->moq = $lines[$x]['moq'];
+        $temp_line->mcq = $lines[$x]['mcq'];
         $temp_line->bal_order = $lines[$x]['bal_oder'];
         $temp_line->po_qty = $lines[$x]['req_qty'];
-        $temp_line->so_com_id = $lines[$x]['so_com_id'];
         $temp_line->status = '1';
         $temp_line->status_user = 'OPEN';
-        $temp_line->component_id = $lines[$x]['component_id'];
         $temp_line->save();
 
         }
@@ -453,21 +501,21 @@ class PurchaseOrderManualController extends Controller
 
       $load_list = PurchaseReqLines::join("bom_details",function($join){
                $join->on("bom_details.bom_id","=","merc_purchase_req_lines.bom_id")
-                    ->on("bom_details.combine_id","=","merc_purchase_req_lines.combine_id")
-                    ->on("bom_details.master_id","=","merc_purchase_req_lines.item_code")
-                    ->on("bom_details.item_color","=","merc_purchase_req_lines.item_color");
+                    ->on("bom_details.id","=","merc_purchase_req_lines.bom_detail_id");
+
             })
        ->join('bom_header', 'bom_header.bom_id', '=', 'bom_details.bom_id')
-       ->join('costing_bulk', 'costing_bulk.bulk_costing_id', '=', 'bom_header.costing_id')
+       ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
 	     ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+       ->leftjoin('mat_ratio', 'mat_ratio.id', '=', 'merc_purchase_req_lines.mat_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
 	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty','costing_bulk.*')
+       ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->where('merge_no'  , '=', $prl_id )
        ->get();
 

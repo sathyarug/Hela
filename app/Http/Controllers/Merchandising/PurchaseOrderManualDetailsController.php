@@ -307,7 +307,7 @@ class PurchaseOrderManualDetailsController extends Controller
 
         $po_details->po_no = $formData['po_number'];
         $po_details->bom_id = $lines[$x]['bom_id'];
-        $po_details->combine_id = $lines[$x]['combine_id'];
+        $po_details->bom_detail_id = $lines[$x]['bom_detail_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
         $po_details->style = $lines[$x]['style_id'];
@@ -321,8 +321,8 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->remarks = '';
         $po_details->status = '1';
         $po_details->base_unit_price = $lines[$x]['unit_price'];
-        $po_details->component_id = $lines[$x]['component_id'];
-        $po_details->so_com_id = $lines[$x]['so_com_id'];
+        $po_details->mat_id = $lines[$x]['mat_id'];
+        $po_details->mat_colour = $lines[$x]['mat_colour'];
 
         $po_details->save();
 
@@ -356,7 +356,7 @@ class PurchaseOrderManualDetailsController extends Controller
           DB::table('merc_po_order_details')
             ->where('po_no', $formData['po_number'])
             ->where('bom_id', $lines[$x]['bom_id'])
-            ->where('combine_id', $lines[$x]['combine_id'])
+            ->where('bom_detail_id', $lines[$x]['bom_detail_id'])
             ->where('line_no', $lines[$x]['line_no'])
             ->update(['req_qty' => $lines[$x]['tra_qty'],'tot_qty' => $lines[$x]['value_sum'],'po_status' => 'PLANNED']);
 
@@ -511,8 +511,9 @@ class PurchaseOrderManualDetailsController extends Controller
     public function prl_header_load(Request $request){
       $order_id = $request->PORID;
       //print_r($order_id);
-      $LOAD_SUP= DB::select('SELECT PRL.supplier_id,PRL.supplier_name FROM merc_purchase_req_lines AS PRL
-            WHERE PRL.merge_no = "'.$order_id.'" GROUP BY PRL.merge_no');
+      $LOAD_SUP= DB::select('SELECT PRL.supplier_id,OS.supplier_name FROM merc_purchase_req_lines AS PRL
+            INNER JOIN org_supplier AS OS ON PRL.supplier_id = OS.supplier_id WHERE PRL.merge_no = "'.$order_id.'"
+            GROUP BY PRL.merge_no');
       $po_sup_code = $LOAD_SUP[0]->supplier_id;
 
       $LOAD_CUR= DB::select('SELECT SUP.currency as currency_id,CUR.currency_code,PM.payment_method_id,PM.payment_method_description,
@@ -638,15 +639,15 @@ class PurchaseOrderManualDetailsController extends Controller
       $prl_id = $request->prl_id;
 
       $load_list = PoOrderDetails::join("bom_details",function($join){
-               $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
-                    ->on("bom_details.combine_id","=","merc_po_order_details.combine_id")
-                    ->on("bom_details.master_id","=","merc_po_order_details.item_code")
-                    ->on("bom_details.item_color","=","merc_po_order_details.colour");
+        $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
+             ->on("bom_details.id","=","merc_po_order_details.bom_detail_id");
             })
-
+       ->join('bom_header', 'bom_header.bom_id', '=', 'bom_details.bom_id')
+       ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
        ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+       ->leftjoin('mat_ratio', 'mat_ratio.id', '=', 'merc_po_order_details.mat_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
        ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
