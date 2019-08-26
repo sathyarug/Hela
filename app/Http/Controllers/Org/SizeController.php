@@ -35,7 +35,10 @@ class SizeController extends Controller
       }
       else if($type == 'auto')    {
         $search = $request->search;
-        return response($this->autocomplete_search($search));
+        $size_type = $request->size_type;
+        $category_id = $request->category_id;
+        $subcategory_id = $request->subcategory_id;
+        return response($this->autocomplete_search($size_type, $search, $category_id, $subcategory_id));
       }
       else if($type == 'loadsizes'){
           return response($this->LoadSizes());
@@ -217,12 +220,20 @@ class SizeController extends Controller
     }
 
     //search Size for autocomplete
-    private function autocomplete_search($search)
+    private function autocomplete_search($size_type, $search, $category_id, $subcategory_id)
   	{
       $active=1;
-  		$size_lists = Size::select('size_id','size_name')
-  		->where([['size_name', 'like', '%' . $search . '%']])
-      ->where('status','=',$active) ->get();
+  		$query = Size::select('size_id','size_name')
+  		->where([['size_name', 'like', '%' . $search . '%'], ['status','=',$active]]);
+
+      if($size_type != null && $size_type == 'M'){
+        $query->where([['category_id','=', $category_id], ['subcategory_id','=', $subcategory_id]]);
+        $query->where('type','=','M');
+      }
+      else{
+        $query->where('type','=','G');
+      }
+      $size_lists = $query->get();
   		return $size_lists;
   	}
 
@@ -259,10 +270,10 @@ class SizeController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
-    
+
     private function LoadSizes(){
         $sizeList = Size::all()->where('status','=','1');
-        return $sizeList;         
+        return $sizeList;
     }
 
 }

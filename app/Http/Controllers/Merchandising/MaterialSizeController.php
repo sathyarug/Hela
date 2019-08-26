@@ -7,9 +7,10 @@ use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Http\Controllers\Controller;
-use App\Models\Merchandising\MaterialSize;
-use App\Models\Finance\Item\Category;
-use App\Models\Finance\Item\SubCategory;
+//use App\Models\Merchandising\MaterialSize;
+use App\Models\Org\Size;
+use App\Models\Merchandising\Item\{Category, SubCategory};
+use App\Models\Merchandising\MaterialRatio;
 
 use Exception;
 
@@ -46,17 +47,22 @@ class MaterialSizeController extends Controller
     //create a Material Size
     public function store(Request $request)
     {
-      $matsize = new MaterialSize();
+      //$matsize = new MaterialSize();
+      $matsize = new Size();
       if($matsize->validate($request->all()))
       {
-        $matsize->fill($request->all());
+        $matsize->size_name = $request->size_name;// cannot use fill function, beause same model use in org/SizeController
+        $matsize->category_id = $request->category_id;
+        $matsize->subcategory_id = $request->subcategory_id;
+        $matsize->type = 'M';
         $matsize->status = 1;
-        $matsize->po_status = 0;
-        $matsize->division_id = -1;
+        //$matsize->po_status = 0;
+        //$matsize->division_id = -1;
         $matsize->save();
 
         return response([ 'data' => [
-          'message' => 'Material Size was saved successfully',
+          'status' => 'success',
+          'message' => 'Material Size saved successfully',
           'matsize' => $matsize
           ]
         ], Response::HTTP_CREATED );
@@ -72,7 +78,11 @@ class MaterialSizeController extends Controller
     //get a Feature
     public function show($id)
     {
-      $matsize = MaterialSize::with(['category','subCategory'])->find($id);
+      $matsize = Size::find($id);
+      $category = Category::find($matsize->category_id, ['category_id', 'category_name']);
+      $sub_category = SubCategory::find($matsize->subcategory_id, ['subcategory_id', 'subcategory_name']);
+      $matsize['category'] = $category;
+      $matsize['sub_category'] = $sub_category;
       if($matsize == null)
         throw new ModelNotFoundException("Requested Material Size not found", 1);
       else
@@ -83,21 +93,34 @@ class MaterialSizeController extends Controller
     //update a Feature
     public function update(Request $request, $id)
     {
-      $matsize = MaterialSize::find($id);
-      if($matsize->validate($request->all()))
-      {
-        $matsize->fill($request->all());
-        $matsize->save();
-
+      //chek size already used
+      $count = MaterialRatio::where('size_id', '=', $id)->count();
+      if($count > 0){
         return response([ 'data' => [
-          'message' => 'Material Size was updated successfully',
-          'matsize' => $matsize
+          'status' => 'error',
+          'message' => 'Cannot update material size. Already used.'
         ]]);
       }
-      else
-      {
-        $errors = $matsize->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      else {
+        $matsize = Size::find($id);
+        if($matsize->validate($request->all()))
+        {
+          $matsize->size_name = $request->size_name;// cannot use fill function, beause same model use in org/SizeController
+          $matsize->category_id = $request->category_id;
+          $matsize->subcategory_id = $request->subcategory_id;
+          $matsize->save();
+
+          return response([ 'data' => [
+            'status' => 'success',
+            'message' => 'Material size updated successfully',
+            'matsize' => $matsize
+          ]]);
+        }
+        else
+        {
+          $errors = $matsize->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
     }
 
@@ -105,13 +128,25 @@ class MaterialSizeController extends Controller
     //deactivate a Feature
     public function destroy($id)
     {
-      $matsize = MaterialSize::where('size_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Material Size was deactivated successfully.',
-          'matsize' => $matsize
-        ]
-      ] , Response::HTTP_NO_CONTENT);
+      $count = MaterialRatio::where('size_id', '=', $id)->count();//chek size already used
+      if($count > 0){
+        return response([
+          'data' => [
+            'status' => 'error',
+            'message' => 'Cannot delete material size. Already used.'
+          ]
+        ] , Response::HTTP_OK);
+      }
+      else {
+        $matsize = Size::where('size_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'status' => 'success',
+            'message' => 'Material size deactivated successfully.',
+            'matsize' => $matsize
+          ]
+        ] , Response::HTTP_NO_CONTENT);
+      }
     }
 
 
@@ -120,24 +155,24 @@ class MaterialSizeController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->size_id,$request->category_name,$request
-        ->subcategory_name));
+        return response($this->validate_duplicate_code($request->size_id, $request->size_name,$request->category_id,
+          $request->subcategory_id));
       }
     }
 
 
     //check Feature code already exists
-    private function validate_duplicate_code($id, $mainCat, $subCat)
+    private function validate_duplicate_code($size_id, $size_name, $category_id, $subcategory_id)
     {
-      $matsize = MaterialSize :: where([['category_id','=',$mainCat],['subcategory_id','=',$subCat]])->first();
+      $matsize = Size::where([['category_id', '=', $category_id], ['subcategory_id', '=', $subcategory_id], ['size_name', '=', $size_name]])->first();
       if($matsize == null){
         echo json_encode(array('status' => 'success'));
       }
-      else if($matsize->size_id == $id){
+      else if($matsize->size_id == $size_id){
         echo json_encode(array('status' => 'success'));
       }
       else {
-        echo json_encode(array('status' => 'error','message' => 'Material Size already given'));
+        echo json_encode(array('status' => 'error','message' => 'Material size already exists'));
       }
     }
 
@@ -147,7 +182,7 @@ class MaterialSizeController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = MaterialSize::select('*');
+        $query = Size::select('*');
       }
       else{
         $fields = explode(',', $fields);
@@ -162,21 +197,20 @@ class MaterialSizeController extends Controller
     //search Size for autocomplete
     private function autocomplete_search($search)
   	{
-  		$matsize_lists = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
-                      ->where([['item_category.category_name', 'like', '%' . $search . '%']]) ->get();
-  	                   return $matsize_lists;
+  		/*$matsize_lists = Size::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+              ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+              ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
+              ->where([['item_category.category_name', 'like', '%' . $search . '%']]) ->get();
+               return $matsize_lists;*/
   	}
 
     public function get_sub_cat(Request $request){
         $category = $request->category_id;
         //$sub_category = SubCategory::where('category_id','=',$request->category_id)->pluck('subcategory_id', 'subcategory_name');
-        $sub_category = SubCategory::join('item_category', 'item_subcategory.category_code', '=' , 'item_category.category_code')
-                        ->select('item_subcategory.subcategory_name','item_subcategory.subcategory_id')
-                        ->where('item_category.category_id','=', $category )
-                        ->get();
-
+        $sub_category = SubCategory::join('item_category', 'item_subcategory.category_id', '=' , 'item_category.category_id')
+              ->select('item_subcategory.subcategory_name','item_subcategory.subcategory_id')
+              ->where('item_category.category_id','=', $category )
+              ->get();
         echo json_encode($sub_category);
     }
 
@@ -192,19 +226,24 @@ class MaterialSizeController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $matsize_list = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
-                      ->where('item_category.category_name'  , 'like', $search.'%' )
-                      ->orwhere('item_subcategory.subcategory_name', 'like', $search.'%')
-                      ->orderBy($order_column, $order_type)
-                      ->offset($start)->limit($length)->get();
+      $matsize_list =  Size::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+          ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+          ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
+          ->where('org_size.type', '=', 'M')
+          ->where('item_category.category_name'  , 'like', $search.'%' )
+          ->orwhere('item_subcategory.subcategory_name', 'like', $search.'%')
+          ->orwhere('org_size.size_name', 'like', $search.'%')
+          ->orderBy($order_column, $order_type)
+          ->offset($start)->limit($length)->get();
 
-      $matsize_count = MaterialSize::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
-                      ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
-                      ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
-                      ->where('item_category.category_name'  , 'like', $search.'%' )
-                      ->count();
+      $matsize_count = Size::join('item_category', 'org_size.category_id', '=' , 'item_category.category_id')
+          ->join('item_subcategory', 'org_size.subcategory_id', '=' , 'item_subcategory.subcategory_id')
+          ->select('org_size.*','item_subcategory.subcategory_name','item_category.category_name')
+          ->where('org_size.type', '=', 'M')
+          ->where('item_category.category_name'  , 'like', $search.'%' )
+          ->orwhere('item_subcategory.subcategory_name', 'like', $search.'%')
+          ->orwhere('org_size.size_name', 'like', $search.'%')
+          ->count();
 
       return [
           "draw" => $draw,

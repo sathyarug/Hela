@@ -165,8 +165,9 @@ class CostingSalesOrderDeliveryController extends Controller
       ->where('merc_customer_order_header.order_style', '=', $style_id)
       ->where('merc_customer_order_header.order_stage', '=', $bom_stage_id)
       ->where('merc_customer_order_header.order_season', '=', $season_id)
-      ->where('merc_customer_order_details.colour_type', '=', $color_type_id);
-      
+      ->where('merc_customer_order_details.colour_type', '=', $color_type_id)
+      ->where('merc_customer_order_details.active_status', '=', 'ACTIVE');
+
       if($combo_color != null && $combo_color != false && $combo_color != 0) {
         $query->where('merc_customer_order_details.style_color', '=', $combo_color);
       }

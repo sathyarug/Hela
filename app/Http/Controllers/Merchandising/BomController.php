@@ -454,7 +454,7 @@ private function get_header_data($costing_id){
 private function get_costing_connected_deliveries($costing_id){
     $list = CustomerOrderDetails::select('merc_customer_order_details.details_id', 'merc_customer_order_details.line_no',
     'merc_customer_order_header.order_code', 'merc_customer_order_details.po_no', 'merc_customer_order_details.planned_qty',
-    "org_country.country_description", "merc_customer_order_details.cus_style_manual")
+    'merc_customer_order_details.order_qty',"org_country.country_description", "merc_customer_order_details.cus_style_manual")
     ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
     ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
     ->where('merc_customer_order_details.costing_id', '=', $costing_id)->where('merc_customer_order_details.delivery_status', '=', 'CONNECTED')
@@ -479,7 +479,7 @@ private function get_items($delivery_id) {
   ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'bom_details.garment_options_id')
   ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'bom_details.ship_term_id')
   ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
-  ->select('bom_details.*', 'item_category.category_name', 'item_master.master_description', 'merc_position.position',
+  ->select('bom_details.*', 'item_category.category_name', 'item_master.master_description','item_master.subcategory_id', 'merc_position.position',
       'org_uom.uom_code', 'org_color.color_name', 'org_supplier.supplier_name', 'org_origin_type.origin_type',
       'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description', 'org_country.country_description',
       'product_component.product_component_description','product_component.product_component_id',
@@ -544,7 +544,7 @@ private function datatable_search($data){
 
   $bom_list = BomHeader::select('bom_header.*','style_creation.style_no','merc_bom_stage.bom_stage_description',
     'org_season.season_name', 'merc_color_options.color_option', 'merc_customer_order_details.line_no',
-    'merc_customer_order_details.planned_qty')
+    'merc_customer_order_details.order_qty')
   ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
   ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
   ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
