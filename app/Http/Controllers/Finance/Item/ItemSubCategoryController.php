@@ -86,7 +86,7 @@ class ItemSubCategoryController extends Controller
     public function get_sub_category_list(){
         //$sub_category_list = SubCategory::all();
         $sub_category_list = SubCategory::GetSubCategoryList();
-        echo json_encode($sub_category_list);        
+        echo json_encode($sub_category_list);
     }
 
 
@@ -117,10 +117,21 @@ class ItemSubCategoryController extends Controller
 
 
       public function change_status(Request $request){
-        $sub_category = SubCategory::find($request->subcategory_id);
-        $sub_category->status = $request->status;
-        $result = $sub_category->saveOrFail();
-        echo json_encode(array('status' => 'success'));
+        $count = DB::table('item_property_assign')->where('subcategory_id', '=', $request->subcategory_id)->count();
+        if($count > 0){
+          return response([
+            'status' => 'error',
+            'message' => 'Cannot deactivate. Has assigned properties.'
+          ]);
+        }
+        else{
+          $sub_category = SubCategory::find($request->subcategory_id);
+          $sub_category->status = $request->status;
+          $result = $sub_category->saveOrFail();
+          return response([
+            'status' => 'success'
+          ]);
+        }
     }
 
     public function get_category_list(){
@@ -141,7 +152,7 @@ class ItemSubCategoryController extends Controller
       if($this->authorize->hasPermission('SUB_CAT_MANAGE'))//check permission
       {
         $data = $request->all();
-        //$start = $data['start'];
+        $start = $data['start'];
         $length = $data['length'];
         $draw = $data['draw'];
         $search = $data['search']['value'];
@@ -151,12 +162,19 @@ class ItemSubCategoryController extends Controller
 
         //$sub_category_list = SubCategory::GetSubCategoryList();
         $sub_category_list = DB::table('item_subcategory')
-                                    ->join('item_category','item_category.category_id','=','item_subcategory.category_id')
-                                    ->select('item_subcategory.*','item_category.category_name')
-                                    ->where('subcategory_code','like',$search.'%')
-                                    ->orWhere('item_category.category_name'  , 'like', $search.'%' )
-                                    ->get();
-        $subCategoryCount = SubCategory::GetSubCategoryCount();
+              ->join('item_category','item_category.category_id','=','item_subcategory.category_id')
+              ->select('item_subcategory.*','item_category.category_name')
+              ->where('subcategory_code','like',$search.'%')
+              ->orWhere('item_category.category_name'  , 'like', $search.'%' )
+              ->orderBy($order_column, $order_type)
+              ->offset($start)->limit($length)->get();
+
+        $subCategoryCount = DB::table('item_subcategory')
+              ->join('item_category','item_category.category_id','=','item_subcategory.category_id')
+              ->select('item_subcategory.*','item_category.category_name')
+              ->where('subcategory_code','like',$search.'%')
+              ->orWhere('item_category.category_name'  , 'like', $search.'%' )
+              ->count();
 
         echo json_encode(array(
             "draw" => $draw,

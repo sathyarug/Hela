@@ -314,12 +314,14 @@ class CostingFinishGoodItemController extends Controller
       $total_fg_rm_cost = $this->calculate_fg_rm_cost($fg->fg_id);
       $fg->total_cost = $total_fg_rm_cost;
       $fg->epm = ($costing->fob - $total_fg_rm_cost) / $costing->total_smv;
+      $fg->epm = round($fg->epm, 4, PHP_ROUND_HALF_UP ); //round and assign
       $fg->np = ($total_fg_rm_cost == 0) ? 0 : ($total_fg_rm_cost - $costing->fob) / $total_fg_rm_cost;
+      $fg->np = round($fg->np, 4, PHP_ROUND_HALF_UP);//round and assign
       $fg->save();
 
       if($fg->pack_no == 1){ //update costing header deatils based on first pack
         $costing->total_rm_cost = $total_fg_rm_cost;
-        $costing->finance_cost = $total_fg_rm_cost * $costing->finance_charges;
+        $costing->finance_cost = round(($total_fg_rm_cost * $costing->finance_charges), 4, PHP_ROUND_HALF_UP );
         $costing->total_cost = $total_fg_rm_cost + $costing->labour_cost + $costing->finance_cost + $costing->coperate_cost;
         $costing->epm = $fg->epm;
         $costing->np_margine = $fg->np;

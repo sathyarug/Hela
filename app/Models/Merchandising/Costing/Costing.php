@@ -54,6 +54,11 @@ class Costing extends BaseValidator {
         return $this->belongsTo('App\Models\Merchandising\ColorOption', 'color_type_id')->select(['col_opt_id', 'color_option']);
     }
 
+    public function upcharge_reason()
+    {
+        return $this->belongsTo('App\Models\Org\Cancellation\CancellationReason', 'upcharge_reason')->select(['reason_id', 'reason_description']);
+    }
+
 //    public static function boot()
 //    {
 //        static::creating(function ($model) {
