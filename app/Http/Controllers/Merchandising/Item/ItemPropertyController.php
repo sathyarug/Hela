@@ -227,13 +227,26 @@ class ItemPropertyController extends Controller
       $propid = $request->propid;
       $formData = $request->formData;
 
-      $propperty_assign = new AssignProperty();
-      $propperty_assign->property_id = $propid;
-      $propperty_assign->subcategory_id = $formData['sub_category_code'];
-      $propperty_assign->status = 1;
-      $propperty_assign->sequence_no = $this->get_next_line($formData['sub_category_code']);
+      $check_ = Item::select(DB::raw('count(*) as sub_count'))
+                   ->where('subcategory_id', '=', $formData['sub_category_code'])
+                   ->where('status', '<>', 0)
+                   ->get();
+      if($check_[0]['sub_count'] >=1 ){
 
-      $propperty_assign->saveOrFail();
+    //  return response([ 'data' => ['status' => 'error','message' => 'Sub Category already exists !']]);
+      return ['status' => 'error','message' => 'Sub Category already exists !'];
+
+      }else{
+
+        $propperty_assign = new AssignProperty();
+        $propperty_assign->property_id = $propid;
+        $propperty_assign->subcategory_id = $formData['sub_category_code'];
+        $propperty_assign->status = 1;
+        $propperty_assign->sequence_no = $this->get_next_line($formData['sub_category_code']);
+        $propperty_assign->saveOrFail();
+
+        return ['status' => 'success'];
+      }
 
     }
 
