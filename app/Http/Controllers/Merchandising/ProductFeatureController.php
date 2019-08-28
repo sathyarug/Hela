@@ -143,13 +143,15 @@ class ProductFeatureController extends Controller
         $PF ->count = sizeof($lines);
         $PF ->save();
 
+        if(sizeof($lines) == 0){$pack_type = null;}else{$pack_type = sizeof($lines).'-PACK';}
+
         return response([
           'data' => [
             'status' => 'success',
             'message' => 'Saved successfully.',
             'max_f' => $max_f_n,
             'max_f_d' => strtoupper($separated),
-            'max_f_c' => sizeof($lines).'-PACK'
+            'max_f_c' => $pack_type
           ]
         ] , 200);
 
@@ -222,6 +224,7 @@ class ProductFeatureController extends Controller
       $PF ->count = sizeof($lines);
       $PF ->save();
 
+      if(sizeof($lines) == 0){$pack_type = null;}else{$pack_type = sizeof($lines).'-PACK';}
 
       return response([
         'data' => [
@@ -229,7 +232,7 @@ class ProductFeatureController extends Controller
           'max_f' => $fe_data['product_feature_id'],
           'prod_f' => $pro_f,
           'max_f_d' => strtoupper($separated),
-          'max_f_c' => sizeof($lines).'-PACK'
+          'max_f_c' => $pack_type
         ]
       ]);
 
@@ -354,13 +357,14 @@ class ProductFeatureController extends Controller
           $PF ->count = sizeof($lines);
           $PF ->save();
 
+          if(sizeof($lines) == 0){$pack_type = null;}else{$pack_type = sizeof($lines).'-PACK';}
 
         return response([ 'data' => [
           'message' => 'Product Feature updated successfully',
           'prod_f' => $PF,
           'max_f' => $fe_data,
           'max_f_d' => strtoupper($separated),
-          'max_f_c' => sizeof($lines).'-PACK'
+          'max_f_c' => $pack_type
         ]]);
 
 

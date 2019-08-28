@@ -334,7 +334,7 @@ class ColorController extends Controller
     }
 
     private function LoadColors(){
-        $colorList = Color::all()->where('status','=','1');
+        $colorList = Color::where('status','=','1')->get();
         return $colorList;
 
     }

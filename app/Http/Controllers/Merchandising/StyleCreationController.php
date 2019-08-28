@@ -104,7 +104,7 @@ class StyleCreationController extends Controller
 
     public function saveStyleCreation(Request $request) {
 
-      
+
         if($request->style_id != null){
 
           $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
@@ -224,11 +224,11 @@ class StyleCreationController extends Controller
                   //echo $divisions;
         // $avatarHidden = null;
 
-
+        if($productFeature['count'] == 0){$pack_type = null;}else{$pack_type = $productFeature['count'].'-PACK';}
 // dd($productFeature);
         $style['customer']=$customer;
         $style['product_f']=$productFeature;
-        $style['product_f_pack_c']=$productFeature['count'].'-PACK';
+        $style['product_f_pack_c']=$pack_type;
         $style['ProductSilhouette']=$ProductSilhouette;
         $style['ProductCategory']=$ProductCategory;
         $style['productType']=$productType;

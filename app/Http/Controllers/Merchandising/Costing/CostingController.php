@@ -25,7 +25,8 @@ use App\Models\Merchandising\ProductFeatureComponent;
 use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 use App\Models\Org\UOM;
 use App\Models\Org\Color;
-
+use App\Models\Merchandising\BOMHeader;
+use App\Models\Merchandising\CustomerOrderDetails;
 
 class CostingController extends Controller {
 
@@ -66,6 +67,10 @@ class CostingController extends Controller {
         else if($type == 'datatable') {
             $data = $request->all();
             $this->datatable_search($data);
+        }
+        else if($type == 'auto')    {
+          $search = $request->search;
+          return response($this->autocomplete_search($search));
         }
         /*elseif($type == 'getCostListing'){
             return response($this->getCostSheetListing($request->style_id));
@@ -143,12 +148,13 @@ class CostingController extends Controller {
                  $finance_charges = $finance_details['finance_cost'];
                  $cpm_front_end = $finance_details['cpmfront_end'];
                  $cpum = $finance_details['cpum'];
-                 $cpm_factory = ($cpum / 100) * $costing->planned_efficiency;
+                 //$cpm_factory = ($cpum / 100) * $costing->planned_efficiency;
+                 $cpm_factory = round(($cpum * $costing->planned_efficiency), 4, PHP_ROUND_HALF_UP);
               }
 
               $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);//get smv details
-              $labour_cost = $total_smv * $cpm_factory;//calculate labour cost
-              $coperate_cost = $total_smv * $cpm_front_end;//calculate coperate cost
+              $labour_cost = round(($total_smv * $cpm_factory), 4, PHP_ROUND_HALF_UP);//calculate labour cost
+              $coperate_cost = round(($total_smv * $cpm_front_end), 4, PHP_ROUND_HALF_UP);//calculate coperate cost
 
               $costing->finance_charges = $finance_charges;
               $costing->finance_cost = 0; //finance cost = total rm cost * finance charges
@@ -161,6 +167,10 @@ class CostingController extends Controller {
               $costing->revision_no = 0;
               $costing->status = 'CREATE';
               $costing->save();
+
+              $costing->sc_no = str_pad($costing->id, 5, '0', STR_PAD_LEFT);
+              $costing->save();//generate sc no and update
+
               //get product feature components from style
               $finish_goods = $this->get_finish_good($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);
               //send response
@@ -182,7 +192,7 @@ class CostingController extends Controller {
 
     public function show($id) {
 
-       $costing = Costing::with(['style', 'bom_stage', 'season', 'color_type'])->find($id);
+       $costing = Costing::with(['style', 'bom_stage', 'season', 'color_type','upcharge_reason'])->find($id);
        $finish_goods_count = CostingFinishGood::where('costing_id', '=', $costing->id)->count();
        $finish_goods = [];
 
@@ -240,8 +250,9 @@ class CostingController extends Controller {
         $costing->upcharge = $request->upcharge;
         $costing->upcharge_reason = $request->upcharge_reason;
 
-        $cpm_factory = ($costing->cost_per_utilised_min / 100) * $costing->planned_efficiency;
-        $labour_cost = $costing->total_smv * $cpm_factory;
+        //$cpm_factory = ($costing->cost_per_utilised_min / 100) * $costing->planned_efficiency;
+        $cpm_factory = round(($costing->cost_per_utilised_min * $costing->planned_efficiency), 4, PHP_ROUND_HALF_UP );
+        $labour_cost = round(($costing->total_smv * $cpm_factory), 4, PHP_ROUND_HALF_UP);
         // no need to update corperate cost. Because it will not change based on user inut data
         $costing->cpm_factory = $cpm_factory;
         $costing->labour_cost = $labour_cost;
@@ -307,6 +318,16 @@ class CostingController extends Controller {
 
     public function destroy($id) {
 
+    }
+
+
+    public function approve_costing(Request $request) {
+      $costing_id = $request->costing_id;
+    /*  $costing = Costing::find($costing_id);
+      $costing->status = 'APPROVED';
+      $costing->save();*/
+
+      $this->generate_bom_for_costing($costing_id);//generate boms for all coonected deliveries
     }
 
 
@@ -907,12 +928,14 @@ ORDER BY item_category.category_id');
         $finish_good_copy = $finish_good->replicate();
         $finish_good_copy->pack_no = DB::table('costing_finish_goods')->where('costing_id', '=', $finish_good->costing_id)->max('pack_no') + 1;
         $finish_good_copy->pack_no_code = 'FG'.str_pad($finish_good_copy->pack_no, 3, '0', STR_PAD_LEFT);
+        $finish_good_copy->combo_color_id = null;
         $finish_good_copy->save();
 
         $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_good->fg_id)->get();
         for($x = 0 ; $x < sizeof($components) ; $x++){
           $component_copy = $components[$x]->replicate();
           $component_copy->fg_id = $finish_good_copy->fg_id;
+          $component_copy->color_id = null;
           $component_copy->save();
 
           $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$x]['id'])->get();
@@ -1264,6 +1287,46 @@ ORDER BY item_category.category_id');
       else{
          $color = Color::where('color_code', '=', $color_name)->first();
          return $color->color_id;
+      }
+    }
+
+
+    private function autocomplete_search($search)
+  	{
+  		$ists = Costing::select('id','sc_no')
+  		->where([['sc_no', 'like', '%' . $search . '%'],]) ->get();
+  		return $ists;
+  	}
+
+
+    private function generate_bom_for_costing($costing_id) {    
+      $deliveries = CustomerOrderDetails::where('costing_id', '=', $costing_id)->get();
+      $costing = Costing::find($costing_id);
+      for($y = 0; $y < sizeof($deliveries); $y++) {
+        $bom = new BOMHeader();
+        $bom->costing_id = $deliveries[$y]->costing_id;
+        $bom->delivery_id = $deliveries[$y]->details_id;
+        $bom->sc_no = $costing->sc_no;
+        $bom->status = 1;
+        $bom->save();
+
+        $components = CostingFinishGoodComponent::where('fg_id', '=', $deliveries[$y]->fg_id)->get()->pluck('id');
+        $items = CostingFinishGoodComponentItem::whereIn('fg_component_id', $components)->get();
+        $items = json_decode(json_encode($items), true); //conver to array
+        for($x = 0 ; $x < sizeof($items); $x++) {
+          $items[$x]['bom_id'] = $bom->bom_id;
+          $items[$x]['costing_item_id'] = $items[$x]['id'];
+          $items[$x]['id'] = 0; //clear id of previous data, will be auto generated
+          $items[$x]['bom_unit_price'] = $items[$x]['unit_price'];
+          $items[$x]['order_qty'] = $deliveries[$y]->order_qty;
+          $items[$x]['required_qty'] = $deliveries[$y]->order_qty;
+          $items[$x]['total_cost'] = (($items[$x]['unit_price'] * $items[$x]['gross_consumption'] * $deliveries[$y]->order_qty) + $items[$x]['freight_charges'] + $items[$x]['surcharge']);
+          $items[$x]['created_date'] = null;
+          $items[$x]['created_by'] = null;
+          $items[$x]['updated_date'] = null;
+          $items[$x]['updated_by'] = null;
+        }
+        DB::table('bom_details')->insert($items);
       }
     }
 
