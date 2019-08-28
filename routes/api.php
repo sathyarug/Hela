@@ -300,6 +300,8 @@ Route::prefix('stores/')->group(function(){
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
   Route::post('grn/filterData','Store\GrnController@fiterData');
+  Route::get('grns/validate' , 'Store\GrnController@validate_data');
+
   //sub store bin validate
   Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
   Route::apiResource('substore','Store\StoreBinController');
@@ -338,6 +340,7 @@ Route::prefix('stores/')->group(function(){
     //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
+  Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
 
 });
 
@@ -584,6 +587,7 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('mrn','Store\MrnController');
     Route::apiResource('issue','Store\IssueController');
     Route::apiResource('return-to-stores','Store\ReturnToStoresController');
+    Route::apiResource('roll','Store\RollPlanController');
 });
 
 
