@@ -528,10 +528,19 @@ class PurchaseOrderManualDetailsController extends Controller
       $PO_NUM= DB::select('SELECT MPOH.po_number,MPOH.po_id FROM merc_po_order_header AS MPOH
             WHERE MPOH.prl_id = "'.$order_id.'"');
 
+      $LOAD_STAGE= DB::select('SELECT MBS.bom_stage_id,MBS.bom_stage_description  FROM merc_purchase_req_lines AS MPRL
+            INNER JOIN merc_bom_stage AS MBS ON MPRL.bom_stage_id= MBS.bom_stage_id
+            WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no ');
+
+      $LOAD_SHIP= DB::select('SELECT MPRL.ship_mode FROM merc_purchase_req_lines AS MPRL
+            WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
+
 
       $porl_arr['load_sup']=$LOAD_SUP;
       $porl_arr['load_cur']=$LOAD_CUR;
       $porl_arr['po_num']=$PO_NUM;
+      $porl_arr['stage']=$LOAD_STAGE;
+      $porl_arr['ship']=$LOAD_SHIP;
 
       if($porl_arr == null)
           throw new ModelNotFoundException("Requested section not found", 1);
@@ -650,7 +659,7 @@ class PurchaseOrderManualDetailsController extends Controller
        ->leftjoin('mat_ratio', 'mat_ratio.id', '=', 'merc_po_order_details.mat_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
-       ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+       ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
        //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price')

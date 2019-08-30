@@ -21,6 +21,12 @@ use Illuminate\Support\Facades\DB;
 
 class GrnController extends Controller
 {
+
+    public function __construct()
+    {
+      //add functions names to 'except' paramert to skip authentication
+      $this->middleware('jwt.verify', ['except' => ['index']]);
+    }
     public function grnDetails() {
         return view('grn.grn_details');
 
@@ -78,6 +84,7 @@ class GrnController extends Controller
 
              //for tempary
              $valTol=true;
+             //dd($request['dataset'] );
              foreach ($request['dataset'] as $rec){
 
                  if($valTol) {
@@ -96,10 +103,12 @@ class GrnController extends Controller
                      $grnDetails->size = $poDetails->size;
                      $grnDetails->uom = $poDetails->uom;
                      $grnDetails->po_qty = (double)$poDetails->tot_qty;
-                     $grnDetails->grn_qty = (double)$rec['qty'];
+                     $grnDetails->grn_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
                      //$grnDetails->bal_qty = (double)$poDetails->tot_qty - (double)$rec['qty'];
                      $grnDetails->item_code = $poDetails->item_code;
+                     $grnDetails->excess_qty=(double)$rec['excess_qty'];
+                     $grnDetails->status=1;
 
                      $grnDetails->save();
 
@@ -170,7 +179,7 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select('store_grn_header.grn_number', 'merc_po_order_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select('store_grn_header.grn_number', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         //->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         ->leftjoin('merc_po_order_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
@@ -311,32 +320,42 @@ class GrnController extends Controller
         dd($request);
     }
 
+    //validate anything based on requirements
+    public function validate_data(Request $request){
+
+      $for = $request->for;
+      if($for == 'duplicate')
+      {
+        return response($this->validate_duplicate_code( $request->invoice_no));
+      }
+    }
+
+
+    //check customer code already exists
+    private function validate_duplicate_code($code)
+    {
+      $grnHeader = GrnHeader::where('inv_number','=',$code)->first();
+      if($grnHeader == null){
+        return ['status' => 'success'];
+      }
+      /*else if($grnDetal->customer_id == $id){
+        return ['status' => 'success'];
+      }*/
+      else {
+        return ['status' => 'error','message' => 'Invoice already exists'];
+      }
+    }
+
     public function fiterData(Request $request){
-      //dd($request);
-  /*  if($request['customer_name']==null){
-    $customer_id=0;
-   }
-   if($request['customer_po']==null){
-     $customer_po=0;
-   }
-   if($request['color']==null){
-     $color=0;
-   }
-   if($request['item_description']==null){
-     $itemDesacription=nul;
-   }
-   if($request['pcd_date']==null){
-     $pcd=null;
-   }
-   if($request['rm_in_date']==null){
-     $rm_in_date=null;
-   }*/
+
     $customer_id=$request['customer_name']['customer_id'];
     $customer_po=$request['customer_po']['order_id'];
     $color=$request['color']['color_id'];
     $itemDesacription=$request['item_description']['master_id'];
     $pcd=$request['pcd_date'];
     $rm_in_date=$request['rm_in_date'];
+    $po_id=$request['po_id'];
+    $supplier_id=$request['supplier_id'];
 
 
 
@@ -352,6 +371,7 @@ class GrnController extends Controller
                                           merc_customer_order_details.po_no,
                                            merc_customer_order_header.order_id,
                                            item_master.master_id,
+                                           item_master.category_id,
                                            (SELECT
                                           SUM(SGD.grn_qty)
                                           FROM
@@ -359,7 +379,28 @@ class GrnController extends Controller
 
                                          WHERE
                                         SGD.po_details_id = merc_po_order_details.id
-                                       ) AS tot_grn_qty
+                                      ) AS tot_grn_qty,
+
+                                      (SELECT
+                                                        bal_qty
+                                                           FROM
+                                                           store_grn_detail AS SGD2
+
+                                                                       WHERE
+                                                                       SGD2.po_details_id = merc_po_order_details.id
+                                                                     ) AS bal_qty,
+                                      (
+
+                                      SELECT
+                                      IFNULL(sum(for_uom.max ),0)as maximum_tolarance
+                                      FROM
+                                      org_supplier_tolarance AS for_uom
+                                      WHERE
+                                      for_uom.uom_id =  org_uom.uom_id AND
+                                      for_uom.category_id = item_master.category_id AND
+                                      for_uom.subcategory_id = item_master.subcategory_id
+                                    ) AS maximum_tolarance
+
 
                                   FROM
                                  merc_po_order_header
@@ -370,18 +411,29 @@ class GrnController extends Controller
                            INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
                            INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
                           INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+                          INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
                           INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
                            INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
                          INNER JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
 
                         /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
 
-                         WHERE merc_customer_order_header.order_id like  '%".$customer_po."'
+                         WHERE merc_po_order_header.po_id = $po_id
+                         AND for_category.supplier_id=$supplier_id
+                         AND merc_customer_order_header.order_id like  '%".$customer_po."'
                         AND cust_customer.customer_id like  '%".$customer_id."'
                         AND org_color.color_id like '%".$color."'
                         AND item_master.master_id like '%".$itemDesacription."'
                         AND merc_customer_order_details.pcd like '%".$pcd."'
                         AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."'
+                        AND merc_po_order_details.tot_qty>(SELECT
+                                                              IFNULL(SUM(SGD.grn_qty),0)
+                                                              FROM
+                                                             store_grn_detail AS SGD
+
+                                                             WHERE
+                                                            SGD.po_details_id = merc_po_order_details.id
+                                                           )
                         GROUP BY merc_po_order_details.id
                         /*AND store_grn_header.grn_id=*/
 
@@ -430,6 +482,51 @@ class GrnController extends Controller
         return response([
             'data' => $grnLines
         ]);
+    }
+    public function isreadyForRollPlan(Request $request){
+      $is_type_fabric=DB::table('item_category')->select('category_code')->where('category_id','=',$request->category_id)->first();
+      //dd($is_type_fabric->category_code);
+      $status=0;
+      $message="";
+      $is_grn_same_qty=DB::table('store_grn_header')
+      ->select('*')
+      ->join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+      ->where('store_grn_header.inv_number','=',$request->invoice_no)
+      ->where('store_grn_header.po_number','=',$request->po_id)
+      ->where('store_grn_detail.po_details_id','=',$request->po_line_id)
+      ->first();
+      //dd($is_grn_same_qty);
+      if($is_type_fabric->category_code!='FA'){
+        $status=0;
+        $is_grn_same_qty=null;
+        $message="Selected Item not a Fabric type";
+      }
+      else if($is_type_fabric->category_code=='FA'){
+      if($is_grn_same_qty==null){
+        $status=0;
+        $message="Error Can't Add Roll Plan";
+      }
+       else if($is_grn_same_qty!=null){
+      if($is_grn_same_qty->grn_qty==$request->qty)
+     {
+        $status=1;
+     }
+     else if($is_grn_same_qty->grn_qty!=$request->qty)
+        {
+           $status=0;
+           $message="Error Can't Add Roll Plan";
+        }
+      }
+    }
+      return response([
+          'data'=> [
+            'dataModel'=>$is_grn_same_qty,
+             'status'=>$status,
+             'message'=>$message
+            ]
+      ]);
+
+
     }
 
 }

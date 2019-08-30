@@ -57,6 +57,8 @@ class PurchaseOrderManualController extends Controller
       if($order->validate($request->all()))
       {
         $order->fill($request->all());
+        $order->po_type = $request->po_type['bom_stage_id'];
+        $order->ship_mode = $request->ship_mode['ship_mode'];
         $order->status = '1';
         $order->po_status = '';
         $order->save();
@@ -297,7 +299,7 @@ class PurchaseOrderManualController extends Controller
       $customer_list = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
       ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->whereNull('po_type')
+      ->whereNull('po_deli_loc')
       //->orWhere('po_number'  , 'like', $search.'%' )
       //->orWhere('supplier_name'  , 'like', $search.'%' )
 	    //->orWhere('first_name'  , 'like', $search.'%' )
@@ -310,7 +312,7 @@ class PurchaseOrderManualController extends Controller
       $customer_count = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
       ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->whereNull('po_type')
+      ->whereNull('po_deli_loc')
       //->where('po_number'  , 'like', $search.'%' )
       //->orWhere('supplier_name'  , 'like', $search.'%' )
 	    //->orWhere('first_name'  , 'like', $search.'%' )
@@ -333,7 +335,9 @@ class PurchaseOrderManualController extends Controller
     $customer_name = $request->customer['customer_name'];
     $style_no = $request->style['style_no'];
     $order_code = $request->salesorder['order_code'];
-    //print_r($customer_name);
+    $stage = $request->bom_stage_id['bom_stage_id'];
+
+      //print_r($customer_name);
 
     /*$load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
                                 	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
@@ -387,12 +391,17 @@ class PurchaseOrderManualController extends Controller
                                     bom_details.master_id,
                                     item_master.master_description,
                                     org_color.color_name AS color_name,
-                                    mat_ratio.color_id AS material_color,
+                                    mat_ratio.color_id AS material_color_id,
+                                    OC.color_name AS material_color,
                                     org_size.size_name AS size_name,
                                     org_uom.uom_code,
                                     org_supplier.supplier_name,
                                     bom_details.bom_unit_price AS unit_price,
-                                    bom_details.required_qty AS total_qty,
+                                    #bom_details.required_qty AS total_qty,
+                                    (CASE
+                                        WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty
+                                        ELSE mat_ratio.required_qty
+                                    END) AS total_qty,
                                     bom_details.moq,
                                     bom_details.mcq,
                                     merc_customer_order_details.pcd,
@@ -404,18 +413,28 @@ class PurchaseOrderManualController extends Controller
                                     org_uom.uom_id,
                                     org_supplier.supplier_id,
                                     (SELECT Sum(MPD.req_qty)AS req_qty
-                                      FROM merc_po_order_details AS MPD
-                                      WHERE
-                                      MPD.bom_id = bom_details.bom_id AND
-                                      MPD.bom_detail_id = bom_details.id AND
-                                      MPD.mat_id = mat_ratio.id
+                                        FROM merc_po_order_details AS MPD
+                                        WHERE
+                                        MPD.bom_id = bom_details.bom_id AND
+                                        MPD.bom_detail_id = bom_details.id AND
+                                        (MPD.mat_id IS NULL OR MPD.mat_id = mat_ratio.id OR
+                                        MPD.size = mat_ratio.size_id OR MPD.mat_colour = mat_ratio.color_id)
                                     ) AS req_qty,
                                     ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
                                       FROM merc_po_order_details AS MPOD WHERE
                                       MPOD.bom_id = bom_details.bom_id AND
                                       MPOD.bom_detail_id = bom_details.id AND
-                                      MPOD.mat_id = mat_ratio.id
-                                    )AS po_nos
+                                      (MPOD.mat_id IS NULL OR MPOD.mat_id = mat_ratio.id OR
+                                      MPOD.size = mat_ratio.size_id OR MPOD.mat_colour = mat_ratio.color_id)
+                                    )AS po_nos,
+                                    (SELECT
+                                      Count(EX.currency) AS ex_rate
+                                      FROM
+                                      org_exchange_rate AS EX
+                                      WHERE
+                                      EX.currency = org_supplier.currency ) AS ex_rate,
+                                      merc_customer_order_header.order_stage,
+                                      merc_customer_order_details.ship_mode
                                     FROM
                                     bom_details
                                     INNER JOIN bom_header ON bom_header.bom_id = bom_details.bom_id
@@ -430,8 +449,10 @@ class PurchaseOrderManualController extends Controller
                                     INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
                                     INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
                                     INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
+                                    LEFT JOIN org_color AS OC ON mat_ratio.color_id = OC.color_id
                                     #LEFT JOIN merc_purchase_req_lines ON bom_details.bom_id = merc_purchase_req_lines.bom_id AND bom_details.id = merc_purchase_req_lines.bom_detail_id AND mat_ratio.id = merc_purchase_req_lines.mat_id
                                     WHERE
+                                    merc_customer_order_header.order_stage LIKE '%$stage%' AND
                                     cust_customer.customer_name LIKE '%$customer_name%' AND
                                     style_creation.style_no LIKE '%".$style_no."%' AND
                                     merc_customer_order_header.order_code LIKE '%".$order_code."%'
@@ -478,6 +499,8 @@ class PurchaseOrderManualController extends Controller
         $temp_line->po_qty = $lines[$x]['req_qty'];
         $temp_line->status = '1';
         $temp_line->status_user = 'OPEN';
+        $temp_line->bom_stage_id = $lines[$x]['order_stage'];
+        $temp_line->ship_mode = $lines[$x]['ship_mode'];
         $temp_line->save();
 
         }
@@ -512,7 +535,7 @@ class PurchaseOrderManualController extends Controller
        ->leftjoin('mat_ratio', 'mat_ratio.id', '=', 'merc_purchase_req_lines.mat_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
-       ->join('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
+       ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
 	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')

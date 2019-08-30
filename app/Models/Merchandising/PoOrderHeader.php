@@ -111,111 +111,85 @@ class PoOrderHeader extends BaseValidator
     }
 
     public static function getPoLineData($request){
-        $IS_EXSITS=DB::table('store_grn_header')->where('po_number',$request->id)->exists();
-        if($IS_EXSITS){
-                $maxGrnId=DB::table('store_grn_header')->where('po_number','=',$request->id)->max('grn_id');
-                $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
-                           cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
-                           item_master.master_description,
-                           org_color.color_name,
-                          org_size.size_name,
-                          org_uom.uom_code,
-                         merc_po_order_details.tot_qty,
-                         merc_customer_order_details.rm_in_date,
-                         merc_customer_order_details.pcd,
-                         merc_customer_order_details.po_no,
-                          merc_customer_order_header.order_id,
-                          item_master.master_id,
-                        (SELECT
-                       SUM(SGD.grn_qty)
-                       FROM
-                      store_grn_detail AS SGD
-
-                      WHERE
-                     SGD.po_details_id = merc_po_order_details.id
-                    ) AS tot_grn_qty
-
-                    FROM
-                 merc_po_order_header
-                INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
-             INNER JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number
-             INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
-           INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
-           INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
-           INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
-          INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-          INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
-           INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
-         INNER JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
-         INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id
-        WHERE merc_po_order_header.po_id = $request->id
-        GROUP BY(merc_po_order_details.id)
-
-");
-
-  //$poData->toArray();
-              return $poData;
-        }
-        else{
-        /*$poData = self::where('merc_po_order_header.po_id', $request->id)
-            ->join("merc_po_order_details AS d", "merc_po_order_header.po_number", "=", "d.po_no")
-            ->join("item_master AS i", "i.master_id", "=", "d.item_code")
-            ->join("merc_customer_order_header AS h", "h.order_style", "=", "d.style")
-            ->join("cust_customer AS t", "t.customer_id", "=", "h.order_customer")
-            ->join("org_color AS c", "c.color_id", "=", "d.colour")
-            ->join("org_size AS s", "s.size_id", "=", "d.size")
-            ->join("org_uom AS u", "u.uom_id", "=", "d.uom")
-            ->select("d.combine_id", "c.color_name", "s.size_name", "u.uom_description", "d.tot_qty", "d.id", "i.master_description", "t.customer_name")
-            ->get()
-            ->toArray();
-            return $poData;
-            */
-
-
-                          $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
-                                       cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
-                                       item_master.master_description,
-                                       org_color.color_name,
-                                      org_size.size_name,
-                                      org_uom.uom_code,
-                                      merc_po_order_details.tot_qty,
-                                      merc_customer_order_details.rm_in_date,
-                                      merc_customer_order_details.pcd,
-                                      merc_customer_order_details.po_no,
-                                       merc_customer_order_header.order_id,
-                                       item_master.master_id,
-                                       (SELECT
-                                      SUM(SGD.grn_qty)
+              $poData=DB::Select("SELECT DISTINCT
+style_creation.style_no,
+cust_customer.customer_name,
+merc_po_order_header.po_id,
+merc_po_order_details.id,
+item_master.master_description,
+org_color.color_name,
+org_size.size_name,
+org_uom.uom_code,
+merc_po_order_details.tot_qty,
+merc_customer_order_details.rm_in_date,
+merc_customer_order_details.pcd,
+merc_customer_order_details.po_no,
+merc_customer_order_header.order_id,
+item_master.master_id,
+item_master.category_id,
+(SELECT
+                                      IFNULL(SUM(SGD.grn_qty),0)
                                       FROM
                                      store_grn_detail AS SGD
 
                                      WHERE
                                     SGD.po_details_id = merc_po_order_details.id
-                                   ) AS tot_grn_qty
+                                   ) AS tot_grn_qty,
+ (SELECT
+                   bal_qty
+                      FROM
+                      store_grn_detail AS SGD2
 
-                              FROM
-                             merc_po_order_header
-                            INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
-                         /*INNER JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number*/
-                         INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
-                       INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
-                       INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
-                       INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
-                      INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-                      INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
-                       INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
-                     INNER JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+                                  WHERE
+                                  SGD2.po_details_id = merc_po_order_details.id
+                                ) AS bal_qty,
+(
 
-                    /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
-                    WHERE merc_po_order_header.po_id = $request->id
-                    GROUP BY(merc_po_order_details.id)
-                    /*AND store_grn_header.grn_id=*/
+SELECT
+IFNULL(sum(for_uom.max),0)as maximum_tolarance
+FROM
+org_supplier_tolarance AS for_uom
+WHERE
+for_uom.uom_id =  org_uom.uom_id AND
+for_uom.category_id = item_master.category_id AND
+for_uom.subcategory_id = item_master.subcategory_id
 
-            ");
 
+
+) AS maximum_tolarance
+
+
+FROM
+merc_po_order_header
+INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
+INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
+INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
+INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
+INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
+INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
+INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
+INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
+LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+
+WHERE
+merc_po_order_header.po_id = $request->id
+AND for_category.supplier_id=$request->sup_id
+AND merc_po_order_details.tot_qty>(SELECT
+                                      IFNULL(SUM(SGD.grn_qty),0)
+                                      FROM
+                                     store_grn_detail AS SGD
+
+                                     WHERE
+                                    SGD.po_details_id = merc_po_order_details.id
+                                   )
+GROUP BY(merc_po_order_details.id)
+
+");
+
+  //$poData->toArray();
               return $poData;
 
-          }
 
 
     }
