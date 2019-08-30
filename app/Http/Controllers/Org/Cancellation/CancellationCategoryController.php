@@ -54,7 +54,7 @@ class CancellationCategoryController extends Controller
         {
           $category->fill($request->all());
           $category->status = 1;
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
@@ -66,7 +66,8 @@ class CancellationCategoryController extends Controller
         else
         {
             $errors = $category->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            $errors_str = $category->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -101,7 +102,7 @@ class CancellationCategoryController extends Controller
         if($category->validate($request->all()))
         {
           $category->fill($request->except('category_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
@@ -112,7 +113,8 @@ class CancellationCategoryController extends Controller
         else
         {
           $errors = $category->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $category->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

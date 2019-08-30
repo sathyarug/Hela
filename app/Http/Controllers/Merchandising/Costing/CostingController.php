@@ -217,6 +217,7 @@ class CostingController extends Controller {
 
 
     public function update(Request $request, $id){
+
       $costing = Costing::find($id);
       //check costing status. cannot update PENDING and REJECTED costings
       if($costing->status == 'PENDING' || $costing->status == 'REJECTED') {
@@ -283,6 +284,9 @@ class CostingController extends Controller {
             $fg->np = 0;
             $fg->save();
 
+            $fg->fg_code = 'FNG'.str_pad($fg->fg_id, 7, '0', STR_PAD_LEFT);
+            $fg->save();//generate and save finish good code
+
             for($y = $x ; $y < ($x + $product_feature->count) ; $y++) {
               if($finish_goods[$y]['id'] == 0){ //new component
                 $finish_good_component = new CostingFinishGoodComponent();
@@ -301,6 +305,10 @@ class CostingController extends Controller {
               $finish_good_component->smv = $finish_goods[$y]['smv'];
               $finish_good_component->status = 1;
               $finish_good_component->save();
+
+              $finish_good_component->sfg_code = 'SFG'.str_pad($finish_good_component->id, 7, '0', STR_PAD_LEFT);
+              $finish_good_component->save();//generate and save finish good code
+
             }
           }
           return response([
@@ -1299,7 +1307,7 @@ ORDER BY item_category.category_id');
   	}
 
 
-    private function generate_bom_for_costing($costing_id) {    
+    private function generate_bom_for_costing($costing_id) {
       $deliveries = CustomerOrderDetails::where('costing_id', '=', $costing_id)->get();
       $costing = Costing::find($costing_id);
       for($y = 0; $y < sizeof($deliveries); $y++) {

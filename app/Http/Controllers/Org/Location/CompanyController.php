@@ -57,7 +57,7 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
           $company->company_email=$request->company_email;
           $company->company_web=$request->company_web;
           $company->status = 1;
@@ -105,8 +105,9 @@ class CompanyController extends Controller
         }
         else
         {
-            $errors = $company->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $company->errors();// failure, get errors
+          $errors_str = $company->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
       }
@@ -153,11 +154,9 @@ class CompanyController extends Controller
         if($company->validate($request->all()))
         {
           $company->fill($request->except('company_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($company);
           $company->company_email=$request->company_email;
           $company->company_web=$request->company_web;
-
-
           $company->save();
 
           DB::table('org_company_departments')->where('company_id', '=', $id)->delete();
@@ -188,7 +187,8 @@ class CompanyController extends Controller
         else
         {
           $errors = $company->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $company->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
       }

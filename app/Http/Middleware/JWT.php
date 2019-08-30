@@ -7,6 +7,8 @@ use JWTAuth;
 use Exception;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
+use App\User;
+
 class JWT extends BaseMiddleware
 {
     /**
@@ -20,6 +22,10 @@ class JWT extends BaseMiddleware
     {
       try {
               $user = JWTAuth::parseToken()->authenticate();
+              $db_user = User::find($user->user_id);//check passed token with saved token. used to limit single concurrent user
+              if(auth()->payload()->get('jti') != $db_user->token){
+                return response()->json(['status' => 'Token is Expired'],401);
+              }
           } catch (Exception $e) {
               if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
                   return response()->json(['status' => 'Token is Invalid'],401);

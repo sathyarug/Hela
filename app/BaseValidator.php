@@ -15,12 +15,11 @@ class BaseValidator extends Model
     {
         static::creating(function ($model) {
           $user = auth()->user();
+          $payload = auth()->payload();
 
           $model->created_by = $user->user_id;
           $model->updated_by = $user->user_id;
-          //$model->created_by = 1;
-          //$model->updated_by = 1;
-
+          $model->user_loc_id = $payload['loc_id'];        
         });
 
         static::updating(function ($model) {
@@ -40,7 +39,12 @@ class BaseValidator extends Model
     public function validate($data)
     {
         // make a new validator object
-        $v = \Illuminate\Support\Facades\Validator::make($data, $this->rules);
+        if($this->rules != null && $this->rules != false){
+          $v = \Illuminate\Support\Facades\Validator::make($data, $this->rules);
+        }
+        else{
+          $v = \Illuminate\Support\Facades\Validator::make($data, $this->getValidationRules($data));
+        }
 
         // check for failure
         if ($v->fails()) {

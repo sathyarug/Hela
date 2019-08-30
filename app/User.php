@@ -21,6 +21,9 @@ Class User extends Authenticatable implements JWTSubject
      */
     protected $table = 'usr_login';
     protected $primaryKey = 'user_id';
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
+    
     protected $fillable = [
         'name', 'email', 'password',
     ];
