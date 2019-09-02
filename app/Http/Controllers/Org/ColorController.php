@@ -104,7 +104,7 @@ class ColorController extends Controller
         $color = Color::find($id);
         $color=Color::join('org_color_quality','org_color.col_quality','=','org_color.col_quality')
         ->where('org_color.color_id','=',$id)
-        ->select('org_color.*','org_color_quality.*')
+        ->select('org_color.*','org_color_quality.color_quality_id','org_color_quality.col_quality')
         ->first();
         $quality=DB::table('org_color_quality')->select('*')->get();
         $color['quality']=$quality;
@@ -132,9 +132,9 @@ class ColorController extends Controller
         {
           $is_exists_costing_finish_goods = DB::table('costing_finish_good_components')->where('color_id', $id)->exists();
           $is_exists_costing_goods = DB::table('costing_finish_goods')->where('combo_color_id', $id)->exists();
-          $is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
+          //$is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
           $is_exsits_cus_po=DB::table('merc_customer_order_details')->where('style_color', $id)->exists();
-          if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||$is_exists==true||$is_exsits_cus_po==true){
+          if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||/*$is_exists==true||*/$is_exsits_cus_po==true){
             return response([ 'data' => [
               'message' => 'Color Already in Use',
               'status' =>0
@@ -173,9 +173,9 @@ class ColorController extends Controller
       {
         $is_exists_costing_finish_goods = DB::table('costing_finish_good_components')->where('color_id', $id)->exists();
         $is_exists_costing_goods = DB::table('costing_finish_goods')->where('combo_color_id', $id)->exists();
-        $is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
+        //$is_exists = DB::table('costing_bulk_details')->where('color_id', $id)->exists();
         $is_exsits_cus_po=DB::table('merc_customer_order_details')->where('style_color', $id)->exists();
-        if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||$is_exists==true||$is_exsits_cus_po==true){
+        if($is_exists_costing_finish_goods==true||$is_exists_costing_goods==true||/*$is_exists==true||*/$is_exsits_cus_po==true){
           return response([
             'data' => [
               'message' => 'Color Already in Use',
@@ -202,17 +202,19 @@ class ColorController extends Controller
     //validate anything based on requirements
     public function validate_data(Request $request){
       $for = $request->for;
-      if($for == 'duplicate')
-      {
-        return response($this->validate_duplicate_code($request->color_id , $request->color_code,$request->color_name,$request->color_category,$request->col_quality));
+      if($for == 'duplicate_code') {
+        return response($this->validate_duplicate_code($request->color_id , $request->color_code/*,$request->color_name,$request->color_category,$request->col_quality*/));
+      }
+      else if($for == 'duplicate_name') {
+      return response($this->validate_duplicate_name($request->color_id , $request->color_name/*,$request->color_name,$request->color_category,$request->col_quality*/));
       }
     }
 
 
     //check Color code already exists
-    private function validate_duplicate_code($id , $code,$colorName,$colorCategory,$colorQuality)
+    private function validate_duplicate_code($id, $code/*,$colorName,$colorCategory,$colorQuality*/)
     {
-      $color = Color::where([['color_code','=',$code],['color_name','=',$colorName],['color_category','=',$colorCategory],['col_quality','=',$colorQuality]])->first();
+      $color = Color::where([['color_code','=',$code]/*,['color_name','=',$colorName],['color_category','=',$colorCategory],['col_quality','=',$colorQuality]*/])->first();
       if($color == null){
         return ['status' => 'success'];
       }
@@ -220,7 +222,22 @@ class ColorController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Record already exists'];
+        return ['status' => 'error','message' => 'Color code already exists'];
+      }
+    }
+
+
+    private function validate_duplicate_name($id ,$colorName /*$code,$colorName,$colorCategory,$colorQuality*/)
+    {
+      $color = Color::where([['color_name','=',$colorName]/*,['color_name','=',$colorName],['color_category','=',$colorCategory],['col_quality','=',$colorQuality]*/])->first();
+      if($color == null){
+        return ['status' => 'success'];
+      }
+      else if($color->color_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Color name already exists'];
       }
     }
 

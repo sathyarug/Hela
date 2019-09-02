@@ -17,7 +17,7 @@ class Item extends BaseValidator
 
     protected $table = 'item_master';
     protected $primaryKey = 'master_id';
-    protected $fillable = ['master_id', 'subcategory_id', 'master_code', 'master_description', 'uom_id', 'status'];
+    protected $fillable = ['master_id', 'subcategory_id', 'master_code', 'master_description', 'uom_id', 'status', 'category_id'];
 
     protected $rules = array(
         'subcategory_id'  => 'required',

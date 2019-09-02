@@ -57,7 +57,7 @@ class LocationController extends Controller
         if($location->validate($request->all()))
         {
           $location->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($location);
           $location->loc_email=$request->loc_email;
           $location->loc_web=$request->loc_web;
           $location->loc_google=$request->loc_google;
@@ -84,8 +84,9 @@ class LocationController extends Controller
         }
         else
         {
-            $errors = $location->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $location->errors();// failure, get errors
+          $errors_str = $location->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -132,7 +133,7 @@ class LocationController extends Controller
           }else{
 
           $location->fill($request->except('loc_code'));
-          $location->loc_name = strtoupper($location->loc_name);
+          //$location->loc_name = strtoupper($location->loc_name);
           $location->opr_start_date=date("Y-m-d", strtotime($request->opr_start_date) );
           $location->save();
 
@@ -155,7 +156,8 @@ class LocationController extends Controller
         else
         {
           $errors = $location->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $location->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

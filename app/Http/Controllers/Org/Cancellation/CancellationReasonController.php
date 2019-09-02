@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationReason;
 use App\Libraries\AppAuthorize;
-use App\Libraries\CapitalizeAllFields;
+//use App\Libraries\CapitalizeAllFields;
 
 class CancellationReasonController extends Controller
 {
@@ -58,9 +58,9 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
-          $cluster->reason_code=strtoupper($cluster->reason_code);
+          //$cluster->reason_code=strtoupper($cluster->reason_code);
           $cluster->status = 1;
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -71,8 +71,9 @@ class CancellationReasonController extends Controller
         }
         else
         {
-            $errors = $cluster->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $cluster->errors();// failure, get errors
+          $errors_str = $cluster->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -107,7 +108,7 @@ class CancellationReasonController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->except('group_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -118,7 +119,8 @@ class CancellationReasonController extends Controller
         else
         {
           $errors = $cluster->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $cluster->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

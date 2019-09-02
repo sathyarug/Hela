@@ -85,7 +85,7 @@ class ItemController extends Controller
             ]);
           }
           else{
-            $item->fill($request->all());
+            $item->fill($request->all());          
             $item->master_description = strtoupper($item->master_description);
             $item->status=1;
             $item->save();

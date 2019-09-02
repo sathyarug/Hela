@@ -54,7 +54,7 @@ class ClusterController extends Controller
         if($cluster->validate($request->all()))
         {
           $cluster->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->status = 1;
           $cluster->save();
 
@@ -66,8 +66,9 @@ class ClusterController extends Controller
         }
         else
         {
-            $errors = $cluster->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $cluster->errors();// failure, get errors
+          $errors_str = $cluster->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -111,7 +112,7 @@ class ClusterController extends Controller
             ]);
           }else{
           $cluster->fill($request->except('group_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cluster);
           $cluster->save();
 
           return response([ 'data' => [
@@ -123,7 +124,8 @@ class ClusterController extends Controller
         else
         {
           $errors = $cluster->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $cluster->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

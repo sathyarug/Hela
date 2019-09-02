@@ -53,7 +53,7 @@ class SourceController extends Controller
         if($source->validate($request->all()))
         {
           $source->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $source->status = 1;
           $source->save();
 
@@ -65,8 +65,9 @@ class SourceController extends Controller
         }
         else
         {
-            $errors = $source->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $source->errors();// failure, get errors
+          $errors_str = $source->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -110,7 +111,7 @@ class SourceController extends Controller
             ]);
           }else{
           $source->fill($request->except('source_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
           $source->save();
 
           return response([ 'data' => [
@@ -122,7 +123,8 @@ class SourceController extends Controller
         else
         {
           $errors = $source->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $source->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

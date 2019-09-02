@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 use App\UsrProfile;
+use App\User;
 
 class AuthController extends Controller
 {
@@ -18,7 +19,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login', 'logout']]);
     }
 
     /**
@@ -38,6 +39,11 @@ class AuthController extends Controller
         }
         else{
           if($customData['loc_id'] != 0){
+            //save token to database
+            $user = User::find(auth()->user()->user_id);
+            $user->token = auth()->payload()->get('jti');
+            $user->save(); //update token in user_login table
+
             $this->store_load_permissions($customData['user_id'], $customData['loc_id']);
             return $this->respondWithToken($token, $customData['loc_id']);
           }
@@ -66,6 +72,10 @@ class AuthController extends Controller
    public function logout()
    {
        $user_id = auth()->user()->user_id;
+       $user = User::find($user_id);
+       $user->token = null;
+       $user->save(); //update token in user_login table
+
        auth()->logout();
        DB::table('usr_login_permission')->where('user_id', '=', $user_id)->delete();
        return response()->json(['message' => 'Successfully logged out']);
