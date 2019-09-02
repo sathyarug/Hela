@@ -301,6 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
   Route::post('grn/filterData','Store\GrnController@fiterData');
   Route::get('grns/validate' , 'Store\GrnController@validate_data');
+  Route::get('grns/deleteGrnLine' , 'Store\GrnController@deleteLine');
 
   //sub store bin validate
   Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
