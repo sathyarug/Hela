@@ -301,6 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
   Route::post('grn/filterData','Store\GrnController@fiterData');
   Route::get('grns/validate' , 'Store\GrnController@validate_data');
+  Route::get('grns/deleteGrnLine' , 'Store\GrnController@deleteLine');
 
   //sub store bin validate
   Route::get('subStoreBin/validate' , 'Store\StoreBinController@validate_data');
@@ -414,6 +415,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
+
+    Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
 
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
     Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');

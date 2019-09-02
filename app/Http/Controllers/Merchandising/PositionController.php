@@ -211,7 +211,7 @@ class PositionController extends Controller
       }
 
       private function handsontable_search($search){
-        $list = Position::where('position'  , 'like', $search.'%')->get()->pluck('position');
+        $list = Position::where('status', '=', 1)->where('position'  , 'like', $search.'%')->get()->pluck('position');
         return $list;
       }
 

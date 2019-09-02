@@ -171,6 +171,7 @@ INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = f
 INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
 INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
 LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+/*LEFT JOIN store_grn_detail ON merc_po_order_details.id=store_grn_detail.po_details_id*/
 
 WHERE
 merc_po_order_header.po_id = $request->id
@@ -182,7 +183,9 @@ AND merc_po_order_details.tot_qty>(SELECT
 
                                      WHERE
                                     SGD.po_details_id = merc_po_order_details.id
+
                                    )
+/*or store_grn_detail.status='0'*/
 GROUP BY(merc_po_order_details.id)
 
 ");

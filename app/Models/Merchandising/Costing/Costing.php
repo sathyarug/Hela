@@ -19,7 +19,7 @@ class Costing extends BaseValidator {
     protected $fillable = [
       'style_id', 'bom_stage_id', 'season_id', 'color_type_id', 'total_order_qty',
       'fob', 'planned_efficiency', 'cost_per_std_min', 'pcd', 'cost_per_std_min','upcharge',
-      'upcharge_reason'];
+      'upcharge_reason', 'design_source_id'];
 
     protected $rules = array(
         'style_id' => 'required',
