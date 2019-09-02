@@ -74,6 +74,7 @@ class GrnController extends Controller
             $header->main_store = $store->store_id;
             $header->sub_store = $store->substore_id;
             $header->sup_id=$request->header['sup_id'];
+            $header->status=1;
             $header->created_by = auth()->payload()['user_id'];
 
             $header->save();
@@ -105,7 +106,7 @@ class GrnController extends Controller
                      $grnDetails->po_qty = (double)$poDetails->tot_qty;
                      $grnDetails->grn_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
-                     //$grnDetails->bal_qty = (double)$poDetails->tot_qty - (double)$rec['qty'];
+                     $grnDetails->maximum_tolarance =$rec['maximum_tolarance'];
                      $grnDetails->item_code = $poDetails->item_code;
                      $grnDetails->excess_qty=(double)$rec['excess_qty'];
                      $grnDetails->status=1;
@@ -168,6 +169,8 @@ class GrnController extends Controller
 
 
     }
+
+
 
 
     public function datatable_search($data){
@@ -320,30 +323,70 @@ class GrnController extends Controller
         dd($request);
     }
 
+    public function show($id)
+    {
+      $status=1;
+      $headerData=DB::SELECT("SELECT store_grn_header.*, merc_po_order_header.po_number,merc_po_order_header.po_id,org_supplier.supplier_name,org_substore.substore_name
+        FROM
+        store_grn_header
+        INNER JOIN merc_po_order_header ON store_grn_header.po_number=merc_po_order_header.po_id
+        INNER JOIN org_supplier ON store_grn_header.sup_id=org_supplier.supplier_id
+        INNER JOIN org_substore ON store_grn_header.sub_store=org_substore.substore_id
+        WHERE store_grn_header.grn_id=$id"
+    );
+
+    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,
+      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id
+
+      from
+      store_grn_header
+       JOIN store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id
+       JOIN style_creation ON store_grn_detail.style_id=style_creation.style_id
+       JOIN cust_customer ON style_creation.customer_id=cust_customer.customer_id
+       JOIN org_color ON store_grn_detail.color=org_color.color_id
+       JOIN org_size ON  store_grn_detail.size= org_size.size_id
+       JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
+       JOIN  item_master ON store_grn_detail.item_code= item_master.master_id
+       JOIN merc_po_order_header ON store_grn_detail.po_number=merc_po_order_header.po_id
+       JOIN  merc_po_order_details ON store_grn_detail.po_details_id=merc_po_order_details.id
+      WHERE store_grn_header.grn_id=$id
+      AND store_grn_detail.status= $status");
+
+    return response([
+        'data' =>[
+      'headerData'=>  $headerData[0],
+      'detailsData'=>$detailsData
+      ]
+    ]);
+
+    }
+
+
+
     //validate anything based on requirements
     public function validate_data(Request $request){
 
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code( $request->invoice_no));
+        return response($this->validate_duplicate_code($request->grn_id, $request->invoice_no));
       }
     }
 
 
     //check customer code already exists
-    private function validate_duplicate_code($code)
+    private function validate_duplicate_code($id,$code)
     {
       $grnHeader = GrnHeader::where('inv_number','=',$code)->first();
       if($grnHeader == null){
-        return ['status' => 'success'];
-      }
-      /*else if($grnDetal->customer_id == $id){
-        return ['status' => 'success'];
-      }*/
-      else {
-        return ['status' => 'error','message' => 'Invoice already exists'];
-      }
+      return ['status' => 'success'];
+     }
+     else if($grnHeader->grn_id == $id){
+     return ['status' => 'success'];
+     }
+   else {
+    return ['status' => 'error','message' => 'Invoice Number already exists'];
+   }
     }
 
     public function fiterData(Request $request){
@@ -433,7 +476,7 @@ class GrnController extends Controller
 
                                                              WHERE
                                                             SGD.po_details_id = merc_po_order_details.id
-                                                           )
+                                                          )
                         GROUP BY merc_po_order_details.id
                         /*AND store_grn_header.grn_id=*/
 
@@ -457,6 +500,19 @@ class GrnController extends Controller
     {
        GrnDetail::where('id',$id)->delete();
 
+    }
+    public function deleteLine(Request $request){
+      //dd($request->line);
+      $grnDetails = GrnDetail::find($request->line);
+      $grnDetails->status=0;
+      $grnDetails->bal_qty=$grnDetails->$grnDetails->po_qty;
+      $grnDetails->save();
+      return response([
+          'data' => [
+            'status'=>1,
+            'message'=>"Selected GRN line Deleted"
+          ]
+      ]);
     }
 
     public function getPoSCList(Request $request){
@@ -485,7 +541,6 @@ class GrnController extends Controller
     }
     public function isreadyForRollPlan(Request $request){
       $is_type_fabric=DB::table('item_category')->select('category_code')->where('category_id','=',$request->category_id)->first();
-      //dd($is_type_fabric->category_code);
       $status=0;
       $message="";
       $is_grn_same_qty=DB::table('store_grn_header')
@@ -502,14 +557,23 @@ class GrnController extends Controller
         $message="Selected Item not a Fabric type";
       }
       else if($is_type_fabric->category_code=='FA'){
+        //dd($is_type_fabric->category_code);
       if($is_grn_same_qty==null){
-        $status=0;
+            $status=0;
         $message="Error Can't Add Roll Plan";
       }
        else if($is_grn_same_qty!=null){
       if($is_grn_same_qty->grn_qty==$request->qty)
      {
+       $is_aLLreaddy_roll_plned=DB::table('store_roll_plan')->select('*')->where('grn_detail_id','=',$is_grn_same_qty->grn_detail_id)->first();
+          //dd($is_aLLreaddy_roll_plned);
+              if($is_aLLreaddy_roll_plned!=null){
+                $status=0;
+               $message="Roll Plan Already Added";
+                }
+       else{
         $status=1;
+      }
      }
      else if($is_grn_same_qty->grn_qty!=$request->qty)
         {
