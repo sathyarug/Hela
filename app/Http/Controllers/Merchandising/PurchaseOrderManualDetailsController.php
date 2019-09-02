@@ -408,6 +408,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POH_R->cur_value = $POH[0]->cur_value;
       $POH_R->ship_term = $POH[0]->ship_term;
       $POH_R->special_ins = $POH[0]->special_ins;
+      $POH_R->user_loc_id = $POH[0]->user_loc_id;
       $POH_R->status = '0';
       $POH_R->version = $max_number_D;
       $POH_R->reason = 'PO_UPDATE';
@@ -418,11 +419,14 @@ class PurchaseOrderManualDetailsController extends Controller
 
       $POD_R = new PoOrderDetailsRevision();
       $POD_R->po_no = $POD[$x]->po_no;
-      $POD_R->sc_no = $POD[$x]->sc_no;
+      $POD_R->bom_id = $POD[$x]->bom_id;
+      $POD_R->bom_detail_id = $POD[$x]->bom_detail_id;
+      $POD_R->mat_id = $POD[$x]->mat_id;
       $POD_R->line_no = $POD[$x]->line_no;
       $POD_R->item_code = $POD[$x]->item_code;
       $POD_R->style = $POD[$x]->style;
       $POD_R->colour = $POD[$x]->colour;
+      $POD_R->mat_colour = $POD[$x]->mat_colour;
       $POD_R->size = $POD[$x]->size;
       $POD_R->base_unit_price = $POD[$x]->base_unit_price;
       $POD_R->unit_price = $POD[$x]->unit_price;
@@ -431,6 +435,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POD_R->deli_date = $POD[$x]->deli_date;
       $POD_R->tot_qty = $POD[$x]->tot_qty;
       $POD_R->remarks = $POD[$x]->remarks;
+      $POD_R->user_loc_id = $POD[$x]->user_loc_id;
       $POD_R->status = '0';
       $POD_R->version = $max_number_D;
       $POD_R->reason = 'PO_UPDATE';
@@ -552,10 +557,12 @@ class PurchaseOrderManualDetailsController extends Controller
     public function load_po_revision_header(Request $request){
 
       $order_id = $request->POID;
-      $order_details = DB::select('SELECT MH.*,org_supplier.supplier_name,fin_currency.currency_code
+      $order_details = DB::select('SELECT MH.*,org_supplier.supplier_name,fin_currency.currency_code,
+        merc_bom_stage.bom_stage_description
         FROM merc_po_order_header AS MH
         INNER JOIN org_supplier ON MH.po_sup_code = org_supplier.supplier_id
         INNER JOIN fin_currency ON MH.po_def_cur = fin_currency.currency_id
+        INNER JOIN merc_bom_stage ON MH.po_type = merc_bom_stage.bom_stage_id
         WHERE MH.po_id = "'.$order_id.'"');
 
       $po_sup_code = $order_details[0]->po_sup_code;
@@ -614,7 +621,7 @@ class PurchaseOrderManualDetailsController extends Controller
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
-       ->join('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+       ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
        ->select('fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.tot_qty as value_sum','merc_po_order_details.base_unit_price as base_unit_price_revise',

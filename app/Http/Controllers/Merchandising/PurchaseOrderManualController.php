@@ -121,6 +121,15 @@ class PurchaseOrderManualController extends Controller
         $pOrder->po_status = 'PLANNED';
         $pOrder->save();
 
+        $current_value = DB::select("SELECT ER.rate FROM merc_po_order_header AS PH
+                INNER JOIN org_exchange_rate AS ER ON PH.po_def_cur = ER.currency WHERE
+                ER.`status` = 1 AND PH.po_id = '$id' ORDER BY ER.id DESC LIMIT 0, 1");
+
+        //print_r($current_value);
+        $cur_update=PoOrderHeader::find($id);
+        $cur_update->cur_value=$current_value[0]->rate;
+        $cur_update->save();
+
         return response([ 'data' => [
           'message' => 'Purchase order was updated successfully',
           'customer' => $pOrder,
