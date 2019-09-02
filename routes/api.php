@@ -415,6 +415,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
+    Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
+
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
     Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
     Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');

@@ -215,8 +215,8 @@ class CostingFinishGoodItemController extends Controller
         $item_data['position_id'] = null;
       }
       //item color
-      if($item_data['color_name'] != null && $item_data['color_name'] != ''){
-        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_name'])->first()->color_id;
+      if($item_data['color_code'] != null && $item_data['color_code'] != ''){
+        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_code'])->first()->color_id;
       }
       else{
         $item_data['color_id'] = null;
@@ -269,7 +269,7 @@ class CostingFinishGoodItemController extends Controller
         'costing_finish_good_component_items.gross_consumption', 'costing_finish_good_component_items.meterial_type', 'costing_finish_good_component_items.freight_charges',
         'costing_finish_good_component_items.mcq', 'costing_finish_good_component_items.surcharge', 'costing_finish_good_component_items.total_cost',
         'costing_finish_good_component_items.ship_mode', 'costing_finish_good_component_items.lead_time', 'costing_finish_good_component_items.comments',
-        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_name',
+        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description')->where('costing_finish_good_component_items.id', '=', $id)->first();
         return $item;
@@ -291,7 +291,7 @@ class CostingFinishGoodItemController extends Controller
         'costing_finish_good_component_items.gross_consumption', 'costing_finish_good_component_items.meterial_type', 'costing_finish_good_component_items.freight_charges',
         'costing_finish_good_component_items.mcq', 'costing_finish_good_component_items.surcharge', 'costing_finish_good_component_items.total_cost',
         'costing_finish_good_component_items.ship_mode', 'costing_finish_good_component_items.lead_time', 'costing_finish_good_component_items.comments',
-        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_name',
+        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code', 'org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description', DB::raw('false as edited'))->where('costing_finish_good_component_items.fg_component_id', '=', $fg_component_id)->get();
         return $items;

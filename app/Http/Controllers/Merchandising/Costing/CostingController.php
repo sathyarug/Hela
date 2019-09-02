@@ -39,7 +39,7 @@ class CostingController extends Controller {
         elseif ($type == 'getColorForDivision'){
             $division_id = $request->division_id;
             $query = $request->query;
-            return response($this->getColorForDivision($division_id,$query));
+            return response($this->getColorForDivision($division_id,$request->get('query')));
         }
         elseif ($type == 'getFinishGood') {
             return response($this->getFinishGood($request->id));
@@ -665,8 +665,8 @@ class CostingController extends Controller {
     }*/
 
     public  function getColorForDivision($division_id,$query){
-//        $color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
-        $color=\App\Models\Org\Color::pluck('color_code')->toArray();
+      //$color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
+        $color=\App\Models\Org\Color::where('status', '=', 1)->where('color_code', 'like', $query.'%')->pluck('color_code')->toArray();
         return json_encode($color);
     }
 
