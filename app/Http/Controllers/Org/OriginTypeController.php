@@ -54,7 +54,7 @@ class OriginTypeController extends Controller
       {
         $originType->fill($request->all());
         $originType->status = 1;
-        $originType->origin_type=strtoupper($originType->origin_type);
+        //$originType->origin_type=strtoupper($originType->origin_type);
         $originType->save();
 
         return response([ 'data' => [
@@ -65,8 +65,9 @@ class OriginTypeController extends Controller
       }
       else
       {
-          $errors = $originType->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $originType->errors();// failure, get errors
+        $errors_str = $originType->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
@@ -89,7 +90,7 @@ class OriginTypeController extends Controller
       if($originType->validate($request->all()))
       {
         $originType->fill($request->except('origin_type'));
-        $originType->origin_type=strtoupper($originType->origin_type);
+        //$originType->origin_type=strtoupper($originType->origin_type);
         $originType->save();
 
         return response([ 'data' => [
@@ -100,7 +101,8 @@ class OriginTypeController extends Controller
       else
       {
         $errors = $originType->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors_str = $originType->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 

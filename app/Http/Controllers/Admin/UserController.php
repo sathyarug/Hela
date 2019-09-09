@@ -99,7 +99,7 @@ class UserController extends Controller {
       }
       else
       {
-          $errors = $color->errors();// failure, get errors
+          $errors = $profile->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
@@ -341,7 +341,7 @@ public function update(Request $request, $id)
     $order_column = $data['columns'][$order['column']]['data'];
     $order_type = $order['dir'];
 
-    $user_list = UsrProfile::join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
+    $user_list = UsrProfile::leftjoin('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')
     ->join('org_departments', 'usr_profile.dept_id', '=', 'org_departments.dep_id')
     ->join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
     //->join('org_location', 'usr_profile.loc_id', '=', 'org_location.loc_id')

@@ -17,14 +17,14 @@ class CustomerOrder extends BaseValidator
 
     protected $fillable=['order_style','order_customer','order_division',/*'order_type',*/'order_status','order_buy_name','order_season','order_stage'];
 
-    protected $rules=array(
+    /*protected $rules=array(
         'order_style'=>'required',
         'order_customer'=>'required',
         'order_division' => 'required',
         'order_stage' => 'required',
         'order_season' => 'required',
-        /*'order_status' => 'required'*/
-    );
+
+    );*/
 
     public function __construct() {
         parent::__construct();
@@ -48,6 +48,24 @@ class CustomerOrder extends BaseValidator
         parent::boot();
     }
 
+
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+        'order_style'=>'required',
+        'order_customer'=>'required',
+        'order_division' => 'required',
+        'order_stage' => 'required',
+        'order_season' => 'required'
+      ];
+    }
+
+    //retationships.............................................................
 
 		public function style()
 		{

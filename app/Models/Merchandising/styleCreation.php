@@ -22,10 +22,9 @@ class StyleCreation extends BaseValidator {
     const CREATED_AT = 'created_date';
 
 //    protected $fillable = ['pack_type_description'];
-//    protected $rules = array(
-//        'pack_type_description' => 'required'
-//
-//    );
+    protected $rules = array(
+       'style_no' => 'required'
+    );
 
 
 

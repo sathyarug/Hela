@@ -38,7 +38,8 @@ class User extends BaseValidator
 
     protected $rules = array(
         'user_name' => 'required',
-        'password' => 'required'
+        'password' => 'required',
+        'email' => 'required'
     );
 
     public function roles()

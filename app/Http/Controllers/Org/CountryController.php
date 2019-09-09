@@ -58,7 +58,7 @@ class CountryController extends Controller
         if($country->validate($request->all()))
         {
           $country->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
           $country->status = 1;
           $country->save();
           return response([
@@ -71,8 +71,9 @@ class CountryController extends Controller
 
         }
         else{
-          $errors = $department->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $country->errors();// failure, get errors
+          $errors_str = $country->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -124,7 +125,7 @@ class CountryController extends Controller
           }
             else{
               $country->fill($request->except('country_code'));
-              $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
+              //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($country);
               $country->save();
           return response([
             'data' => [
@@ -138,7 +139,8 @@ class CountryController extends Controller
         else
         {
           $errors = $country->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $country->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

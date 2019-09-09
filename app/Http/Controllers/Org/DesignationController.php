@@ -56,7 +56,7 @@ class DesignationController extends Controller
         {
           $designation->fill($request->all());
           $designation->status = 1;
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [
@@ -68,8 +68,9 @@ class DesignationController extends Controller
         }
         else
         {
-            $errors = $designation->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $designation->errors();// failure, get errors
+          $errors_str = $designation->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -112,7 +113,7 @@ class DesignationController extends Controller
           }
           else{
           $designation->fill($request->except('des_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($designation);
           $designation->save();
 
           return response([ 'data' => [
@@ -125,7 +126,8 @@ class DesignationController extends Controller
         else
         {
           $errors = $designation->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $designation->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
