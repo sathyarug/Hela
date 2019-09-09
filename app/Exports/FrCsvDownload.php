@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Models\Org\UOM;
-
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -117,7 +116,6 @@ class FrCsvDownload implements FromArray, WithHeadings, WithMapping, WithStrictN
 
     public function map($fr): array
     {
-        //print_r($fr->print);
         return [
             $fr->style.'::'.$fr->silhouette.'_'.$fr->component.'::'.$fr->color_option,
             $fr->silhouette.'_'.$fr->component,
@@ -133,7 +131,6 @@ class FrCsvDownload implements FromArray, WithHeadings, WithMapping, WithStrictN
             1,
             1,
             'END',
-
         ];
     }
 

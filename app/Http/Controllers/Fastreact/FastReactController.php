@@ -10,6 +10,7 @@ use App\Models\IE\ComponentSMVHeader;
 use App\Models\IE\ComponentSMVDetails;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FrCsvDownload;
+use App\Exports\FrOrderDownload;
 use DB;
 
 
@@ -174,6 +175,14 @@ class FastReactController extends Controller
     {
 
       return (new FrCsvDownload)->download('PRODUCTS.CSV', \Maatwebsite\Excel\Excel::CSV,
+      ['Content-Type' => 'text/csv']);
+
+    }
+
+    public function export_csv_orders(Request $request)
+    {
+
+      return (new FrOrderDownload)->download('ORDERS.CSV', \Maatwebsite\Excel\Excel::CSV,
       ['Content-Type' => 'text/csv']);
 
     }

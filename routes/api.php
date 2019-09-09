@@ -352,6 +352,7 @@ Route::prefix('fastreact/')->group(function(){
     Route::apiResource('get-data','Fastreact\FastReactController');
     Route::post('load_fr_Details','Fastreact\FastReactController@load_fr_Details');
     Route::get('export_csv' , 'Fastreact\FastReactController@export_csv');
+    Route::get('export_csv_orders' , 'Fastreact\FastReactController@export_csv_orders');
 
 });
 
