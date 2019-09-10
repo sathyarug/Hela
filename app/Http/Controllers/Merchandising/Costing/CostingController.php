@@ -265,9 +265,13 @@ class CostingController extends Controller {
             if($finish_goods[$x]['fg_id'] == 0){ //new finish good
               $fg = new CostingFinishGood();
               $fg->costing_id = $costing->id;
+              $fg->epm = 0;
+              $fg->np = 0;
             }
             else{
               $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);// get existing finish good
+              $fg->epm = $fg->calculate_epm($costing->fob, $fg->total_rm_cost, $costing->total_smv);//calculate finish good epm
+              $fg->np = $fg->calculate_np($costing->fob, $fg->total_cost);//calculate np value
             }
 
             if($product_feature->count == 1) {//single pack, then set combo color to garment color
@@ -280,8 +284,6 @@ class CostingController extends Controller {
             $fg->pack_no = $finish_goods[$x]['pack_no'];
             $fg->pack_no_code = 'FG'.str_pad($fg->pack_no, 3, '0', STR_PAD_LEFT);
             $fg->product_feature = $finish_goods[$x]['product_feature_id'];
-            $fg->epm = 0;
-            $fg->np = 0;
             $fg->save();
 
             $fg->fg_code = 'FNG'.str_pad($fg->fg_id, 7, '0', STR_PAD_LEFT);
@@ -311,6 +313,14 @@ class CostingController extends Controller {
 
             }
           }
+
+          if(sizeof($finish_goods) > 0){//update costing epm and np margine
+            $first_finish_good = CostingFinishGood::find($finish_goods[0]['fg_id']);
+            $costing->epm = $first_finish_good->epm;
+            $costing->np_margine = $first_finish_good->np;
+            $costing->save();//set and save costing header with first finisg good's epm and np margine
+          }
+
           return response([
             'data' => [
               'status' => 'success',
@@ -997,7 +1007,8 @@ ORDER BY item_category.category_id');
           $costing_copy = $costing->replicate();
           $costing_copy->bom_stage_id = $bom_stage_id;
           $costing_copy->season_id = $season_id;
-          $costing_copy->color_type_id;
+          $costing_copy->color_type_id = $color_type_id;
+          $costing_copy->sc_no = null;
           $costing_copy->approval_user = null;
           $costing_copy->approval_date = null;
           $costing_copy->approval_sent_date = null;
@@ -1005,6 +1016,9 @@ ORDER BY item_category.category_id');
           $costing_copy->total_smv = $new_total_smv;
           $costing_copy->status = 'CREATE';
           $costing_copy->save();
+
+          $costing_copy->sc_no = str_pad($costing_copy->id, 5, '0', STR_PAD_LEFT);
+          $costing_copy->save();//generate sc no and update
 
           $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
           for($x = 0 ; $x < sizeof($finish_goods); $x++){
@@ -1302,7 +1316,7 @@ ORDER BY item_category.category_id');
     private function autocomplete_search($search)
   	{
   		$ists = Costing::select('id','sc_no')
-  		->where([['sc_no', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['sc_no', 'like', '%' . $search . '%'], ['status', '=', 'APPROVED']]) ->get();
   		return $ists;
   	}
 

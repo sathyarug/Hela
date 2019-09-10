@@ -44,6 +44,8 @@ Route::group([
 
 });
 
+  Route::get('test-email' , 'TestController@send_mail');
+
 //org routing.................................
 
 /*

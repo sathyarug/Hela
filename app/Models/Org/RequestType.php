@@ -15,19 +15,33 @@ class RequestType extends BaseValidator
 
     protected $fillable = ['request_type'];
 
-    protected $rules = array(
+    /*protected $rules = array(
         'request_type' => 'required'
+    );*/
 
-    );
-
-
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
-        $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
-        );
     }
 
+    //Accessors & Mutators......................................................
+
+    public function setRequestTypeAttribute($value) {
+        $this->attributes['request_type'] = strtoupper($value);
+    }
+
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'request_type' => [
+            'required',
+            'unique:org_request_type,request_type,'.$data['request_type_id'].',request_type_id',
+          ]
+      ];
+    }
 
 }

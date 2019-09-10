@@ -55,7 +55,7 @@ class UomController extends Controller
         if($uom->validate($request->all()))
         {
           $uom->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
           $uom->uom_code=$request->uom_code;
           $uom->status = 1;
           $uom->save();
@@ -68,8 +68,9 @@ class UomController extends Controller
         }
         else
         {
-            $errors = $uom->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $uom->errors();// failure, get errors
+          $errors_str = $uom->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -114,7 +115,7 @@ class UomController extends Controller
           if($uom->validate($request->all()))
           {
             $uom->fill($request->except('uom_code'));
-            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
+            //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($uom);
             $uom->uom_code=$request->uom_code;
             $uom->save();
 
@@ -127,7 +128,8 @@ class UomController extends Controller
           else
           {
             $errors = $uom->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            $errors_str = $uom->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
           }
         }
       }

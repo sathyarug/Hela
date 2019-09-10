@@ -49,7 +49,7 @@ class RequestTypeController extends Controller
       {
         $requestType->fill($request->all());
         $requestType->status = 1;
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
+        //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
         $requestType->save();
 
         return response([ 'data' => [
@@ -60,8 +60,9 @@ class RequestTypeController extends Controller
       }
       else
       {
-          $errors = $requestType->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $requestType->errors();// failure, get errors
+        $errors_str = $requestType->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
@@ -84,7 +85,7 @@ class RequestTypeController extends Controller
       if($requestType->validate($request->all()))
       {
         $requestType->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
+        //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($requestType);
         $requestType->save();
 
         return response([ 'data' => [
@@ -95,7 +96,8 @@ class RequestTypeController extends Controller
       else
       {
         $errors = $requestType->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors_str = $requestType->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 

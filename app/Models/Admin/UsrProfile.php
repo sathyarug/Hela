@@ -26,7 +26,7 @@ class UsrProfile extends BaseValidator
     ];
 
     protected $rules = array(
-        'loc_id' => 'required',
+        /*'loc_id' => 'required',*/
         'dept_id' => 'required',
         'cost_center_id' => 'required',
         'desig_id' => 'required',

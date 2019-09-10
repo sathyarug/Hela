@@ -55,7 +55,7 @@ class SectionController extends Controller
             //$request->section_code=strtoupper($request->section_code);
             //echo($request->section_code);
             $section->fill($request->all());
-            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
+            //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
             $section->status = 1;
             $section->save();
 
@@ -67,8 +67,9 @@ class SectionController extends Controller
           }
           else
           {
-              $errors = $section->errors();// failure, get errors
-              return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            $errors = $section->errors();// failure, get errors
+            $errors_str = $section->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
           }
       }
       else {
@@ -115,7 +116,7 @@ class SectionController extends Controller
         if($section->validate($request->all()))
         {
           $section->fill($request->except('section_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($section);
           $section->save();
 
           return response([ 'data' => [
@@ -128,7 +129,8 @@ class SectionController extends Controller
         else
         {
           $errors = $section->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $section->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else {

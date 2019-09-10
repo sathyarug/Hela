@@ -23,7 +23,7 @@ class StyleCreation extends BaseValidator {
 
 //    protected $fillable = ['pack_type_description'];
     protected $rules = array(
-      'style_no' => 'required'
+       'style_no' => 'required'
     );
 
 

@@ -55,7 +55,7 @@ class DepartmentController extends Controller
         {
           $department->fill($request->all());
           $department->status = 1;
-         $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
+         //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
           $department->save();
 
           return response([ 'data' => [
@@ -67,8 +67,9 @@ class DepartmentController extends Controller
         }
         else
         {
-            $errors = $department->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $department->errors();// failure, get errors
+          $errors_str = $department->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else {
@@ -113,7 +114,7 @@ class DepartmentController extends Controller
           }
           else {
           $department->fill($request->except('dep_code'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($department);
           $department->save();
 
           return response([ 'data' => [
@@ -126,7 +127,8 @@ class DepartmentController extends Controller
         else
         {
           $errors = $department->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $department->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else {
