@@ -14,6 +14,7 @@ use App\Models\Merchandising\CustomerOrderSize;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Merchandising\Costing\Costing;
+use App\Libraries\CapitalizeAllFields;
 
 class CustomerOrderDetailsController extends Controller
 {
@@ -61,7 +62,37 @@ class CustomerOrderDetailsController extends Controller
       $order_details = new CustomerOrderDetails();
       if($order_details->validate($request->all()))
       {
+
+        $check_duplicate = CustomerOrderDetails::select('*')
+           ->where('style_color' , '=', $request->style_color )
+           ->where('pcd' , '=', $request->pcd )
+           ->where('rm_in_date' , '=', $request->rm_in_date )
+           ->where('po_no' , '=', $request->po_no )
+           ->where('planned_delivery_date' , '=', $request->planned_delivery_date )
+           ->where('fob' , '=', $request->fob )
+           ->where('country' , '=', $request->country )
+           ->where('projection_location' , '=', $request->projection_location )
+           ->where('order_qty' , '=', $request->order_qty )
+           ->where('excess_presentage' , '=', $request->excess_presentage )
+           ->where('ship_mode' , '=', $request->ship_mode )
+           ->where('ex_factory_date' , '=', $request->ex_factory_date )
+           ->where('colour_type' , '=', $request->colour_type )
+           ->where('ac_date' , '=', $request->ac_date )
+           ->where('cus_style_manual' , '=', $request->cus_style_manual )
+           ->where('order_id' , '=', $request->order_id )
+           ->where('delivery_status' , '<>', 'CANCELLED' )
+           ->get();
+
+           //dd(sizeof($check_duplicate));
+           //dd($request);
+
+           if(sizeof($check_duplicate) != 0){
+             return response([ 'data' => ['status' => 'error','message' => 'Order Line Details already exist ..!']]);
+           }
+
         $order_details->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($order_details);
+        $order_details->style_description = '';
         $order_details->delivery_status = 'PLANNED';
         $order_details->version_no = 0;
         $order_details->line_no = $this->get_next_line_no($order_details->order_id);
@@ -72,10 +103,12 @@ class CustomerOrderDetailsController extends Controller
         $order_details = $this->get_delivery_details($order_details->details_id);
 
         return response([ 'data' => [
-          'message' => 'Customer order line was saved successfully',
+          'message' => 'Sales order line saved successfully',
           'customerOrderDetails' => $order_details
           ]
         ], Response::HTTP_CREATED );
+
+
       }
       else
       {
@@ -124,6 +157,32 @@ class CustomerOrderDetailsController extends Controller
       //    echo json_encode($order_details);die();
         if($order_details->validate($request->all()))
         {
+          $check_duplicate = CustomerOrderDetails::select('*')
+             ->where('style_color' , '=', $request->style_color )
+             ->where('pcd' , '=', $request->pcd )
+             ->where('rm_in_date' , '=', $request->rm_in_date )
+             ->where('po_no' , '=', $request->po_no )
+             ->where('planned_delivery_date' , '=', $request->planned_delivery_date )
+             ->where('fob' , '=', $request->fob )
+             ->where('country' , '=', $request->country )
+             ->where('projection_location' , '=', $request->projection_location )
+             ->where('order_qty' , '=', $request->order_qty )
+             ->where('excess_presentage' , '=', $request->excess_presentage )
+             ->where('ship_mode' , '=', $request->ship_mode )
+             ->where('ex_factory_date' , '=', $request->ex_factory_date )
+             ->where('colour_type' , '=', $request->colour_type )
+             ->where('ac_date' , '=', $request->ac_date )
+             ->where('cus_style_manual' , '=', $request->cus_style_manual )
+             ->where('order_id' , '=', $request->order_id )
+             ->where('delivery_status' , '<>', 'CANCELLED' )
+             ->get();
+
+             //dd(sizeof($check_duplicate));
+             //dd($request);
+
+             if(sizeof($check_duplicate) != 0){
+               return response([ 'data' => ['status' => 'error','message' => 'Order Line Details already exist ..!']]);
+             }
 
           $order_details_new = new CustomerOrderDetails();
           $order_details_new->fill($request->all());
@@ -161,10 +220,10 @@ class CustomerOrderDetailsController extends Controller
                 $new_size->line_no = $size->line_no;
                 $new_size->save();
               }
-              $message = 'Customer order line was saved successfully';
+              $message = 'Sales order line updated successfully';
           }
           else{
-              $message = 'Customer order line was saved successfully. But planned qty mismatch. Please enter size qty again.';
+              $message = 'Sales order line updated successfully. But planned qty mismatch. Please enter size qty again.';
           }
           //$order_details_new = CustomerOrderDetails::with(['order_country','order_location'])->find($order_details_new->details_id);
           $order_details_new = $this->get_delivery_details($order_details_new->details_id);
@@ -189,7 +248,7 @@ class CustomerOrderDetailsController extends Controller
       /*$customer = Customer::where('customer_id', $id)->update(['status' => 0]);*/
       return response([
         'data' => [
-          'message' => 'Customer was deactivated successfully.',
+          'message' => 'Sales deactivated successfully.',
           'customer' => null
         ]
       ] , Response::HTTP_NO_CONTENT);
@@ -272,7 +331,7 @@ class CustomerOrderDetailsController extends Controller
       if($status == 'PLANNED'){
         $line = CustomerOrderDetails::find($details_id);
         if($line['delivery_status'] == 'PLANNED'){
-          $updateDetails = ['active_status' => 'INACTIVE','delivery_status' => 'CANCELED'];
+          $updateDetails = ['active_status' => 'INACTIVE','delivery_status' => 'CANCELLED'];
           CustomerOrderDetails::where('details_id', $details_id)->update($updateDetails);
         }else{
           return response([
@@ -285,7 +344,7 @@ class CustomerOrderDetailsController extends Controller
 
 
       }
-      else if ($status == 'CANCELED'){
+      else if ($status == 'CANCELLED'){
 
         CustomerOrderDetails::where('details_id', $details_id)
             ->update(['active_status' => 'INACTIVE']);
@@ -352,12 +411,13 @@ class CustomerOrderDetailsController extends Controller
     {
       $split_count = $request->split_count;
       $delivery_id = $request->delivery_id;
+      $lines       = $request->lines;
 
       $delivery = CustomerOrderDetails::find($delivery_id);
       $excess_presentage = $delivery->excess_presentage;
 
       //$split_order_qty = ceil($delivery->order_qty / $split_count);
-     // $split_plan_qty = ceil((($split_order_qty * $delivery->excess_presentage) / 100) + $split_order_qty);
+      // $split_plan_qty = ceil((($split_order_qty * $delivery->excess_presentage) / 100) + $split_order_qty);
 
       $sizes = CustomerOrderSize::where('details_id','=',$delivery->details_id)->get();//get all sizes belongs to current delivery
       $new_delivery_ids = [];
@@ -377,8 +437,8 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->excess_presentage = $delivery['excess_presentage'];
         $delivery_new->ship_mode = $delivery['ship_mode'];
         $delivery_new->delivery_status = $delivery['delivery_status'];
-        //$delivery_new->order_qty = $split_order_qty;
-        //$delivery_new->planned_qty = $split_plan_qty;
+        $delivery_new->order_qty = $lines[$x]['order_qty'];
+        $delivery_new->planned_qty = $lines[$x]['planned_qty'];
         $delivery_new->line_no = $this->get_next_line_no($delivery->order_id);
         $delivery_new->version_no = 0;
         $delivery_new->parent_line_id = $delivery->details_id;
@@ -389,15 +449,15 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->active_status = 'ACTIVE';
         $delivery_new->costing_id = $delivery['costing_id'];
         $delivery_new->fg_id = $delivery['fg_id'];
+        $delivery_new->colour_type = $delivery['colour_type'];
         $delivery_new->save();
 
-        array_push($new_delivery_ids , $delivery_new->details_id);
-        $split_order_qty = 0;
-        $split_plan_qty = 0;
+          array_push($new_delivery_ids , $delivery_new->details_id);
+        /*  $split_order_qty = 0;
+          $split_plan_qty = 0;
 
         foreach($sizes as $size){ //create new sizes with new order qty
           $order_qty2 = $size->order_qty;
-          //$excess_presentage = $size['excess_presentage'];
           $split_order_qty2 = ceil($order_qty2 / $split_count);
           $split_planned_qty2 = ceil((($split_order_qty2 * $excess_presentage) / 100) + $split_order_qty2);
 
@@ -423,20 +483,20 @@ class CustomerOrderDetailsController extends Controller
           $s_qty = ceil($delivery['order_qty'] / $split_count);
           $delivery_new->order_qty = $s_qty;
           $delivery_new->planned_qty = ceil((($s_qty * $excess_presentage) / 100) + $s_qty);
-        }
+        } */
 
         $delivery_new->save();
       }
 
       $new_delivery_ids_str = json_encode($new_delivery_ids);
       $delivery->split_lines = $new_delivery_ids_str;
-      $delivery->delivery_status = 'CANCELED';
+      $delivery->delivery_status = 'CANCELLED';
       $delivery->type_modified = 'SPLIT';
       $delivery->active_status = 'INACTIVE';
       $delivery->save();
 
       return response([ 'data' => [
-        'message' => 'Delivery was splited successfully'/*,
+        'message' => 'Delivery splited successfully'/*,
         'customerOrderDetails' => $order_details*/
         ]
       ], Response::HTTP_CREATED );
@@ -499,12 +559,13 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->active_status = 'ACTIVE';
         $delivery_new->costing_id = $delivery['costing_id'];
         $delivery_new->fg_id = $delivery['fg_id'];
+        $delivery_new->colour_type = $delivery['colour_type'];
         $delivery_new->save();
 
         //$new_sizes = [];
         for($x = 0 ; $x < sizeof($lines) ; $x++){
           $delivery = CustomerOrderDetails::find($lines[$x]);
-          $delivery->delivery_status = 'CANCELED';
+          $delivery->delivery_status = 'CANCELLED';
           $delivery->type_modified = 'MERGE';
           //$delivery->active_status = 'INACTIVE';
           $delivery->merge_generated_line_id = $delivery_new->details_id;
@@ -536,7 +597,7 @@ class CustomerOrderDetailsController extends Controller
         return response([
           'data' => [
             'status' => 'success',
-            'message' => 'Lines were merged successfully.'
+            'message' => 'Lines merged successfully.'
           ]
         ] , 200);
       }
@@ -558,7 +619,15 @@ class CustomerOrderDetailsController extends Controller
           $deliveries = CustomerOrderDetails::where('order_id', '=', $delivery->order_id)
           ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
           ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
-          ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
+          ->join('org_location','org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
+          ->select('org_location.loc_name','merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name','org_country.country_description',
+          DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd'"),
+          DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date'"),
+          DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date'"),
+          DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date'"),
+          DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date'")
+
+          )
           ->where('line_no', '=', $delivery->line_no)
           ->get();
         }
@@ -577,7 +646,14 @@ class CustomerOrderDetailsController extends Controller
             $deliveries = CustomerOrderDetails::where('details_id', '=', $delivery->parent_line_id)
             ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
             ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
-            ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
+            ->join('org_location','org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
+            ->select('org_location.loc_name','merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description',
+            DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date'")
+            )
             ->get();
           }
           else if($delivery->type_created == 'GFM'){
@@ -586,7 +662,13 @@ class CustomerOrderDetailsController extends Controller
             $deliveries = CustomerOrderDetails::whereIn('details_id', $merged_lines)
             ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
             ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
-            ->select('merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description')
+            ->join('org_location','org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
+            ->select('org_location.loc_name','merc_customer_order_details.*', 'org_color.color_code', 'org_color.color_name', 'org_country.country_description',
+            DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date'"),
+            DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date'"))
             ->get();
           }
 

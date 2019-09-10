@@ -15,26 +15,26 @@ class CustomerOrderDetails extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['order_id','style_color','style_description','pcd','rm_in_date','po_no','planned_delivery_date','revised_delivery_date',
-  'fob','country','projection_location','order_qty','excess_presentage','planned_qty','ship_mode','ex_factory_date','ac_date','active_status','colour_type','cus_style_manual'/*,'delivery_status'*/];
+    protected $fillable=['order_id','style_color'/*,'style_description'*/,'pcd','rm_in_date','po_no','planned_delivery_date',/*'revised_delivery_date',*/
+  'fob','country','projection_location','order_qty','excess_presentage','planned_qty','ship_mode',
+  'ex_factory_date','ac_date','active_status','colour_type','cus_style_manual'/*,'delivery_status'*/];
 
     protected $rules=array(
-      /*  'order_id'=>'required',
+        'order_id'=>'required',
         'style_color'=>'required',
-        'style_description' => 'required',
+        //'style_description' => 'required',
         'pcd' => 'required',
         'rm_in_date' => 'required',
         'po_no' => 'required',
         'planned_delivery_date' => 'required',
-        'revised_delivery_date' => 'required',
+        //'revised_delivery_date' => 'required',
         'fob' => 'required',
         'country' => 'required',
         'projection_location' => 'required',
         'order_qty' => 'required',
-        'excess_presentage' => 'required'.
+        'excess_presentage' => 'required',
         'planned_qty' => 'required',
-        'ship_mode' => 'required',
-        'delivery_status' => 'required'*/
+        'ship_mode' => 'required'
     );
 
     public function __construct() {

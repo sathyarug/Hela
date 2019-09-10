@@ -17,22 +17,11 @@ class CustomerOrderSize extends BaseValidator
     protected $fillable=['details_id','size_id','order_qty','planned_qty'];
 
     protected $rules=array(
-      /*  'order_id'=>'required',
-        'style_color'=>'required',
-        'style_description' => 'required',
-        'pcd' => 'required',
-        'rm_in_date' => 'required',
-        'po_no' => 'required',
-        'planned_delivery_date' => 'required',
-        'revised_delivery_date' => 'required',
-        'fob' => 'required',
-        'country' => 'required',
-        'projection_location' => 'required',
+        'details_id'=>'required',
+        'size_id'=>'required',
         'order_qty' => 'required',
-        'excess_presentage' => 'required'.
-        'planned_qty' => 'required',
-        'ship_mode' => 'required',
-        'delivery_status' => 'required'*/
+        'planned_qty' => 'required'
+
     );
 
     public function __construct() {
