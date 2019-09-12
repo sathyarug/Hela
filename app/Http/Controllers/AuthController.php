@@ -112,7 +112,8 @@ class AuthController extends Controller
          'user_id' => $user->user_id,
          'location' => $location,
          'first_name' => $user->first_name,
-         'last_name' => $user->last_name
+         'last_name' => $user->last_name,
+         'd2d_epf' => $user->d2d_epf
        ];
 
        $permissions = DB::table('usr_login_permission')->where('user_id' , '=', $user_id)->pluck('permission_code');
@@ -135,7 +136,8 @@ class AuthController extends Controller
          'user_id' => $user->user_id,
          'location' => $loc_id,
          'first_name' => $user->first_name,
-         'last_name' => $user->last_name
+         'last_name' => $user->last_name,
+         'd2d_epf' => $user->d2d_epf
        ];
 
        $permissions = DB::table('usr_login_permission')->where('user_id' , '=', $user_id)->pluck('permission_code');
@@ -151,7 +153,7 @@ class AuthController extends Controller
 
 
    private function get_user_from_username($username){
-     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.dept_id')
+     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.dept_id', 'usr_profile.d2d_epf')
      ->join('usr_login','usr_login.user_id','=','usr_profile.user_id')
      ->where('usr_login.user_name','=',$username)
      ->first();

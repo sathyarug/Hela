@@ -346,6 +346,11 @@ Route::prefix('stores/')->group(function(){
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
 
 });
+Route::prefix('d2d/')->group(function(){
+
+    Route::post('load_d2d_user','D2d\D2DController@load_d2d_user');
+
+});
 
 Route::prefix('fastreact/')->group(function(){
 
