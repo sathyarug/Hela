@@ -219,7 +219,7 @@ class CountryController extends Controller
     private function autocomplete_search($search)
   	{
   		$country_lists = Country::select('country_id','country_code','country_description')
-  		->where([['country_description', 'like', '%' . $search . '%'],['status','<>','0']])
+  		->where([['country_description', 'like', '%' . $search . '%'],['status','<>',0]])
       ->get();
   		return $country_lists;
   	}
