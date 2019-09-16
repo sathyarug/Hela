@@ -286,6 +286,13 @@ class CostingController extends Controller {
             $fg->product_feature = $finish_goods[$x]['product_feature_id'];
             $fg->save();
 
+            //set and save costing header with first finisg good's epm and np margine
+            if($x == 0){//update costing epm and np margine
+              $costing->epm = $fg->epm;
+              $costing->np_margine = $fg->np;
+              $costing->save();
+            }
+
             $fg->fg_code = 'FNG'.str_pad($fg->fg_id, 7, '0', STR_PAD_LEFT);
             $fg->save();//generate and save finish good code
 
@@ -310,15 +317,7 @@ class CostingController extends Controller {
 
               $finish_good_component->sfg_code = 'SFG'.str_pad($finish_good_component->id, 7, '0', STR_PAD_LEFT);
               $finish_good_component->save();//generate and save finish good code
-
             }
-          }
-
-          if(sizeof($finish_goods) > 0){//update costing epm and np margine
-            $first_finish_good = CostingFinishGood::find($finish_goods[0]['fg_id']);
-            $costing->epm = $first_finish_good->epm;
-            $costing->np_margine = $first_finish_good->np;
-            $costing->save();//set and save costing header with first finisg good's epm and np margine
           }
 
           return response([
@@ -341,11 +340,12 @@ class CostingController extends Controller {
 
     public function approve_costing(Request $request) {
       $costing_id = $request->costing_id;
-    /*  $costing = Costing::find($costing_id);
-      $costing->status = 'APPROVED';
-      $costing->save();*/
-
-      $this->generate_bom_for_costing($costing_id);//generate boms for all coonected deliveries
+      $costing = Costing::find($costing_id);
+      if($costing->status != 'APPROVED'){
+        $costing->status = 'APPROVED';
+        $costing->save();
+        $this->generate_bom_for_costing($costing_id);//generate boms for all coonected deliveries
+      }
     }
 
 

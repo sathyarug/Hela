@@ -25,7 +25,16 @@ class TestController extends Controller {
 
 
     public function send_mail(){
-      MailSendJob::dispatch();
+      $data = [
+        'to' => 'chamilap@helaclothing.com',
+        'mail_data' => [
+          'header_title' => 'Test',
+          'body' => 'This is a sample email'
+        ]
+      ];
+      $job = new MailSendJob($data);
+      dispatch($job);
+    //  MailSendJob::dispatch();
     //return view('email.email');
     }
 

@@ -93,12 +93,12 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td class="h2">
-                Welcome to our responsive email!
+                Costing Approval
               </td>
             </tr>
             <tr>
               <td class="bodycopy">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, eget accumsan dictum, nisi libero ultricies ipsum, in posuere mauris neque at erat.
+                This is a sample costing approval email
               </td>
             </tr>
           </table>
@@ -106,13 +106,6 @@
       </tr>
       <tr>
         <td class="innerpadding borderbottom">
-          <table width="115" align="left" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-              <td height="115" style="padding: 0 20px 20px 0;">
-                <img class="fix" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/article1.png" width="115" height="115" border="0" alt="" />
-              </td>
-            </tr>
-          </table>
 
           <table class="col380" align="left" border="0" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 380px;">
             <tr>

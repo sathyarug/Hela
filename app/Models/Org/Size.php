@@ -20,6 +20,23 @@ class Size extends BaseValidator
         parent::__construct();
     }
 
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'size_name' => [
+            'required',
+            'unique:org_size,size_name,'.$data['size_id'].',size_id',
+          ]
+      ];
+    }
+
+    //relationships.............................................................
+
     public function category()
 		{
 			 return $this->belongsTo('App\Models\Finance\Item\Category' , 'category_id')->select(['category_id','category_name']);
