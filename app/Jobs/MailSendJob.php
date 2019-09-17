@@ -15,14 +15,16 @@ class MailSendJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private $data = null;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($config_data)
     {
-        //
+        $this->data = $config_data;
     }
 
     /**
@@ -32,8 +34,6 @@ class MailSendJob implements ShouldQueue
      */
     public function handle()
     {
-      Mail::to('chamilap@helaclothing.com')->send(new MailSenderMailable([
-        'header_title' => 'Test'
-      ]));
+      Mail::to($this->data['to'])->send(new MailSenderMailable($this->data['mail_data']));
     }
 }
