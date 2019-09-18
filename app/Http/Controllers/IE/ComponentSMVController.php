@@ -71,6 +71,15 @@ class ComponentSMVController extends Controller
       $comments=$request->comments;
       $revisionNo=$request->revisionNo;
       $headerTableId=$request->componentSmvHeaderId;
+      $is_used_in_costing=DB::table('costing')->where('style_id','=',$styleId)->where('bom_stage_id','=',$bomStageID)->where('color_type_id','=',$colorOptionId)->exists();
+      if($is_used_in_costing==true){
+        return response(['data'=>[
+          'message'=>"Component SMV Already In use",
+          'status'=>0
+          ]
+        ]);
+      }
+      else{
       if($headerTableId==0){
       $smvComponentHeader=new ComponentSMVHeader();
       $smvComponentHeader->style_id=$styleId;
@@ -118,6 +127,7 @@ class ComponentSMVController extends Controller
 
     return response(['data'=>[
       'message'=>"Component SMV Saved sucessfully",
+      'status'=>1
       ]
     ]);
   }
@@ -213,8 +223,10 @@ class ComponentSMVController extends Controller
 
            return response(['data'=>[
              'message'=>"Component SMV  Revised Successfully",
+             'status'=>1
              ]
            ]);
+      }
   }
     }
 
@@ -521,6 +533,7 @@ else
       ->join('product_component','product_component.product_component_id','=','product_feature_component.product_component_id')
       ->select('product_feature_component.line_no','pf1.product_feature_description','pf1.product_feature_id','product_silhouette.product_silhouette_description','product_component.product_component_description','product_component.product_component_id','product_silhouette.product_silhouette_id')
       ->where('style_creation.style_id','=',$styleId)
+      ->where('product_feature_component.status','=',1)
       //->toSql();
       //echo $details;
       ->get();

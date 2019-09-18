@@ -208,7 +208,8 @@ class BOMStageController extends Controller
     private function autocomplete_search($search)
   	{
   		$bomstage_lists = BOMStage::select('bom_stage_id','bom_stage_description')
-  		->where([['bom_stage_description', 'like', '%' . $search . '%']]) ->get();
+  		->where([['bom_stage_description', 'like', '%' . $search . '%']])
+      ->where('status','=',1) ->get();
   		return $bomstage_lists;
   	}
 

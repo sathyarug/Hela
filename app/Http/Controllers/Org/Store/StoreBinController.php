@@ -15,14 +15,15 @@ class StoreBinController extends Controller {
      */
     public function index(Request $request) {
         $type = $request->type;
-
+        //dd($type);
         if ($type == 'datatable') {
             $data = $request->all();
             return response($this->datatable_search($data));
         } else if ($type == 'auto') {
             $search = $request->search;
             return response($this->autocomplete_search($search));
-        } else {
+        }
+           else {
             $active = $request->active;
             $fields = $request->fields;
             return response([
@@ -130,6 +131,15 @@ class StoreBinController extends Controller {
         return $bin_list;
     }
 
+    //search bin  related to the subStoreBin
+  /*  private function autocomplete_substore_wise_bin_search($search,$subStoreBin) {
+      //dd("dadadada");
+        $bin_list = DB::table('org_store_bin')->select('store_bin_name')
+                        ->where([['store_bin_name', 'like', '%' . $search . '%'],])
+                        ->where('substore_id','=',$subStoreBin)->get();
+        return $bin_list;
+    }
+*/
     //get searched goods types for datatable plugin format
     private function datatable_search($data) {
         $start = $data['start'];

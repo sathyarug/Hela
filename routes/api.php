@@ -289,7 +289,7 @@ Route::prefix('stores/')->group(function(){
   /********edited*/
   Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
   Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
-  Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  Route::apiResource('fabricInspection','Store\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
@@ -318,7 +318,7 @@ Route::prefix('stores/')->group(function(){
     /********edited*/
   Route::get('supplier-tolarance/validate' , 'Stores\SupplierTolaranceController@validate_data');
   Route::apiResource('supplier-tolarance','Stores\SupplierTolaranceController');
-  Route::apiResource('fabricInspection','stores\FabricInspectionController');
+  //Route::apiResource('fabricInspection','stores\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
@@ -342,7 +342,8 @@ Route::prefix('stores/')->group(function(){
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
-
+  Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
+  //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
 });
 
 Route::prefix('fastreact/')->group(function(){

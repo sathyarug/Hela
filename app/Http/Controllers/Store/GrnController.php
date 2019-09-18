@@ -391,102 +391,104 @@ class GrnController extends Controller
 
     public function fiterData(Request $request){
 
-    $customer_id=$request['customer_name']['customer_id'];
-    $customer_po=$request['customer_po']['order_id'];
-    $color=$request['color']['color_id'];
-    $itemDesacription=$request['item_description']['master_id'];
-    $pcd=$request['pcd_date'];
-    $rm_in_date=$request['rm_in_date'];
-    $po_id=$request['po_id'];
-    $supplier_id=$request['supplier_id'];
+   $customer_id=$request['customer_name']['customer_id'];
+   $customer_po=$request['customer_po']['order_id'];
+   $color=$request['color']['color_name'];
+   $itemDesacription=$request['item_description']['master_id'];
+   $pcd=$request['pcd_date'];
+   $rm_in_date=$request['rm_in_date'];
+   $po_id=$request['po_id'];
+   $supplier_id=$request['supplier_id'];
 
 
-
-                              $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
-                                           cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
-                                           item_master.master_description,
-                                           org_color.color_name,
-                                          org_size.size_name,
-                                          org_uom.uom_code,
-                                          merc_po_order_details.tot_qty,
-                                          merc_customer_order_details.rm_in_date,
-                                          merc_customer_order_details.pcd,
-                                          merc_customer_order_details.po_no,
-                                           merc_customer_order_header.order_id,
-                                           item_master.master_id,
-                                           item_master.category_id,
-                                           (SELECT
-                                          SUM(SGD.grn_qty)
-                                          FROM
-                                         store_grn_detail AS SGD
-
-                                         WHERE
-                                        SGD.po_details_id = merc_po_order_details.id
-                                      ) AS tot_grn_qty,
-
-                                      (SELECT
-                                                        bal_qty
-                                                           FROM
-                                                           store_grn_detail AS SGD2
-
-                                                                       WHERE
-                                                                       SGD2.po_details_id = merc_po_order_details.id
-                                                                     ) AS bal_qty,
-                                      (
-
-                                      SELECT
-                                      IFNULL(sum(for_uom.max ),0)as maximum_tolarance
+   //dd($color);
+                          $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
+                                       cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
+                                       item_master.master_description,
+                                       org_color.color_name,
+                                      org_size.size_name,
+                                      org_uom.uom_code,
+                                      merc_po_order_details.tot_qty,
+                                      merc_customer_order_details.rm_in_date,
+                                      merc_customer_order_details.pcd,
+                                      merc_customer_order_details.po_no,
+                                       merc_customer_order_header.order_id,
+                                       item_master.master_id,
+                                       item_master.category_id,
+                                       (SELECT
+                                      SUM(SGD.grn_qty)
                                       FROM
-                                      org_supplier_tolarance AS for_uom
-                                      WHERE
-                                      for_uom.uom_id =  org_uom.uom_id AND
-                                      for_uom.category_id = item_master.category_id AND
-                                      for_uom.subcategory_id = item_master.subcategory_id
-                                    ) AS maximum_tolarance
+                                     store_grn_detail AS SGD
 
+                                     WHERE
+                                    SGD.po_details_id = merc_po_order_details.id
+                                    group By(SGD.po_details_id)
+                                  ) AS tot_grn_qty,
 
+                                  (SELECT
+                                                    bal_qty
+                                                       FROM
+                                                       store_grn_detail AS SGD2
+
+                                                                   WHERE
+                                                                   SGD2.po_details_id = merc_po_order_details.id
+                                                                   group By(SGD2.po_details_id)
+                                                                 ) AS bal_qty,
+                                  (
+
+                                  SELECT
+                                  IFNULL(sum(for_uom.max ),0)as maximum_tolarance
                                   FROM
-                                 merc_po_order_header
-                                INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
-                             LEFT JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number
-                             INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
-                           INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
-                           INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
-                           INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
-                          INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-                          INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
-                          INNER JOIN org_color ON merc_po_order_details.colour = org_color.color_id
-                           INNER JOIN org_size ON merc_po_order_details.size = org_size.size_id
-                         INNER JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
-
-                        /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
-
-                         WHERE merc_po_order_header.po_id = $po_id
-                         AND for_category.supplier_id=$supplier_id
-                         AND merc_customer_order_header.order_id like  '%".$customer_po."'
-                        AND cust_customer.customer_id like  '%".$customer_id."'
-                        AND org_color.color_id like '%".$color."'
-                        AND item_master.master_id like '%".$itemDesacription."'
-                        AND merc_customer_order_details.pcd like '%".$pcd."'
-                        AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."'
-                        AND merc_po_order_details.tot_qty>(SELECT
-                                                              IFNULL(SUM(SGD.grn_qty),0)
-                                                              FROM
-                                                             store_grn_detail AS SGD
-
-                                                             WHERE
-                                                            SGD.po_details_id = merc_po_order_details.id
-                                                          )
-                        GROUP BY merc_po_order_details.id
-                        /*AND store_grn_header.grn_id=*/
-
-                ");
+                                  org_supplier_tolarance AS for_uom
+                                  WHERE
+                                  for_uom.uom_id =  org_uom.uom_id AND
+                                  for_uom.category_id = item_master.category_id AND
+                                  for_uom.subcategory_id = item_master.subcategory_id
+                                ) AS maximum_tolarance
 
 
-                return response([
-                    'data' => $poData
-                ]);
-                  ///return $poData;
+                              FROM
+                             merc_po_order_header
+                            INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
+                         LEFT JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number
+                         INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
+                       INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
+                       INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
+                       INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
+                      INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+                      INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
+                      LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
+                      LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
+                     LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+
+                    /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
+
+                     WHERE merc_po_order_header.po_id = $po_id
+                     AND for_category.supplier_id=$supplier_id
+                     AND merc_customer_order_header.order_id like  '%".$customer_po."%'
+                    AND cust_customer.customer_id like  '%".$customer_id."%'
+                    AND item_master.master_id like '%".$itemDesacription."%'
+                    AND merc_customer_order_details.pcd like '%".$pcd."%'
+                    AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."%'
+                    AND merc_po_order_details.tot_qty>(SELECT
+                                                          IFNULL(SUM(SGD.grn_qty),0)
+                                                          FROM
+                                                         store_grn_detail AS SGD
+
+                                                         WHERE
+                                                        SGD.po_details_id = merc_po_order_details.id
+                                                      )
+                    AND (org_color.color_name IS NULL or  org_color.color_name like '%$color%')
+                    GROUP BY merc_po_order_details.id
+                    /*AND store_grn_header.grn_id=*/
+
+            ");
+
+
+            return response([
+                'data' => $poData
+            ]);
+              ///return $poData;
 
 
 
@@ -494,7 +496,7 @@ class GrnController extends Controller
 
 
 
-    }
+   }
 
     public function destroy($id)
     {
@@ -541,6 +543,7 @@ class GrnController extends Controller
     }
     public function isreadyForRollPlan(Request $request){
       $is_type_fabric=DB::table('item_category')->select('category_code')->where('category_id','=',$request->category_id)->first();
+      $substorewiseBins=DB::table('org_substore')->select('*')->where('substore_id','=',$request->substore_id)->get();
       $status=0;
       $message="";
       $is_grn_same_qty=DB::table('store_grn_header')
@@ -586,7 +589,8 @@ class GrnController extends Controller
           'data'=> [
             'dataModel'=>$is_grn_same_qty,
              'status'=>$status,
-             'message'=>$message
+             'message'=>$message,
+             'substoreWiseBin'=>$substorewiseBins
             ]
       ]);
 
