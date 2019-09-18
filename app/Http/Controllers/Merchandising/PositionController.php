@@ -55,7 +55,7 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->status = 1;
           $position->save();
 
@@ -67,8 +67,9 @@ class PositionController extends Controller
         }
         else
         {
-            $errors = $position->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $position->errors();// failure, get errors
+          $errors_str = $position->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
 
@@ -91,7 +92,7 @@ class PositionController extends Controller
         if($position->validate($request->all()))
         {
           $position->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
+          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($position);
           $position->save();
 
           return response([ 'data' => [
@@ -102,7 +103,8 @@ class PositionController extends Controller
         else
         {
           $errors = $position->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $position->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
 
@@ -211,7 +213,7 @@ class PositionController extends Controller
       }
 
       private function handsontable_search($search){
-        $list = Position::where('position'  , 'like', $search.'%')->get()->pluck('position');
+        $list = Position::where('status', '=', 1)->where('position'  , 'like', $search.'%')->get()->pluck('position');
         return $list;
       }
 

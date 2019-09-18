@@ -15,10 +15,30 @@ class Size extends BaseValidator
 
 
     protected $fillable = ['size_id','size_name', 'status'];
+    protected $rules=array(
+        'size_name'=>'required'
+    );
 
     public function __construct() {
         parent::__construct();
     }
+
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'size_name' => [
+            'required',
+            'unique:org_size,size_name,'.$data['size_id'].',size_id',
+          ]
+      ];
+    }
+
+    //relationships.............................................................
 
     public function category()
 		{

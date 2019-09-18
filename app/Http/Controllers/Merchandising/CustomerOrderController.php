@@ -148,7 +148,7 @@ class CustomerOrderController extends Controller
         $customerOrder->save();
 
         return response([ 'data' => [
-          'message' => 'Customer order updated successfully',
+          'message' => 'Sales order updated successfully',
           'customerOrder' => $customerOrder
         ]]);
       }
@@ -304,11 +304,16 @@ class CustomerOrderController extends Controller
         $customer_count = $searchQueryBuilder->generateQuery($customer_count, $fields);
       }
       else{
-          $customer_list = $customer_list->where('order_code' , 'like', $search.'%' )
-          ->orWhere('order_company'  , 'like', $search.'%' );
+          $customer_list = $customer_list->
+          where('order_code' , 'like', $search.'%' )
+          ->orWhere('style_no'  , 'like', $search.'%' )
+          ->orWhere('customer_name'  , 'like', $search.'%' )
+          ->orWhere('division_description'  , 'like', $search.'%' );
 
           $customer_count = $customer_count->where('order_code'  , 'like', $search.'%' )
-          ->orWhere('order_company'  , 'like', $search.'%' );
+          ->orWhere('style_no'  , 'like', $search.'%' )
+          ->orWhere('customer_name'  , 'like', $search.'%' )
+          ->orWhere('division_description'  , 'like', $search.'%' );
       }
 
       $customer_list = $customer_list->orderBy($order_column, $order_type)

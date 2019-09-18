@@ -250,7 +250,7 @@ class SupplierController extends Controller
 
 
     private function handsontable_search($search){
-      $suppliers = Supplier::where('supplier_name', 'like', $search.'%')->get()->pluck('supplier_name');
+      $suppliers = Supplier::where('status', '=', 1)->where('supplier_name', 'like', $search.'%')->get()->pluck('supplier_name');
       return $suppliers;
     }
 

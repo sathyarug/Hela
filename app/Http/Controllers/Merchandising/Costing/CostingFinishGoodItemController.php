@@ -215,8 +215,8 @@ class CostingFinishGoodItemController extends Controller
         $item_data['position_id'] = null;
       }
       //item color
-      if($item_data['color_name'] != null && $item_data['color_name'] != ''){
-        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_name'])->first()->color_id;
+      if($item_data['color_code'] != null && $item_data['color_code'] != ''){
+        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_code'])->first()->color_id;
       }
       else{
         $item_data['color_id'] = null;
@@ -269,7 +269,7 @@ class CostingFinishGoodItemController extends Controller
         'costing_finish_good_component_items.gross_consumption', 'costing_finish_good_component_items.meterial_type', 'costing_finish_good_component_items.freight_charges',
         'costing_finish_good_component_items.mcq', 'costing_finish_good_component_items.surcharge', 'costing_finish_good_component_items.total_cost',
         'costing_finish_good_component_items.ship_mode', 'costing_finish_good_component_items.lead_time', 'costing_finish_good_component_items.comments',
-        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_name',
+        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description')->where('costing_finish_good_component_items.id', '=', $id)->first();
         return $item;
@@ -291,7 +291,7 @@ class CostingFinishGoodItemController extends Controller
         'costing_finish_good_component_items.gross_consumption', 'costing_finish_good_component_items.meterial_type', 'costing_finish_good_component_items.freight_charges',
         'costing_finish_good_component_items.mcq', 'costing_finish_good_component_items.surcharge', 'costing_finish_good_component_items.total_cost',
         'costing_finish_good_component_items.ship_mode', 'costing_finish_good_component_items.lead_time', 'costing_finish_good_component_items.comments',
-        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_name',
+        'item_category.category_name', 'item_master.master_description', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code', 'org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description', DB::raw('false as edited'))->where('costing_finish_good_component_items.fg_component_id', '=', $fg_component_id)->get();
         return $items;
@@ -310,21 +310,24 @@ class CostingFinishGoodItemController extends Controller
       $fg_component = CostingFinishGoodComponent::find($fg_component_id);
       $fg = CostingFinishGood::find($fg_component->fg_id);
       $costing = Costing::find($fg->costing_id);
-      //echo json_encode($fg->fg_id);die();
+
       $total_fg_rm_cost = $this->calculate_fg_rm_cost($fg->fg_id);
-      $fg->total_cost = $total_fg_rm_cost;
-      $fg->epm = ($costing->fob - $total_fg_rm_cost) / $costing->total_smv;
-      $fg->epm = round($fg->epm, 4, PHP_ROUND_HALF_UP ); //round and assign
-      $fg->np = ($total_fg_rm_cost == 0) ? 0 : ($total_fg_rm_cost - $costing->fob) / $total_fg_rm_cost;
-      $fg->np = round($fg->np, 4, PHP_ROUND_HALF_UP);//round and assign
+      $fg_finance_cost = ($total_fg_rm_cost * $costing->finance_charges) / 100;
+      $fg_total_cost = $total_fg_rm_cost + $costing->labour_cost + $fg_finance_cost + $costing->coperate_cost;//rm cost + labour cost + finance cost + coperate cost
+
+      $fg->total_rm_cost = round($total_fg_rm_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $fg->finance_cost = round($fg_finance_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $fg->total_cost = round($fg_total_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $fg->epm = $fg->calculate_epm($costing->fob, $total_fg_rm_cost, $costing->total_smv);//calculate fg epm
+      $fg->np = $fg->calculate_np($costing->fob, $fg_total_cost); //calculate fg np value
       $fg->save();
 
       if($fg->pack_no == 1){ //update costing header deatils based on first pack
-        $costing->total_rm_cost = $total_fg_rm_cost;
-        $costing->finance_cost = round(($total_fg_rm_cost * $costing->finance_charges), 4, PHP_ROUND_HALF_UP );
-        $costing->total_cost = $total_fg_rm_cost + $costing->labour_cost + $costing->finance_cost + $costing->coperate_cost;
+        $costing->total_rm_cost = $fg->total_rm_cost;
+        $costing->finance_cost = $fg->finance_cost;
+        $costing->total_cost = $fg->total_cost;
         $costing->epm = $fg->epm;
-        $costing->np_margine = $fg->np;
+        $costing->np_margine = $fg->np;      
         $costing->save();
       }
     }

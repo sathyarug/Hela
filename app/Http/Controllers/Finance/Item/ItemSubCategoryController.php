@@ -37,13 +37,13 @@ class ItemSubCategoryController extends Controller
         $sub_category = new SubCategory();
         if ($sub_category->validate($request->all()))
         {
-            if(is_null($request->is_inspectiion_allowed)){
+            if(is_null($request->is_inspectiion_allowed) || $request->is_inspectiion_allowed == false || $request->is_inspectiion_allowed == 0){
                 $IsInspectionAllowed = 0;
             }else{
                 $IsInspectionAllowed = 1;
             }
 
-            if(is_null($request->is_display)){
+            if(is_null($request->is_display) || $request->is_display == false || $request->is_display == 0){
                 $IsDisplay = 0;
             }else{
                 $IsDisplay = 1;
@@ -53,21 +53,29 @@ class ItemSubCategoryController extends Controller
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
                 $sub_category->category_id = $request->category_code;
+                $sub_category->subcategory_code = strtoupper($request->subcategory_code);
                 $sub_category->subcategory_name = strtoupper($request->subcategory_name);
                 $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
                 $sub_category->is_display = $IsDisplay;
+                $result = $sub_category->saveOrFail();
+
+                echo json_encode(array('status' => 'success' , 'message' => 'Sub category details updated successfully.'));
             }
             else{
               $sub_category->fill($request->all());
+              $sub_category->subcategory_code = strtoupper($request->subcategory_code);
               $sub_category->subcategory_name = strtoupper($request->subcategory_name);
               $sub_category->category_id = $request->category_code;
               $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
               $sub_category->is_display = $IsDisplay;
               $sub_category->status = 1;
               $sub_category->created_by = 1;
+              $result = $sub_category->saveOrFail();
+
+              echo json_encode(array('status' => 'success' , 'message' => 'Sub category details saved successfully.'));
+
             }
-            $result = $sub_category->saveOrFail();
-            echo json_encode(array('status' => 'success' , 'message' => 'Sub category details saved successfully.'));
+
         }
         else
         {
@@ -105,14 +113,17 @@ class ItemSubCategoryController extends Controller
 
     public function check_sub_category_code(Request $request)
     {
-        $count = SubCategory::where('subcategory_code','=',$request->subcategory_code)->count();
-        if($count >= 1){
-              //$msg = 'Sub category code already exists';
-            $msg =array('status' => 'error','message' => 'Record already exists');
-          }else{
-        $msg = array('status' => 'success');
+        $sub_category = SubCategory::where('subcategory_code','=',$request->subcategory_code)->first();
+        if($sub_category == null){
+            $msg = ['status' => 'success'];
         }
-        echo json_encode($msg);
+        else if($sub_category->subcategory_id == $request->subcategory_id){
+          $msg = ['status' => 'success'];
+        }
+        else{
+          $msg = ['status' => 'error','message' => 'Record already exists'];
+        }
+        return response($msg);
     }
 
 

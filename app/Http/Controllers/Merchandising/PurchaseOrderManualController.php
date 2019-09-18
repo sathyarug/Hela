@@ -121,6 +121,15 @@ class PurchaseOrderManualController extends Controller
         $pOrder->po_status = 'PLANNED';
         $pOrder->save();
 
+        $current_value = DB::select("SELECT ER.rate FROM merc_po_order_header AS PH
+                INNER JOIN org_exchange_rate AS ER ON PH.po_def_cur = ER.currency WHERE
+                ER.`status` = 1 AND PH.po_id = '$id' ORDER BY ER.id DESC LIMIT 0, 1");
+
+        //print_r($current_value);
+        $cur_update=PoOrderHeader::find($id);
+        $cur_update->cur_value=$current_value[0]->rate;
+        $cur_update->save();
+
         return response([ 'data' => [
           'message' => 'Purchase order was updated successfully',
           'customer' => $pOrder,
@@ -331,61 +340,18 @@ class PurchaseOrderManualController extends Controller
 
     public function load_bom_Details(Request $request)
   	{
-    //$customer_name = $data['customer_name'];
+
     $customer_name = $request->customer['customer_name'];
     $style_no = $request->style['style_no'];
     $order_code = $request->salesorder['order_code'];
     $stage = $request->bom_stage_id['bom_stage_id'];
+    $cus_po = $request->cuspo['po_no'];
+    $pcd_date = $request->pcd_date;
+    $date_new = explode("T", $pcd_date);
+    $item_code = $request->item['master_id'];
+    $supplier= $request->supplier['supplier_id'];
 
-      //print_r($customer_name);
-
-    /*$load_list = DB::select(" SELECT B.*, MCD.*, OU.uom_code,OS.size_name,OC.color_name,IM.master_description,
-                                	SU.supplier_name,CUS.customer_name,CUS.customer_code,MR.size_id AS item_size,
-                                  costing_bulk.style_id,
-                                	style_creation.style_no,
-                                  MCH.order_code,
-                                  merc_costing_so_combine.id as so_com_id,
-
-                                ( SELECT Sum(MPD.req_qty)AS req_qty
-                                  FROM merc_po_order_details AS MPD WHERE
-                                  MPD.bom_id = B.bom_id AND MPD.combine_id = B.combine_id AND MPD.so_com_id = merc_costing_so_combine.id
-                                  AND MPD.item_code = B.master_id AND MPD.colour = B.item_color AND MPD.component_id = B.component_id  )AS req_qty,
-
-                                ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
-                                  FROM merc_po_order_details AS MPOD WHERE
-                                  MPOD.bom_id = B.bom_id AND MPOD.combine_id = B.combine_id AND MPOD.so_com_id = merc_costing_so_combine.id
-                                  AND MPOD.item_code = B.master_id AND MPOD.colour = B.item_color AND MPOD.component_id = B.component_id    )AS po_nos
-
-                                  FROM
-                                  	bom_details AS B
-                                  INNER JOIN merc_customer_order_header AS MCH ON B.combine_id = MCH.order_id
-                                  INNER JOIN merc_customer_order_details AS MCD ON MCH.order_id = MCD.order_id
-                                  INNER JOIN org_uom AS OU ON B.uom_id = OU.uom_id
-                                  LEFT JOIN mat_ratio AS MR ON B.bom_id = MR.bom_id
-                                  AND B.combine_id = MR.component_id
-                                  AND B.master_id = MR.master_id
-                                  LEFT JOIN org_size AS OS ON MR.size_id = OS.size_id
-                                  INNER JOIN org_color AS OC ON B.item_color = OC.color_id
-                                  INNER JOIN item_master AS IM ON B.master_id = IM.master_id
-                                  INNER JOIN org_supplier AS SU ON B.supplier_id = SU.supplier_id
-                                  INNER JOIN cust_customer AS CUS ON MCH.order_customer = CUS.customer_id
-                                  INNER JOIN org_location ON MCD.projection_location = org_location.loc_id
-                                  INNER JOIN bom_header ON B.bom_id = bom_header.bom_id
-                                  INNER JOIN costing_bulk ON bom_header.costing_id = costing_bulk.bulk_costing_id
-                                  INNER JOIN style_creation ON costing_bulk.style_id = style_creation.style_id
-                                  INNER JOIN merc_costing_so_combine ON bom_header.costing_id = merc_costing_so_combine.costing_id
-                                  #LEFT JOIN merc_purchase_req_lines AS MPRL ON merc_costing_so_combine.id = MPRL.so_com_id AND B.bom_id = MPRL.bom_id AND B.combine_id = MPRL.combine_id AND MCH.order_id = MPRL.order_id
-                                  WHERE
-                                  CUS.customer_name LIKE '%$customer_name%'
-                                  AND style_creation.style_no LIKE '%".$style_no."%'
-                                  AND MCH.order_code LIKE '%".$order_code."%'
-                                  #AND MPRL.status_user <> 'HOLD'
-                                  GROUP BY
-                                  B.bom_id,B.combine_id,B.master_id,B.item_color,B.component_id
-                      ");*/
-
-
-                      $load_list = DB::select(" SELECT
+    $load_list = DB::select(" SELECT
                                     bom_details.bom_id,
                                     merc_customer_order_details.po_no,
                                     bom_details.master_id,
@@ -405,6 +371,7 @@ class PurchaseOrderManualController extends Controller
                                     bom_details.moq,
                                     bom_details.mcq,
                                     merc_customer_order_details.pcd,
+                                    DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') as pcd_01,
                                     org_location.loc_name,
                                     bom_details.id AS bom_detail_id,
                                     mat_ratio.id as mat_id,
@@ -455,7 +422,11 @@ class PurchaseOrderManualController extends Controller
                                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                                     cust_customer.customer_name LIKE '%$customer_name%' AND
                                     style_creation.style_no LIKE '%".$style_no."%' AND
-                                    merc_customer_order_header.order_code LIKE '%".$order_code."%'
+                                    merc_customer_order_header.order_code LIKE '%".$order_code."%' AND
+                                    merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
+                                    merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
+                                    bom_details.master_id LIKE '%".$item_code."' AND
+                                    bom_details.supplier_id LIKE '%".$supplier."'
                                     #AND MRL.status_user = 'HOLD'
                                     ");
 
@@ -508,7 +479,7 @@ class PurchaseOrderManualController extends Controller
         return response([
           'data' => [
             'status' => 'success',
-            'message' => 'Lines were merged successfully.',
+            'message' => 'Purchase order create sucessfully.',
             'merge_no' => $max_no
           ]
         ] , 200);

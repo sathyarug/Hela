@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Mockery\CountValidator\Exception;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MailSenderMailable;
+use App\Jobs\MailSendJob;
+
 class TestController extends Controller {
 
     public function index() {
@@ -20,7 +24,19 @@ class TestController extends Controller {
     }
 
 
-
+    public function send_mail(){
+      $data = [
+        'to' => 'chamilap@helaclothing.com',
+        'mail_data' => [
+          'header_title' => 'Test',
+          'body' => 'This is a sample email'
+        ]
+      ];
+      $job = new MailSendJob($data);
+      dispatch($job);
+    //  MailSendJob::dispatch();
+    //return view('email.email');
+    }
 
 
 

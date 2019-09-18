@@ -14,13 +14,38 @@ class Country extends BaseValidator
 
     protected $fillable = ['country_code','country_description','country_id'];
 
-    protected $rules = array(
+    /*protected $rules = array(
         'country_code' => 'required',
         'country_description'  => 'required'
-    );
+    );*/
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
+    }
+
+    //Accessors & Mutators......................................................
+
+    public function setCountryCodeAttribute($value) {
+        $this->attributes['country_code'] = strtoupper($value);
+    }
+
+    public function setCountryDescriptionAttribute($value) {
+        $this->attributes['country_description'] = strtoupper($value);
+    }
+
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'country_code' => [
+            'required',
+            'unique:org_country,country_code,'.$data['country_id'].',country_id',
+          ],
+          'country_description' => 'required'
+      ];
     }
 }

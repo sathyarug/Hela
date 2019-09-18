@@ -157,7 +157,7 @@ class PurchaseOrder extends Controller
 
            // $result = PoOrderHeader::select('po_number','po_date','po_status','po_sup_code','po_deli_loc')->where('po_number', $request->po_no)->get();
 
-                    $result = DB::table('merc_po_order_header')
+           $result = DB::table('merc_po_order_header')
                             ->join('org_supplier', 'merc_po_order_header.po_sup_code', '=', 'org_supplier.supplier_id')
                             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
                             ->select('merc_po_order_header.*', 'org_supplier.supplier_name','org_supplier.supplier_address1','org_supplier.supplier_address2',
@@ -173,7 +173,7 @@ class PurchaseOrder extends Controller
             $list=DB::table('merc_po_order_details')
                     ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
                     ->join('style_creation', 'merc_po_order_details.style', '=', 'style_creation.style_id')
-                    ->join('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
+                    ->leftjoin('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
                     ->leftjoin('org_size', 'merc_po_order_details.size', '=', 'org_size.size_id')
                     ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
                     ->select('merc_po_order_details.*', 'item_master.master_code', 'item_master.master_description',
@@ -209,7 +209,7 @@ class PurchaseOrder extends Controller
         public function getPoColorList($id){
             $poData = DB::table('merc_po_order_header as h')
                 ->join('merc_po_order_details as d', 'h.po_number', '=', 'd.po_no')
-                ->join('org_color as c', 'c.color_id', '=', 'd.colour')
+                ->leftjoin('org_color as c', 'c.color_id', '=', 'd.colour')
                 ->select('c.color_id', 'c.color_name')
                 ->where('h.po_id', '=', $id)
                 ->groupBy('d.colour')

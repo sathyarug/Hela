@@ -23,18 +23,29 @@ class Position extends BaseValidator {
 
     protected $fillable = ['position'];
 
-//    protected $rules = array(
-//        'pack_type_description' => 'required'
-//
-//    );
-
-
-
     public function __construct() {
         parent::__construct();
-        $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
-        );
+    }
+
+    //Accessors & Mutators......................................................
+
+    public function setPositionAttribute($value) {
+        $this->attributes['position'] = strtoupper($value);
+    }
+
+    //Validation functions......................................................
+
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'position' => [
+            'required',
+            'unique:merc_position,position,'.$data['position_id'].',position_id',
+          ]
+      ];
     }
 
 }

@@ -44,6 +44,8 @@ Route::group([
 
 });
 
+  Route::get('test-email' , 'TestController@send_mail');
+
 //org routing.................................
 
 /*
@@ -345,12 +347,18 @@ Route::prefix('stores/')->group(function(){
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
   //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
 });
+Route::prefix('d2d/')->group(function(){
+
+    Route::post('load_d2d_user','D2d\D2DController@load_d2d_user');
+
+});
 
 Route::prefix('fastreact/')->group(function(){
 
     Route::apiResource('get-data','Fastreact\FastReactController');
     Route::post('load_fr_Details','Fastreact\FastReactController@load_fr_Details');
     Route::get('export_csv' , 'Fastreact\FastReactController@export_csv');
+    Route::get('export_csv_orders' , 'Fastreact\FastReactController@export_csv_orders');
 
 });
 
@@ -416,6 +424,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
+
+    Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
 
     Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
     Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');

@@ -23,10 +23,10 @@ class ColorOption extends BaseValidator {
 
     protected $fillable = ['color_option'];
 
-//    protected $rules = array(
-//        'pack_type_description' => 'required'
-//
-//    );
+    protected $rules = array(
+        'color_option' => 'required'
+
+    );
 
 
 
