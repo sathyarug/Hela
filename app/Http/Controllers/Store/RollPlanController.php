@@ -39,32 +39,30 @@ class RollPlanController extends Controller
       return response($this->autocomplete_search($search));
     }
     else {
-      $active = $request->active;
-      $fields = $request->fields;
-      return response([
-        'data' => $this->list($active , $fields)
-      ]);
+    $this->store($request);
     }
   }
 //create roll plan
   public function store(Request $request)
   {
-      //dd($request->dataset);
       $rollPlan = new RollPlan();
       //dd($request->invoiceNo);
-      if($rollPlan->validate($request->all()))
+    if($rollPlan->validate($request->all()))
       {
         for($i=0;$i<count($request->dataset);$i++)
         {
         $rollPlan = new RollPlan();
         $data=$request->dataset[$i];
         $data=(object)$data;
+        $binID=DB::table('org_store_bin')->where('store_bin_name','=',$data->bin)->select('store_bin_id')->first();
+        //dd();
         $rollPlan->lot_no=$data->lot_no;
         $rollPlan->batch_no=$data->batch_no;
         $rollPlan->roll_no=$data->roll_no;
         $rollPlan->qty=$data->qty;
         $rollPlan->received_qty=$data->received_qty;
-        $rollPlan->bin=$data->bin;
+        $rollPlan->bin=$binID->store_bin_id;
+        ///dd($binID);
         $rollPlan->width=$data->width;
         $rollPlan->shade=$data->shade;
         $rollPlan->comment=$data->comment;
@@ -79,7 +77,7 @@ class RollPlanController extends Controller
           'rollPlan' => $rollPlan
           ]
         ], Response::HTTP_CREATED );
-      }
+     }
       else
       {
           $errors = $store->errors();// failure, get errors

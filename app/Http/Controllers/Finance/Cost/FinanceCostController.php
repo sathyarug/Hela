@@ -130,8 +130,8 @@ class FinanceCostController extends Controller
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
-      $start = $data['start'];
-      $length = $data['length'];
+      //$start = $data['start'];
+      //$length = $data['length'];
       $draw = $data['draw'];
       $search = $data['search']['value'];
       $order = $data['order'][0];
@@ -143,8 +143,8 @@ class FinanceCostController extends Controller
       //$fin_cost_list=DB::table('fin_fin_cost')
       //->select(DB::raw('DATE_FORMAT("effective_from", "%d %b %Y")'))
       ->where('finance_cost'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
+      ->orderBy($order_column, $order_type)->get();
+      //->offset($start)->limit($length)
 
       $fin_cost_count = FinanceCost::where('finance_cost'  , 'like', $search.'%' )
       ->count();

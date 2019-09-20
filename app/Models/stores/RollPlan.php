@@ -17,5 +17,8 @@ class RollPlan extends BaseValidator{
       parent::__construct();
   }
 
+  protected $rules=array(
+    'invoiceNo'=>'required',
+  );
 
 }

@@ -306,7 +306,7 @@ public function getStyleDetailsForSMV($search){
   $active=1;
   $style_lists = StyleCreation::select('style_id','style_no')
   ->where([['style_no', 'like', '%' . $search . '%'],])
-  ->where('status','=',$active)
+  ->where('status','=',1)
   ->get();
   return $style_lists;
 
