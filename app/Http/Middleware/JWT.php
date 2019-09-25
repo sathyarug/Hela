@@ -23,6 +23,7 @@ class JWT extends BaseMiddleware
       try {
               $user = JWTAuth::parseToken()->authenticate();
               $db_user = User::find($user->user_id);//check passed token with saved token. used to limit single concurrent user
+              //echo json_encode(auth()->payload()->get('jti'));
               if(auth()->payload()->get('jti') != $db_user->token){
                 return response()->json(['status' => 'Token is Expired'],401);
               }

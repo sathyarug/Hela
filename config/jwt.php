@@ -219,7 +219,7 @@ return [
     |
     */
 
-    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
+    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),//env('JWT_BLACKLIST_ENABLED', true),
 
     /*
     | -------------------------------------------------------------------------

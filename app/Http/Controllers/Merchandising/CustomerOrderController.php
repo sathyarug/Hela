@@ -89,6 +89,7 @@ class CustomerOrderController extends Controller
         {
           $order->fill($request->except(['order_status']));
           $order->order_status = 'PLANNED';
+          $order->order_buy_name=strtoupper($request->order_buy_name);
           $order->save();
 
           return response([ 'data' => [
@@ -145,6 +146,7 @@ class CustomerOrderController extends Controller
       if($customerOrder->validate($request->all()))
       {
         $customerOrder->fill($request->except(['customer_code','order_status']));
+        $customerOrder->order_buy_name=strtoupper($request->order_buy_name);
         $customerOrder->save();
 
         return response([ 'data' => [
@@ -284,6 +286,8 @@ class CustomerOrderController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
       $fields = json_decode($data['query_data']);
+      $user = auth()->user();
+
 
       $customer_list = CustomerOrder::join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
@@ -321,6 +325,17 @@ class CustomerOrderController extends Controller
 
       $customer_count =  $customer_count->count();
 
+      for($x = 0 ; $x < sizeof($customer_list) ; $x++){
+
+        IF($customer_list[$x]["created_by"] == $user->user_id)
+        {
+          $customer_list[$x]['usr_vali'] = 1;
+        }else{
+          $customer_list[$x]['usr_vali'] = 0;
+        }
+      }
+
+        //dd($customer_list);
       return [
           "draw" => $draw,
           "recordsTotal" => $customer_count,
