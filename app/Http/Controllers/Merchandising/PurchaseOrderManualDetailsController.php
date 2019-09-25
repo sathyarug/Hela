@@ -139,6 +139,10 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_details_r->status = '0';
       $po_details_r->version =$this->get_max_version($intv_value[0]->po_no);
       $po_details_r->reason = 'LINE_CANCELLATION';
+      $po_details_r->bom_id = $intv_value[0]->bom_id;
+      $po_details_r->bom_detail_id = $intv_value[0]->bom_detail_id;
+      $po_details_r->mat_id = $intv_value[0]->mat_id;
+      $po_details_r->mat_colour = $intv_value[0]->mat_colour;
       $po_details_r->save();
 
 
@@ -331,6 +335,11 @@ class PurchaseOrderManualDetailsController extends Controller
             ->update(['status_user' => 'RELEASED']);
 
         }
+
+        DB::table('merc_purchase_req_lines')
+            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->where('merge_no', $prl_id)
+            ->update(['po_status' => null]);
 
         return response([
           'data' => [
