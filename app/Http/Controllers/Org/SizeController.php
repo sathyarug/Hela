@@ -63,6 +63,7 @@ class SizeController extends Controller
         {
           $size->fill($request->all());
           $size->status = 1;
+          $size->type='G';
           $size->size_name=strtoupper($size->size_name);
           $size->save();
 
@@ -70,7 +71,7 @@ class SizeController extends Controller
             'message' => 'Size saved successfully',
             'size' => $size,
             'status'=>'1',
-            'type' => 'G'
+            'type'=>'G'
             ]
           ], Response::HTTP_CREATED );
         }
@@ -254,6 +255,7 @@ class SizeController extends Controller
 
         $size_list = Size::select('*')
         ->where('size_name'  , 'like', $search.'%' )
+        ->where('type','=','G')
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
 

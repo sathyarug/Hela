@@ -42,6 +42,7 @@ class FinanceCostController extends Controller
     //create a Finance Cost
     public function store(Request $request)
     {
+
       $finCost = new FinanceCost();
       if($finCost->validate($request->all()))
       {
@@ -84,10 +85,13 @@ class FinanceCostController extends Controller
     //update a finance cost
     public function update(Request $request, $id)
     {
+      //dd($request);
       $finCost = FinanceCost::find($id);
       if($finCost->validate($request->all()))
       {
         $finCost->fill($request->all());
+        $finCost->effective_from=date("Y-m-d", strtotime($request->effective_from) );
+        $finCost->effective_to=date("Y-m-d", strtotime($request->effective_to) );
         $finCost->save();
 
         return response([ 'data' => [

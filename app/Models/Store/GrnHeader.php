@@ -13,14 +13,14 @@ use App\BaseValidator;
 
 
 
-class GrnHeader extends Model
+class GrnHeader extends BaseValidator
 {
     protected $table='store_grn_header';
     protected $primaryKey='grn_id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['grn_number','po_number', 'inv_number', 'sup_id', 'note'];
+    protected $fillable=['grn_number','po_number','batch_no', 'inv_number', 'sup_id', 'note'];
 
     protected $rules=array(
         ////'color_code'=>'required',
