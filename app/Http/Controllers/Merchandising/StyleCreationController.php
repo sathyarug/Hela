@@ -15,6 +15,7 @@ use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
 use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\ProductComponent;
+use App\Models\IE\ComponentSMVHeader;
 use DB;
 
 //use Illuminate\Http\Response;
@@ -78,18 +79,25 @@ class StyleCreationController extends Controller
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
+      $user = auth()->user();
 
       $cluster_list = StyleCreation::select('*')
-      ->where('style_no','like',$search.'%')
-      ->orWhere('style_description'  , 'like', $search.'%' )
-      ->orWhere('remark_style'  , 'like', $search.'%' )
+      ->Where('created_by','=', $user->user_id)
+  	  ->Where(function ($query) use ($search) {
+  			$query->orWhere('style_no', 'like', $search.'%')
+  				    ->orWhere('style_description', 'like', $search.'%')
+  				    ->orWhere('remark_style', 'like', $search.'%');
+  		        })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $cluster_count = StyleCreation::select('*')
-      ->where('style_no','like',$search.'%')
-      ->orWhere('style_description'  , 'like', $search.'%' )
-      ->orWhere('remark_style'  , 'like', $search.'%' )
+      ->Where('created_by', $user->user_id)
+      ->Where(function ($query) use ($search) {
+			$query->orWhere('style_no', 'like', $search.'%')
+				    ->orWhere('style_description', 'like', $search.'%')
+				    ->orWhere('remark_style', 'like', $search.'%');
+		          })
       ->count();
 
       return [
@@ -107,7 +115,8 @@ class StyleCreationController extends Controller
 
         if($request->style_id != null){
 
-          $check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
+          //$check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
+          $check_style = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
           if($check_style != null)
           {
             return response(['data'=>['status'=>'0',]]);
