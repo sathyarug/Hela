@@ -39,7 +39,13 @@ class StoreBinController extends Controller {
         } else if ($type == 'getBins') {
             $data = $request->all();
             return response($this->getActiveBins($data));
-        } else if ($type == 'getCategory') {
+        }
+        else if ($type == 'autoStoreWiseBin') {
+            $search = $request->search;
+            $subStoreBin=$request->substore_id;
+            return response($this->autocomplete_substore_wise_bin_search($search,$subStoreBin));
+        }
+        else if ($type == 'getCategory') {
             $data = $request->all();
             return response($this->getCategoryList($data));
         } else if ($type == 'getItemCategory') {
@@ -183,6 +189,16 @@ class StoreBinController extends Controller {
         return $bin_list;
     }
 
+
+    //search bin  related to the subStoreBin auto complete
+    private function autocomplete_substore_wise_bin_search($search,$subStoreBin) {
+      //dd("dadadada");
+        $bin_list = DB::table('org_store_bin')->select('*')
+                        ->where([['store_bin_name', 'like', '%' . $search . '%'],])
+                        ->where('substore_id','=',$subStoreBin)
+                        ->where('status','=',1)->get();
+        return $bin_list;
+    }
     //get searched goods types for datatable plugin format
     private function datatable_search($data)
     {

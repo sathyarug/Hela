@@ -27,6 +27,7 @@ use App\Models\Org\UOM;
 use App\Models\Org\Color;
 use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\CustomerOrderDetails;
+use App\Models\Merchandising\Item\Item;
 
 class CostingController extends Controller {
 
@@ -68,9 +69,15 @@ class CostingController extends Controller {
             $data = $request->all();
             $this->datatable_search($data);
         }
-        else if($type == 'auto')    {
+        else if($type == 'auto') {
           $search = $request->search;
           return response($this->autocomplete_search($search));
+        }
+        else if($type == 'item_from_article_no') {
+          $article_no = $request->article_no;
+          return response([
+            'data' => $this->get_item_from_article_no($article_no)
+          ]);
         }
         /*elseif($type == 'getCostListing'){
             return response($this->getCostSheetListing($request->style_id));
@@ -148,8 +155,8 @@ class CostingController extends Controller {
                  $finance_charges = $finance_details['finance_cost'];
                  $cpm_front_end = $finance_details['cpmfront_end'];
                  $cpum = $finance_details['cpum'];
-                 //$cpm_factory = ($cpum / 100) * $costing->planned_efficiency;
-                 $cpm_factory = round(($cpum * $costing->planned_efficiency), 4, PHP_ROUND_HALF_UP);
+                 $cpm_factory = ($cpum * $costing->planned_efficiency) / 100;
+                 $cpm_factory = round($cpm_factory, 4, PHP_ROUND_HALF_UP);
               }
 
               $total_smv = $this->get_total_smv($costing->style_id, $costing->bom_stage_id, $costing->color_type_id);//get smv details
@@ -251,8 +258,8 @@ class CostingController extends Controller {
         $costing->upcharge = $request->upcharge;
         $costing->upcharge_reason = $request->upcharge_reason;
 
-        //$cpm_factory = ($costing->cost_per_utilised_min / 100) * $costing->planned_efficiency;
-        $cpm_factory = round(($costing->cost_per_utilised_min * $costing->planned_efficiency), 4, PHP_ROUND_HALF_UP );
+        $cpm_factory = ($costing->cost_per_utilised_min * $costing->planned_efficiency) / 100;
+        $cpm_factory = round($cpm_factory, 4, PHP_ROUND_HALF_UP );
         $labour_cost = round(($costing->total_smv * $cpm_factory), 4, PHP_ROUND_HALF_UP);
         // no need to update corperate cost. Because it will not change based on user inut data
         $costing->cpm_factory = $cpm_factory;
@@ -929,11 +936,21 @@ ORDER BY item_category.category_id');
 
     public function copy_finish_good(Request $request){
       $fg_id = $request->fg_id;
+      $proceed_without_warning = ($request->proceed_without_warning == null) ? false : $request->proceed_without_warning;
       //count finish good items
-      $fg_item_count = CostingFinishGoodComponentItem::join('costing_finish_good_components', 'costing_finish_good_components.id', '=', 'costing_finish_good_component_items.fg_component_id')
-      ->where('costing_finish_good_components.fg_id', '=', $fg_id)
-      ->count();
-      if($fg_item_count == null || $fg_item_count <= 0) {
+      $components_item_count = CostingFinishGoodComponent::select("costing_finish_good_components.id",
+        DB::raw("(SELECT count(costing_finish_good_component_items.id) FROM costing_finish_good_component_items
+        WHERE costing_finish_good_component_items.fg_component_id = costing_finish_good_components.id) as item_count")
+      )->where('costing_finish_good_components.fg_id', '=', $fg_id)->get();
+
+      $has_error = 0;
+      for($x = 0 ; $x < sizeof($components_item_count) ; $x++){
+        if($components_item_count[$x]->item_count <= 0){
+          $has_error++;
+        }
+      }
+
+      if($has_error >= sizeof($components_item_count)){ //no item for every component
         return response([
           'data' => [
             'status' => 'error',
@@ -941,6 +958,18 @@ ORDER BY item_category.category_id');
           ]
         ]);
       }
+      else if($has_error > 0 && $has_error < sizeof($components_item_count) && $proceed_without_warning == false){//some components don't have items and need show warring
+        return response([
+          'data' => [
+            'status' => 'warning',
+            'message' => "Some components don't have items."
+          ]
+        ]);
+      }
+      /*$fg_item_count = CostingFinishGoodComponentItem::join('costing_finish_good_components', 'costing_finish_good_components.id', '=', 'costing_finish_good_component_items.fg_component_id')
+      ->where('costing_finish_good_components.fg_id', '=', $fg_id)
+      ->count();*/
+      //if($fg_item_count == null || $fg_item_count <= 0) {
       else {
         $finish_good = CostingFinishGood::find($fg_id);
         $finish_good_copy = $finish_good->replicate();
@@ -1065,7 +1094,7 @@ ORDER BY item_category.category_id');
 
       return response([
         'data' => [
-          'message' => 'Finisg good deleted successfully.',
+          'message' => 'Finish good deleted successfully.',
           'feature_component_count' => sizeof($components),
           'finish_goods' => $this->get_saved_finish_good($finish_good->costing_id)
         ]
@@ -1193,6 +1222,7 @@ ORDER BY item_category.category_id');
         product_silhouette.product_silhouette_description,
         product_feature.product_feature_description,
         color1.color_code AS combo_color,
+        color1.color_code AS combo_color2,
         color2.color_code AS color
         FROM costing_finish_good_components
         INNER JOIN costing_finish_goods ON costing_finish_goods.fg_id = costing_finish_good_components.fg_id
@@ -1319,6 +1349,18 @@ ORDER BY item_category.category_id');
   		->where([['sc_no', 'like', '%' . $search . '%'], ['status', '=', 'APPROVED']]) ->get();
   		return $ists;
   	}
+
+
+    private function get_item_from_article_no($article_no){
+      $component_item = CostingFinishGoodComponentItem::where('article_no', '=', $article_no)->first();
+      if($component_item == null || $component_item == ''){
+        return null;
+      }
+      else{
+        $item = Item::find($component_item->master_id);
+        return $item;
+      }
+    }
 
 
     private function generate_bom_for_costing($costing_id) {

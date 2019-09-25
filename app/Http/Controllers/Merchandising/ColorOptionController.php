@@ -213,7 +213,8 @@ class ColorOptionController extends Controller
     private function autocomplete_search($search)
   	{
   		$color_option_lists = ColorOption::select('col_opt_id','color_option')
-  		->where([['color_option', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['color_option', 'like', '%' . $search . '%'],])
+      ->where('status','=',1)->get();
   		return $color_option_lists;
   	}
 

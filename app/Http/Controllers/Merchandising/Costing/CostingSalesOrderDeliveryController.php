@@ -242,28 +242,38 @@ class CostingSalesOrderDeliveryController extends Controller
       $deliveries = [];
       $deliveries = $this->list($costing_id, $combo_color, $costing->style_id, $costing->bom_stage_id, $costing->season_id, $costing->color_type_id);
       $date = date("Y-m-d H:i:s");
-      for($x = 0; $x < sizeof($deliveries) ; $x++){
-        $delivery = CustomerOrderDetails::find($deliveries[$x]['details_id']);
 
-          if($delivery->delivery_status == 'PLANNED') { //connect only status == PLANNED. no need to update already connected delivery
-            //get finish good which map to combo color
-            $fg = CostingFinishGood::where('costing_id', '=', $costing_id)->where('combo_color_id', '=', $deliveries[$x]['style_color'])->first();
-            if($fg != null) { //has finish good for combo color
-              $delivery->costing_id = $costing_id;
-              $delivery->fg_id = $fg->fg_id;
-              $delivery->costing_connected_by = 19;
-              $delivery->costing_connected_date = $date;
-              $delivery->delivery_status = 'CONNECTED';
-              $delivery->save();
+      if(sizeof($deliveries) > 0) {
+        for($x = 0; $x < sizeof($deliveries) ; $x++){
+          $delivery = CustomerOrderDetails::find($deliveries[$x]['details_id']);
+
+            if($delivery->delivery_status == 'PLANNED') { //connect only status == PLANNED. no need to update already connected delivery
+              //get finish good which map to combo color
+              $fg = CostingFinishGood::where('costing_id', '=', $costing_id)->where('combo_color_id', '=', $deliveries[$x]['style_color'])->first();
+              if($fg != null) { //has finish good for combo color
+                $delivery->costing_id = $costing_id;
+                $delivery->fg_id = $fg->fg_id;
+                $delivery->costing_connected_by = 19;
+                $delivery->costing_connected_date = $date;
+                $delivery->delivery_status = 'CONNECTED';
+                $delivery->save();
+              }
             }
-          }
-      }
+        }
 
-      return [
-        'status' => 'success',
-        'message' => 'Sales order deliveries connected successfully.',
-        'deliveries' => []
-      ];
+        return [
+          'status' => 'success',
+          'message' => 'Sales order deliveries connected successfully.',
+          'deliveries' => []
+        ];
+      }
+      else {
+        return [
+          'status' => 'error',
+          'message' => 'No sales order deliveries to connect.',
+          'deliveries' => []
+        ];
+      }
     }
 
 
