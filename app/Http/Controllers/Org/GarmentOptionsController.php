@@ -61,7 +61,7 @@ class GarmentOptionsController extends Controller
         {
           $garmentoptions->fill($request->all());
           $garmentoptions->status = 1;
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
+          $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($garmentoptions);
           $garmentoptions->save();
 
           return response([ 'data' => [
@@ -108,7 +108,7 @@ class GarmentOptionsController extends Controller
         if($garmentoptions->validate($request->all()))
         {
           $garmentoptions->fill($request->all());
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($source);
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($garmentoptions);
           $garmentoptions->save();
 
           return response([ 'data' => [

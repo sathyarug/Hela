@@ -1394,8 +1394,8 @@ ORDER BY item_category.category_id');
           $items[$x]['costing_item_id'] = $items[$x]['id'];
           $items[$x]['id'] = 0; //clear id of previous data, will be auto generated
           $items[$x]['bom_unit_price'] = $items[$x]['unit_price'];
-          $items[$x]['order_qty'] = $deliveries[$y]->order_qty;
-          $items[$x]['required_qty'] = $deliveries[$y]->order_qty;
+          $items[$x]['order_qty'] = $deliveries[$y]->order_qty * $items[$x]['gross_consumption'];
+          $items[$x]['required_qty'] = $deliveries[$y]->order_qty * $items[$x]['gross_consumption'];
           $items[$x]['total_cost'] = (($items[$x]['unit_price'] * $items[$x]['gross_consumption'] * $deliveries[$y]->order_qty) + $items[$x]['freight_charges'] + $items[$x]['surcharge']);
           $items[$x]['created_date'] = null;
           $items[$x]['created_by'] = null;
