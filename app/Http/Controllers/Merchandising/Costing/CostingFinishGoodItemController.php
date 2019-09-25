@@ -185,6 +185,7 @@ class CostingFinishGoodItemController extends Controller
       $old_item = CostingFinishGoodComponentItem::find($request->id);
       $new_item = $old_item->replicate();
       $new_item->push();
+      $new_item->color_id = null;
       $new_item->save();
 
       $this->update_finish_good_after_modify_item($new_item->fg_component_id);
