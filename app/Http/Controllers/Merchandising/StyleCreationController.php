@@ -84,16 +84,16 @@ class StyleCreationController extends Controller
       $cluster_list = StyleCreation::select('*')
       ->where('created_by', '=', $user->user_id)
       ->where('style_no','like',$search.'%')
-      ->orWhere('style_description'  , 'like', $search.'%' )
-      ->orWhere('remark_style'  , 'like', $search.'%' )
+      ->where('style_description'  , 'like', $search.'%' )
+      ->where('remark_style'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $cluster_count = StyleCreation::select('*')
       ->where('created_by', '=', $user->user_id)
       ->where('style_no','like',$search.'%')
-      ->orWhere('style_description'  , 'like', $search.'%' )
-      ->orWhere('remark_style'  , 'like', $search.'%' )
+      ->where('style_description'  , 'like', $search.'%' )
+      ->where('remark_style'  , 'like', $search.'%' )
       ->count();
 
       return [
