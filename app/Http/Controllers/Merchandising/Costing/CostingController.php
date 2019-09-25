@@ -1247,18 +1247,27 @@ ORDER BY item_category.category_id');
           $order = $data['order'][0];
           $order_column = $data['columns'][$order['column']]['data'];
           $order_type = $order['dir'];
-
+          $user_id = auth()->user()->user_id;
+//echo $user_id;die();
           $costing_list = Costing::select('costing.*','style_creation.style_no','merc_bom_stage.bom_stage_description',
             'org_season.season_name', 'merc_color_options.color_option')
           ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
           ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
           ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
           ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
-          ->where('costing.id'  , 'like', $search.'%' )
-          ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
+          ->where('costing.created_by', '=', $user_id)
+          ->where(function ($query) use ($search) {
+              $query->orWhere('costing.id', 'like', $search.'%' )
+              ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
+              ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
+              ->orWhere('org_season.season_name','like',$search.'%')
+              ->orWhere('merc_color_options.color_option','like',$search.'%');
+          })
+
+          /*->orWhere('style_creation.style_no'  , 'like', $search.'%' )
           ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
           ->orWhere('org_season.season_name','like',$search.'%')
-          ->orWhere('merc_color_options.color_option','like',$search.'%')
+          ->orWhere('merc_color_options.color_option','like',$search.'%')*/
           ->orderBy($order_column, $order_type)
           ->offset($start)->limit($length)->get();
 
@@ -1266,11 +1275,14 @@ ORDER BY item_category.category_id');
           ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
           ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
           ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
-          ->where('costing.id'  , 'like', $search.'%' )
-          ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
-          ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
-          ->orWhere('org_season.season_name','like',$search.'%')
-          ->orWhere('merc_color_options.color_option','like',$search.'%')
+          ->where('costing.created_by', '=', $user_id)
+          ->where(function ($query) use ($search) {
+              $query->orWhere('costing.id', 'like', $search.'%' )
+              ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
+              ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
+              ->orWhere('org_season.season_name','like',$search.'%')
+              ->orWhere('merc_color_options.color_option','like',$search.'%');
+          })
           ->count();
 
           echo json_encode([
