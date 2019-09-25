@@ -91,7 +91,7 @@ class  ProductSpecificationController extends Controller
     {
       if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
       {
-        $is_exists=DB::table('prod_category')->where('prod_cat_id',$id)->exists();
+        $is_exists=DB::table('style_creation')->where('product_category_id',$id)->exists();
         if($is_exists==true){
 
           return response([ 'data' => [
@@ -124,7 +124,7 @@ class  ProductSpecificationController extends Controller
     {
       if($this->authorize->hasPermission('PROD_SPEC_DELETE'))//check permission
       {
-        $is_exists=DB::table('prod_category')->where('prod_cat_id',$id)->exists();
+          $is_exists=DB::table('style_creation')->where('product_category_id',$id)->exists();
         if($is_exists==true){
           return response([ 'data' => [
             'message' => 'Product Type Already in Use',

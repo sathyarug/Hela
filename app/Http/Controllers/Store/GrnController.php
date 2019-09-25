@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Store;
 
 use App\Libraries\UniqueIdGenerator;
-use App\Models\Org\Store\StoreBin;
+use App\Models\Store\StoreBin;
 use App\Models\Org\SupplierTolarance;
 use App\Models\Store\Stock;
 use App\Models\Store\StockTransaction;
@@ -18,7 +18,7 @@ use App\Models\Store\GrnDetail;
 use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\PoOrderDetails;
 use Illuminate\Support\Facades\DB;
-
+use App\Libraries\AppAuthorize;
 class GrnController extends Controller
 {
 
@@ -45,8 +45,8 @@ class GrnController extends Controller
 
     public function store(Request $request){
            // dd($request);
-
-         if(empty($request['grn_id'])) {
+            $y=0;
+             if(empty($request['grn_id'])) {
 
                  //Update GRN Header
                   $header = new GrnHeader;
@@ -106,13 +106,15 @@ class GrnController extends Controller
                      $grnDetails->po_qty = (double)$poDetails->tot_qty;
                      $grnDetails->grn_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
+                     $grnDetails->original_bal_qty=(double)$rec['original_bal_qty'];
                      $grnDetails->maximum_tolarance =$rec['maximum_tolarance'];
                      $grnDetails->item_code = $poDetails->item_code;
                      $grnDetails->excess_qty=(double)$rec['excess_qty'];
                      $grnDetails->status=1;
 
                      $grnDetails->save();
-
+                     $responseData[$y]=$grnDetails;
+                     $y++;
                      $i++;
                      //dd($store->substore_id);
                      //Get Quarantine Bin
@@ -153,7 +155,8 @@ class GrnController extends Controller
                      return response([ 'data' => [
                          'type' => 'error',
                          'message' => 'Not matching with supplier tolerance.',
-                         'grnId' => $header->grn_id
+                         'grnId' => $header->grn_id,
+                         'detailData'=>$responseData
                      ]
                      ], Response::HTTP_CREATED );
                  }
@@ -163,7 +166,8 @@ class GrnController extends Controller
             return response(['data' => [
                     'type' => 'success',
                     'message' => 'Success! Saved successfully.',
-                    'grnId' => $header->grn_id
+                    'grnId' => $header->grn_id,
+                    'detailData'=>$responseData
                 ]
             ], Response::HTTP_CREATED);
 
@@ -319,8 +323,126 @@ class GrnController extends Controller
 
     public function update(Request $request, $id)
     {
+      $y=0;
+      $header=$request->header;
+      $dataset=$request->dataset;
+      $grnHeader=GrnHeader::find($id);
+        $grnHeader['batch_no']=$header['batch_no'];
+        $grnHeader['sub_store']=$header['sub_store']['sub_store'];
+        $grnHeader['note']=$header['note'];
 
-        dd($request);
+        //$store = SubStore::find($request->header['substore_id'])
+        $grnHeader->save();
+        $bin = StoreBin::where('substore_id', $grnHeader['sub_store'])
+            ->where('quarantine','=',1)
+            ->first();
+        for($i=0;$i<sizeof($dataset);$i++){
+          $grnDetails=new GrnDetail;
+          if(isset($dataset[$i]['grn_detail_id'])==true){
+            $grnDetails=GrnDetail::find($dataset[$i]['grn_detail_id']);
+            $grnDetails['grn_qty']=(float)$dataset[$i]['qty'];
+            $grnDetails['bal_qty']=(float)$dataset[$i]['bal_qty'];
+            $grnDetails->save();
+
+
+            $poDetails = PoOrderDetails::find($dataset[$i]['id']);
+
+            //Update Stock Transaction
+            $transaction = Transaction::where('trans_description', 'GRN')->first();
+
+            $st = new StockTransaction;
+            $st->status = 'CONFIRM';
+            $st->doc_type = $transaction->trans_code;
+            $st->doc_num = $id;
+            $st->style_id = $poDetails->style;
+            $st->main_store = $grnHeader->main_store;
+            $st->sub_store = $grnHeader->sub_store;
+            $st->item_code = $poDetails->item_code;
+            $st->size = $poDetails->size;
+            $st->color = $poDetails->colour;
+            $st->uom = $poDetails->uom;
+            $st->customer_po_id=$dataset[$i]['order_id'];
+            $st->qty = (double)$dataset[$i]['qty'];
+            $st->location = auth()->payload()['loc_id'];
+            //dd($bin);
+            $st->bin = $bin->store_bin_id;
+            $st->created_by = auth()->payload()['user_id'];
+            $st->save();
+            $responseData[$y]=$grnDetails;
+            }
+            else if(isset($dataset[$i]['grn_detail_id'])==false){
+              $poDetails = PoOrderDetails::find($dataset[$i]['id']);
+              $max_line_no=DB::table('store_grn_detail')->where('grn_id','=',$id)
+                                                        ->max('grn_line_no');
+              $grnDetails = new GrnDetail;
+
+              $grnDetails->grn_id =$id;
+              $grnDetails->po_number=$header['po_id'];
+              $grnDetails->grn_line_no = $max_line_no++;
+              $grnDetails->style_id = $poDetails->style;
+              $grnDetails->po_details_id=$dataset[$i]['id'];
+              $grnDetails->combine_id = $poDetails->comb_id;
+              $grnDetails->color = $poDetails->colour;
+              $grnDetails->size = $poDetails->size;
+              $grnDetails->uom = $poDetails->uom;
+              $grnDetails->po_qty = (double)$poDetails->tot_qty;
+              $grnDetails->grn_qty = $dataset[$i]['qty'];
+              $grnDetails->bal_qty =(double)$dataset[$i]['bal_qty'];
+              $grnDetails->maximum_tolarance =$dataset[$i]['maximum_tolarance'];
+              $grnDetails->original_bal_qty=(double)$dataset[$i]['original_bal_qty'];
+              $grnDetails->item_code = $poDetails->item_code;
+              $grnDetails->excess_qty=(double)$dataset[$i]['excess_qty'];
+              $grnDetails->status=1;
+
+              $grnDetails->save();
+
+              $poDetails = PoOrderDetails::find($dataset[$i]['id']);
+
+              //Update Stock Transaction
+              $transaction = Transaction::where('trans_description', 'GRN')->first();
+
+              $st = new StockTransaction;
+              $st->status = 'CONFIRM';
+              $st->doc_type = $transaction->trans_code;
+              $st->doc_num = $id;
+              $st->style_id = $poDetails->style;
+              $st->main_store = $grnHeader->main_store;
+              $st->sub_store = $grnHeader->sub_store;
+              $st->item_code = $poDetails->item_code;
+              $st->size = $poDetails->size;
+              $st->color = $poDetails->colour;
+              $st->uom = $poDetails->uom;
+              $st->customer_po_id=$dataset[$i]['order_id'];
+              $st->qty = (double)$dataset[$i]['qty'];
+              $st->location = auth()->payload()['loc_id'];
+              //dd($bin);
+              $st->bin = $bin->store_bin_id;
+              $st->created_by = auth()->payload()['user_id'];
+              $st->save();
+
+
+              //$line_no++;
+              $responseData[$y]=$grnDetails;
+            }
+            $y++;
+        }
+
+
+
+        //dd($header['grn_id']);
+
+
+        return response(['data' => [
+                'type' => 'success',
+                'message' => 'Success! updated successfully.',
+                'grnId' => $header['grn_id'],
+                'detailData'=>$responseData
+            ]
+        ], Response::HTTP_CREATED);
+
+
+
+
     }
 
     public function show($id)
@@ -335,7 +457,7 @@ class GrnController extends Controller
         WHERE store_grn_header.grn_id=$id"
     );
 
-    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,
+    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,
       org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id
 
       from
@@ -343,6 +465,7 @@ class GrnController extends Controller
        JOIN store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id
        JOIN style_creation ON store_grn_detail.style_id=style_creation.style_id
        JOIN cust_customer ON style_creation.customer_id=cust_customer.customer_id
+       INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
        JOIN org_color ON store_grn_detail.color=org_color.color_id
        JOIN org_size ON  store_grn_detail.size= org_size.size_id
        JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
@@ -350,7 +473,9 @@ class GrnController extends Controller
        JOIN merc_po_order_header ON store_grn_detail.po_number=merc_po_order_header.po_id
        JOIN  merc_po_order_details ON store_grn_detail.po_details_id=merc_po_order_details.id
       WHERE store_grn_header.grn_id=$id
-      AND store_grn_detail.status= $status");
+      AND store_grn_detail.status= $status
+      GROUP BY(merc_po_order_details.id)
+      ");
 
     return response([
         'data' =>[
@@ -551,6 +676,7 @@ class GrnController extends Controller
       ->join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
       ->where('store_grn_header.inv_number','=',$request->invoice_no)
       ->where('store_grn_header.po_number','=',$request->po_id)
+      ->where('store_grn_header.grn_id','=',$request->grn_id)
       ->where('store_grn_detail.po_details_id','=',$request->po_line_id)
       ->first();
       //dd($is_grn_same_qty);

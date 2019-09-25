@@ -11,6 +11,7 @@ use App\Models\Merchandising\Position;
 use App\Models\Merchandising\BulkCostingDetails;
 use Exception;
 use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 class PositionController extends Controller
 {
 
@@ -112,7 +113,8 @@ class PositionController extends Controller
       //deactivate a Origin Type
       public function destroy($id)
       {
-        $bulkCostingDetails=BulkCostingDetails::where([['position','=',$id]])->first();
+        //$bulkCostingDetails=BulkCostingDetails::where([['position','=',$id]])->first();
+      $bulkCostingDetails=DB::table('costing_finish_good_component_items')->where('position_id','=',$id)->first();
         if($bulkCostingDetails!=null){
           return response(['data'=>[
             'message'=>'Position Already in Use',

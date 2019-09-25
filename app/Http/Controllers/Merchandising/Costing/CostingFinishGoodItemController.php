@@ -113,6 +113,7 @@ class CostingFinishGoodItemController extends Controller
       $fg_item = CostingFinishGoodComponentItem::find($id);
       if($fg_item->validate($item_data))
       {
+      //  echo json_encode($item_data);die();
         $fg_item->fill($item_data);
         $fg_item->save();
 
@@ -184,6 +185,7 @@ class CostingFinishGoodItemController extends Controller
       $old_item = CostingFinishGoodComponentItem::find($request->id);
       $new_item = $old_item->replicate();
       $new_item->push();
+      $new_item->color_id = null;
       $new_item->save();
 
       $this->update_finish_good_after_modify_item($new_item->fg_component_id);
@@ -327,7 +329,7 @@ class CostingFinishGoodItemController extends Controller
         $costing->finance_cost = $fg->finance_cost;
         $costing->total_cost = $fg->total_cost;
         $costing->epm = $fg->epm;
-        $costing->np_margine = $fg->np;      
+        $costing->np_margine = $fg->np;
         $costing->save();
       }
     }

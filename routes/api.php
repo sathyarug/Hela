@@ -638,6 +638,13 @@ Route::prefix('app/')->group(function(){
 
 });
 
+
+Route::prefix('approval-process/')->group(function(){
+
+    Route::get('start','App\ApprovalController@start');
+
+});
+
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
 

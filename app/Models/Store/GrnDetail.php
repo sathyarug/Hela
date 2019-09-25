@@ -14,15 +14,15 @@ use App\BaseValidator;
 
 
 
-class GrnDetail extends Model
+class GrnDetail extends BaseValidator
 {
     protected $table='store_grn_detail';
     protected $primaryKey='grn_detail_id';
-    public $timestamps = false;
-    //const UPDATED_AT='updated_date';
-    //const CREATED_AT='created_date';
+    //public $timestamps = false;
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
 
-    protected $fillable=['grn_id','grn_number','po_number','po_details_id', 'inv_number', 'maximum_tolarance','sup_id', 'note', 'main_store', 'sub_store', 'location','excess_qty','status'];
+    protected $fillable=['grn_id','grn_number','po_number','po_details_id', 'inv_number', 'maximum_tolarance','original_bal_qty','sup_id', 'note', 'main_store', 'sub_store', 'location','excess_qty','status'];
 
     protected $rules=array(
         ////'color_code'=>'required',
