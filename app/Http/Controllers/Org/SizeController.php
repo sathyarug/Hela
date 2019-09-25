@@ -69,7 +69,8 @@ class SizeController extends Controller
           return response([ 'data' => [
             'message' => 'Size saved successfully',
             'size' => $size,
-            'status'=>'1'
+            'status'=>'1',
+            'type' => 'G'
             ]
           ], Response::HTTP_CREATED );
         }

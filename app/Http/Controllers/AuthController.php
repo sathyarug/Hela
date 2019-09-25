@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+ use Tymon\JWTAuth\Facades\JWTAuth;
+
 use App\UsrProfile;
 use App\User;
 
@@ -94,7 +96,7 @@ class AuthController extends Controller
      $user = $user->toArray();
      // $customData = $this->get_user_from_username($credentials['user_name']);
      $this->store_load_permissions($user['user_id'], $loc_id);
-     return $this->respondWithTokenRefresh(auth()->claims($user)->setTTL(720)->refresh(), $loc_id);
+     return $this->respondWithTokenRefresh(auth()->claims($user)->setTTL(720)->refresh(false, true), $loc_id);
    }
 
    /**
@@ -139,6 +141,16 @@ class AuthController extends Controller
          'last_name' => $user->last_name,
          'd2d_epf' => $user->d2d_epf
        ];
+
+       //$token2 = JWTAuth::getToken();
+      //$apy = JWTAuth::getPayload($token)->toArray();
+      /* $token2 = JWTAuth::getToken();
+       //$token = JWTAuth::getToken();
+       $apy = JWTAuth::getPayload($token2)->toArray();
+       echo json_encode($apy);die();
+       $user2 = User::find(auth()->user()->user_id);
+       $user2->token = $apy['jti'];//auth()->payload()->get('jti');
+       $user2->save(); //update token in user_login table*/
 
        $permissions = DB::table('usr_login_permission')->where('user_id' , '=', $user_id)->pluck('permission_code');
 

@@ -24,10 +24,10 @@ class ApprovalStage extends BaseValidator
         parent::__construct();
     }
 
-    public function approval_users()
+  /*  public function approval_users()
     {
         return $this->belongsToMany(UsrProfile::class, 'app_approval_stage_users','stage_id','user_id')
         ->select(['user_id','first_name','last_name'])->withPivot('approval_order');
-    }
+    }*/
 
 }

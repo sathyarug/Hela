@@ -21,11 +21,20 @@ class StyleCreation extends BaseValidator {
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-//    protected $fillable = ['pack_type_description'];
-protected $rules = array(
-      'style_no' => 'required'
-   );
+    //Validation functions......................................................
 
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'style_no' => [
+            'required',
+            'unique:style_creation,style_no,'.$data['style_id'].',style_id',
+          ]
+      ];
+    }
 
 
 
