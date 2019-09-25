@@ -450,6 +450,7 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->costing_id = $delivery['costing_id'];
         $delivery_new->fg_id = $delivery['fg_id'];
         $delivery_new->colour_type = $delivery['colour_type'];
+        $delivery_new->cus_style_manual = $delivery['cus_style_manual'];
         $delivery_new->save();
 
           array_push($new_delivery_ids , $delivery_new->details_id);
