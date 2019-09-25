@@ -154,7 +154,8 @@ class DepartmentController extends Controller
         return response([
           'data' => [
             'message' => 'Department was deactivated successfully.',
-            'department' => $department
+            'department' => $department,
+            'status' => '1'
           ]
         ]);
       }

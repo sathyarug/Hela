@@ -189,8 +189,8 @@ class StoreController extends Controller
     //search Store for autocomplete
     private function autocomplete_search($search)
   	{
-      $user = auth()->user();
-      $location=$user->location;
+      $user = auth()->payload();
+      $location=$user['loc_id'];
   		$store_lists = Store::select('store_id','store_name')
   		->where([['store_name', 'like', '%' . $search . '%'],])
       ->where('loc_id','=',$location)
