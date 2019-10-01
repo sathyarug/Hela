@@ -92,7 +92,7 @@ class FabricInspectionController extends Controller
     return $inspectionStatus;
 
   }
-    public function store(Request $request)
+/*    public function store(Request $request)
     {
 
 
@@ -109,7 +109,7 @@ class FabricInspectionController extends Controller
         }exit;
 
     }
-
+*/
     public function search_rollPlan_details(Request $request){
       $batch_no=$request->batchNo;
       $invoice_no=$request->invoiceNo;

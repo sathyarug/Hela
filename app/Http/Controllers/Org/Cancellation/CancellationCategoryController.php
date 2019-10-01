@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Org\Cancellation\CancellationCategory;
 use App\Models\Org\Cancellation\CancellationReason;
 use App\Libraries\CapitalizeAllFields;
+use Illuminate\Support\Facades\DB;
 use Exception;
 use App\Libraries\AppAuthorize;
 
@@ -59,7 +60,8 @@ class CancellationCategoryController extends Controller
 
           return response([ 'data' => [
             'message' => 'Cancellation category saved successfully',
-            'cancellationCategory' => $category
+            'cancellationCategory' => $category,
+            'status'=>1
             ]
           ], Response::HTTP_CREATED );
         }
@@ -98,18 +100,31 @@ class CancellationCategoryController extends Controller
     {
       if($this->authorize->hasPermission('CANCEL_CAT_MANAGE'))//check permission
       {
+        $is_exists=DB::table('org_cancellation_reason')->where('reason_category','=',$id)->exists();
+
         $category = CancellationCategory::find($id);
         if($category->validate($request->all()))
         {
+          if($is_exists==true){
+              return response([ 'data' => [
+              'message' => 'Cancellation category already in use',
+              'cancellationCategory' => $category,
+              'status'=>0
+            ]]);
+          }
+
+          else if($is_exists==false){
           $category->fill($request->except('category_code'));
           //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($category);
           $category->save();
 
           return response([ 'data' => [
             'message' => 'Cancellation category updated successfully',
-            'cancellationCategory' => $category
+            'cancellationCategory' => $category,
+            'status'=>1
           ]]);
         }
+      }
         else
         {
           $errors = $category->errors();// failure, get errors
@@ -117,6 +132,7 @@ class CancellationCategoryController extends Controller
           return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
+
       else{
         return response($this->authorize->error_response(), 401);
       }

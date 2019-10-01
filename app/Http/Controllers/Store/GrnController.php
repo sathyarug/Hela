@@ -52,10 +52,8 @@ class GrnController extends Controller
                   $header = new GrnHeader;
                   $locId=auth()->payload()['loc_id'];
                   $unId = UniqueIdGenerator::generateUniqueId('GRN', auth()->payload()['loc_id']);
-
-
-                 $header->grn_number = $unId;
-                 $header->po_number = $request->header['po_id'];
+                  $header->grn_number = $unId;
+                  $header->po_number = $request->header['po_id'];
 
             }else{
                  $header = GrnHeader::find($request['grn_id']);
@@ -116,7 +114,6 @@ class GrnController extends Controller
                      $responseData[$y]=$grnDetails;
                      $y++;
                      $i++;
-                     //dd($store->substore_id);
                      //Get Quarantine Bin
                      $bin = StoreBin::where('substore_id', $store->substore_id)
                          ->where('quarantine','=',1)
@@ -140,7 +137,6 @@ class GrnController extends Controller
                      $st->customer_po_id=$rec['order_id'];
                      $st->qty = (double)$rec['qty'];
                      $st->location = auth()->payload()['loc_id'];
-                     //dd($bin);
                      $st->bin = $bin->store_bin_id;
                      $st->created_by = auth()->payload()['user_id'];
                      if (!$st->save()) {
@@ -466,9 +462,9 @@ class GrnController extends Controller
        JOIN style_creation ON store_grn_detail.style_id=style_creation.style_id
        JOIN cust_customer ON style_creation.customer_id=cust_customer.customer_id
        INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
-       JOIN org_color ON store_grn_detail.color=org_color.color_id
-       JOIN org_size ON  store_grn_detail.size= org_size.size_id
-       JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
+       LEFT JOIN org_color ON store_grn_detail.color=org_color.color_id
+       LEFT JOIN org_size ON  store_grn_detail.size= org_size.size_id
+       LEFT JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
        JOIN  item_master ON store_grn_detail.item_code= item_master.master_id
        JOIN merc_po_order_header ON store_grn_detail.po_number=merc_po_order_header.po_id
        JOIN  merc_po_order_details ON store_grn_detail.po_details_id=merc_po_order_details.id
@@ -581,16 +577,17 @@ class GrnController extends Controller
                        INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
                        INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
                       INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-                      INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
+                      LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
                       LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
                       LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
-                     LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+                      LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
 
                     /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
 
                      WHERE merc_po_order_header.po_id = $po_id
-                     AND for_category.supplier_id=$supplier_id
-                     AND merc_customer_order_header.order_id like  '%".$customer_po."%'
+                    AND merc_po_order_header.po_sup_code=$supplier_id
+                    AND merc_po_order_details.po_status='PLANNED'
+                    AND merc_customer_order_header.order_id like  '%".$customer_po."%'
                     AND cust_customer.customer_id like  '%".$customer_id."%'
                     AND item_master.master_id like '%".$itemDesacription."%'
                     AND merc_customer_order_details.pcd like '%".$pcd."%'
@@ -603,7 +600,7 @@ class GrnController extends Controller
                                                          WHERE
                                                         SGD.po_details_id = merc_po_order_details.id
                                                       )
-                    AND (org_color.color_name IS NULL or  org_color.color_name like '%$color%')
+                    AND (org_color.color_name IS NULL or  org_color.color_name like  '%".$color."%')
                     GROUP BY merc_po_order_details.id
                     /*AND store_grn_header.grn_id=*/
 

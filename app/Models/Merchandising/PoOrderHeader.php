@@ -169,7 +169,7 @@ INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_
 INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
 INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
 INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-INNER JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
+LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
 LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
 LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
 LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
@@ -177,7 +177,8 @@ LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
 
 WHERE
 merc_po_order_header.po_id = $request->id
-AND for_category.supplier_id=$request->sup_id
+AND merc_po_order_header.po_sup_code=$request->sup_id
+
 AND merc_po_order_details.tot_qty>(SELECT
                                       IFNULL(SUM(SGD.grn_qty),0)
                                       FROM
@@ -188,6 +189,7 @@ AND merc_po_order_details.tot_qty>(SELECT
 																		#GROUP BY(merc_po_order_details.id)
 
                                    )
+AND merc_po_order_details.po_status='PLANNED'                                   
 /*or store_grn_detail.status='0'*/
 GROUP BY(merc_po_order_details.id)
 
