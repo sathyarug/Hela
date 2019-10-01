@@ -84,6 +84,10 @@ class PurchaseOrderManualController extends Controller
             ->where('merge_no', $load_poh_status[0]->prl_id)
             ->update(['status_user' => 'HOLD']);
 
+        DB::table('merc_purchase_req_lines')
+            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->where('merge_no', $load_poh_status[0]->prl_id)
+            ->update(['po_status' => 'HOLD','po_con' => 'CREATE']);
 
         return response([ 'data' => [
           'message' => 'Purchase order was saved successfully',
@@ -426,8 +430,8 @@ class PurchaseOrderManualController extends Controller
                                     merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
                                     merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
                                     bom_details.master_id LIKE '%".$item_code."' AND
-                                    bom_details.supplier_id LIKE '%".$supplier."'
-                                    #AND MRL.status_user = 'HOLD'
+                                    bom_details.supplier_id LIKE '%".$supplier."' AND
+                                    bom_details.po_status is null
                                     ");
 
        //return $customer_list;

@@ -36,7 +36,7 @@ class CustomerOrderSizeController extends Controller
       {
         $size_count = CustomerOrderSize::where('details_id', '=', $request->details_id)
         ->where('size_id', '=', $request->size_id)
-        ->where('status','=',1)
+        ->where('status','<>',0)
         ->count();
 
         if($size_count > 0){
