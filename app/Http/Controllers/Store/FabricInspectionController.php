@@ -47,7 +47,7 @@ class FabricInspectionController extends Controller
 
   public function store(Request $request)
   {
-
+        dd($request);
       $fabricinSpection = new fabricInspection();
       if($fabricinSpection->validate($request->all()))
       {

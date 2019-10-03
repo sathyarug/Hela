@@ -149,7 +149,7 @@ class SeasonController extends Controller
         if($is_exsits){
           return response([
             'data' => [
-              'message' => 'Sason Already in Use.',
+              'message' => 'Season Already in Use.',
               'status'=>'0',
             ]
           ]);
