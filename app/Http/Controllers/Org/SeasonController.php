@@ -103,7 +103,7 @@ class SeasonController extends Controller
     {
       if($this->authorize->hasPermission('SEASON_MANAGE'))//check permission
       {
-        $is_exsits=DB::table('costing')->where('season_id',$id)->exsits();
+        $is_exsits=DB::table('costing')->where('season_id',$id)->exists();
         if($is_exsits){
           return response([
             'data' => [
@@ -145,11 +145,11 @@ class SeasonController extends Controller
       if($this->authorize->hasPermission('SEASON_DELETE'))//check permission
       {
 
-        $is_exsits=DB::table('costing')->where('season_id',$id)->exsits();
+        $is_exsits=DB::table('costing')->where('season_id',$id)->exists();
         if($is_exsits){
           return response([
             'data' => [
-              'message' => 'Sason Already in Use.',
+              'message' => 'Season Already in Use.',
               'status'=>'0',
             ]
           ]);

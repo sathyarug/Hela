@@ -214,7 +214,8 @@ class DesignationController extends Controller
     private function autocomplete_search($search)
   	{
   		$designation_lists = Designation::select('des_id','des_name')
-  		->where([['des_name', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['des_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',1)->get();
   		return $designation_lists;
   	}
 

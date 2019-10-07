@@ -366,6 +366,7 @@ $cus=$style->customer_id;
 $devision=$style->division_id;
 $silhouetteList=ProductFeatureComponent::select('*')
 ->where('product_feature_id','=',$pFeatureID)
+->where('status','=',1)
 ->get();
 for($i=0;$i<sizeof($silhouetteList);$i++){
   $checkRange=SMVUpdate::select('*')
@@ -469,6 +470,7 @@ else
       $devision=$style->division_id;
       $silhouetteList=ProductFeatureComponent::select('*')
       ->where('product_feature_id','=',$pFeatureID)
+      ->where('status','=',1)
       ->get();
       for($i=0;$i<sizeof($silhouetteList);$i++){
         $checkRange=SMVUpdate::select('*')

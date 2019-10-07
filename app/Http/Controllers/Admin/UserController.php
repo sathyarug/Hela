@@ -42,6 +42,10 @@ class UserController extends Controller {
       $search = $request->search;
       return response($this->autocomplete_search_has_login($search));
     }
+    else if($type == 'autoimmidiateReport')    {
+      $search = $request->search;
+      return response($this->autocomplete_load_all_users($search));
+    }
     else {
       $active = $request->active;
       $fields = $request->fields;
@@ -51,25 +55,35 @@ class UserController extends Controller {
     }
   }
 
-    /*public function register(){
-        $location = App\OrgLocation::pluck('loc_name', 'loc_id')->toArray();
-        $dept = UsrDepartment::pluck('dept_name', 'dept_id')->toArray();
-        $costCtr = CostCenter::pluck('cost_center_code', 'cost_center_id')->toArray();
-        $desg = UsrDesignation::pluck('desig_name', 'desig_id')->toArray();
+  //validate anything based on requirements
+  public function validate_data(Request $request){
+    //dd("dadaa");
+      $for = $request->for;
+      if($for == 'validateEmpNo')
+      {
+        return response($this->validate_duplicate_code($request->emp_number,$request->user_id));
+      }
 
-        $data = [
-            'location' => $location,
-            'dept' => $dept,
-            'desg' => $desg,
-            'costCtr' => $costCtr
-        ];
+  }
 
-        return view('/user/register')->with('data', $data);
-    }*/
+  public function validate_duplicate_code($emp_number,$user_id)
+  {
+    //$emp_number=strval( $emp_number ) ;
+    $user = UsrProfile::where('emp_number','=',$emp_number)->first();
+    //dd($user);
+    if($user == null){
+      return ['status' => 'success'];
+    }
+    else if($user->user_id == $user_id){
+      return ['status' => 'success'];
+    }
+    else {
+      return ['status' => 'error','message' => 'Employee Number already exists'];
+    }
+  }
 
-  /*  public function user(){
-        return view('/user/user');
-    }*/
+
+
 
     public function store(Request $request)
     {
@@ -81,6 +95,8 @@ class UserController extends Controller {
       {
         $profile->fill($request->except(['username', 'password']));
         $profile->status = 1;
+        $profile->reporting_level_1=$request->reporting_level_1['user_id'];
+        $profile->reporting_level_2=$request->reporting_level_2['user_id'];
         $profile->save();
 
         if($profile->user_id > 0 && $request->user_name != null && $request->password != null){
@@ -119,11 +135,14 @@ class UserController extends Controller {
         }
 
     //get a Company
-    public function show($id)
+   public function show($id)
     {
+      //dd($id);
       $user = UsrProfile::join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
       ->join('usr_login', 'usr_login.user_id', '=', 'usr_profile.user_id')
-      ->select('usr_profile.*','org_designation.des_name','org_designation.des_id','usr_login.user_name','usr_login.password')
+      ->join('usr_login as for_reporting_level_1','usr_profile.reporting_level_1','=','for_reporting_level_1.user_id')
+      ->join('usr_login as for_reporting_level_2','usr_profile.reporting_level_2','=','for_reporting_level_2.user_id')
+      ->select('usr_profile.*','org_designation.des_name','org_designation.des_id','usr_login.user_name','usr_login.password','for_reporting_level_1.user_name as reporting_level_1','for_reporting_level_2.user_name as reporting_level_2')
       ->where('usr_profile.user_id','=',$id)
       ->first();
       if($user == null)
@@ -142,6 +161,7 @@ class UserController extends Controller {
     }
 
     public function validateEmpNo(Request $request){
+      //dd($request->emp_number);
         $emp = UsrProfile::where('emp_number',Input::get('emp_number'))->first();
         if(is_null($emp))
             echo json_encode(true);
@@ -177,8 +197,19 @@ class UserController extends Controller {
 //update user profile
 public function update(Request $request, $id)
 {
+  //dd($request);
     $user = UsrProfile::find($id);
       $user->fill($request->all());
+      $date_of_birth= date_create($request->date_of_birth_);
+      $user->date_of_birth = date_format($date_of_birth,"Y-m-d");//change pcd date format to save in database
+      $joined_date= date_create($request->joined_date_);
+      $user->joined_date = date_format($joined_date,"Y-m-d");//change pcd date format to save in database
+      $resign_date= date_create($request->resign_date_);
+      $user->resign_date = date_format($resign_date,"Y-m-d");//change pcd date format to save in database
+      $user->reporting_level_1=$request->reporting_level_1['user_id'];
+      $user->reporting_level_2=$request->reporting_level_2['user_id'];
+
+
       $user->save();
 
       return response([
@@ -329,6 +360,17 @@ public function update(Request $request, $id)
     return $user_lists;
   }
 
+  private function autocomplete_load_all_users($search)
+  {
+    //dd($search);
+    $active=1;
+    $user_lists = UsrProfile::select('usr_profile.user_id','user_name')
+    ->join('usr_login','usr_profile.user_id','=','usr_login.user_id')
+    ->where([['usr_login.user_name', 'like', '%' . $search . '%']])
+    ->where('status','=',$active)
+    ->get();
+    return $user_lists;
+  }
 
   //get searched Colors for datatable plugin format
   private function datatable_search($data)

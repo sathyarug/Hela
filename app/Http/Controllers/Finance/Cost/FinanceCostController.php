@@ -90,8 +90,14 @@ class FinanceCostController extends Controller
       if($finCost->validate($request->all()))
       {
         $finCost->fill($request->all());
-        $finCost->effective_from=date("Y-m-d", strtotime($request->effective_from) );
-        $finCost->effective_to=date("Y-m-d", strtotime($request->effective_to) );
+
+        $effective_from = date_create($request->effective_from_);
+
+        $finCost->effective_from = date_format($effective_from,"Y-m-d");//change pcd date format to save in database
+        
+        $effective_to = date_create($request->effective_to_);
+        $finCost->effective_to = date_format($effective_to,"Y-m-d");//change pcd date format to save in database
+
         $finCost->save();
 
         return response([ 'data' => [

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\OriginType;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class OriginTypeController extends Controller
 {
@@ -59,7 +60,8 @@ class OriginTypeController extends Controller
 
         return response([ 'data' => [
           'message' => 'Origin type saved successfully',
-          'originType' => $originType
+          'originType' => $originType,
+          'status'=>1
           ]
         ], Response::HTTP_CREATED );
       }
@@ -87,16 +89,26 @@ class OriginTypeController extends Controller
     public function update(Request $request, $id)
     {
       $originType = OriginType::find($id);
+      $costing=DB::table('costing_finish_good_component_items')->where('origin_type_id','=',$id)->exists();
       if($originType->validate($request->all()))
       {
-        $originType->fill($request->except('origin_type'));
+        if($costing==true){
+          return response([ 'data' => [
+            'message' => 'Origin type already in use',
+            'originType' => $originType,
+            'status'=>0
+          ]]);
+        }
+        else if($costing==false){
+          $originType->fill($request->except('origin_type'));
         //$originType->origin_type=strtoupper($originType->origin_type);
         $originType->save();
-
-        return response([ 'data' => [
+      return response([ 'data' => [
           'message' => 'Origin type updated successfully',
-          'originType' => $originType
+          'originType' => $originType,
+          'status'=>1
         ]]);
+      }
       }
       else
       {
@@ -110,13 +122,27 @@ class OriginTypeController extends Controller
     //deactivate a Origin Type
     public function destroy($id)
     {
-      $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
+      $costing=DB::table('costing_finish_good_component_items')->where('origin_type_id','=',$id)->exists();
+
+      if($costing==true){
+        return response([
+          'data' => [
+            'message' => 'Origin type already in Use',
+            'originType' => $costing,
+            'status'=>0
+          ]
+        ]);
+      }
+        else if($costing==false){
+        $originType = OriginType::where('origin_type_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
           'message' => 'Origin type was deactivated successfully.',
-          'originType' => $originType
+          'originType' => $originType,
+          'status'=>1
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ]);
+    }
     }
 
 
