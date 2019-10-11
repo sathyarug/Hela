@@ -20,10 +20,12 @@ class ApprovalMailSendJob implements ShouldQueue
     private $cc = [];
     private $bcc = [];
     private $process = null;
+    private $subject = null;
 
-    public function __construct($_process, $_data = [], $_to = [], $_cc = [], $_bcc = [])
+    public function __construct($_process, $_subject, $_data = [], $_to = [], $_cc = [], $_bcc = [])
     {
         $this->process = $_process;
+        $this->subject = $_subject;
         $this->data = $_data;
         $this->to = $_to;
         $this->cc = $_cc;
@@ -33,6 +35,6 @@ class ApprovalMailSendJob implements ShouldQueue
 
     public function handle()
     {
-      Mail::to($this->to)->send(new ApprovalMailable($this->process, $this->data));
+      Mail::to($this->to)->send(new ApprovalMailable($this->process, $this->data, $this->subject));
     }
 }
