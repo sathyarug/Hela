@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\ExchangeRate;
 use App\Libraries\AppAuthorize;
-
+use Illuminate\Support\Facades\DB;
 class ExchangeRateController extends Controller
 {
     var $authorize = null;
@@ -208,15 +208,17 @@ class ExchangeRateController extends Controller
         $order_type = $order['dir'];
 
         $rate_list = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
-        ->select('org_exchange_rate.*','fin_currency.currency_code','fin_currency.currency_description')
+        ->select(DB::raw("DATE_FORMAT(valid_from, '%d-%b-%Y') 'from_date'"),'org_exchange_rate.*','fin_currency.currency_code','fin_currency.currency_description')
         ->where('currency_code'  , 'like', $search.'%' )
         ->orWhere('valid_from'  , 'like', $search.'%' )
+        ->orWhere('rate'  , 'like', $search.'%' )
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
 
         $rate_count = ExchangeRate::join('fin_currency' , 'fin_currency.currency_id' , '=' , 'org_exchange_rate.currency')
         ->where('currency_code'  , 'like', $search.'%' )
         ->orWhere('valid_from'  , 'like', $search.'%' )
+        ->orWhere('rate'  , 'like', $search.'%' )
         ->count();
 
         return [

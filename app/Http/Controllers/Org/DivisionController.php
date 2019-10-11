@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Org\Division;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use App\Libraries\AppAuthorize;
-
+use App\Libraries\CapitalizeAllFields;
 class DivisionController extends Controller
 {
     public function __construct()
@@ -52,11 +53,13 @@ class DivisionController extends Controller
         {
           $division->fill($request->all());
           $division->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($division);
           $division->save();
 
           return response([ 'data' => [
-            'message' => 'Division was saved successfully',
-            'Division' => $division
+            'message' => 'Division saved successfully',
+            'Division' => $division,
+            'status'=>1,
             ]
           ], Response::HTTP_CREATED );
         }
@@ -94,16 +97,30 @@ class DivisionController extends Controller
     {
       if($this->authorize->hasPermission('DIVISION_MANAGE'))//check permission
       {
+        $smv=DB::table('smv_update')->where('division_id','=',$id)->exists();
+        $style=DB::table('style_creation')->where('division_id','=',$id)->exists();
+
         $division = Division::find($id);
         if($division->validate($request->all()))
         {
+          if($smv==true||$style==true){
+            return response([ 'data' => [
+              'message' => 'Division Already In use',
+              'division' => $division,
+              'status'=>0,
+            ]]);
+          }
+          else{
           $division->fill($request->except('division_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($division);
           $division->save();
 
           return response([ 'data' => [
-            'message' => 'Division was updated successfully',
-            'division' => $division
+            'message' => 'Division updated successfully',
+            'division' => $division,
+            'status'=>1
           ]]);
+        }
         }
         else
         {
@@ -122,13 +139,26 @@ class DivisionController extends Controller
     {
       if($this->authorize->hasPermission('DIVISION_DELETE'))//check permission
       {
+        $smv=DB::table('smv_update')->where('division_id','=',$id)->exists();
+        $style=DB::table('style_creation')->where('division_id','=',$id)->exists();
+        if($smv==true||$style==true){
+          return response([
+            'data' => [
+              'message' => 'Division deactivated successfully.',
+              'status'=>0
+            ]
+          ] );
+        }
+        else{
         $division = Division::where('division_id', $id)->update(['status' => 0]);
         return response([
           'data' => [
-            'message' => 'Division was deactivated successfully.',
-            'division' => $division
+            'message' => 'Division deactivated successfully.',
+            'division' => $division,
+            'status'=>1
           ]
-        ] , Response::HTTP_NO_CONTENT);
+        ] );
+      }
       }
       else{
         return response($this->authorize->error_response(), 401);

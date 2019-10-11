@@ -556,6 +556,7 @@ Route::prefix('admin/')->group(function(){
     Route::get('users/locations','Admin\UserController@locations');
     Route::post('users/locations','Admin\UserController@save_locations');
     Route::get('users/user-assigned-locations','Admin\UserController@user_assigned_locations');
+    Route::get('users/validate', 'Admin\UserController@validate_data');
     Route::apiResource('users','Admin\UserController');
 
 

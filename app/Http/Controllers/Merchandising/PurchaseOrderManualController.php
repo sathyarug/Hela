@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\PoOrderHeader;
 //use App\Libraries\UniqueIdGenerator;
-use App\Models\Merchandising\bom_details;
+use App\Models\Merchandising\BOMDetails;
 use App\Models\Merchandising\PurchaseReqLines;
 
 class PurchaseOrderManualController extends Controller
@@ -291,6 +291,8 @@ class PurchaseOrderManualController extends Controller
 	  ->orWhere('loc_name'  , 'like', $search.'%' )
       ->count();
 
+
+
       return [
           "draw" => $draw,
           "recordsTotal" => $customer_count,
@@ -446,7 +448,25 @@ class PurchaseOrderManualController extends Controller
 
     public function merge_save(Request $request){
       $lines = $request->lines;
-    //  print_r($lines );
+      //dd($lines);
+
+      for($r = 0 ; $r < sizeof($lines) ; $r++)
+      {
+        //bom_details
+        $check_hold = BOMDetails::where('bom_id'  , '=', $lines[$r]['bom_id'] )
+        ->where('id'  , '=', $lines[$r]['bom_detail_id'] )
+        ->where('po_status'  , '=', 'HOLD' )
+        ->count();
+
+        if($check_hold > 0){
+          $line_id = $r+1;
+          $err = 'Line '.$line_id.' Already used.';
+          return response([ 'data' => ['status' => 'error','message' => $err]]);
+        }
+
+      }
+
+
       if($lines != null && sizeof($lines) >= 1){
 
         $max_no = PurchaseReqLines::max('merge_no');
@@ -489,6 +509,8 @@ class PurchaseOrderManualController extends Controller
         ] , 200);
 
       }
+
+
 
     }
 
