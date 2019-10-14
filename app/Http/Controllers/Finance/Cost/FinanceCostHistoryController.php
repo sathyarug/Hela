@@ -80,18 +80,34 @@ class FinanceCostHistoryController extends Controller
       if($finCostHis->validate($request->all()))
       {
         $finCostHis->fill($request->all());
+
+        $effective_from = date_create($request->effective_from_);
+
+        $finCostHis->effective_from = date_format($effective_from,"Y-m-d");//change pcd date format to save in database
+
+        $effective_to = date_create($request->effective_to_);
+        $finCostHis->effective_to = date_format($effective_to,"Y-m-d");//change pcd date format to save in database
+
         $finCostHis->save();
         $hisId = $finCostHis->fin_cost_his_id-1;
-        $oldEffectiveTo = $request->effective_from;
-        $effectiveTo = date($oldEffectiveTo,strtotime("-1 days"));
-        $effectiveToNew = date('Y-m-d',strtotime($effectiveTo));
-        // print_r($effectiveTo);
+        $oldEffectiveTo =$effective_from;
+        //$effectiveTo = date($oldEffectiveTo,strtotime("-1 day"));
+        $effectiveTo=$oldEffectiveTo->modify("-1 day");
+        //$effectiveTo->format("Y-m-d H:i:s");
+        //dd($effectiveTo->format("Y-m-d H:i:s"));
+        $splitTimeStamp = explode(" ",$effectiveTo->format("Y-m-d H:i:s"));
+        $date = $splitTimeStamp[0];
+        //dd($date);
+        $effectiveToNew = date('Y-m-d',strtotime($date));
+      //dd($effectiveToNew);
         $finCosthis = FinanceCostHistory::find($hisId);
         if($finCosthis->validate($request->all()))
         {
           $finCosthis->fill($request->all());
+          $finCosthis->effective_to=$effectiveToNew;
           $finCosthis->where('fin_cost_his_id','=',$hisId)->update(['effective_to' => $effectiveToNew]);
-          // $finCosthis->save();
+          //dd($finCosthis);
+           //$finCosthis->save();
 
           // return response([ 'data' => [
           //   'message' => 'Finance Cost was updated successfully',

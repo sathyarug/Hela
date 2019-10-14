@@ -259,7 +259,9 @@ class CustomerOrderController extends Controller
     private function autocomplete_search($search)
   	{
   		$customer_lists = CustomerOrder::select('order_id','order_code')
-  		->where([['order_code', 'like', '%' . $search . '%'],]) ->get();
+  		->where([['order_code', 'like', '%' . $search . '%'],])
+      //->where('status','=',1)
+      ->get();
   		return $customer_lists;
   	}
 

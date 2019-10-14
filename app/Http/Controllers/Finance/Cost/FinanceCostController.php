@@ -87,14 +87,34 @@ class FinanceCostController extends Controller
     {
       //dd($request);
       $finCost = FinanceCost::find($id);
+      $finCostHis = new FinanceCostHistory();
       if($finCost->validate($request->all()))
       {
         $finCost->fill($request->all());
 
-        $effective_from = date_create($request->effective_from_);
+        //set values to history table
+        $finCostHis->fin_cost_id=$finCost->fin_cost_id;
+        $finCostHis->finance_cost=$finCost->finance_cost;
+        $finCostHis->cpmfront_end=$finCost->cpmfront_end;
+        $finCostHis->cpum=$finCost->cpum;
+        $finCostHis->effective_from=$finCost->effective_from;
+        //new effected from date
+        $effective_from_his = date_create($request->effective_from_);
+        //new efffected from date assign to the old effetd to date by substrating a day
+        $effectiveTohis=$effective_from_his->modify("-1 day");
+        $splitTimeStamp = explode(" ",$effectiveTohis->format("Y-m-d H:i:s"));
+        $date = $splitTimeStamp[0];
+        //dd( date('Y-m-d',strtotime($date)));
+        $finCostHis->effective_to = date('Y-m-d',strtotime($date));
+        $finCostHis->save();
 
+
+
+
+
+        $effective_from = date_create($request->effective_from_);
         $finCost->effective_from = date_format($effective_from,"Y-m-d");//change pcd date format to save in database
-        
+
         $effective_to = date_create($request->effective_to_);
         $finCost->effective_to = date_format($effective_to,"Y-m-d");//change pcd date format to save in database
 

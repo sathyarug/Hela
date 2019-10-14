@@ -162,7 +162,9 @@ class RequestTypeController extends Controller
     private function autocomplete_search($search)
   	{
   		$requestType_lists =  RequestType::select('request_type_id','request_type')
-  		->where([['request_type', 'like', '%' . $search . '%']]) ->get();
+  		->where([['request_type', 'like', '%' . $search . '%']])
+      ->where('status','=',1)
+      ->get();
   		return $requestType_lists;
   	}
 
