@@ -55,6 +55,7 @@ class PurchaseOrderManualDetailsController extends Controller
 
         $order_details->fill($request->all());
         $order_details->status = '1';
+        $order_details->po_header_id = $request->po_id;
 		    $order_details->line_no = $this->get_next_line_no($po);
         $order_details->tot_qty = $request->req_qty * $request->unit_price;
         $order_details->save();
@@ -143,6 +144,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_details_r->bom_detail_id = $intv_value[0]->bom_detail_id;
       $po_details_r->mat_id = $intv_value[0]->mat_id;
       $po_details_r->mat_colour = $intv_value[0]->mat_colour;
+      $po_details_r->po_header_id = $intv_value[0]->po_header_id;
       $po_details_r->save();
 
 
@@ -327,6 +329,8 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->base_unit_price = $lines[$x]['unit_price'];
         $po_details->mat_id = $lines[$x]['mat_id'];
         $po_details->mat_colour = $lines[$x]['mat_colour'];
+        $po_details->po_status = 'PLANNED';
+        $po_details->po_header_id = $formData['po_id'];
 
         $po_details->save();
 
@@ -389,9 +393,10 @@ class PurchaseOrderManualDetailsController extends Controller
 
       //print_r($formData);
       $po = $formData['po_number'];
+      $po_id = $formData['po_id'];
 
-      $POH = DB::select("SELECT * FROM merc_po_order_header  AS MPOH WHERE MPOH.po_number = '$po'");
-      $POD = DB::select("SELECT * FROM merc_po_order_details AS MPOD WHERE MPOD.po_no = '$po'");
+      $POH = DB::select("SELECT * FROM merc_po_order_header  AS MPOH WHERE MPOH.po_id = '$po_id'");
+      $POD = DB::select("SELECT * FROM merc_po_order_details AS MPOD WHERE MPOD.po_header_id = '$po_id'");
 
       $max_number_D = $this->get_max_version($po);
 
@@ -445,6 +450,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POD_R->tot_qty = $POD[$x]->tot_qty;
       $POD_R->remarks = $POD[$x]->remarks;
       $POD_R->user_loc_id = $POD[$x]->user_loc_id;
+      $POD_R->po_header_id = $POD[$x]->po_header_id;
       $POD_R->status = '0';
       $POD_R->version = $max_number_D;
       $POD_R->reason = 'PO_UPDATE';
@@ -524,12 +530,18 @@ class PurchaseOrderManualDetailsController extends Controller
 
     public function prl_header_load(Request $request){
       $order_id = $request->PORID;
-      //print_r($order_id);
+
       $LOAD_SUP= DB::select('SELECT PRL.supplier_id,OS.supplier_name,OS.currency,OS.payment_mode,OS.payemnt_terms,
             OS.ship_terms_agreed FROM merc_purchase_req_lines AS PRL
             INNER JOIN org_supplier AS OS ON PRL.supplier_id = OS.supplier_id WHERE PRL.merge_no = "'.$order_id.'"
             GROUP BY PRL.merge_no');
-      $po_sup_code = $LOAD_SUP[0]->supplier_id;
+      if( $LOAD_SUP != null ){
+        $po_sup_code = $LOAD_SUP[0]->supplier_id;
+      }else{
+        $po_sup_code = 0;
+      }
+
+    //
 
       $LOAD_CUR= DB::select('SELECT SUP.currency as currency_id,CUR.currency_code,PM.payment_method_id,PM.payment_method_description,
             SUP.payemnt_terms,FPT.payment_description,PS.ship_term_id,PS.ship_term_description
@@ -550,12 +562,17 @@ class PurchaseOrderManualDetailsController extends Controller
       $LOAD_SHIP= DB::select('SELECT MPRL.ship_mode FROM merc_purchase_req_lines AS MPRL
             WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
 
+      if( $LOAD_SUP != null ){ $LOAD_SUP=$LOAD_SUP; }else{$LOAD_SUP=NULL;}
+      if( $LOAD_CUR != null ){ $LOAD_CUR=$LOAD_CUR; }else{$LOAD_CUR=NULL;}
+      if( $PO_NUM != null ){ $PO_NUM=$PO_NUM; }else{$PO_NUM=NULL;}
 
       $porl_arr['load_sup']=$LOAD_SUP;
       $porl_arr['load_cur']=$LOAD_CUR;
       $porl_arr['po_num']=$PO_NUM;
       $porl_arr['stage']=$LOAD_STAGE;
       $porl_arr['ship']=$LOAD_SHIP;
+
+
 
       if($porl_arr == null)
           throw new ModelNotFoundException("Requested section not found", 1);
@@ -734,6 +751,31 @@ class PurchaseOrderManualDetailsController extends Controller
             throw new ModelNotFoundException("Requested section not found", 1);
         else
             return response([ 'data' => $pors_arr ]);
+    }
+
+    public function confirm_po(Request $request){
+        $formData = $request->formData;
+        //dd($formData);
+        $po_id = $formData['po_id'];
+
+        DB::table('merc_po_order_header')
+            ->where('po_id', $po_id)
+            ->update(['po_status' => 'CONFIRMED']);
+
+        DB::table('merc_po_order_details')
+            ->where('po_header_id', $po_id)
+            ->update(['po_status' => 'CONFIRMED']);
+
+            return response([
+              'data' => [
+                'status' => 'success',
+                'message' => 'Purchase order Confirm sucessfully.'
+              ]
+            ] , 200);
+
+
+
+
     }
 
 
