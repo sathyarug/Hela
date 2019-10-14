@@ -600,7 +600,7 @@ Route::prefix('store/')->group(function(){
 
     Route::get('bin-config/validate' , 'Store\BinConfigController@validate_data');
     Route::apiResource('bin-config','Store\BinConfigController');
-
+    Route::get('mrn/loadDetails','Store\MrnController@loadDetails');
     Route::apiResource('mrn','Store\MrnController');
     Route::apiResource('issue','Store\IssueController');
     Route::apiResource('return-to-stores','Store\ReturnToStoresController');

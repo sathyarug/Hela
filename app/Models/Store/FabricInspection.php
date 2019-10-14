@@ -9,15 +9,15 @@ use App\BaseValidator;
 
 
 
-class Stock extends BaseValidator
+class FabricInspection extends BaseValidator
 {
-    protected $table='store_stock';
-    protected $primaryKey='id';
+    protected $table='store_fabric_inspection';
+    protected $primaryKey='fab_inspection_id';
     //public $timestamps = false;
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['item_code','location', 'customer_po_id','store', 'sub_store', 'uom', 'weighted_average_price', 'inv_qty', 'tolerance_qty', 'total_qty','material_code'
+    protected $fillable=['roll_plan_id','roll_plan_id', 'lot_no','invoice_no', 'batch_no', 'roll_no', 'qty', 'received_qty', 'bin', 'width','shade','inspection_status','comment','lab_comment'
     ];
 
     protected $rules=array(

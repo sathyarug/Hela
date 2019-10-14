@@ -125,6 +125,7 @@ merc_customer_order_details.rm_in_date,
 merc_customer_order_details.pcd,
 merc_customer_order_details.po_no,
 merc_customer_order_header.order_id,
+merc_customer_order_details.details_id as cus_order_details_id,
 item_master.master_id,
 item_master.category_id,
 (SELECT
@@ -189,7 +190,7 @@ AND merc_po_order_details.tot_qty>(SELECT
 																		#GROUP BY(merc_po_order_details.id)
 
                                    )
-AND merc_po_order_details.po_status='PLANNED'                                   
+AND merc_po_order_details.po_status='PLANNED'
 /*or store_grn_detail.status='0'*/
 GROUP BY(merc_po_order_details.id)
 
