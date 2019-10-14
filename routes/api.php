@@ -478,6 +478,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('po-manual-details/load_reqline_2','Merchandising\PurchaseOrderManualDetailsController@load_reqline_2');
     Route::post('po-manual-details/load_por_line','Merchandising\PurchaseOrderManualDetailsController@load_por_line');
     Route::post('po-manual-details/merge_save','Merchandising\PurchaseOrderManualController@merge_save');
+    Route::post('po-manual-details/confirm_po','Merchandising\PurchaseOrderManualDetailsController@confirm_po');
 
     Route::post('po-manual-details/save_line_details','Merchandising\PurchaseOrderManualDetailsController@save_line_details');
     Route::post('po-manual-details/update_line_details','Merchandising\PurchaseOrderManualDetailsController@update_line_details');

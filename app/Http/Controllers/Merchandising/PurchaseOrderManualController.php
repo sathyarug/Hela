@@ -56,22 +56,34 @@ class PurchaseOrderManualController extends Controller
       $order = new PoOrderHeader();
       if($order->validate($request->all()))
       {
+        //dd($request);
         $order->fill($request->all());
         $order->po_type = $request->po_type['bom_stage_id'];
         $order->ship_mode = $request->ship_mode['ship_mode'];
         $order->status = '1';
-        $order->po_status = '';
+        $order->po_status = 'PLANNED';
         $order->save();
 
         $order_id=$order->po_id;
+        $po_num  =$order->po_number;
+        $prl_id  =$order->prl_id;
 
         $current_value = DB::select("SELECT ER.rate FROM merc_po_order_header AS PH
                 INNER JOIN org_exchange_rate AS ER ON PH.po_def_cur = ER.currency WHERE
                 ER.`status` = 1 AND PH.po_id = '$order_id' ORDER BY ER.id DESC LIMIT 0, 1");
 
-        //print_r($current_value);
+        $orgin = DB::select("SELECT POH.prl_id,POL.origin_type_id FROM
+                 merc_po_order_header AS POH INNER JOIN merc_purchase_req_lines AS POL ON POH.prl_id = POL.merge_no
+                 WHERE POH.prl_id = '$prl_id' AND POH.po_id = '$order_id' GROUP BY POL.origin_type_id ");
+
+        if($orgin[0]->origin_type_id == '1'){
+          $new_po = 'I-'.$po_num;
+        }else if($orgin[0]->origin_type_id == '2'){
+          $new_po = 'L-'.$po_num;
+        }
         $cur_update=PoOrderHeader::find($order_id);
         $cur_update->cur_value=$current_value[0]->rate;
+        $cur_update->po_number=$new_po;
         $cur_update->save();
 
         $load_poh_status = DB::select("SELECT MOPH.prl_id FROM merc_po_order_header AS MOPH
@@ -92,6 +104,7 @@ class PurchaseOrderManualController extends Controller
         return response([ 'data' => [
           'message' => 'Purchase order was saved successfully',
           'savepo' => $order,
+          'newpo' => $new_po,
           'status' => 'PLANNED'
           ]
         ], Response::HTTP_CREATED );
@@ -311,26 +324,22 @@ class PurchaseOrderManualController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $customer_list = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
-      ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
-      ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->whereNull('po_deli_loc')
-      //->orWhere('po_number'  , 'like', $search.'%' )
-      //->orWhere('supplier_name'  , 'like', $search.'%' )
-	    //->orWhere('first_name'  , 'like', $search.'%' )
+      $customer_list = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
+      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ->where('status_user'  , '=', 'OPEN' )
       ->orderBy($order_column, $order_type)
+      ->groupBy('merge_no')
       ->offset($start)->limit($length)->get();
 
       //print_r($customer_list);
       //die();
 
-      $customer_count = PoOrderHeader::join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
-      ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
-      ->select('merc_po_order_header.*','org_supplier.supplier_name','usr_profile.first_name')
-      ->whereNull('po_deli_loc')
-      //->where('po_number'  , 'like', $search.'%' )
-      //->orWhere('supplier_name'  , 'like', $search.'%' )
-	    //->orWhere('first_name'  , 'like', $search.'%' )
+      $customer_count = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
+      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ->where('status_user'  , '=', 'OPEN' )
+      ->groupBy('merge_no')
       ->count();
 
       return [
@@ -407,7 +416,10 @@ class PurchaseOrderManualController extends Controller
                                       WHERE
                                       EX.currency = org_supplier.currency ) AS ex_rate,
                                       merc_customer_order_header.order_stage,
-                                      merc_customer_order_details.ship_mode
+                                      merc_customer_order_details.ship_mode,
+                                      item_category.category_name,
+                                      org_origin_type.origin_type,
+                                      org_origin_type.origin_type_id
                                     FROM
                                     bom_details
                                     INNER JOIN bom_header ON bom_header.bom_id = bom_details.bom_id
@@ -417,13 +429,14 @@ class PurchaseOrderManualController extends Controller
                                     LEFT JOIN mat_ratio ON bom_details.id = mat_ratio.bom_detail_id
                                     LEFT JOIN org_size ON mat_ratio.size_id = org_size.size_id
                                     INNER JOIN org_uom ON bom_details.uom_id = org_uom.uom_id
-                                    INNER JOIN org_supplier ON bom_details.supplier_id = org_supplier.supplier_id
+                                    LEFT JOIN org_supplier ON bom_details.supplier_id = org_supplier.supplier_id
                                     INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
                                     INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
                                     INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
                                     INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
                                     LEFT JOIN org_color AS OC ON mat_ratio.color_id = OC.color_id
-                                    #LEFT JOIN merc_purchase_req_lines ON bom_details.bom_id = merc_purchase_req_lines.bom_id AND bom_details.id = merc_purchase_req_lines.bom_detail_id AND mat_ratio.id = merc_purchase_req_lines.mat_id
+                                    INNER JOIN item_category ON bom_details.category_id = item_category.category_id
+                                    INNER JOIN org_origin_type ON bom_details.origin_type_id = org_origin_type.origin_type_id
                                     WHERE
                                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                                     cust_customer.customer_name LIKE '%$customer_name%' AND
@@ -432,7 +445,7 @@ class PurchaseOrderManualController extends Controller
                                     merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
                                     merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
                                     bom_details.master_id LIKE '%".$item_code."' AND
-                                    bom_details.supplier_id LIKE '%".$supplier."' AND
+                                    (bom_details.supplier_id IS NULL OR bom_details.supplier_id LIKE '%".$supplier."' ) AND
                                     bom_details.po_status is null
                                     ");
 
@@ -496,7 +509,13 @@ class PurchaseOrderManualController extends Controller
         $temp_line->status_user = 'OPEN';
         $temp_line->bom_stage_id = $lines[$x]['order_stage'];
         $temp_line->ship_mode = $lines[$x]['ship_mode'];
+        $temp_line->origin_type_id = $lines[$x]['origin_type_id'];
         $temp_line->save();
+
+        DB::table('merc_purchase_req_lines')
+            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->where('merge_no', $max_no)
+            ->update(['po_status' => 'HOLD','po_con' => 'CREATE']);
 
         }
 

@@ -31,12 +31,45 @@
   font-size:9;
 }
 
+#background{
+    position:absolute;
+    z-index:0;
+    #background:white;
+    display:block;
+    min-height:50%;
+    min-width:50%;
+    color:yellow;
+    top: 270px;
+    left: 200px;
+    opacity: 0.5;
+
+}
+
+#content{
+    position:absolute;
+    z-index:1;
+}
+
+#bg-text
+{
+    color:#E0282A;
+    font-size:50px;
+    transform:rotate(300deg);
+    -webkit-transform:rotate(300deg);
+}
+
 
 </style>
 </head>
 
 <body>
-<div class="container">
+
+  <div id="background">
+  <p id="bg-text">NOT APPROVED</p>
+	</div>
+
+
+<div class="container" >
 <div style="width:100%;">
 <div style="float:left; width:20%;"><img src="http://localhost/surfacedev/resources/images/hela.jpg"/></div>
 <div style="float:left;width:80%;">
