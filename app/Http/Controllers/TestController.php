@@ -26,7 +26,7 @@ class TestController extends Controller {
 
     public function send_mail(){
       $data = [
-        'to' => 'chamilap@helaclothing.com',
+        'to' => [['email' => 'chamilap@helaclothing.com'],['email' => 'chamilamacp@gmail.com']],
         'mail_data' => [
           'header_title' => 'Test',
           'body' => 'This is a sample email'

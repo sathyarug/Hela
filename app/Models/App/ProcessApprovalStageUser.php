@@ -3,16 +3,15 @@
 namespace App\Models\App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\BaseValidator;
 
-class ProcessApprovalHeader extends BaseValidator
+class ProcessApprovalStageUser extends Model
 {
-    protected $table = 'app_process_approval_header';
+    protected $table = 'app_process_approval_stage_users';
     protected $primaryKey = 'id';
     public $timestamps = false;
 
     protected $rules = array(
-        'process' => 'required'
+        'approval_stage_id' => 'required'
     );
 
     public function __construct() {

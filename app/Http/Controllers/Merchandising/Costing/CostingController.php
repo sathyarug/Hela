@@ -29,6 +29,8 @@ use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Merchandising\Item\Item;
 
+use App\Libraries\Approval;
+
 class CostingController extends Controller {
 
 
@@ -510,6 +512,9 @@ class CostingController extends Controller {
             $costing->approval_sent_user = $user->user_id;
             $costing->approval_sent_date = date("Y-m-d H:i:s");
             $costing->save();
+
+            $approval = new Approval();
+            $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
 
             return response([
               'data' => [
