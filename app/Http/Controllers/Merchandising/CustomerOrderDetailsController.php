@@ -705,14 +705,14 @@ class CustomerOrderDetailsController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		$co_lists = CustomerOrderDetails::select('order_id','po_no',)
+  		$co_lists = CustomerOrderDetails::select('order_id','po_no')
   		->where([['po_no', 'like', '%'.$search.'%'],])->distinct()->get();
   		return $co_lists;
   	}
     //search po details id for mrn
     private function autocomplete_detail_id_search($search)
     {
-      $co_detail_id_lists = CustomerOrderDetails::select('details_id','order_id',)
+      $co_detail_id_lists = CustomerOrderDetails::select('details_id','order_id')
       ->where([['details_id', 'like', '%'.$search.'%'],])->distinct()->get();
       return $co_detail_id_lists;
     }

@@ -97,7 +97,6 @@ class GrnController extends Controller
                      $grnDetails->grn_line_no = $i;
                      $grnDetails->style_id = $poDetails->style;
                      $grnDetails->po_details_id=$rec['id'];
-                     $grnDetails->customer_po_id=$rec['cus_order_details_id'];
                      $grnDetails->combine_id = $poDetails->comb_id;
                      $grnDetails->color = $poDetails->colour;
                      $grnDetails->size = $poDetails->size;
@@ -108,6 +107,7 @@ class GrnController extends Controller
                      $grnDetails->original_bal_qty=(double)$rec['original_bal_qty'];
                      $grnDetails->maximum_tolarance =$rec['maximum_tolarance'];
                      $grnDetails->item_code = $poDetails->item_code;
+                     $grnDetails->customer_po_id=$rec['cus_order_details_id'];
                      $grnDetails->excess_qty=(double)$rec['excess_qty'];
                      $grnDetails->status=1;
 
@@ -125,7 +125,7 @@ class GrnController extends Controller
                      $transaction = Transaction::where('trans_description', 'GRN')->first();
 
                      $st = new StockTransaction;
-                     $st->status = 'PENDING';
+                     $st->status = 'CONFIRM';
                      $st->doc_type = $transaction->trans_code;
                      $st->doc_num = $header->grn_id;
                      $st->style_id = $poDetails->style;
@@ -135,7 +135,7 @@ class GrnController extends Controller
                      $st->size = $poDetails->size;
                      $st->color = $poDetails->colour;
                      $st->uom = $poDetails->uom;
-                     $st->customer_po_id=$rec['order_id'];
+                     $st->customer_po_id=$rec['cus_order_details_id'];
                      $st->qty = (double)$rec['qty'];
                      $st->location = auth()->payload()['loc_id'];
                      $st->bin = $bin->store_bin_id;
@@ -348,7 +348,7 @@ class GrnController extends Controller
             $transaction = Transaction::where('trans_description', 'GRN')->first();
 
             $st = new StockTransaction;
-            $st->status = 'PENDING';
+            $st->status = 'CONFIRM';
             $st->doc_type = $transaction->trans_code;
             $st->doc_num = $id;
             $st->style_id = $poDetails->style;
@@ -378,7 +378,6 @@ class GrnController extends Controller
               $grnDetails->grn_line_no = $max_line_no++;
               $grnDetails->style_id = $poDetails->style;
               $grnDetails->po_details_id=$dataset[$i]['id'];
-              $grnDetails->customer_po_id=$dataset[$i]['cus_order_details_id'];
               $grnDetails->combine_id = $poDetails->comb_id;
               $grnDetails->color = $poDetails->colour;
               $grnDetails->size = $poDetails->size;
@@ -390,6 +389,7 @@ class GrnController extends Controller
               $grnDetails->original_bal_qty=(double)$dataset[$i]['original_bal_qty'];
               $grnDetails->item_code = $poDetails->item_code;
               $grnDetails->excess_qty=(double)$dataset[$i]['excess_qty'];
+              $grnDetails->customer_po_id=$dataset[$i]['cus_order_details_id'];
               $grnDetails->status=1;
 
               $grnDetails->save();
@@ -400,7 +400,7 @@ class GrnController extends Controller
               $transaction = Transaction::where('trans_description', 'GRN')->first();
 
               $st = new StockTransaction;
-              $st->status = 'PENDING';
+              $st->status = 'CONFIRM';
               $st->doc_type = $transaction->trans_code;
               $st->doc_num = $id;
               $st->style_id = $poDetails->style;
@@ -446,7 +446,7 @@ class GrnController extends Controller
     public function show($id)
     {
       $status=1;
-      $headerData=DB::SELECT("SELECT store_grn_header.*, merc_po_order_header.po_number,merc_po_order_header.po_id,org_supplier.supplier_name,org_substore.substore_name,org_substore.substore_id,
+      $headerData=DB::SELECT("SELECT store_grn_header.*, merc_po_order_header.po_number,merc_po_order_header.po_id,org_supplier.supplier_name,org_substore.substore_name
         FROM
         store_grn_header
         INNER JOIN merc_po_order_header ON store_grn_header.po_number=merc_po_order_header.po_id
@@ -454,11 +454,11 @@ class GrnController extends Controller
         INNER JOIN org_substore ON store_grn_header.sub_store=org_substore.substore_id
         WHERE store_grn_header.grn_id=$id"
     );
-    $sub_id=$headerData[0]->sub_store;
-    $substore=SubStore::where('substore_id','=',$sub_id)->select('*')->first();
-    //dd($substore);
-    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,
-      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id,merc_customer_order_details.details_id as cus_order_details_id,
+    //dd();
+    $sub_store=SubStore::find($headerData[0]->sub_store);
+
+    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
+      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id
 
       from
       store_grn_header
@@ -466,6 +466,7 @@ class GrnController extends Controller
        JOIN style_creation ON store_grn_detail.style_id=style_creation.style_id
        JOIN cust_customer ON style_creation.customer_id=cust_customer.customer_id
        INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
+       INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
        LEFT JOIN org_color ON store_grn_detail.color=org_color.color_id
        LEFT JOIN org_size ON  store_grn_detail.size= org_size.size_id
        LEFT JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
@@ -481,7 +482,7 @@ class GrnController extends Controller
         'data' =>[
       'headerData'=>  $headerData[0],
       'detailsData'=>$detailsData,
-      'sub_store'=>$substore
+      'sub_store'=>$sub_store
       ]
     ]);
 

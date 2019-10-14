@@ -130,16 +130,23 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           $cus_po=$rollplanDetail[0]->customer_po_id;
           $style_id=$rollplanDetail[0]->style_id;
           $item_code=$rollplanDetail[0]->item_code;
-          //$size=$rollplanDetail[0]->size;
-          $size=1;
+          $size=$rollplanDetail[0]->size;
+        //  $size=1;
           $color=$rollplanDetail[0]->color;
           $main_store=$rollplanDetail[0]->main_store;
           $sub_store=$rollplanDetail[0]->sub_store;
           $bin=$rollplanDetail[0]->bin;
-          $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock WHERE customer_po_id=$cus_po
+          if($size==null){
+            $size_serach=0;
+          }
+          else {
+            $size_serach=$size;
+          }
+          $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
+                                           WHERE customer_po_id=$cus_po
                                            AND style_id=$style_id
                                            AND item_id=$item_code
-                                           or size=$size
+                                           or size=$size_serach
                                            AND color=$color
                                            AND location=$loc
                                            AND store=$main_store
