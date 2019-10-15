@@ -55,6 +55,10 @@ class CustomerOrderDetailsController extends Controller
               'data' => $this->getCustomerPoForSO($cusOrder, $fields)
           ]);
       }
+      else if($type=='auto_detail_id'){
+        $search = $request->search;
+        return response($this->autocomplete_detail_id_search($search));
+      }
       else{
         $order_id = $request->order_id;
         return response(['data' => $this->list($order_id)]);
@@ -726,6 +730,13 @@ class CustomerOrderDetailsController extends Controller
   		->where([['po_no', 'like', '%'.$search.'%'],])->distinct()->get();
   		return $co_lists;
   	}
+    //search po details id for mrn
+    private function autocomplete_detail_id_search($search)
+    {
+      $co_detail_id_lists = CustomerOrderDetails::select('details_id','order_id')
+      ->where([['details_id', 'like', '%'.$search.'%'],])->distinct()->get();
+      return $co_detail_id_lists;
+    }
 
 
     //search customer for autocomplete
