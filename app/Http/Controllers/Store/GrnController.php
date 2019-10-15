@@ -185,8 +185,8 @@ class GrnController extends Controller
 
         $section_list = GrnHeader::select('store_grn_header.grn_number', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
-                        //->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
-                        ->leftjoin('merc_po_order_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
+                        ->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
+                        //->leftjoin('store_grn_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('org_substore', 'store_grn_header.sub_store', '=', 'org_substore.substore_id')
                         ->leftjoin('org_store', 'org_substore.store_id', '=', 'org_store.store_id')
                         ->leftjoin('org_supplier', 'store_grn_header.sup_id', '=', 'org_supplier.supplier_id')

@@ -148,7 +148,7 @@ class PurchaseOrder extends Controller
 
     public function getSupplierAndInvoiceNo($active = 0 , $fields = null, $id){
         $poHeader = PoOrderHeader::find($id);
-        return $poHeader->getPOSupplierAndInvoice();
+        return $poHeader->getPOSupplierAndInvoice($poHeader->po_sup_code);
     }
 
     //generate pdf
