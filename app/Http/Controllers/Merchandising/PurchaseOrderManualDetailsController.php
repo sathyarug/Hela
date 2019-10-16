@@ -15,6 +15,8 @@ use App\Models\Merchandising\PoOrderHeaderRevision;
 use App\Models\Merchandising\PoOrderDeliverySplit;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
+use App\Models\Store\GrnHeader;
+use App\Models\Store\GrnDetail;
 
 class PurchaseOrderManualDetailsController extends Controller
 {
@@ -120,6 +122,15 @@ class PurchaseOrderManualDetailsController extends Controller
     //deactivate a customer
     public function destroy($id)
     {
+      $check_grn = GrnDetail::select('*')
+                   ->where('po_details_id' , '=', $id )
+                   ->where('status' , '<>', 0 )
+                   ->get();
+      if(sizeof($check_grn) > 0)
+      {
+        return response([ 'data' => ['status' => 'error','message' => 'Purchase Order Line already in use !']]);
+      }
+
       $intv_value = DB::select("SELECT * FROM merc_po_order_details AS MPOD WHERE MPOD.id = '$id'");
 
       $po_details_r = new PoOrderDetailsRevision();
@@ -400,6 +411,15 @@ class PurchaseOrderManualDetailsController extends Controller
       $po = $formData['po_number'];
       $po_id = $formData['po_id'];
 
+      $check_grn = GrnHeader::select('*')
+                   ->where('po_number' , '=', $po_id )
+                   ->where('status' , '<>', 0 )
+                   ->get();
+      if(sizeof($check_grn) > 0)
+      {
+        return response([ 'data' => ['status' => 'error','message' => 'Purchase Order Line already in use !']]);
+      }
+
       $POH = DB::select("SELECT * FROM merc_po_order_header  AS MPOH WHERE MPOH.po_id = '$po_id'");
       $POD = DB::select("SELECT * FROM merc_po_order_details AS MPOD WHERE MPOD.po_header_id = '$po_id'");
 
@@ -569,6 +589,15 @@ class PurchaseOrderManualDetailsController extends Controller
       $LOAD_SHIP= DB::select('SELECT MPRL.ship_mode FROM merc_purchase_req_lines AS MPRL
             WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
 
+      $LOAD_DEL_LOC= DB::select('SELECT MPRL.delivery_loc,LOC.loc_name FROM merc_purchase_req_lines AS MPRL
+            INNER JOIN org_location AS LOC ON MPRL.delivery_loc= LOC.loc_id
+            WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
+
+      $LOAD_DEL_COM= DB::select('SELECT LOC.company_id,COM.company_name FROM merc_purchase_req_lines AS MPRL
+            INNER JOIN org_location AS LOC ON MPRL.delivery_loc = LOC.loc_id
+            INNER JOIN org_company AS COM ON LOC.company_id = COM.company_id
+            WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
+
       if( $LOAD_SUP != null ){ $LOAD_SUP=$LOAD_SUP; }else{$LOAD_SUP=NULL;}
       if( $LOAD_CUR != null ){ $LOAD_CUR=$LOAD_CUR; }else{$LOAD_CUR=NULL;}
       if( $PO_NUM != null ){ $PO_NUM=$PO_NUM; }else{$PO_NUM=NULL;}
@@ -578,6 +607,8 @@ class PurchaseOrderManualDetailsController extends Controller
       $porl_arr['po_num']=$PO_NUM;
       $porl_arr['stage']=$LOAD_STAGE;
       $porl_arr['ship']=$LOAD_SHIP;
+      $porl_arr['deli_loc']=$LOAD_DEL_LOC;
+      $porl_arr['deli_com']=$LOAD_DEL_COM;
 
 
 

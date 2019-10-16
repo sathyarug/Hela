@@ -60,6 +60,7 @@ class PurchaseOrderManualController extends Controller
         $order->fill($request->all());
         $order->po_type = $request->po_type['bom_stage_id'];
         $order->ship_mode = $request->ship_mode['ship_mode'];
+        $order->special_ins = strtoupper($request->special_ins);
         $order->status = '1';
         $order->po_status = 'PLANNED';
         $order->save();
@@ -135,6 +136,7 @@ class PurchaseOrderManualController extends Controller
       if($pOrder->validate($request->all()))
       {
         $pOrder->fill($request->except('customer_code'));
+        $pOrder->special_ins = strtoupper($request->special_ins);
         $pOrder->po_status = 'PLANNED';
         $pOrder->save();
 
@@ -395,6 +397,7 @@ class PurchaseOrderManualController extends Controller
                                     bom_details.mcq,
                                     merc_customer_order_details.pcd,
                                     DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') as pcd_01,
+                                    org_location.loc_id,
                                     org_location.loc_name,
                                     bom_details.id AS bom_detail_id,
                                     mat_ratio.id as mat_id,
@@ -518,6 +521,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line->bom_stage_id = $lines[$x]['order_stage'];
         $temp_line->ship_mode = $lines[$x]['ship_mode'];
         $temp_line->origin_type_id = $lines[$x]['origin_type_id'];
+        $temp_line->delivery_loc = $lines[$x]['loc_id'];
         $temp_line->save();
 
         DB::table('merc_purchase_req_lines')
