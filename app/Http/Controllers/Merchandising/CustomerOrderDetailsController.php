@@ -13,8 +13,14 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderSize;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
-use App\Models\Merchandising\Costing\Costing;
 use App\Libraries\CapitalizeAllFields;
+
+use App\Models\Merchandising\BOMHeader;
+use App\Models\Merchandising\BOMDetails;
+use App\Models\Merchandising\Costing\Costing;
+use App\Models\Merchandising\Costing\CostingFinishGood;
+use App\Models\Merchandising\Costing\CostingFinishGoodComponent;
+use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 
 class CustomerOrderDetailsController extends Controller
 {
@@ -491,6 +497,13 @@ class CustomerOrderDetailsController extends Controller
         } */
 
         $delivery_new->save();
+
+        //generate new bom for delivery
+        /*$_costing = Costing::find($delivery_new->costing_id);
+        if($_costing->status == 'APPROVED' && $delivery_new->delivery_status == 'CONNECTED'){
+          $this->generate_bom_for_delivery($_costing, $delivery_new);
+        }*/
+
       }
 
       $new_delivery_ids_str = json_encode($new_delivery_ids);
@@ -499,6 +512,14 @@ class CustomerOrderDetailsController extends Controller
       $delivery->type_modified = 'SPLIT';
       $delivery->active_status = 'INACTIVE';
       $delivery->save();
+
+      //if bom exists deactivate bom and all bom items
+      /*$bom = BOMHeader::where('delivery_id', '=', $delivery->details_id)->where('status', '=', 1)->first();
+      if($bom != null) {
+        BOMDetails::where('bom_id', '=', $bom->bom_id)->update(['status' => 0]);
+        $bom->status = 0;
+        $bom->save();
+      }*/
 
       return response([ 'data' => [
         'message' => 'Delivery splited successfully'/*,
@@ -705,14 +726,14 @@ class CustomerOrderDetailsController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-  		$co_lists = CustomerOrderDetails::select('order_id','po_no',)
+  		$co_lists = CustomerOrderDetails::select('order_id','po_no')
   		->where([['po_no', 'like', '%'.$search.'%'],])->distinct()->get();
   		return $co_lists;
   	}
     //search po details id for mrn
     private function autocomplete_detail_id_search($search)
     {
-      $co_detail_id_lists = CustomerOrderDetails::select('details_id','order_id',)
+      $co_detail_id_lists = CustomerOrderDetails::select('details_id','order_id')
       ->where([['details_id', 'like', '%'.$search.'%'],])->distinct()->get();
       return $co_detail_id_lists;
     }
@@ -896,5 +917,35 @@ class CustomerOrderDetailsController extends Controller
 
     }
 
+
+
+    private function generate_bom_for_delivery($costing, $delivery) {
+      //create bom
+      $bom = new BOMHeader();
+      $bom->costing_id = $delivery->costing_id;
+      $bom->delivery_id = $delivery->details_id;
+      $bom->sc_no = $costing->sc_no;
+      $bom->status = 1;
+      $bom->save();
+
+      $components = CostingFinishGoodComponent::where('fg_id', '=', $delivery->fg_id)->get()->pluck('id');
+      $items = CostingFinishGoodComponentItem::whereIn('fg_component_id', $components)->get();
+      $items = json_decode(json_encode($items), true); //conver to array
+      for($x = 0 ; $x < sizeof($items); $x++) {
+        $items[$x]['bom_id'] = $bom->bom_id;
+        $items[$x]['costing_item_id'] = $items[$x]['id'];
+        $items[$x]['id'] = 0; //clear id of previous data, will be auto generated
+        $items[$x]['bom_unit_price'] = $items[$x]['unit_price'];
+        $items[$x]['order_qty'] = $delivery->order_qty * $items[$x]['gross_consumption'];
+        $items[$x]['required_qty'] = $delivery->order_qty * $items[$x]['gross_consumption'];
+        $items[$x]['total_cost'] = (($items[$x]['unit_price'] * $items[$x]['gross_consumption'] * $delivery->order_qty) + $items[$x]['freight_charges'] + $items[$x]['surcharge']);
+        $items[$x]['created_date'] = null;
+        $items[$x]['created_by'] = null;
+        $items[$x]['updated_date'] = null;
+        $items[$x]['updated_by'] = null;
+      }
+      DB::table('bom_details')->insert($items);
+
+    }
 
 }

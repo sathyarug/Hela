@@ -23,8 +23,13 @@ use App\Models\Admin\UsrProfile;
 
 use App\Jobs\ApprovalMailSendJob;
 
+//will be remove in later developments
 use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\Costing\CostingFinishGood;
+use App\Models\Merchandising\CustomerOrderDetails;
+use App\Models\Merchandising\BOMHeader;
+use App\Models\Merchandising\Costing\CostingFinishGoodComponent;
+use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 
 use Webklex\IMAP\Facades\Client;
 
@@ -349,11 +354,52 @@ class Approval
       $data = [
         'costing' => Costing::find($document_id)
       ];
+
+      $this->generate_bom_for_costing($document_id);
+
       $mail_subject = 'COSTING ' . $status . ' - '.$document_id;
       $created_user = UsrProfile::find($data['costing']->created_by);
       $to = [['email' => $created_user->email]];
       $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
       dispatch($job);
+    }
+  }
+
+
+
+
+  //privae functions, these functions will remove in future developments.
+  //those are use temporally
+
+
+  private function generate_bom_for_costing($costing_id) {
+    $deliveries = CustomerOrderDetails::where('costing_id', '=', $costing_id)->get();
+    $costing = Costing::find($costing_id);
+    for($y = 0; $y < sizeof($deliveries); $y++) {
+      $bom = new BOMHeader();
+      $bom->costing_id = $deliveries[$y]->costing_id;
+      $bom->delivery_id = $deliveries[$y]->details_id;
+      $bom->sc_no = $costing->sc_no;
+      $bom->status = 1;
+      $bom->save();
+
+      $components = CostingFinishGoodComponent::where('fg_id', '=', $deliveries[$y]->fg_id)->get()->pluck('id');
+      $items = CostingFinishGoodComponentItem::whereIn('fg_component_id', $components)->get();
+      $items = json_decode(json_encode($items), true); //conver to array
+      for($x = 0 ; $x < sizeof($items); $x++) {
+        $items[$x]['bom_id'] = $bom->bom_id;
+        $items[$x]['costing_item_id'] = $items[$x]['id'];
+        $items[$x]['id'] = 0; //clear id of previous data, will be auto generated
+        $items[$x]['bom_unit_price'] = $items[$x]['unit_price'];
+        $items[$x]['order_qty'] = $deliveries[$y]->order_qty * $items[$x]['gross_consumption'];
+        $items[$x]['required_qty'] = $deliveries[$y]->order_qty * $items[$x]['gross_consumption'];
+        $items[$x]['total_cost'] = (($items[$x]['unit_price'] * $items[$x]['gross_consumption'] * $deliveries[$y]->order_qty) + $items[$x]['freight_charges'] + $items[$x]['surcharge']);
+        $items[$x]['created_date'] = null;
+        $items[$x]['created_by'] = null;
+        $items[$x]['updated_date'] = null;
+        $items[$x]['updated_by'] = null;
+      }
+      DB::table('bom_details')->insert($items);
     }
   }
 

@@ -239,40 +239,50 @@ class CostingSalesOrderDeliveryController extends Controller
           if($delivery->delivery_status == 'CONNECTED'){ //remove the connection and set data to PLANNED status
             //delete bom and bom items
             $bom = BOMHeader::where('delivery_id', '=', $delivery->details_id)->first();
-            $bom_details = BOMDetails::where('bom_id', '=', $bom->bom_id)->get();
-            $can_remove_count = 0;
-            $can_deactivate_count = 0;
+            if($bom != null) {
+              $bom_details = BOMDetails::where('bom_id', '=', $bom->bom_id)->get();
+              $can_remove_count = 0;
+              $can_deactivate_count = 0;
 
-            foreach($bom_details as $row){
-              if($row->po_con == null){
-                $can_remove_count++;
-                $can_deactivate_count++;
-              }
-              else if($row->po_con == 'CREATE'){ //has active po line
-                $can_remove_count--;
-                $can_deactivate_count--;
-                break;
-              }
-              else if($row->po_con == 'CANCELLED'){
-                  $can_remove_count--;
+              foreach($bom_details as $row){
+                if($row->po_con == null){
+                  $can_remove_count++;
                   $can_deactivate_count++;
+                }
+                else if($row->po_con == 'CREATE'){ //has active po line
+                  $can_remove_count--;
+                  $can_deactivate_count--;
+                  break;
+                }
+                else if($row->po_con == 'CANCELLED'){
+                    $can_remove_count--;
+                    $can_deactivate_count++;
+                }
+              }
+
+              $can_disconnect = false;
+              if($can_remove_count >= sizeof($bom_details)) {//no active po lines for bom
+                BOMDetails::where('bom_id', '=', $bom->bom_id)->delete();
+                $bom->delete();
+                $can_disconnect = true;
+              }
+              else if($can_deactivate_count >= sizeof($bom_details)){
+                BOMDetails::where('bom_id', '=', $bom->bom_id)->update(['status'=> 0]);
+                $bom->status = 0;
+                $bom->save();
+                $can_disconnect = true;
+              }
+
+              if($can_disconnect == true) {
+                $delivery->costing_id = null;
+                $delivery->fg_id = null;
+                $delivery->costing_connected_by = null;
+                $delivery->costing_connected_date = null;
+                $delivery->delivery_status = 'PLANNED';
+                $delivery->save();
               }
             }
-
-            $can_disconnect = false;
-            if($can_remove_count >= sizeof($bom_details)) {//no active po lines for bom
-              BOMDetails::where('bom_id', '=', $bom->bom_id)->delete();
-              $bom->delete();
-              $can_disconnect = true;
-            }
-            else if($can_deactivate_count >= sizeof($bom_details)){
-              BOMDetails::where('bom_id', '=', $bom->bom_id)->update(['status'=> 0]);
-              $bom->status = 0;
-              $bom->save();
-              $can_disconnect = true;
-            }
-
-            if($can_disconnect == true) {
+            else { // no bom, so connectins can be removed
               $delivery->costing_id = null;
               $delivery->fg_id = null;
               $delivery->costing_connected_by = null;
