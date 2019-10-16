@@ -56,11 +56,11 @@ class PurchaseOrderManualDetailsController extends Controller
         $order_details->fill($request->all());
         $order_details->status = '1';
         $order_details->po_header_id = $request->po_id;
-		    $order_details->line_no = $this->get_next_line_no($po);
+		    $order_details->line_no = $this->get_next_line_no($po_id);
         $order_details->tot_qty = $request->req_qty * $request->unit_price;
         $order_details->save();
 		    $order_details['total'] = $request->req_qty * $request->unit_price;
-		    $order_details['status_view'] = $this->get_next_line_no($po);
+		    $order_details['status_view'] = $this->get_next_line_no($po_id);
 
         return response([ 'data' => [
           'message' => 'Purchase order was saved successfully',
@@ -75,9 +75,9 @@ class PurchaseOrderManualDetailsController extends Controller
       }
     }
 
-	private function get_next_line_no($po)
+	private function get_next_line_no($po_id)
     {
-      $max_no = PoOrderDetails::where('po_no','=',$po)->max('line_no');
+      $max_no = PoOrderDetails::where('po_header_id','=',$po_id)->max('line_no');
 	  if($max_no == NULL){ $max_no= 0;}
       return ($max_no + 1);
     }
@@ -130,6 +130,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_details_r->style = $intv_value[0]->style;
       $po_details_r->colour = $intv_value[0]->colour;
       $po_details_r->size = $intv_value[0]->size;
+      $po_details_r->ori_unit_price = $intv_value[0]->ori_unit_price;
       $po_details_r->base_unit_price = $intv_value[0]->base_unit_price;
       $po_details_r->unit_price = $intv_value[0]->unit_price;
       $po_details_r->uom = $intv_value[0]->uom;
@@ -138,7 +139,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_details_r->tot_qty = $intv_value[0]->tot_qty;
       $po_details_r->remarks = $intv_value[0]->remarks;
       $po_details_r->status = '0';
-      $po_details_r->version =$this->get_max_version($intv_value[0]->po_no);
+      $po_details_r->version =$this->get_max_version($intv_value[0]->po_header_id);
       $po_details_r->reason = 'LINE_CANCELLATION';
       $po_details_r->bom_id = $intv_value[0]->bom_id;
       $po_details_r->bom_detail_id = $intv_value[0]->bom_detail_id;
@@ -160,9 +161,9 @@ class PurchaseOrderManualDetailsController extends Controller
 
     }
 
-    private function get_max_version($po)
+    private function get_max_version($po_header_id)
       {
-        $max_no = PoOrderDetailsRevision::where('po_no','=',$po)->max('version');
+        $max_no = PoOrderDetailsRevision::where('po_header_id','=',$po_header_id)->max('version');
   	    if($max_no == NULL){ $max_no= 0;}
         return ($max_no + 1);
       }
@@ -253,7 +254,7 @@ class PurchaseOrderManualDetailsController extends Controller
   	{
   		$order_details = DB::select('SELECT MH.po_id, MD.*
                       FROM merc_po_order_header AS MH
-                      INNER JOIN merc_po_order_details AS MD ON MH.po_number = MD.po_no
+                      INNER JOIN merc_po_order_details AS MD ON MH.po_id = MD.po_header_id
                       WHERE MH.po_id = "'.$order_id.'" ');
       return $order_details;
   	}
@@ -326,6 +327,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->tot_qty = $lines[$x]['value_sum'];
         $po_details->remarks = '';
         $po_details->status = '1';
+        $po_details->ori_unit_price = $lines[$x]['unit_price'];
         $po_details->base_unit_price = $lines[$x]['unit_price'];
         $po_details->mat_id = $lines[$x]['mat_id'];
         $po_details->mat_colour = $lines[$x]['mat_colour'];
@@ -371,7 +373,10 @@ class PurchaseOrderManualDetailsController extends Controller
             ->where('bom_id', $lines[$x]['bom_id'])
             ->where('bom_detail_id', $lines[$x]['bom_detail_id'])
             ->where('line_no', $lines[$x]['line_no'])
-            ->update(['req_qty' => $lines[$x]['tra_qty'],'tot_qty' => $lines[$x]['value_sum'],'po_status' => 'PLANNED']);
+            ->update(['req_qty' => $lines[$x]['tra_qty'],
+                      'tot_qty' => $lines[$x]['value_sum'],
+                      'base_unit_price' => $lines[$x]['base_unit_price_revise'],
+                      'po_status' => 'PLANNED']);
 
 
         }
@@ -398,7 +403,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POH = DB::select("SELECT * FROM merc_po_order_header  AS MPOH WHERE MPOH.po_id = '$po_id'");
       $POD = DB::select("SELECT * FROM merc_po_order_details AS MPOD WHERE MPOD.po_header_id = '$po_id'");
 
-      $max_number_D = $this->get_max_version($po);
+      $max_number_D = $this->get_max_version($po_id);
 
       if($lines != null && sizeof($lines) >= 1){
 
@@ -442,6 +447,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POD_R->colour = $POD[$x]->colour;
       $POD_R->mat_colour = $POD[$x]->mat_colour;
       $POD_R->size = $POD[$x]->size;
+      $POD_R->ori_unit_price = $POD[$x]->ori_unit_price;
       $POD_R->base_unit_price = $POD[$x]->base_unit_price;
       $POD_R->unit_price = $POD[$x]->unit_price;
       $POD_R->uom = $POD[$x]->uom;
@@ -452,6 +458,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $POD_R->user_loc_id = $POD[$x]->user_loc_id;
       $POD_R->po_header_id = $POD[$x]->po_header_id;
       $POD_R->status = '0';
+      $POD_R->po_status = $POD[$x]->po_status;
       $POD_R->version = $max_number_D;
       $POD_R->reason = 'PO_UPDATE';
       $POD_R->save();
@@ -642,6 +649,8 @@ class PurchaseOrderManualDetailsController extends Controller
     {
       $prl_id = $request->prl_id;
       $po_number = $request->po_number;
+      $po_id = $request->po_id;
+      $user = auth()->user();
 
       $load_list = PoOrderDetails::join('item_master', 'item_master.master_id', '=', 'merc_po_order_details.item_code')
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
@@ -649,12 +658,13 @@ class PurchaseOrderManualDetailsController extends Controller
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
-       ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+       ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
        ->select('fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.tot_qty as value_sum','merc_po_order_details.base_unit_price as base_unit_price_revise',
          DB::raw('(CASE WHEN merc_po_order_details.status = 1 THEN "ACTIVE" ELSE "INACTIVE" END) AS polineststus'))
        //->where('merc_po_order_details.status'  , '=', 1 )
-       ->where('po_number'  , '=', $po_number )
+       ->where('po_id'  , '=', $po_id )
+       ->Where('merc_po_order_details.created_by','=', $user->user_id)
        ->get();
 
 
@@ -680,6 +690,7 @@ class PurchaseOrderManualDetailsController extends Controller
     public function load_reqline_2(Request $request)
     {
       $prl_id = $request->prl_id;
+      $user = auth()->user();
 
       $load_list = PoOrderDetails::join("bom_details",function($join){
         $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
@@ -694,10 +705,11 @@ class PurchaseOrderManualDetailsController extends Controller
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
-       ->join('merc_po_order_header', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+       ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
        //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price')
+       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise')
        ->where('prl_id'  , '=', $prl_id )
+       ->Where('merc_po_order_details.created_by','=', $user->user_id)
        ->get();
 
        //print_r($load_list);
