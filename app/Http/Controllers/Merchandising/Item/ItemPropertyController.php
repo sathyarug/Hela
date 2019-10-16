@@ -201,6 +201,7 @@ class ItemPropertyController extends Controller
          ->where('subcategory_id',$subCatCode)
          ->where('status', '<>', 0 )
          ;})
+         ->orderBy('property_name', 'ASC')
          ->get();
 
          return response([ 'count' => sizeof($subCat), 'subCat'=> $subCat ]);
