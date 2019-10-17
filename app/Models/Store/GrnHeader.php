@@ -17,6 +17,7 @@ class GrnHeader extends BaseValidator
 {
     protected $table='store_grn_header';
     protected $primaryKey='grn_id';
+    public $timestamps = false;
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
