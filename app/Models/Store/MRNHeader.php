@@ -1,18 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sankap
- * Date: 4/21/2019
- * Time: 10:58 PM
- */
-
 namespace App\Models\Store;
 
 use Illuminate\Database\Eloquent\Model;
 use App\BaseValidator;
 
 
-class MRNHeader extends Model
+class MRNHeader extends  BaseValidator
 {
     protected $table='store_mrn_header';
     protected $primaryKey='mrn_id';
