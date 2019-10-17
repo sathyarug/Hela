@@ -58,11 +58,11 @@ class PurchaseOrderManualDetailsController extends Controller
         $order_details->fill($request->all());
         $order_details->status = '1';
         $order_details->po_header_id = $request->po_id;
-		    $order_details->line_no = $this->get_next_line_no($po_id);
+		    $order_details->line_no = $this->get_next_line_no($request->po_id);
         $order_details->tot_qty = $request->req_qty * $request->unit_price;
         $order_details->save();
 		    $order_details['total'] = $request->req_qty * $request->unit_price;
-		    $order_details['status_view'] = $this->get_next_line_no($po_id);
+		    $order_details['status_view'] = $this->get_next_line_no($request->po_id);
 
         return response([ 'data' => [
           'message' => 'Purchase order was saved successfully',
@@ -315,7 +315,8 @@ class PurchaseOrderManualDetailsController extends Controller
     public function save_line_details(Request $request){
       $lines = $request->lines;
       $formData = $request->formData;
-      $po = $formData['po_number'];
+      $po = $formData['po_id'];
+      //dd($formData);
       $prl_id = $formData['prl_id'];
     //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
@@ -372,7 +373,10 @@ class PurchaseOrderManualDetailsController extends Controller
     public function update_line_details(Request $request){
       $lines = $request->lines;
       $formData = $request->formData;
-      $po = $formData['po_number'];
+      //dd($lines);
+      $po = $formData['po_id'];
+
+
       //$ordId = $formData['ordId'];
     //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
@@ -380,7 +384,7 @@ class PurchaseOrderManualDetailsController extends Controller
         for($x = 0 ; $x < sizeof($lines) ; $x++){
 
           DB::table('merc_po_order_details')
-            ->where('po_no', $formData['po_number'])
+            ->where('po_header_id', $formData['po_id'])
             ->where('bom_id', $lines[$x]['bom_id'])
             ->where('bom_detail_id', $lines[$x]['bom_detail_id'])
             ->where('line_no', $lines[$x]['line_no'])
