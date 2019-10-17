@@ -589,7 +589,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $LOAD_SHIP= DB::select('SELECT MPRL.ship_mode FROM merc_purchase_req_lines AS MPRL
             WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
 
-      $LOAD_DEL_LOC= DB::select('SELECT MPRL.delivery_loc,LOC.loc_name FROM merc_purchase_req_lines AS MPRL
+      $LOAD_DEL_LOC= DB::select('SELECT MPRL.delivery_loc as loc_id,LOC.loc_name FROM merc_purchase_req_lines AS MPRL
             INNER JOIN org_location AS LOC ON MPRL.delivery_loc= LOC.loc_id
             WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no');
 

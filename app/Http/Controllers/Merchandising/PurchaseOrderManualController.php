@@ -286,6 +286,8 @@ class PurchaseOrderManualController extends Controller
       $order_type = $order['dir'];
       $user = auth()->user();
 
+
+
       $customer_list = PoOrderHeader::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_header.po_deli_loc')
 	    ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
@@ -293,21 +295,23 @@ class PurchaseOrderManualController extends Controller
 	    ->select('merc_po_order_header.*','org_location.loc_name','org_supplier.supplier_name',
           'fin_currency.currency_code','merc_bom_stage.bom_stage_description')
       ->Where('merc_po_order_header.created_by','=', $user->user_id)
-      ->where('po_number'  , 'like', $search.'%' )
-      ->orWhere('supplier_name'  , 'like', $search.'%' )
-
-	    ->orWhere('loc_name'  , 'like', $search.'%' )
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('po_number', 'like', $search.'%')
+  				    ->orWhere('supplier_name', 'like', $search.'%')
+  				    ->orWhere('loc_name', 'like', $search.'%');
+  		        })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $customer_count = PoOrderHeader::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_header.po_deli_loc')
-	  ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+	    ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
       ->Where('merc_po_order_header.created_by','=', $user->user_id)
-      ->where('po_number'  , 'like', $search.'%' )
-      ->orWhere('supplier_name'  , 'like', $search.'%' )
-
-	  ->orWhere('loc_name'  , 'like', $search.'%' )
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('po_number', 'like', $search.'%')
+              ->orWhere('supplier_name', 'like', $search.'%')
+              ->orWhere('loc_name', 'like', $search.'%');
+              })
       ->count();
 
 
