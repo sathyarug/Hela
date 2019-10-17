@@ -347,7 +347,7 @@ class CostingController extends Controller {
     }
 
 
-    public function approve_costing(Request $request) {
+  /*  public function approve_costing(Request $request) {
       $costing_id = $request->costing_id;
       $costing = Costing::find($costing_id);
       if($costing->status != 'APPROVED'){
@@ -355,7 +355,7 @@ class CostingController extends Controller {
         $costing->save();
         $this->generate_bom_for_costing($costing_id);//generate boms for all coonected deliveries
       }
-    }
+    }*/
 
 
     private function getStyleData($style_id) {
@@ -508,7 +508,7 @@ class CostingController extends Controller {
           }
           else { //no erro, can approve
             $costing->status = 'PENDING';
-            $costing->approval_user = 19;
+            $costing->approval_user = null;
             $costing->approval_sent_user = $user->user_id;
             $costing->approval_sent_date = date("Y-m-d H:i:s");
             $costing->save();
@@ -1380,7 +1380,7 @@ ORDER BY item_category.category_id');
     }
 
 
-    private function generate_bom_for_costing($costing_id) {
+    /*private function generate_bom_for_costing($costing_id) {
       $deliveries = CustomerOrderDetails::where('costing_id', '=', $costing_id)->get();
       $costing = Costing::find($costing_id);
       for($y = 0; $y < sizeof($deliveries); $y++) {
@@ -1409,6 +1409,6 @@ ORDER BY item_category.category_id');
         }
         DB::table('bom_details')->insert($items);
       }
-    }
+    }*/
 
 }
