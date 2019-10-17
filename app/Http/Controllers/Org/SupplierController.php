@@ -231,16 +231,17 @@ class SupplierController extends Controller
     public function load_currency(Request $request)
   	{
         $curid = $request->curid;
-        //print_r($curid);
+        //dd($request);
 
        $supplier = Supplier::join('fin_currency', 'fin_currency.currency_id', '=', 'org_supplier.currency')
 	     ->join('fin_payment_method', 'fin_payment_method.payment_method_id', '=', 'org_supplier.payment_mode')
        ->join('fin_payment_term', 'fin_payment_term.payment_term_id', '=', 'org_supplier.payemnt_terms')
        ->join('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'org_supplier.ship_terms_agreed')
 	     ->select('org_supplier.*','fin_currency.*','fin_payment_method.*','fin_payment_term.*','fin_shipment_term.*')
-       ->where('fin_currency.currency_id', '=', $curid )
+       ->where('org_supplier.supplier_id', '=', $curid )
        ->get();
 
+       
        return response([ 'data' => [
          'currency' => $supplier
          ]
