@@ -150,14 +150,17 @@ class SubStoreController extends Controller
     }
 
     //get filtered fields only
-    private function list($active = 0, $fields = null) {
+    private function list($active = 1, $fields = null) {
+      //dd("xadadad");
         $query = null;
         if ($fields == null || $fields == '') {
-            $query = SubStore::select('*');
+            $query = SubStore::select('*')->where('status',$active);
         } else {
+
             $fields = explode(',', $fields);
-            $query = SubStore::select($fields);
+            $query = SubStore::select($fields)->where('status','=',1);
             if ($active != null && $active != '') {
+
                 $query->where([['status', '=', $active]]);
             }
         }

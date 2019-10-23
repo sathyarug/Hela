@@ -301,7 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('loadPoBinList','Store\StoreBinController@getBinListByLoc');
   Route::get('loadAddedBins','Store\GrnController@getAddedBins');
   Route::get('load-substores','Store\SubStoreController@getSubStoreList');
-  Route::post('grn/filterData','Store\GrnController@fiterData');
+  Route::post('grn/filterData','Store\GrnController@filterData');
   Route::get('grns/validate' , 'Store\GrnController@validate_data');
   Route::get('grns/deleteGrnLine' , 'Store\GrnController@deleteLine');
 
