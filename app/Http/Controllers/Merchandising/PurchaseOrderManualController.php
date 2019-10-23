@@ -132,6 +132,7 @@ class PurchaseOrderManualController extends Controller
     //update a customer
    public function update(Request $request, $id)
     {
+      //dd($request->po_number);
       $pOrder = PoOrderHeader::find($id);
       if($pOrder->validate($request->all()))
       {
@@ -152,7 +153,8 @@ class PurchaseOrderManualController extends Controller
         return response([ 'data' => [
           'message' => 'Purchase order was updated successfully',
           'customer' => $pOrder,
-          'savepo' => $pOrder
+          'savepo' => $pOrder,
+          'newpo' => $request->po_number
         ]]);
       }
       else
@@ -337,20 +339,24 @@ class PurchaseOrderManualController extends Controller
     //  dd($user);
 
       $customer_list = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
-      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','usr_profile.first_name'
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+       DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
+       )
       ->where('status_user'  , '=', 'OPEN' )
       ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
       ->orderBy($order_column, $order_type)
       ->groupBy('merge_no')
       ->offset($start)->limit($length)->get();
 
-      //print_r($customer_list);
+      //echo $customer_list;
       //die();
 
       $customer_count = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
       ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+       DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
+       )
       ->where('status_user'  , '=', 'OPEN' )
       ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
       ->groupBy('merge_no')
