@@ -17,7 +17,7 @@ use App\Models\Admin\UsrDepartment;
 use App\Models\Admin\UsrDesignation;
 use App\Models\Admin\Role;
 use App\Models\Org\Location\Location;
-
+use App\Libraries\CapitalizeAllFields;
 class UserController extends Controller {
 
   public function __construct()
@@ -45,6 +45,10 @@ class UserController extends Controller {
     else if($type == 'autoimmidiateReport')    {
       $search = $request->search;
       return response($this->autocomplete_load_all_users($search));
+    }
+    else if($type == 'autocomplete_hods')    {
+      $search = $request->search;
+      return response($this->autocomplete_hods($search));
     }
     else {
       $active = $request->active;
@@ -97,6 +101,8 @@ class UserController extends Controller {
         $profile->status = 1;
         $profile->reporting_level_1=$request->reporting_level_1['user_id'];
         $profile->reporting_level_2=$request->reporting_level_2['user_id'];
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($profile);
+        $profile->email=$request->email;
         $profile->save();
 
         if($profile->user_id > 0 && $request->user_name != null && $request->password != null){
@@ -372,6 +378,21 @@ public function update(Request $request, $id)
     return $user_lists;
   }
 
+
+  private function autocomplete_hods($search)
+  {
+    //dd($search);
+    $active=1;
+    $user_lists = UsrProfile::select('usr_profile.user_id','user_name')
+    ->join('org_designation','usr_profile.desig_id','=','org_designation.des_id')
+    ->join('usr_login','usr_profile.user_id','=','usr_login.user_id')
+    ->where([['usr_login.user_name', 'like', '%' . $search . '%']])
+    ->where('usr_profile.status','=',$active)
+    ->where('org_designation.des_name','=','HOD')
+    ->get();
+    return $user_lists;
+  }
+
   //get searched Colors for datatable plugin format
   private function datatable_search($data)
   {
@@ -391,6 +412,8 @@ public function update(Request $request, $id)
     ->where('first_name'  , 'like', $search.'%' )
     ->orWhere('last_name'  , 'like', $search.'%' )
     ->orWhere('emp_number'  , 'like', $search.'%' )
+    ->orWhere('org_designation.des_name'  , 'like', $search.'%' )
+    ->orWhere('org_departments.dep_name'  , 'like', $search.'%' )
     ->orderBy($order_column, $order_type)
     ->offset($start)->limit($length)->get();
 
@@ -400,6 +423,8 @@ public function update(Request $request, $id)
     ->where('first_name'  , 'like', $search.'%' )
     ->orWhere('last_name'  , 'like', $search.'%' )
     ->orWhere('emp_number'  , 'like', $search.'%' )
+    ->orWhere('org_designation.des_name'  , 'like', $search.'%' )
+    ->orWhere('org_departments.dep_name'  , 'like', $search.'%' )
     ->count();
 
     return [

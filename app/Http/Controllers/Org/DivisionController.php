@@ -144,7 +144,7 @@ class DivisionController extends Controller
         if($smv==true||$style==true){
           return response([
             'data' => [
-              'message' => 'Division deactivated successfully.',
+              'message' => 'Division Already In use.',
               'status'=>0
             ]
           ] );

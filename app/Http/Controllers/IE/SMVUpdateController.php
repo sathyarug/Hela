@@ -81,6 +81,14 @@ class SMVUpdateController extends Controller
     public function update(Request $request, $id)
     {
       $smvupdate = SMVUpdate::find($id);
+
+    /*  $is_exists_in_com_smv=DB::table('ie_component_smv_header')
+                                    ->join('ie_smv_')
+                                    ->join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
+                                                             ->where('style_creation.customer_id','=',$smvupdate->customer_id)
+                                                              ->where('ie_component_smv_header.product_silhouette_id',$smvupdate->product_silhouette_id)
+                                                                ->where('ie_component_smv_header.status','=',1)->exists();
+                                                                dd($is_exists_in_com_smv);*/
       if($smvupdate->validate($request->all()))
       {
         $smvupdate->fill($request->except('smv_id','customer_id','division_id','product_silhouette_id'));

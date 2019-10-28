@@ -239,10 +239,11 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
       $batch_no=$request->batchNo;
       $invoice_no=$request->invoiceNo;
       //dd($batch_no);
-      $rollPlanDetails=DB::SELECT("SELECT store_roll_plan.*
+      $rollPlanDetails=DB::SELECT("SELECT store_roll_plan.*,org_store_bin.store_bin_name
           From store_roll_plan
           INNER JOIN store_grn_detail on store_roll_plan.grn_detail_id=store_grn_detail.grn_detail_id
           INNER JOIN store_grn_header on store_grn_detail.grn_id=store_grn_header.grn_id
+          INNER JOIN org_store_bin on store_roll_plan.bin=org_store_bin.store_bin_id
           WHERE store_roll_plan.invoice_no='".$invoice_no."'
           AND store_roll_plan.batch_no='".$batch_no."'");
 

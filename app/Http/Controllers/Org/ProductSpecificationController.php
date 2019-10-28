@@ -135,8 +135,8 @@ class  ProductSpecificationController extends Controller
         else {
         $productSpecification =ProductSpecification::where('prod_cat_id', $id)->update(['status' => 0]);
         return response([ 'data' => [
-          'message' => 'Product Type Already in Use',
-          'status' => '0',
+          'message' => 'Product Type Deactived sucessfully',
+          'status' => '1',
           'productSpesication'=>$productSpecification
         ]]);
       }

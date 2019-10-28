@@ -9,7 +9,7 @@ use App\Models\Store\SubStore;
 use App\Models\Store\StoreBin;
 use App\Models\Store\Stock;
 use App\Libraries\CapitalizeAllFields;
-
+use Illuminate\Support\Facades\DB;
 use App\Libraries\AppAuthorize;
 
 class SubStoreController extends Controller
@@ -61,7 +61,8 @@ class SubStoreController extends Controller
 
             return response(['data' => [
                     'message' => 'Sub Store saved successfully',
-                    'subStore' => $subStore
+                    'subStore' => $subStore,
+                    'status'=>1
                 ]
                     ], Response::HTTP_CREATED);
         } else {
@@ -114,7 +115,8 @@ class SubStoreController extends Controller
 
             return response(['data' => [
                     'message' => 'Sub Store is updated successfully',
-                    'subStore' => $subStore
+                    'subStore' => $subStore,
+                    'status'=>1
             ]]);
         } else {
             $errors = $subStore->errors(); // failure, get errors
@@ -136,13 +138,24 @@ class SubStoreController extends Controller
     {
       if($this->authorize->hasPermission('SUB_STORE_DELETE'))//check permission
       {
+        $is_exixts_bin=DB::table('org_store_bin')->where('substore_id',$id)->exists();
+        $is_exists_grn=DB::table('store_grn_header')->where('sub_store',$id)->exists();
+        if($is_exixts_bin==true||$is_exists_grn==true){
+          return response([
+              'data' => [
+                  'message' => 'Sub Store Already in Use',
+                  'status'=>0,
+              ]
+            ]);
+        }
         $subStore = SubStore::where('substore_id', $id)->update(['status' => 0]);
         return response([
             'data' => [
                 'message' => 'Sub Store is deactivated successfully.',
-                'store' => $subStore
+                'store' => $subStore,
+                'status'=>1
             ]
-          ], Response::HTTP_NO_CONTENT);
+          ]);
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -172,6 +185,7 @@ class SubStoreController extends Controller
         $bin_list = SubStore::select('substore_id', 'substore_name')
                         ->where([['substore_name', 'like', '%' . $search . '%'],])
                         ->where('store_id','=',$storeId)
+                        ->where('status','=',1)
                         ->get();
         return $bin_list;
     }
