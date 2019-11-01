@@ -134,10 +134,15 @@ class BuyMasterController extends Controller
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
+      $count = BuyMaster::select('*')
+      ->where('buy_name'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->count();
+
       return [
           "draw" => $draw,
-          "recordsTotal" => sizeof($list),
-          "recordsFiltered" => sizeof($list),
+          "recordsTotal" => $count,
+          "recordsFiltered" => $count,
           "data" => $list
       ];
     }

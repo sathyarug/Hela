@@ -188,6 +188,8 @@ Route::prefix('org/')->group(function(){
   Route::get('sizes-chart/validate' , 'Org\SizeChartController@validate_data');
   Route::apiResource('sizes-chart','Org\SizeChartController');
 
+  Route::apiResource('conv-factor','Org\ConversionFactorController');
+
 });
 
 

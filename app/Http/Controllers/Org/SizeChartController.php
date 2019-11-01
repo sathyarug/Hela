@@ -190,6 +190,7 @@ class SizeChartController extends Controller
     //get searched data for datatable plugin format
     private function datatable_search($data)
     {
+ 
       $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
@@ -201,13 +202,19 @@ class SizeChartController extends Controller
       $size_list = SizeChart::select('*')   
       ->where('chart_name'  , 'like', $search.'%' )
       ->orWhere('description'  , 'like', $search.'%' )
-      ->orderBy('chart_name','ASC')
+      ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
+
+      $count = SizeChart::select('*')   
+      ->where('chart_name'  , 'like', $search.'%' )
+      ->orWhere('description'  , 'like', $search.'%' )
+      ->orderBy('chart_name','ASC')
+      ->count();
 
       return [
           "draw" => $draw,
-          "recordsTotal" => sizeof($size_list),
-          "recordsFiltered" => sizeof($size_list),
+          "recordsTotal" => $count,
+          "recordsFiltered" => $count,
           "data" => $size_list
       ];
     }
