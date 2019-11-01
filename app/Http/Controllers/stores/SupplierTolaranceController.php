@@ -63,7 +63,7 @@ class SupplierTolaranceController extends Controller{
           $suplierTolarnce->save();
 
           return response([ 'data' => [
-            'message' => ' Tolernce saved successfully',
+            'message' => ' Tolarnce saved successfully',
             'suplierTolarnce' =>$suplierTolarnce
             ]
           ], Response::HTTP_CREATED );

@@ -17,6 +17,7 @@ use App\Models\IE\SMVUpdate;
 use App\Models\IE\ComponentSMVSummary;
 use App\Models\IE\ComponentSMVSummaryHistory;
 use App\Models\Merchandising\StyleCreation;
+use App\Models\Merchandising\BuyMaster;
 use App\Models\Merchandising\ProductFeatureComponent;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -36,12 +37,18 @@ class ComponentSMVController extends Controller
         $data = $request->all();
         return response($this->datatable_search($data));
       }
+      else if($type == 'auto_buy')    {
+        $search = $request->search;
+        return response($this->autocomplete_search_buy_name($search));
+      }
       else if($type == 'searchDetails')    {
         $styleId = $request->styleId;
         $bomStageId=$request->bomStageId;
         $colorOptionId=$request->colorOptionId;
+        $buyId=$request->buyId;
 
-        return response(['data'=>$this->details_search($styleId,$bomStageId,$colorOptionId)]);
+
+        return response(['data'=>$this->details_search($styleId,$bomStageId,$colorOptionId,$buyId)]);
       }
     /*  else if($type=='checkSMVRange'){
       $data=$request->data;
@@ -66,6 +73,7 @@ class ComponentSMVController extends Controller
       $bomStageID=$request->bomStageId;
       $totalSMV=$request->totalSMV;
       $colorOptionId=$request->colOptId;
+      $buyId=$request->buyId;
       $details=$request->data;
       $detailsSummary=$request->dataSum;
       $comments=$request->comments;
@@ -86,6 +94,7 @@ class ComponentSMVController extends Controller
       $smvComponentHeader->status=1;
       $smvComponentHeader->bom_stage_id=$bomStageID;
       $smvComponentHeader->col_opt_id=$colorOptionId;
+      $smvComponentHeader->buy_id=$buyId;
       $smvComponentHeader->product_feature_id=$prodcutFeatureId;
       $smvComponentHeader->total_smv=$totalSMV;
       $smvComponentHeader->revision_no=0;
@@ -141,6 +150,7 @@ class ComponentSMVController extends Controller
     $smvComponentHeaderHistory->status=$smvComponentHeader['status'];
     $smvComponentHeaderHistory->bom_stage_id=$smvComponentHeader['bom_stage_id'];
     $smvComponentHeaderHistory->col_opt_id=$smvComponentHeader['col_opt_id'];
+    $smvComponentHeaderHistory->buy_id=$smvComponentHeader['buy_id'];
     $smvComponentHeaderHistory->product_feature_id=$smvComponentHeader['product_feature_id'];
     $smvComponentHeaderHistory->total_smv=$smvComponentHeader['total_smv'];
     $num=(int)$revisionNo;
@@ -278,6 +288,18 @@ class ComponentSMVController extends Controller
 
 
     }
+
+    //search Silhouette for autocomplete
+    private function autocomplete_search_buy_name($search)
+    {
+      $active=1;
+      $buyier_lists = BuyMaster::select('buy_id','buy_name')
+      ->where([['buy_name', 'like', '%' . $search . '%']])
+      ->where('status','=',$active)
+      ->get();
+      return $buyier_lists;
+    }
+
     public function check_copy_status(Request $request){
       //echo("hdhhdhdhdhhdhd");
       $styleId=$request->styleId;
@@ -336,7 +358,8 @@ class ComponentSMVController extends Controller
 $component_smv_header_details = ComponentSMVHeader::join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
 ->join('merc_bom_stage','ie_component_smv_header.bom_stage_id','=','merc_bom_stage.bom_stage_id')
 ->join('merc_color_options','ie_component_smv_header.col_opt_id','=','merc_color_options.col_opt_id')
-->select('ie_component_smv_header.*','merc_bom_stage.bom_stage_description','style_creation.style_no','merc_color_options.color_option')
+->leftjoin('buy_master','ie_component_smv_header.buy_id','=','buy_master.buy_id')
+->select('ie_component_smv_header.*','merc_bom_stage.bom_stage_description','style_creation.style_no','merc_color_options.color_option','buy_master.buy_name')
 ->where('ie_component_smv_header.smv_component_header_id'  , '=', $id )
 ->get();
 $componet_smv_details_list=ComponentSMVDetails::join('product_component','ie_component_smv_details.product_component_id','=','product_component.product_component_id')
@@ -460,7 +483,7 @@ else
   		->where([['garment_operation_name', 'like', '%' . $search . '%'],]) ->get();
   		return $garment_operation_lists;
   	}
-    private function details_search($styleId,$bomStageID,$colorOptionId){
+    private function details_search($styleId,$bomStageID,$colorOptionId,$buyId){
 
       $style=StyleCreation::select('*')
       ->where('style_id','=',$styleId)
@@ -486,7 +509,9 @@ else
         }
 
       }
+      $component_smv=null;
 
+      if($buyId==null){
         $component_smv = ComponentSMVHeader::where('style_id','=',$styleId)
         ->where('bom_stage_id','=',$bomStageID)
         ->where('col_opt_id','=',$colorOptionId)
@@ -494,6 +519,18 @@ else
         ->select('*')
         //->toSql();
         ->first();
+      }
+
+      else if($buyId!=null){
+        $component_smv = ComponentSMVHeader::where('style_id','=',$styleId)
+        ->where('bom_stage_id','=',$bomStageID)
+        ->where('col_opt_id','=',$colorOptionId)
+        ->where('buy_id','=',$buyId)
+        ->where('status','=',1)
+        ->select('*')
+        //->toSql();
+        ->first();
+      }
         //echo("dfffffff");
         //echo($component_smv->smv_component_header_id);
         //print_r($component_smv);
@@ -505,7 +542,8 @@ else
           $component_smv_header_details = ComponentSMVHeader::join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
           ->join('merc_bom_stage','ie_component_smv_header.bom_stage_id','=','merc_bom_stage.bom_stage_id')
           ->join('merc_color_options','ie_component_smv_header.col_opt_id','=','merc_color_options.col_opt_id')
-          ->select('ie_component_smv_header.*','merc_bom_stage.bom_stage_description','style_creation.style_no','merc_color_options.color_option')
+          ->leftjoin('buy_master','ie_component_smv_header.buy_id','=','buy_master.buy_id')
+          ->select('ie_component_smv_header.*','merc_bom_stage.bom_stage_description','style_creation.style_no','merc_color_options.color_option','buy_master.buy_name')
           ->where('ie_component_smv_header.smv_component_header_id'  , '=', $id )
           ->get();
           $componet_smv_details_list=ComponentSMVDetails::join('product_component','ie_component_smv_details.product_component_id','=','product_component.product_component_id')
@@ -558,12 +596,14 @@ else
       $component_smv_list = ComponentSMVHeader::join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
       ->join('merc_bom_stage','ie_component_smv_header.bom_stage_id','=','merc_bom_stage.bom_stage_id')
       ->join('merc_color_options','ie_component_smv_header.col_opt_id','=','merc_color_options.col_opt_id')
-      ->select('ie_component_smv_header.smv_component_header_id','ie_component_smv_header.total_smv','merc_bom_stage.bom_stage_description','ie_component_smv_header.revision_no','ie_component_smv_header.comments','style_creation.style_no','merc_color_options.color_option','ie_component_smv_header.status')
+      ->leftjoin('buy_master','ie_component_smv_header.buy_id','=','buy_master.buy_id')
+      ->select('ie_component_smv_header.smv_component_header_id','ie_component_smv_header.total_smv','merc_bom_stage.bom_stage_description','ie_component_smv_header.revision_no','ie_component_smv_header.comments','style_creation.style_no','merc_color_options.color_option','ie_component_smv_header.status','buy_master.buy_name')
       ->where('ie_component_smv_header.comments'  , 'like', $search.'%' )
       ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
       ->orWhere('merc_color_options.color_option'  , 'like', $search.'%' )
       ->orWhere('merc_bom_stage.bom_stage_description'  , 'like', $search.'%' )
       ->orWhere('ie_component_smv_header.total_smv'  , 'like', $search.'%' )
+      ->orWhere('buy_master.buy_name','like',$search.'%' )
 
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
@@ -571,12 +611,14 @@ else
       $component_smv_count = ComponentSMVHeader::join('style_creation','ie_component_smv_header.style_id','=','style_creation.style_id')
       ->join('merc_bom_stage','ie_component_smv_header.bom_stage_id','=','merc_bom_stage.bom_stage_id')
       ->join('merc_color_options','ie_component_smv_header.col_opt_id','=','merc_color_options.col_opt_id')
+      ->leftjoin('buy_master','ie_component_smv_header.buy_id','=','buy_master.buy_id')
       ->select('ie_component_smv_header.smv_component_header_id','ie_component_smv_header.total_smv','merc_bom_stage.bom_stage_description','ie_component_smv_header.revision_no','ie_component_smv_header.comments','style_creation.style_no','merc_color_options.color_option','ie_component_smv_header.status')
       ->where('ie_component_smv_header.comments'  , 'like', $search.'%' )
       ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
       ->orWhere('merc_color_options.color_option'  , 'like', $search.'%' )
       ->orWhere('merc_bom_stage.bom_stage_description'  , 'like', $search.'%' )
       ->orWhere('ie_component_smv_header.total_smv'  , 'like', $search.'%' )
+      ->orWhere('buy_master.buy_name','like',$search.'%' )
 
       ->count();
 

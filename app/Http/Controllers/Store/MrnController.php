@@ -23,11 +23,11 @@ class MrnController extends Controller
     public function index(Request $request)
     {
         $type = $request['type'];
-        if($type == 'datatable') {
-            $draw = $request['draw'];
-            $po = $request['text'];
-            return $this->dataTable($draw, $po);
-        }elseif($type == 'load-mrn'){
+        if($type == 'datatable')   {
+          $data = $request->all();
+          return response($this->datatable_search($data));
+          }
+        elseif($type == 'load-mrn'){
             $mrnId = $request['mrn'];
             $locId = $request['loc'];
             return $this->loadMrn($mrnId, $locId);
@@ -142,6 +142,46 @@ class MrnController extends Controller
 
     }
 
+    //get searched MRN Details for datatable plugin format
+    private function datatable_search($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+    $mrn_list = MRNHeader::join('store_mrn_detail','store_mrn_header.mrn_id','=','store_mrn_detail.mrn_id')
+      ->join('style_creation','store_mrn_header.style_id','=','style_creation.style_id')
+      ->join('merc_customer_order_header','store_mrn_header.customer_po_header_id','=','merc_customer_order_header.order_id')
+      ->join('usr_login','merc_customer_order_header.created_by','=','usr_login.user_id')
+      ->select('store_mrn_header.*','style_creation.style_no','merc_customer_order_header.order_code','usr_login.user_name')
+      ->where('style_creation.style_no'  , 'like', $search.'%' )
+      ->orWhere('merc_customer_order_header.order_code'  , 'like', $search.'%' )
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $mrn_list_count =  MRNHeader::join('store_mrn_detail','store_mrn_header.mrn_id','=','store_mrn_detail.mrn_id')
+        ->join('style_creation','store_mrn_header.style_id','=','style_creation.style_id')
+        ->join('merc_customer_order_header','store_mrn_header.customer_po_header_id','=','merc_customer_order_header.order_id')
+        ->join('usr_login','merc_customer_order_header.created_by','=','usr_login.user_id')
+        ->select('store_mrn_header.*','style_creation.style_no','merc_customer_order_header.order_code','usr_login.user_name')
+        ->where('style_creation.style_no'  , 'like', $search.'%' )
+        ->orWhere('merc_customer_order_header.order_code'  , 'like', $search.'%' )
+      ->count();
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $mrn_list_count,
+          "recordsFiltered" => $mrn_list_count,
+          "data" => $mrn_list
+      ];
+    }
+
+
+
     /**
      * Display the specified resource.
      *
@@ -241,7 +281,7 @@ Inner JOIN bom_details ON bom_header.bom_id = bom_details.bom_id
 Inner JOIN item_master ON bom_details.master_id = item_master.master_id
 left JOIN org_uom ON item_master.uom_id = org_uom.uom_id
 Inner JOIN org_color on bom_details.color_id=org_color.color_id
-Inner JOIN org_size on store_stock.size=org_size.size_id
+LEFT JOIN org_size on store_stock.size=org_size.size_id
 where merc_customer_order_header.order_id=$soNo
 AND merc_customer_order_details.details_id=$soDetailsID
 AND style_creation.style_id=$styleNo
