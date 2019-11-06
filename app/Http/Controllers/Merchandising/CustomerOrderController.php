@@ -476,7 +476,7 @@ class CustomerOrderController extends Controller
     $order_id = $request->order_id;
 
     $buy_name= Costing::select('buy_master.buy_id', 'buy_master.buy_name')
-                 ->join('buy_master', 'costing.buy_id', '=', 'buy_master.buy_id')
+                 ->leftjoin('buy_master', 'costing.buy_id', '=', 'buy_master.buy_id')
                  ->where('style_id', '=', $style_id)
                  ->where('season_id', '=', $season_id)
                  ->where('bom_stage_id', '=', $order_id)
