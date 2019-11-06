@@ -185,6 +185,11 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
+  Route::get('sizes-chart/validate' , 'Org\SizeChartController@validate_data');
+  Route::apiResource('sizes-chart','Org\SizeChartController');
+
+  Route::apiResource('conv-factor','Org\ConversionFactorController');
+
 });
 
 
@@ -550,6 +555,8 @@ Route::prefix('merchandising/')->group(function(){
 
     //Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
 
+    Route::get('buy-master/validate' , 'Merchandising\BuyMasterController@validate_data');
+    Route::apiResource('buy-master','Merchandising\BuyMasterController');
 
 });
 
