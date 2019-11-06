@@ -12,6 +12,7 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\Costing\Costing;
 //use App\Libraries\UniqueIdGenerator;
 use App\Models\Merchandising\StyleCreation;
+use App\Models\Merchandising\BuyMaster;
 use App\Libraries\SearchQueryBuilder;
 
 class CustomerOrderController extends Controller
@@ -40,6 +41,10 @@ class CustomerOrderController extends Controller
       else if($type == 'style')    {
         $search = $request->search;
         return response($this->style_search($search));
+      }
+      else if($type == 'buyname')    {
+        $search = $request->search;
+        return response($this->buyname_search($search));
       }
       else if($type == 'search_fields'){
         return response([
@@ -89,7 +94,7 @@ class CustomerOrderController extends Controller
         {
           $order->fill($request->except(['order_status']));
           $order->order_status = 'PLANNED';
-          $order->order_buy_name=strtoupper($request->order_buy_name);
+
           $order->save();
 
           return response([ 'data' => [
@@ -112,7 +117,7 @@ class CustomerOrderController extends Controller
     //get a customer
     public function show($id)
     {
-      $customerOrder = CustomerOrder::with(['style','customer','division'])->find($id);
+      $customerOrder = CustomerOrder::with(['style','customer','division','buyname'])->find($id);
 
       $season = CustomerOrder::select('org_season.season_id', 'org_season.season_name')
                    //->join('costing', 'merc_customer_order_header.order_style', '=', 'costing.style_id')
@@ -132,6 +137,12 @@ class CustomerOrderController extends Controller
 
       $customerOrder['bom_stage1']  = $bom_stage;
 
+      $buy_name = CustomerOrder::select('buy_master.buy_id', 'buy_master.buy_name')
+                  ->join('buy_master', 'merc_customer_order_header.order_buy_name', '=', 'buy_master.buy_id')
+                  ->where('merc_customer_order_header.order_id', '=', $id)
+                  ->get();
+      $customerOrder['buy_name']  = $buy_name;
+
       if($customerOrder == null)
         throw new ModelNotFoundException("Requested customer order not found", 1);
       else
@@ -146,7 +157,6 @@ class CustomerOrderController extends Controller
       if($customerOrder->validate($request->all()))
       {
         $customerOrder->fill($request->except(['customer_code','order_status']));
-        $customerOrder->order_buy_name=strtoupper($request->order_buy_name);
         $customerOrder->save();
 
         return response([ 'data' => [
@@ -276,6 +286,12 @@ class CustomerOrderController extends Controller
   		return $style_lists;
   	}
 
+    private function buyname_search($search)
+  	{
+  		$style_lists = BuyMaster::select('buy_master.buy_id', 'buy_master.buy_name')
+  		->where([['buy_name', 'like', '%' . $search . '%'],]) ->get();
+  		return $style_lists;
+  	}
 
     //get searched customers for datatable plugin format
     private function datatable_search($data)
@@ -434,17 +450,14 @@ class CustomerOrderController extends Controller
     }
 
     public function load_header_stage(Request $request){
-      //print_r($request->style_id);
-      //die();
     $style_id = $request->style_id;
     $season_id= $request->season_id;
-
-
 
     $bom_stage = Costing::select('merc_bom_stage.bom_stage_id', 'merc_bom_stage.bom_stage_description')
                  ->join('merc_bom_stage', 'costing.bom_stage_id', '=', 'merc_bom_stage.bom_stage_id')
                  ->where('style_id', '=', $style_id)
                  ->where('season_id', '=', $season_id)
+                 ->where('costing.status', '<>', 'CANCELLED')
                  ->groupBy('costing.bom_stage_id')
                  ->get();
 
@@ -454,7 +467,28 @@ class CustomerOrderController extends Controller
       throw new ModelNotFoundException("Requested section not found", 1);
     else
       return response([ 'data' => $arr ]);
+    }
 
+
+    public function load_header_buy_name(Request $request){
+    $style_id = $request->style_id;
+    $season_id= $request->season_id;
+    $order_id = $request->order_id;
+
+    $buy_name= Costing::select('buy_master.buy_id', 'buy_master.buy_name')
+                 ->join('buy_master', 'costing.buy_id', '=', 'buy_master.buy_id')
+                 ->where('style_id', '=', $style_id)
+                 ->where('season_id', '=', $season_id)
+                 ->where('bom_stage_id', '=', $order_id)
+                 ->where('costing.status', '<>', 'CANCELLED')
+                 ->get();
+
+    $arr['buy_name']  = $buy_name;
+
+    if($arr == null)
+      throw new ModelNotFoundException("Requested section not found", 1);
+    else
+      return response([ 'data' => $arr ]);
     }
 
 

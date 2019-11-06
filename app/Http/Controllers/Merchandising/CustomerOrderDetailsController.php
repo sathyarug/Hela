@@ -141,9 +141,10 @@ class CustomerOrderDetailsController extends Controller
 
       $detail['col_type'] = $colour_type;
 
-      $st_colour = Costing::select('org_color.color_id', 'org_color.color_code')
-                   ->join('costing_finish_goods', 'costing.id', '=', 'costing_finish_goods.costing_id')
-                   ->join('org_color', 'costing_finish_goods.combo_color_id', '=', 'org_color.color_id')
+      $st_colour = Costing::select('item_master.master_id','item_master.master_code','item_master.master_description','org_color.color_id', 'org_color.color_code')
+                   ->join('bom_header', 'costing.id', '=', 'bom_header.costing_id')
+                   ->join('item_master', 'bom_header.fng_id', '=', 'item_master.master_id')
+                   ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
                    ->where('style_id', '=', $header['order_style'])
                    ->where('bom_stage_id', '=', $header['order_stage'])
                    ->where('season_id', '=', $header['order_season'])
@@ -900,6 +901,44 @@ class CustomerOrderDetailsController extends Controller
                  ->get();
 
     $arr['style_colour']  = $st_colour;
+
+    $fob = Costing::select('fob')
+    ->where('style_id', '=', $style_id)
+    ->where('bom_stage_id', '=', $stage_id)
+    ->where('season_id', '=', $season_id)
+    ->where('color_type_id', '=', $color_t)
+    ->get();
+
+    $arr['fob']  = $fob;
+
+    if($arr == null)
+      throw new ModelNotFoundException("Requested section not found", 1);
+    else
+      return response([ 'data' => $arr ]);
+
+    }
+
+
+    public function load_fng(Request $request){
+
+    $style_id  = $request->style_id;
+    $season_id = $request->season_id;
+    $stage_id  = $request->stage_id;
+    $color_t   = $request->color_t;
+
+    $st_colour = Costing::select('item_master.master_id','item_master.master_code','item_master.master_description','org_color.color_id', 'org_color.color_code')
+                 ->join('bom_header', 'costing.id', '=', 'bom_header.costing_id')
+                 ->join('item_master', 'bom_header.fng_id', '=', 'item_master.master_id')
+                 ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+                 ->where('style_id', '=', $style_id)
+                 ->where('bom_stage_id', '=', $stage_id)
+                 ->where('season_id', '=', $season_id)
+                 ->where('color_type_id', '=', $color_t)
+                 ->get();
+
+
+
+    $arr['item_fng_details']  = $st_colour;
 
     $fob = Costing::select('fob')
     ->where('style_id', '=', $style_id)

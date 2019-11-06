@@ -370,10 +370,13 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
     Route::post('load_header_season' , 'Merchandising\CustomerOrderController@load_header_season');
     Route::post('load_header_stage' , 'Merchandising\CustomerOrderController@load_header_stage');
+    Route::post('load_header_buy_name' , 'Merchandising\CustomerOrderController@load_header_buy_name');
+
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
+    Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
@@ -663,6 +666,7 @@ Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadPr
 Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
 Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
 Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+Route::GET('/getProductSilhouetteHome','Merchandising\ProductSilhouetteController@loadProductSilhouetteHome');
 
 Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');

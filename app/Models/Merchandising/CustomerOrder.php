@@ -15,7 +15,7 @@ class CustomerOrder extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['order_style','order_customer','order_division','order_status','order_buy_name','order_season','order_stage'];
+    protected $fillable=['order_style','order_customer','order_division','order_status','order_buy_name','order_season','order_stage','buy_id'];
 
     protected $rules=array(
         'order_style'=>'required',
@@ -81,6 +81,12 @@ class CustomerOrder extends BaseValidator
     public function division()
 		{
 			 return $this->belongsTo('App\Models\Org\Division' , 'order_division')->select(['division_id','division_description','division_code']);
+    }
+
+    public function buyname()
+		{
+			 return $this->belongsTo('App\Models\Merchandising\BuyMaster' , 'buy_id')
+       ->select(['buy_id','buy_name']);
     }
 
 
