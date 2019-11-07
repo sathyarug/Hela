@@ -19,7 +19,7 @@ class Customer extends BaseValidator {
         'business_posting_group', 'approved_by', 'system_updated_by', 'customer_creation_form','customer_country', 'status'];
 
     protected $dates = ['operation_start_date'];
-    protected $rules = array(
+    /*protected $rules = array(
         'customer_code' => 'required',
         'customer_name' => 'required',
         'customer_short_name' => 'required',
@@ -27,8 +27,8 @@ class Customer extends BaseValidator {
         'customer_city' => 'required',
         'customer_country' => 'required',
         'currency' => 'required'
-        /*'customer_contact1' => 'required'*/
-    );
+        'customer_contact1' => 'required'
+    );*/
 
     public function __construct() {
         parent::__construct();
@@ -61,6 +61,28 @@ class Customer extends BaseValidator {
     }*/
 
 
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'customer_code' => [
+            'required',
+            'unique:cust_customer,customer_code,'.$data['customer_id'].',customer_id',
+          ],
+          'customer_name' => 'required',
+          'customer_short_name' => 'required',
+          'type_of_service' => 'required',
+          'customer_city' => 'required',
+          'customer_country' => 'required',
+          'currency' => 'required'
+      ];
+    }
+
+
+    //Relationships................................................................
 
 		//default currency of the company
 		public function currency()
@@ -87,6 +109,6 @@ class Customer extends BaseValidator {
     }
 
 
-    
+
 
 }

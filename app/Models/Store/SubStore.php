@@ -14,11 +14,25 @@ class SubStore extends BaseValidator
 
     protected $fillable=['substore_name'];
 
-    protected $rules=array(
+    /*protected $rules=array(
         'substore_name'=>'required'
-    );
+    );*/
 
     public function __construct() {
         parent::__construct();
+    }
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'substore_name' => [
+            'required',
+            'unique:org_substore,substore_name,'.$data['substore_id'].',substore_id',
+          ]
+      ];
     }
 }

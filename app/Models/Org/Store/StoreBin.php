@@ -22,4 +22,19 @@ class StoreBin extends BaseValidator
     public function __construct() {
         parent::__construct();
     }
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'store_bin_name' => [
+            'required',
+            'unique:org_store_bin,store_bin_name,'.$data['store_bin_id'].',store_bin_id',
+          ]
+      ];
+    }
+
 }

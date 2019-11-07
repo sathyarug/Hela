@@ -33,7 +33,7 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $type = $request->type;
-        if($type == 'datatable')  {
+        if($type == 'datatable') {
           $data = $request->all();
           return response($this->datatable_search($data));
         }
@@ -41,20 +41,19 @@ class ItemController extends Controller
           $search = $request->search;
           return response($this->autocomplete_search($search));
         }
-        else if($type == 'handsontable')    {
+        else if($type == 'handsontable') {
           $search = $request->search;
           $category = $request->category;
           return response([
             'data' => $this->handsontable_list($category, $search)
           ]);
         }
-        /*else if($type == 'check_and_generate'){
-          $item_data = $request->item_data;
-          $property_data = $request->property_data;
+        else if($type == 'item_selector'){
+          $search = $request->search;
           return response([
-            'data' => $this->check_and_generate_item_description($item_data, $property_data)
+            'data' => $this->item_selector_list($search)
           ]);
-        }*/
+        }
         else {
         /*  $active = $request->active;
           $fields = $request->fields;
@@ -85,7 +84,7 @@ class ItemController extends Controller
             ]);
           }
           else{
-            $item->fill($request->all());          
+            $item->fill($request->all());
             $item->master_description = strtoupper($item->master_description);
             $item->status=1;
             $item->save();
@@ -376,6 +375,14 @@ class ItemController extends Controller
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->where('item_category.category_name', '=', $category)
       ->where('item_master.master_description', 'like', '%' . $search . '%')->get()->pluck('master_description');
+      return $list;
+    }
+
+
+    private function item_selector_list($search){
+      $list = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->where('item_master.master_description', 'like', '%' . $search . '%')->get();
       return $list;
     }
 

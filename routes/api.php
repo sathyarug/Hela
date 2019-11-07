@@ -635,7 +635,7 @@ Route::prefix('app/')->group(function(){
 
     Route::GET('menus','App\MenuController@index');
     Route::POST('search','App\SearchController@index');
-    Route::POST('required-permissions','App\PermissionController@get_required_permissions');
+    Route::apiResource('permissions','App\PermissionController');
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });
