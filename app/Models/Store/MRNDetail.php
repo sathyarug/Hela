@@ -1,15 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sankap
- * Date: 4/22/2019
- * Time: 3:21 PM
- */
 
 namespace App\Models\Store;
+use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 
-
-class MRNDetail extends Model
+class MRNDetail extends  BaseValidator
 {
     protected $table='store_mrn_detail';
     protected $primaryKey='id';

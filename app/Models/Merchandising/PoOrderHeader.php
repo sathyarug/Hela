@@ -114,7 +114,8 @@ class PoOrderHeader extends BaseValidator
     }
 
     public static function getPoLineData($request){
-              $poData=DB::Select("SELECT DISTINCT
+
+        $poData=DB::Select("SELECT DISTINCT
 style_creation.style_no,
 cust_customer.customer_name,
 merc_po_order_header.po_id,
@@ -124,8 +125,10 @@ org_color.color_name,
 org_size.size_name,
 org_uom.uom_code,
 merc_po_order_details.tot_qty,
-merc_customer_order_details.rm_in_date,
-merc_customer_order_details.pcd,
+DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y')as rm_in_date,
+#  merc_customer_order_details.rm_in_date,
+DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y')as pcd,
+#  merc_customer_order_details.pcd,
 merc_customer_order_details.po_no,
 merc_customer_order_header.order_id,
 merc_customer_order_details.details_id as cus_order_details_id,

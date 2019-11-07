@@ -60,6 +60,7 @@ class PurchaseOrderManualController extends Controller
         $order->fill($request->all());
         $order->po_type = $request->po_type['bom_stage_id'];
         $order->ship_mode = $request->ship_mode['ship_mode'];
+        $order->special_ins = strtoupper($request->special_ins);
         $order->status = '1';
         $order->po_status = 'PLANNED';
         $order->save();
@@ -131,10 +132,12 @@ class PurchaseOrderManualController extends Controller
     //update a customer
    public function update(Request $request, $id)
     {
+      //dd($request->po_number);
       $pOrder = PoOrderHeader::find($id);
       if($pOrder->validate($request->all()))
       {
         $pOrder->fill($request->except('customer_code'));
+        $pOrder->special_ins = strtoupper($request->special_ins);
         $pOrder->po_status = 'PLANNED';
         $pOrder->save();
 
@@ -150,7 +153,8 @@ class PurchaseOrderManualController extends Controller
         return response([ 'data' => [
           'message' => 'Purchase order was updated successfully',
           'customer' => $pOrder,
-          'savepo' => $pOrder
+          'savepo' => $pOrder,
+          'newpo' => $request->po_number
         ]]);
       }
       else
@@ -282,26 +286,34 @@ class PurchaseOrderManualController extends Controller
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
+      $user = auth()->user();
+
+
 
       $customer_list = PoOrderHeader::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_header.po_deli_loc')
-	  ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+	    ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
-	  ->select('merc_po_order_header.*','org_location.loc_name','org_supplier.supplier_name',
-          'fin_currency.currency_code')
-      ->where('po_number'  , 'like', $search.'%' )
-      ->orWhere('supplier_name'  , 'like', $search.'%' )
-
-	  ->orWhere('loc_name'  , 'like', $search.'%' )
+      ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'merc_po_order_header.po_type')
+	    ->select('merc_po_order_header.*','org_location.loc_name','org_supplier.supplier_name',
+          'fin_currency.currency_code','merc_bom_stage.bom_stage_description')
+      ->Where('merc_po_order_header.created_by','=', $user->user_id)
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('po_number', 'like', $search.'%')
+  				    ->orWhere('supplier_name', 'like', $search.'%')
+  				    ->orWhere('loc_name', 'like', $search.'%');
+  		        })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $customer_count = PoOrderHeader::join('org_location', 'org_location.loc_id', '=', 'merc_po_order_header.po_deli_loc')
-	  ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
+	    ->join('org_supplier', 'org_supplier.supplier_id', '=', 'merc_po_order_header.po_sup_code')
       ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
-      ->where('po_number'  , 'like', $search.'%' )
-      ->orWhere('supplier_name'  , 'like', $search.'%' )
-
-	  ->orWhere('loc_name'  , 'like', $search.'%' )
+      ->Where('merc_po_order_header.created_by','=', $user->user_id)
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('po_number', 'like', $search.'%')
+              ->orWhere('supplier_name', 'like', $search.'%')
+              ->orWhere('loc_name', 'like', $search.'%');
+              })
       ->count();
 
 
@@ -323,22 +335,30 @@ class PurchaseOrderManualController extends Controller
       $order = $data['order'][0];
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
+      $user = auth()->user();
+    //  dd($user);
 
       $customer_list = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
-      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','usr_profile.first_name'
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+       DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
+       )
       ->where('status_user'  , '=', 'OPEN' )
+      ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
       ->orderBy($order_column, $order_type)
       ->groupBy('merge_no')
       ->offset($start)->limit($length)->get();
 
-      //print_r($customer_list);
+      //echo $customer_list;
       //die();
 
       $customer_count = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
       ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"))
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+       DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
+       )
       ->where('status_user'  , '=', 'OPEN' )
+      ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
       ->groupBy('merge_no')
       ->count();
 
@@ -387,6 +407,7 @@ class PurchaseOrderManualController extends Controller
                                     bom_details.mcq,
                                     merc_customer_order_details.pcd,
                                     DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') as pcd_01,
+                                    org_location.loc_id,
                                     org_location.loc_name,
                                     bom_details.id AS bom_detail_id,
                                     mat_ratio.id as mat_id,
@@ -510,6 +531,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line->bom_stage_id = $lines[$x]['order_stage'];
         $temp_line->ship_mode = $lines[$x]['ship_mode'];
         $temp_line->origin_type_id = $lines[$x]['origin_type_id'];
+        $temp_line->delivery_loc = $lines[$x]['loc_id'];
         $temp_line->save();
 
         DB::table('merc_purchase_req_lines')
@@ -537,6 +559,7 @@ class PurchaseOrderManualController extends Controller
     public function load_reqline(Request $request)
   	{
       $prl_id = $request->prl_id;
+      $user = auth()->user();
 
       $load_list = PurchaseReqLines::join("bom_details",function($join){
                $join->on("bom_details.bom_id","=","merc_purchase_req_lines.bom_id")
@@ -556,6 +579,7 @@ class PurchaseOrderManualController extends Controller
 	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->where('merge_no'  , '=', $prl_id )
+       ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
        ->get();
 
        //echo $load_list;

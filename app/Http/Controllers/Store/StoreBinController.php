@@ -127,12 +127,21 @@ class StoreBinController extends Controller {
       {
         $storeBin = StoreBin::find($id);
         if ($storeBin->validate($request->all())) {
+          $is_exsits_in_bin_alocation=DB::table('org_store_bin_allocation')->where('store_bin_id','=',$id);
+          $is_exists_in_roll_plan=DB::table('store_roll_plan')->where('bin','=',$id);
+          if($is_exsits_in_bin_alocation==true||$is_exists_in_roll_plan==true){
+            return response(['data' => [
+                    'message' => 'Store Bin Alreday in Use',
+                    'status'=>0,
+                      ]]);
+          }
             $storeBin->fill($request->except('store_bin_name'));
             $storeBin->save();
 
             return response(['data' => [
-                    'message' => 'Store was updated successfully',
-                    'storeBin' => $storeBin
+                    'message' => 'Store Bin successfully',
+                    'storeBin' => $storeBin,
+                    'status'=>1
             ]]);
         } else {
             $errors = $storeBin->errors(); // failure, get errors
@@ -154,13 +163,24 @@ class StoreBinController extends Controller {
     {
       if($this->authorize->hasPermission('BIN_DELETE'))//check permission
       {
+        $is_exsits_in_bin_alocation=DB::table('org_store_bin_allocation')->where('store_bin_id','=',$id);
+        $is_exists_in_roll_plan=DB::table('store_roll_plan')->where('bin','=',$id);
+        if($is_exsits_in_bin_alocation==true||$is_exists_in_roll_plan==true){
+          return response([
+              'data' => [
+                  'message' => 'Store Bin Alreday in Use',
+                  'status'=>0,
+              ]
+          ]);
+        }
         $storeBin = StoreBin::where('store_bin_id', $id)->update(['status' => 0]);
         return response([
             'data' => [
                 'message' => 'Store Bin is deactivated successfully.',
-                'store' => $storeBin
+                'store' => $storeBin,
+                'status'=>1,
             ]
-        ], Response::HTTP_NO_CONTENT);
+        ]);
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -224,6 +244,8 @@ class StoreBinController extends Controller {
                         })
 
                         ->where([['store_bin_name', 'like', "%$search%"]])
+                        ->orWhere([['store_bin_description', 'like', "%$search%"]])
+                        ->orWhere([['org_substore.substore_name', 'like', "%$search%"]])
                         ->orderBy($order_column, $order_type)
                         ->offset($start)->limit($length)->get();
 
@@ -238,6 +260,8 @@ class StoreBinController extends Controller {
                         })
 
                         ->where([['store_bin_name', 'like', "%$search%"]])
+                        ->orWhere([['store_bin_description', 'like', "%$search%"]])
+                        ->orWhere([['org_substore.substore_name', 'like', "%$search%"]])
                         ->count();
 
         return [

@@ -32,6 +32,7 @@ class ItemSubCategoryController extends Controller
 
     public function save(Request $request){
       //print_r($request->all());die();
+
         $IsInspectionAllowed = 0;
         $IsDisplay = 0;
         $sub_category = new SubCategory();
@@ -52,6 +53,10 @@ class ItemSubCategoryController extends Controller
 
             if($request->subcategory_id > 0){
                 $sub_category = SubCategory::find($request->subcategory_id);
+                $is_exsits_in_item_property_assign=DB::table('item_property_assign')->where('subcategory_id','=',$request->subcategory_id)->exists();
+                if($is_exsits_in_item_property_assign==true){
+                return json_encode(array('status' => 'Fail' , 'message' => 'Sub category Already in Use'));
+                }
                 $sub_category->category_id = $request->category_code;
                 $sub_category->subcategory_code = strtoupper($request->subcategory_code);
                 $sub_category->subcategory_name = strtoupper($request->subcategory_name);

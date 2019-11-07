@@ -59,8 +59,9 @@ class StoreController extends Controller
           $store->save();
 
           return response([ 'data' => [
-            'message' => 'Store was saved successfully',
-            'store' => $store
+            'message' => 'Store Saved Successfully',
+            'store' => $store,
+            'status'=>1
             ]
           ], Response::HTTP_CREATED );
         }
@@ -101,14 +102,22 @@ class StoreController extends Controller
         $store = Store::find($id);
         if($store->validate($request->all()))
         {
+          $is_exsists_bin=DB::table('org_store_bin')->where('store_bin_id','=',$id);
+          if($is_exsists_bin==true){
+            return response([ 'data' => [
+              'message' => 'Store Already in Use',
+              'status' => 0
+            ]]);
+          }
           $store->fill($request->except('store_name'));
           $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($store);
           $store->email=$request->email;
           $store->save();
 
           return response([ 'data' => [
-            'message' => 'Store was updated successfully',
-            'store' => $store
+            'message' => 'Store Updated Successfully',
+            'store' => $store,
+            'status'=>1
           ]]);
         }
         else
@@ -193,6 +202,7 @@ class StoreController extends Controller
       $location=$user['loc_id'];
   		$store_lists = Store::select('store_id','store_name')
   		->where([['store_name', 'like', '%' . $search . '%'],])
+      ->where('status','=',1)
       ->where('loc_id','=',$location)
       ->get();
   		return $store_lists;

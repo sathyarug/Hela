@@ -71,11 +71,11 @@ class BinConfigController extends Controller {
 
 
         return response(['data' => [
-                'message' => 'Store bin saved successfully',
+                'message' => ' Bin Config Saved successfully',
                 'storeBin' => $binConfig
             ]
                 ], Response::HTTP_CREATED);
-        
+
     }
 
     private function getBinData($binId) {

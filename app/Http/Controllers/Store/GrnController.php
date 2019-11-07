@@ -162,7 +162,7 @@ class GrnController extends Controller
 
             return response(['data' => [
                     'type' => 'success',
-                    'message' => 'Success! Saved successfully.',
+                    'message' => 'Saved Successfully.',
                     'grnId' => $header->grn_id,
                     'detailData'=>$responseData
                 ]
@@ -183,7 +183,7 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select('store_grn_header.grn_number', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'store_grn_header.created_date', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         //->leftjoin('store_grn_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
@@ -195,7 +195,7 @@ class GrnController extends Controller
                         ->orWhere('grn_number', 'like', $search.'%')
                         ->orWhere('merc_po_order_header.po_number', 'like', $search.'%')
                         ->orderBy($order_column, $order_type)
-                        ->orderBy('store_grn_header.created_date',$order_column.' DESC', $order_type)
+                        ->orderBy('store_grn_header.updated_date',$order_column.' DESC', $order_type)
                         ->groupBy('store_grn_header.grn_id')
                         ->offset($start)->limit($length)->get();
                         //->where('stock_grn_header'  , '=', $search.'%' )
@@ -325,7 +325,7 @@ class GrnController extends Controller
       $dataset=$request->dataset;
       $grnHeader=GrnHeader::find($id);
         $grnHeader['batch_no']=$header['batch_no'];
-        $grnHeader['sub_store']=$header['sub_store']['sub_store'];
+        $grnHeader['sub_store']=$header['sub_store']['substore_id'];
         $grnHeader['note']=$header['note'];
 
         //$store = SubStore::find($request->header['substore_id'])
@@ -432,7 +432,7 @@ class GrnController extends Controller
 
         return response(['data' => [
                 'type' => 'success',
-                'message' => 'Success! updated successfully.',
+                'message' => 'Updated Successfully.',
                 'grnId' => $header['grn_id'],
                 'detailData'=>$responseData
             ]
@@ -516,7 +516,7 @@ class GrnController extends Controller
    }
     }
 
-    public function fiterData(Request $request){
+    public function filterData(Request $request){
 
    $customer_id=$request['customer_name']['customer_id'];
    $customer_po=$request['customer_po']['order_id'];
@@ -528,7 +528,7 @@ class GrnController extends Controller
    $supplier_id=$request['supplier_id'];
 
 
-   //dd($color);
+
                           $poData=DB::Select("SELECT DISTINCT style_creation.style_no,
                                        cust_customer.customer_name,merc_po_order_header.po_id,merc_po_order_details.id,
                                        item_master.master_description,
@@ -536,8 +536,10 @@ class GrnController extends Controller
                                       org_size.size_name,
                                       org_uom.uom_code,
                                       merc_po_order_details.tot_qty,
-                                      merc_customer_order_details.rm_in_date,
-                                      merc_customer_order_details.pcd,
+                                    DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y')as rm_in_date,
+                                        #merc_customer_order_details.rm_in_date,
+                                    DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y')as pcd,
+                                        #merc_customer_order_details.pcd,
                                       merc_customer_order_details.po_no,
                                        merc_customer_order_header.order_id,
                                        item_master.master_id,
@@ -593,7 +595,7 @@ class GrnController extends Controller
 
                      WHERE merc_po_order_header.po_id = $po_id
                     AND merc_po_order_header.po_sup_code=$supplier_id
-                    AND merc_po_order_details.po_status='PLANNED'
+                    AND merc_po_order_details.po_status='CONFIRMED'
                     AND merc_customer_order_header.order_id like  '%".$customer_po."%'
                     AND cust_customer.customer_id like  '%".$customer_id."%'
                     AND item_master.master_id like '%".$itemDesacription."%'
