@@ -38,13 +38,15 @@ class ConversionFactorController extends Controller
       $data_list = ConversionFactor::select('*')   
       ->where('unit_code'  , 'like', $search.'%' )
       ->orWhere('description'  , 'like', $search.'%' )
-      ->orderBy('description','ASC')
+      ->orWhere('base_unit'  , 'like', $search.'%' )
+      ->orderBy('conv_id','ASC')
       ->offset($start)->limit($length)->get();
 
       $count = ConversionFactor::select('*')   
       ->where('unit_code'  , 'like', $search.'%' )
       ->orWhere('description'  , 'like', $search.'%' )
-      ->orderBy('description','ASC')
+      ->orWhere('base_unit'  , 'like', $search.'%' )
+      ->orderBy('conv_id','ASC')
       ->count();
 
       return [
