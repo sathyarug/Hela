@@ -310,6 +310,57 @@ class ItemController extends Controller
       }
     }
 
+
+    public function create_inventory_items(Request $request){
+      $items = $request->items;
+      $parent_item = Item::find($request->item_data['parent_item_id']);
+      $category = Category::find($parent_item->category_id);
+      //echo json_encode($parent_item);die();
+      $res_arr = [];
+      foreach($items as $item) {
+        $exists_item = Item::where('master_description', '=', $item['master_description'])->first();
+        if($exists_item == null) {//not a duplicate
+          $i = new Item();
+          $i->category_id = $parent_item->category_id;
+          $i->subcategory_id = $parent_item->subcategory_id;
+          $i->master_code = $item['master_code'];
+          $i->master_description = $item['master_description'];
+          $i->parent_item_id = $parent_item->master_id;
+          $i->inventory_uom = $request->item_data['inventory_uom']['uom_id'];
+          $i->standard_price = $item['standard_price'];
+          $i->supplier_id = ($request->item_data['supplier_id'] == null) ? null : $request->item_data['supplier_id']['supplier_id'];
+          $i->color_wise = ($request->item_data['color_wise'] == true) ? 1 : 0;
+          $i->size_wise = ($request->item_data['size_wise'] == true) ? 1 : 0;
+          $i->color_id = $item['color_id'];
+          $i->size_id = $item['size_id'];
+          $i->article_no = '';
+          $i->moq = 0;
+          $i->mcq = 0;
+          $i->status = 1;
+          $i->save();
+          //generate item codes
+          $i->master_code = $category->category_code . str_pad($i->master_id, 7, '0', STR_PAD_LEFT);
+          $i->save();
+
+          $item['master_id'] = $i->master_id;
+          $item['master_code'] = $i->master_code;
+          $item['save_status'] = 'SAVE';
+        }
+        else {//already exists item
+          $item['master_id'] = $exists_item->master_id;
+          $item['master_code'] = $exists_item->master_code;
+          $item['save_status'] = 'EXISTS';
+        }
+        array_push($res_arr, $item);
+      }
+      return response(['data' => [
+        'status' => 'success',
+        'message' => 'Item created successfully',
+        'items' => $res_arr
+        ]]);
+    }
+
+
   /*  public function SaveContentType(Request $request){
 
         $content_type = new ContentType();
@@ -394,6 +445,7 @@ class ItemController extends Controller
         else
           return false;
     }
+
 
 
   /*  public function GetItemList(Request $data){
