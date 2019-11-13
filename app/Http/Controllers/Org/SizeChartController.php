@@ -95,7 +95,7 @@ class SizeChartController extends Controller
            }
            return response([ 'data' => [
               'result' => 'insert',
-              'message' => 'Data saved successfully'
+              'message' => 'Size chart saved successfully'
              ]
            ], Response::HTTP_CREATED );
         }
@@ -104,7 +104,7 @@ class SizeChartController extends Controller
             $errors = $SizeChartHeader->errors();
             return response([ 'data' => [
                 'result' => $errors,
-                'message' => 'Data save fail'
+                'message' => 'Size chart saved fail'
               ]
             ], Response::HTTP_CREATED );
         }
@@ -171,7 +171,7 @@ class SizeChartController extends Controller
            }
            return response([ 'data' => [
               'result' => 'update',
-              'message' => 'Data update successfully'
+              'message' => 'Size chart updated successfully'
              ]
            ], Response::HTTP_CREATED );
         }

@@ -190,6 +190,8 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('conv-factor','Org\ConversionFactorController');
 
+  Route::apiResource('pack-types','Org\PackTypeController');
+
 });
 
 
@@ -712,3 +714,13 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
   //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
+
+Route::prefix('reports/')->group(function(){
+
+  Route::post('load_po_details','Reports\POReportController@load_po_details');
+  Route::get('export_excel_po_details' , 'Reports\POReportController@po_export_excel');
+  Route::apiResource('load_po','Reports\POReportController');
+  Route::apiResource('load_status','Reports\POReportController');
+
+
+});
