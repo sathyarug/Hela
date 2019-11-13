@@ -190,6 +190,8 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('conv-factor','Org\ConversionFactorController');
 
+  Route::apiResource('pack-types','Org\PackTypeController');
+
 });
 
 

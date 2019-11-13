@@ -20,6 +20,12 @@ class POReportController extends Controller
       if($type == 'datatable') {
           $data = $request->all();
           $this->datatable_search($data);
+      }else if($type == 'header') {
+          $data = $request->all();
+          $this->load_po_header($data);
+      }else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
       }else {
         $active = $request->active;
         $fields = $request->fields;
@@ -46,6 +52,13 @@ class POReportController extends Controller
     {
       return (new PODownload)->download('po_report.xlsx', \Maatwebsite\Excel\Excel::XLSX,
       ['Content-Type' => 'text/xlsx']);
+    }
+
+    private function autocomplete_search($search)
+    {
+      $po_lists = PoOrderHeader::select('po_id','po_number')
+      ->where([['po_number', 'like', '%' . $search . '%'],]) ->get();
+      return $po_lists;
     }
 
     private function datatable_search($data)
@@ -104,14 +117,14 @@ class POReportController extends Controller
       'item_category.category_name',
       'org_origin_type.origin_type',
       'org_origin_type.origin_type_id',
-      DB::raw("(CASE WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty ELSE mat_ratio.required_qty END) AS total_qty"),
-      DB::raw("(SELECT Sum(MPD.req_qty)AS req_qty
+      DB::raw("(CASE WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty ELSE mat_ratio.required_qty END) AS order_qty"),
+      DB::raw("(SELECT Sum(MPD.req_qty)AS received_qty
           FROM merc_po_order_details AS MPD
           WHERE
           MPD.bom_id = bom_details.bom_id AND
           MPD.bom_detail_id = bom_details.id AND
           (MPD.mat_id IS NULL OR MPD.mat_id = mat_ratio.id OR
-          MPD.size = mat_ratio.size_id OR MPD.mat_colour = mat_ratio.color_id)) AS req_qty"),
+          MPD.size = mat_ratio.size_id OR MPD.mat_colour = mat_ratio.color_id)) AS received_qty"),
       DB::raw("(SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
           FROM merc_po_order_details AS MPOD WHERE
           MPOD.bom_id = bom_details.bom_id AND
@@ -153,5 +166,38 @@ class POReportController extends Controller
       ]);
 
   }
+
+  private function load_po_header($data)
+  {
+      $po_no = $data['data']['po_no']['po_number'];
+      $supplier = $data['data']['supplier_name']['supplier_id'];
+      $po_from = $data['po_from'];
+      $po_to = $data['po_to'];
+      $status = $data['data']['po_status']['status'];
+
+      $query = DB::table('merc_po_order_header')
+      ->join('org_supplier','merc_po_order_header.po_sup_code','=','org_supplier.supplier_id')
+      ->leftJoin('fin_payment_method','merc_po_order_header.pay_mode','=','fin_payment_method.payment_method_id')
+      ->leftJoin('fin_payment_term','merc_po_order_header.pay_term','=','fin_payment_term.payment_term_id')
+      ->leftJoin('fin_shipment_term','merc_po_order_header.ship_mode','=','fin_shipment_term.ship_term_id')
+      ->join('usr_login','merc_po_order_header.created_by','=','usr_login.user_id')
+      ->join('org_location','merc_po_order_header.user_loc_id','=','org_location.loc_id')      
+      ->select('merc_po_order_header.*',
+              'org_supplier.supplier_name',
+              'fin_payment_method.payment_method_description',
+              'fin_payment_term.payment_description',
+              'fin_shipment_term.ship_term_description',
+              'usr_login.user_name',
+              'org_location.loc_name');
+      $load_list = $query->get();
+
+      echo json_encode([
+          "recordsTotal" => "",
+          "recordsFiltered" => "",
+          "data" => $load_list
+      ]);
+
+  }
+
 
 }
