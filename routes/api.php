@@ -527,6 +527,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
+    Route::post('items/create-inventory-items', 'Merchandising\Item\ItemController@create_inventory_items');
     Route::apiResource('items','Merchandising\Item\ItemController');
 
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
@@ -647,7 +648,7 @@ Route::prefix('app/')->group(function(){
 
     Route::GET('menus','App\MenuController@index');
     Route::POST('search','App\SearchController@index');
-    Route::POST('required-permissions','App\PermissionController@get_required_permissions');
+    Route::apiResource('permissions','App\PermissionController');
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });
