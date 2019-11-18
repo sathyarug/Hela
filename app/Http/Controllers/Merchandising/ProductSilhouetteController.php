@@ -68,7 +68,8 @@ class ProductSilhouetteController extends Controller
 
     public function loadProductSilhouetteHome(Request $request) {
         try{
-            echo json_encode(SilhouetteClassification::where('sil_class_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
+            echo json_encode(SilhouetteClassification::select('org_silhouette_classification.sil_class_id AS product_silhouette_id', 'org_silhouette_classification.sil_class_description AS product_silhouette_description')
+            ->where('sil_class_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
         }
         catch (JWTException $e) {
 
