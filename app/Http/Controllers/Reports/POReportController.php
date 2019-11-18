@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\Merchandising\BOMDetails;
 use App\Models\Core\Status;
+use App\Models\Merchandising\PoOrderHeader;
+
 
 class POReportController extends Controller
 { 
@@ -89,9 +91,10 @@ class POReportController extends Controller
       ->join('style_creation','merc_customer_order_header.order_style','=','style_creation.style_id')
       ->join('item_category','bom_details.category_id','=','item_category.category_id')
       ->join('org_origin_type','bom_details.origin_type_id','=','org_origin_type.origin_type_id')
+      ->join('merc_bom_stage','merc_customer_order_header.order_stage','=','merc_bom_stage.bom_stage_id')
       ->leftJoin('org_color AS OC','mat_ratio.color_id','=','OC.color_id')
       ->select('bom_details.bom_id',
-      'merc_customer_order_details.po_no',
+      'merc_customer_order_details.po_no AS cus_po',
       'bom_details.master_id',
       'item_master.master_description',
       'org_color.color_name AS color_name',
@@ -117,6 +120,9 @@ class POReportController extends Controller
       'item_category.category_name',
       'org_origin_type.origin_type',
       'org_origin_type.origin_type_id',
+      'cust_customer.customer_name',
+      'merc_bom_stage.bom_stage_description',
+      'merc_customer_order_header.order_status',
       DB::raw("(CASE WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty ELSE mat_ratio.required_qty END) AS order_qty"),
       DB::raw("(SELECT Sum(MPD.req_qty)AS received_qty
           FROM merc_po_order_details AS MPD
@@ -140,21 +146,29 @@ class POReportController extends Controller
       );
       if($customer!=null || $customer!=""){
         $query->where('cust_customer.customer_id', $customer);
-      }else if($bom_stage!=null || $bom_stage!=""){
+      }
+      if($bom_stage!=null || $bom_stage!=""){
         $query->where('merc_customer_order_header.order_stage', $bom_stage);
-      }else if($style!=null || $style!=""){
+      }
+      if($style!=null || $style!=""){
         $query->where('style_creation.style_no', $style);
-      }else if($item!=null || $item!=""){
+      }
+      if($item!=null || $item!=""){
         $query->where('bom_details.master_id', $item);
-      }else if($supplier!=null || $supplier!=""){
+      }
+      if($supplier!=null || $supplier!=""){
         $query->where('bom_details.supplier_id', $supplier);
-      }else if($cus_po!=null || $cus_po!=""){
-        $query->where('merc_customer_order_details.po_n', $cus_po);
-      }else if($sales_order!=null || $sales_order!=""){
+      }
+      if($cus_po!=null || $cus_po!=""){
+        $query->where('merc_customer_order_details.po_no', $cus_po);
+      }
+      if($sales_order!=null || $sales_order!=""){
         $query->where('merc_customer_order_header.order_code', $sales_order);
-      }else if($pcd_from!=null || $pcd_from!=""){
-        $query->whereBetween('merc_customer_order_details.pcd', [$pcd_from, $pcd_to]);
-      }else if($status!=null || $status!=""){
+      }
+      if($pcd_from!=null || $pcd_from!=""){
+        $query->whereBetween('merc_customer_order_details.pcd', [date("Y-m-d",strtotime($pcd_from)), date("Y-m-d",strtotime($pcd_to))]);
+      }
+      if($status!=null || $status!=""){
         $query->where('merc_customer_order_header.order_status', $status);
       }
       $load_list = $query->get();
@@ -177,18 +191,32 @@ class POReportController extends Controller
 
       $query = DB::table('merc_po_order_header')
       ->join('org_supplier','merc_po_order_header.po_sup_code','=','org_supplier.supplier_id')
-      ->leftJoin('fin_payment_method','merc_po_order_header.pay_mode','=','fin_payment_method.payment_method_id')
-      ->leftJoin('fin_payment_term','merc_po_order_header.pay_term','=','fin_payment_term.payment_term_id')
-      ->leftJoin('fin_shipment_term','merc_po_order_header.ship_mode','=','fin_shipment_term.ship_term_id')
       ->join('usr_login','merc_po_order_header.created_by','=','usr_login.user_id')
-      ->join('org_location','merc_po_order_header.user_loc_id','=','org_location.loc_id')      
+      ->join('org_location','merc_po_order_header.user_loc_id','=','org_location.loc_id')
       ->select('merc_po_order_header.*',
-              'org_supplier.supplier_name',
-              'fin_payment_method.payment_method_description',
-              'fin_payment_term.payment_description',
-              'fin_shipment_term.ship_term_description',
-              'usr_login.user_name',
-              'org_location.loc_name');
+      'org_supplier.supplier_name',
+      'usr_login.user_name',
+      DB::raw("(SELECT
+        FORMAT(SUM(merc_po_order_details.tot_qty),2)
+        FROM
+        merc_po_order_details
+        WHERE
+        merc_po_order_details.po_header_id = merc_po_order_header.po_id) AS total_amount"),
+      'org_location.loc_name'
+      );
+
+      if($po_no!=null || $po_no!=""){
+        $query->where('merc_po_order_header.po_number', $po_no);
+      }
+      if($supplier!=null || $supplier!=""){
+        $query->where('merc_po_order_header.po_sup_code', $supplier);
+      }
+      if($po_from!=null || $po_from!=""){
+        $query->whereBetween('merc_po_order_header.po_date', [date("Y-m-d",strtotime($po_from)), date("Y-m-d",strtotime($po_to))]);        
+      }
+      if($status!=null || $status!=""){
+        $query->where('merc_po_order_header.po_status', $status);
+      }
       $load_list = $query->get();
 
       echo json_encode([
