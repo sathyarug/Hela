@@ -51,17 +51,25 @@ class PaymentMethodController extends Controller
       if($this->authorize->hasPermission('PAYMENT_METHOD_MANAGE'))//check permission
       {
         $paymentMethod = new PaymentMethod();
-        $paymentMethod->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
-        $paymentMethod->status = 1;
-        $paymentMethod->save();
+        if($paymentMethod->validate($request->all()))
+        {
+          $paymentMethod->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
+          $paymentMethod->status = 1;
+          $paymentMethod->save();
 
-        return response([ 'data' => [
-          'message' => 'Payment Method saved successfully',
-          'paymentMethod' => $paymentMethod,
-          'status'=>'1'
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Payment Method saved successfully',
+            'paymentMethod' => $paymentMethod,
+            'status'=>'1'
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else {
+          $errors = $paymentMethod->errors();// failure, get errors
+          $errors_str = $paymentMethod->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -99,19 +107,27 @@ class PaymentMethodController extends Controller
           ]]);
         }
 
-        else{
+        else {
+          $paymentMethod = PaymentMethod::find($id);
 
-        $paymentMethod = PaymentMethod::find($id);
-        $paymentMethod->fill( $request->except('payment_method_code'));
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
-        $paymentMethod->save();
+          if($paymentMethod->validate($request->all()))
+          {
+            $paymentMethod->fill( $request->except('payment_method_code'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentMethod);
+            $paymentMethod->save();
 
-        return response([ 'data' => [
-          'message' => 'Payment method updated successfully',
-          'paymentMethod' => $paymentMethod,
-          'status'=>'1',
-        ]]);
-      }
+            return response([ 'data' => [
+              'message' => 'Payment method updated successfully',
+              'paymentMethod' => $paymentMethod,
+              'status'=>'1',
+            ]]);
+          }
+          else {
+            $errors = $paymentMethod->errors();// failure, get errors
+            $errors_str = $paymentMethod->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          }
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);

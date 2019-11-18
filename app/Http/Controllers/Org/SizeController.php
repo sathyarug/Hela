@@ -43,6 +43,12 @@ class SizeController extends Controller
       else if($type == 'loadsizes'){
           return response($this->LoadSizes());
       }
+      else if($type == 'size_selector'){
+        $search = $request->search;
+        return response([
+          'data' => $this->size_selector_list($search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -220,6 +226,15 @@ class SizeController extends Controller
       }
       return $query->get();
     }
+
+
+    private function size_selector_list($search){
+      $list = Size::select('size_id', 'size_name')
+      ->where('size_name', 'like', '%' . $search . '%')
+      ->get();
+      return $list;
+    }
+
 
     //search Size for autocomplete
     private function autocomplete_search($size_type, $search, $category_id, $subcategory_id)

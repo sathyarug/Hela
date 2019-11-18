@@ -51,16 +51,25 @@ class CostCenterController extends Controller
       if($this->authorize->hasPermission('COST_CENTER_MANAGE'))//check permission
       {
         $costCenter = new CostCenter();
-        $costCenter->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
-        $costCenter->status = 1;
-        $costCenter->save();
+        if($costCenter->validate($request->all()))
+        {
+          $costCenter->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
+          $costCenter->status = 1;
+          $costCenter->save();
 
-        return response([ 'data' => [
-          'message' => 'Cost center saved successfully',
-          'CostCenter' => $costCenter
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Cost center saved successfully',
+            'CostCenter' => $costCenter
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else
+        {
+          $errors = $costCenter->errors();// failure, get errors
+          $errors_str = $costCenter->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -84,14 +93,22 @@ class CostCenterController extends Controller
       if($this->authorize->hasPermission('COST_CENTER_MANAGE'))//check permission
       {
         $costCenter = CostCenter::find($id);
-        $costCenter->fill( $request->except('cost_center_code'));
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
-        $costCenter->save();
+        if($costCenter->validate($request->all()))
+        {
+          $costCenter->fill( $request->except('cost_center_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($costCenter);
+          $costCenter->save();
 
-        return response([ 'data' => [
-          'message' => 'Cost center updated successfully',
-          'CostCenter' => $costCenter
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Cost center updated successfully',
+            'CostCenter' => $costCenter
+          ]]);
+        }
+        else {
+          $errors = $costCenter->errors();// failure, get errors
+          $errors_str = $costCenter->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
