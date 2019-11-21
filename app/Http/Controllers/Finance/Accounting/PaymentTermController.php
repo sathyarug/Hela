@@ -52,17 +52,25 @@ class PaymentTermController extends Controller
       if($this->authorize->hasPermission('PAYMENT_TERM_MANAGE'))//check permission
       {
         $paymentTerm = new PaymentTerm();
-        $paymentTerm->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
-        $paymentTerm->status = 1;
-        $paymentTerm->save();
+        if($paymentTerm->validate($request->all()))
+        {
+          $paymentTerm->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
+          $paymentTerm->status = 1;
+          $paymentTerm->save();
 
-        return response([ 'data' => [
-          'message' => 'Payment term saved successfully',
-          'PaymentTerm' => $paymentTerm,
-          'status'=>'1'
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Payment term saved successfully',
+            'PaymentTerm' => $paymentTerm,
+            'status'=>'1'
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else {
+          $errors = $paymentTerm->errors();// failure, get errors
+          $errors_str = $paymentTerm->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -99,18 +107,27 @@ class PaymentTermController extends Controller
             'status' => '0',
           ]]);
         }
-        else{
+        else {
         $paymentTerm = PaymentTerm::find($id);
-        $paymentTerm->fill( $request->except('payment_code'));
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
-        $paymentTerm->save();
+        if($paymentTerm->validate($request->all()))
+        {
+          $paymentTerm->fill( $request->except('payment_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($paymentTerm);
+          $paymentTerm->save();
 
-        return response([ 'data' => [
-          'message' => 'Payment term updated successfully',
-          'PaymentTerm' => $paymentTerm,
-          'status'=>'1'
-        ]]);
-      }
+          return response([ 'data' => [
+            'message' => 'Payment term updated successfully',
+            'PaymentTerm' => $paymentTerm,
+            'status'=>'1'
+          ]]);
+        }
+        else
+        {
+          $errors = $paymentTerm->errors();// failure, get errors
+          $errors_str = $paymentTerm->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+       }
       }
       else{
         return response($this->authorize->error_response(), 401);

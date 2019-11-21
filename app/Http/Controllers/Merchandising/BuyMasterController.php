@@ -25,6 +25,12 @@ class BuyMasterController extends Controller
       if($type == 'datatable')   {
         $data = $request->all();
         return response($this->datatable_search($data));
+      }else {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->list($active , $fields)
+        ]);
       }
     }
 
@@ -116,6 +122,22 @@ class BuyMasterController extends Controller
           $errors = $buy_name->errors();// failure, get errors
           return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+    }
+
+    private function list($active = 0 , $fields = null)
+    {
+      $query = null;
+      if($fields == null || $fields == '') {
+        $query = BuyMaster::select('*');
+      }
+      else{
+        $fields = explode(',', $fields);
+        $query =BuyMaster::select($fields);
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+      }
+      return $query->get();
     }
 
     //get searched buy for datatable plugin format

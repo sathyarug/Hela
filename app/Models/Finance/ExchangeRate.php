@@ -26,8 +26,23 @@ class ExchangeRate extends BaseValidator
         parent::__construct();
     }
 
+    //Accessors & Mutators......................................................
+
     public function setValidFromAttribute($value){
         $this->attributes['valid_from'] = date('Y-m-d', strtotime($value));
+    }
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+        'currency' => 'required',
+        'rate'  => 'required',
+        'valid_from'  => 'required'
+      ];
     }
 
     /*public function getValidFromAttribute($value){
@@ -35,12 +50,12 @@ class ExchangeRate extends BaseValidator
         return $this->attributes['valid_from'];
     }*/
 
+    //Relationships...........................................................
 
     //default currency of the exchange rate
 		public function currency()
 		{
 			 return $this->belongsTo('App\Models\Finance\Currency' , 'currency');
 		}
-
 
 }

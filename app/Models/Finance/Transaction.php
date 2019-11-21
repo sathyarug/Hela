@@ -14,10 +14,10 @@ class Transaction extends BaseValidator
 
     protected $fillable = ['trans_description','trans_code'];
 
-    protected $rules = array(
+    /*protected $rules = array(
         'trans_description' => 'required',
         'trans_code'=>'required'
-    );
+    );*/
 
     public function __construct()
     {
@@ -26,6 +26,20 @@ class Transaction extends BaseValidator
             'updated_by' => 2//Session::get("user_id")
           );
     }
-    
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'trans_code' => [
+            'required',
+            'unique:fin_transaction,trans_code,'.$data['trans_id'].',trans_id',
+          ],
+          'trans_description' => 'required'
+      ];
+    }
 
 }

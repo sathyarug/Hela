@@ -51,7 +51,7 @@ class GrnController extends Controller
                  //Update GRN Header
                   $header = new GrnHeader;
                   $locId=auth()->payload()['loc_id'];
-                  $unId = UniqueIdGenerator::generateUniqueId('GRN', auth()->payload()['loc_id']);
+                  $unId = UniqueIdGenerator::generateUniqueId('ARRIVAL', auth()->payload()['loc_id']);
                   $header->grn_number = $unId;
                   $header->po_number = $request->header['po_id'];
 
@@ -109,6 +109,11 @@ class GrnController extends Controller
                      $grnDetails->item_code = $poDetails->item_code;
                      $grnDetails->customer_po_id=$rec['cus_order_details_id'];
                      $grnDetails->excess_qty=(double)$rec['excess_qty'];
+                     $grnDetails->standard_price =(double)$rec['standard_price'];
+                     $grnDetails->purchase_price =(double)$rec['purchase_price'];
+                     $grnDetails->shop_order_id =$rec['shop_order_id'];
+                     $grnDetails->shop_order_detail_id=$rec['shop_order_detail_id'];
+                     $grnDetails->inventory_uom =$rec['inventory_uom'];
                      $grnDetails->status=1;
 
                      $grnDetails->save();
@@ -122,7 +127,7 @@ class GrnController extends Controller
 
 
                      //Update Stock Transaction
-                     $transaction = Transaction::where('trans_description', 'GRN')->first();
+                     $transaction = Transaction::where('trans_description', 'ARRIVAL')->first();
 
                      $st = new StockTransaction;
                      $st->status = 'CONFIRM';
@@ -137,6 +142,10 @@ class GrnController extends Controller
                      $st->uom = $poDetails->uom;
                      $st->customer_po_id=$rec['cus_order_details_id'];
                      $st->qty = (double)$rec['qty'];
+                     $st->standard_price =(double)$rec['standard_price'];
+                     $st->purchase_price =(double)$rec['purchase_price'];
+                     $st->shop_order_id =$rec['shop_order_id'];
+                     $st->shop_order_detail_id =$rec['shop_order_detail_id'];
                      $st->location = auth()->payload()['loc_id'];
                      $st->bin = $bin->store_bin_id;
                      $st->created_by = auth()->payload()['user_id'];
@@ -171,7 +180,72 @@ class GrnController extends Controller
 
     }
 
+    //deactivate a Grn Header
+    public function destroy($id)
+    {
 
+        $rollPlan=GrnHeader::join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+        ->join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+        ->where('store_grn_header.grn_id','=',$id)->exists();
+        if($rollPlan==true){
+          return response([
+            'data' => [
+              'message' => 'Inward Register Already in Use.',
+              'status'=>0
+            ]
+          ] );
+        }
+        else{
+          $header=GrnHeader::select('store_grn_header.*')
+          ->join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+          ->where('store_grn_header.grn_id','=',$id)->first();
+          //dd($header->sub_store);
+        $grnDetailupdate=GrnDetail::where('grn_id',$id)->select('*')->get();
+        $transaction = Transaction::where('trans_description', 'GRNCANCEL')->first();
+        for($i=0;$i<sizeof($grnDetailupdate);$i++){
+          $st = new StockTransaction;
+          $grnDetailupdate[$i]->status=0;
+          $grnDetailupdate[$i]->save();
+          $st->status = 'CONFIRM';
+          $st->doc_type = $transaction->trans_code;
+          $st->doc_num = $header->grn_id;
+          $st->style_id = $grnDetailupdate[$i]->style;
+          $st->main_store =  $header->main_store;
+          $st->sub_store = $header->sub_store;
+          $st->item_code = $grnDetailupdate[$i]->item_code;
+          $st->size = $grnDetailupdate[$i]->size;
+          $st->color = $grnDetailupdate[$i]->color;
+          $st->uom = $grnDetailupdate[$i]->uom;
+          $st->customer_po_id=$grnDetailupdate[$i]->customer_po_id;
+          $st->qty = (double)$grnDetailupdate[$i]->grn_qty;
+          $st->standard_price =(double)$grnDetailupdate[$i]->standard_price;
+          $st->purchase_price =(double)$grnDetailupdate[$i]->purchase_price;
+          $st->shop_order_id =$grnDetailupdate[$i]->shop_order_id;
+          $st->shop_order_detail_id =$grnDetailupdate[$i]->shop_order_detail_id;
+          $st->location = auth()->payload()['loc_id'];
+          //Get Quarantine Bin
+          //dd($header->substore);
+          $bin = StoreBin::where('substore_id',$header->sub_store)
+              ->where('quarantine','=',1)
+              ->first();
+              //dd( $bin->store_bin_id);
+          $st->bin = $bin->store_bin_id;
+          $st->direction="-";
+          $st->created_by = auth()->payload()['user_id'];
+          $st->save();
+
+        }
+      //  dd($grnDetailupdate);
+        $grnHeader = GrnHeader::where('grn_id', $id)->update(['status' => 0]);
+        return response([
+          'data' => [
+            'message' => 'Inward Registery deactivate successfully.',
+            'status'=>1
+          ]
+        ] );
+      }
+
+    }
 
 
     public function datatable_search($data){
@@ -183,7 +257,7 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number','store_grn_header.status', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         //->leftjoin('store_grn_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
@@ -345,7 +419,7 @@ class GrnController extends Controller
             $poDetails = PoOrderDetails::find($dataset[$i]['id']);
 
             //Update Stock Transaction
-            $transaction = Transaction::where('trans_description', 'GRN')->first();
+            $transaction = Transaction::where('trans_description', 'ARRIVAL')->first();
 
             $st = new StockTransaction;
             $st->status = 'CONFIRM';
@@ -360,10 +434,15 @@ class GrnController extends Controller
             $st->uom = $poDetails->uom;
             $st->customer_po_id=$dataset[$i]['cus_order_details_id'];
             $st->qty = (double)$dataset[$i]['qty'];
+            $st->standard_price =(double)$dataset[$i]['standard_price'];
+            $st->purchase_price =(double)$dataset[$i]['purchase_price'];
+            $st->shop_order_id =$dataset[$i]['shop_order_id'];
+            $st->shop_order_detail_id =$dataset[$i]['shop_order_detail_id'];
             $st->location = auth()->payload()['loc_id'];
             //dd($bin);
             $st->bin = $bin->store_bin_id;
             $st->created_by = auth()->payload()['user_id'];
+            //$st
             $st->save();
             $responseData[$y]=$grnDetails;
             }
@@ -390,6 +469,11 @@ class GrnController extends Controller
               $grnDetails->item_code = $poDetails->item_code;
               $grnDetails->excess_qty=(double)$dataset[$i]['excess_qty'];
               $grnDetails->customer_po_id=$dataset[$i]['cus_order_details_id'];
+              $grnDetails->standard_price =(double)$dataset[$i]['standard_price'];
+              $grnDetails->purchase_price =(double)$dataset[$i]['purchase_price'];
+              $grnDetails->shop_order_id =$dataset[$i]['shop_order_id'];
+              $grnDetails->shop_order_detail_id =$dataset[$i]['shop_order_detail_id'];
+              $grnDetails->inventory_uom =$dataset[$i]['inventory_uom'];
               $grnDetails->status=1;
 
               $grnDetails->save();
@@ -397,7 +481,7 @@ class GrnController extends Controller
               $poDetails = PoOrderDetails::find($dataset[$i]['id']);
 
               //Update Stock Transaction
-              $transaction = Transaction::where('trans_description', 'GRN')->first();
+              $transaction = Transaction::where('trans_description', 'ARRIVAL')->first();
 
               $st = new StockTransaction;
               $st->status = 'CONFIRM';
@@ -458,7 +542,7 @@ class GrnController extends Controller
     $sub_store=SubStore::find($headerData[0]->sub_store);
 
     $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
-      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id
+      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id,store_grn_detail.uom as inventory_uom
 
       from
       store_grn_header
@@ -545,6 +629,13 @@ class GrnController extends Controller
                                        item_master.master_id,
                                        item_master.category_id,
                                        merc_customer_order_details.details_id as cus_order_details_id,
+                                       merc_shop_order_header.shop_order_id,
+                                       merc_shop_order_detail.shop_order_detail_id,
+                                       item_master.category_id,
+                                       item_master.master_code,
+                                       merc_po_order_details.purchase_price,
+                                       item_master.standard_price,
+                                       item_master.inventory_uom,
                                        (SELECT
                                       SUM(SGD.grn_qty)
                                       FROM
@@ -578,18 +669,23 @@ class GrnController extends Controller
 
 
                               FROM
-                             merc_po_order_header
-                            INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
-                         LEFT JOIN store_grn_header ON merc_po_order_header.po_id = store_grn_header.po_number
-                         INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
-                       INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
-                       INNER JOIN merc_customer_order_header ON style_creation.style_id=merc_customer_order_header.order_style
-                       INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id=merc_customer_order_details.order_id
-                      INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
-                      LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
-                      LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
-                      LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
-                      LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
+                              merc_po_order_header
+                              INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
+                              INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
+                              INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
+                              #INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
+                              #INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
+                              INNER JOIN merc_shop_order_detail on merc_po_order_details.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+                              INNER JOIN merc_shop_order_header on  merc_shop_order_detail.shop_order_id=merc_shop_order_header.shop_order_id
+                              INNER JOIN merc_shop_order_delivery on merc_shop_order_header.shop_order_id=merc_shop_order_delivery.shop_order_id
+                              #INNER JOIN merc_shop_order_detail on merc_shop_order_header.shop_order_id=merc_shop_order_detail.shop_order_id
+                              INNER JOIN merc_customer_order_details ON merc_shop_order_delivery.delivery_id = merc_customer_order_details.details_id
+                              INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
+                              INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+                              LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
+                              LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
+                              LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
+                              LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
 
                     /* INNER JOIN  store_grn_detail ON store_grn_header.grn_id=store_grn_detail.grn_id*/
 
@@ -629,11 +725,7 @@ class GrnController extends Controller
 
    }
 
-    public function destroy($id)
-    {
-       GrnDetail::where('id',$id)->delete();
 
-    }
     public function deleteLine(Request $request){
       //dd($request->line);
       $grnDetails = GrnDetail::find($request->line);

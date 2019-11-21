@@ -69,11 +69,11 @@ class SizeChartController extends Controller
         return ['status' => 'error','message' => 'Description was already exists'];
       }
     }
-  
+
     public function store(Request $request)
     {
       $chart_name = "";
-      foreach($request['size_name'] as $row){              
+      foreach($request['size_name'] as $row){
         $chart_name .= $row['size_name'] . ",";
       }
 
@@ -85,8 +85,8 @@ class SizeChartController extends Controller
       $SizeChartHeader->save();
       $size_chart_id = $SizeChartHeader->size_chart_id;
 
-      if($SizeChartHeader){     
-           foreach($request['size_name'] as $row){              
+      if($SizeChartHeader){
+           foreach($request['size_name'] as $row){
               $SizeChartDetails = new SizeChartSizes();
               $SizeChartDetails->size_chart_id = $size_chart_id;
               $SizeChartDetails->size_id = $row['size_id'];
@@ -95,7 +95,7 @@ class SizeChartController extends Controller
            }
            return response([ 'data' => [
               'result' => 'insert',
-              'message' => 'Data saved successfully'
+              'message' => 'Size chart saved successfully'
              ]
            ], Response::HTTP_CREATED );
         }
@@ -104,7 +104,7 @@ class SizeChartController extends Controller
             $errors = $SizeChartHeader->errors();
             return response([ 'data' => [
                 'result' => $errors,
-                'message' => 'Data save fail'
+                'message' => 'Size chart saved fail'
               ]
             ], Response::HTTP_CREATED );
         }
@@ -119,7 +119,7 @@ class SizeChartController extends Controller
         ->get();
         $rows = array();
         foreach($SizeChart as $row)
-        { 
+        {
           $row['sizes'] = $this->load_saved_sizes($row->size_chart_id);
           $rows[] = $row;
         }
@@ -131,8 +131,8 @@ class SizeChartController extends Controller
     }
 
     public function load_saved_sizes($id)
-    {        
-      $data = SizeChartSizes::join('org_size','org_size_chart_sizes.size_id','=','org_size.size_id')   
+    {
+      $data = SizeChartSizes::join('org_size','org_size_chart_sizes.size_id','=','org_size.size_id')
       ->select('org_size_chart_sizes.size_id','size_name')
       ->where('size_chart_id' ,'=', $id)
       ->orderBy('size_name','ASC')
@@ -143,9 +143,9 @@ class SizeChartController extends Controller
     //update data
     public function update(Request $request, $id)
     {
-        
+
       $chart_name = "";
-      foreach($request['size_name'] as $row){              
+      foreach($request['size_name'] as $row){
         $chart_name .= $row['size_name'] . ",";
       }
 
@@ -159,10 +159,10 @@ class SizeChartController extends Controller
           ]
       );
 
-      $delete = SizeChartSizes::where('size_chart_id','=',$request->size_chart_id)->delete(); 
+      $delete = SizeChartSizes::where('size_chart_id','=',$request->size_chart_id)->delete();
 
-      if($update){   
-           foreach($request['size_name'] as $row){              
+      if($update){
+           foreach($request['size_name'] as $row){
               $SizeChartDetails = new SizeChartSizes();
               $SizeChartDetails->size_chart_id = $request->size_chart_id;
               $SizeChartDetails->size_id = $row['size_id'];
@@ -171,7 +171,7 @@ class SizeChartController extends Controller
            }
            return response([ 'data' => [
               'result' => 'update',
-              'message' => 'Data update successfully'
+              'message' => 'Size chart updated successfully'
              ]
            ], Response::HTTP_CREATED );
         }
@@ -187,10 +187,30 @@ class SizeChartController extends Controller
 
     }
 
+
+    //get filtered fields only
+    private function list($active = 0 , $fields = null)
+    {
+        $query = null;
+        if($fields == null || $fields == '') {
+          $query = SizeChart::select('*');
+        }
+        else{
+          $fields = explode(',', $fields);
+          $query = Color::select($fields);
+        }
+        
+        if($active != null && $active != ''){
+          $query->where([['status', '=', $active]]);
+        }
+        return $query->get();
+     }
+
+
     //get searched data for datatable plugin format
     private function datatable_search($data)
     {
- 
+
       $start = $data['start'];
       $length = $data['length'];
       $draw = $data['draw'];
@@ -199,13 +219,13 @@ class SizeChartController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $size_list = SizeChart::select('*')   
+      $size_list = SizeChart::select('*')
       ->where('chart_name'  , 'like', $search.'%' )
       ->orWhere('description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $count = SizeChart::select('*')   
+      $count = SizeChart::select('*')
       ->where('chart_name'  , 'like', $search.'%' )
       ->orWhere('description'  , 'like', $search.'%' )
       ->orderBy('chart_name','ASC')

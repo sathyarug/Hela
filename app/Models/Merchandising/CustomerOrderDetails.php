@@ -17,7 +17,7 @@ class CustomerOrderDetails extends BaseValidator
 
     protected $fillable=['order_id','style_color'/*,'style_description'*/,'pcd','rm_in_date','po_no','planned_delivery_date',/*'revised_delivery_date',*/
   'fob','country','projection_location','order_qty','excess_presentage','planned_qty','ship_mode',
-  'ex_factory_date','ac_date','active_status','colour_type','cus_style_manual'/*,'delivery_status'*/];
+'ex_factory_date','ac_date','active_status','colour_type','cus_style_manual','fng_id'/*,'delivery_status'*/];
 
     protected $rules=array(
         'order_id'=>'required',
@@ -34,7 +34,8 @@ class CustomerOrderDetails extends BaseValidator
         'order_qty' => 'required',
         'excess_presentage' => 'required',
         'planned_qty' => 'required',
-        'ship_mode' => 'required'
+        'ship_mode' => 'required',
+        'fng_id'  => 'required'
     );
 
     public function __construct() {

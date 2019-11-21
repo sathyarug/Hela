@@ -58,17 +58,25 @@ class ShipmentTermController extends Controller
       if($this->authorize->hasPermission('SHIP_TERM_MANAGE'))//check permission
       {
         $shipTerm = new ShipmentTerm();
-        $shipTerm->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
-        $shipTerm->status = 1;
-        $shipTerm->save();
+        if($shipTerm->validate($request->all()))
+        {
+          $shipTerm->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
+          $shipTerm->status = 1;
+          $shipTerm->save();
 
-        return response([ 'data' => [
-          'message' => 'Shipment term saved successfully',
-          'shipTerm' => $shipTerm,
-          'status'=>'1'
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Shipment term saved successfully',
+            'shipTerm' => $shipTerm,
+            'status'=>'1'
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else {
+          $errors = $shipTerm->errors();// failure, get errors
+          $errors_str = $shipTerm->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -105,18 +113,27 @@ class ShipmentTermController extends Controller
             'status' => '0'
           ]]);
 
-        }else{
-        $shipTerm = ShipmentTerm::find($id);
-        $shipTerm->fill($request->except('ship_term_code'));
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
-        $shipTerm->save();
+        }
+        else {
+          $shipTerm = ShipmentTerm::find($id);
+          if($shipTerm->validate($request->all()))
+          {
+            $shipTerm->fill($request->except('ship_term_code'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($shipTerm);
+            $shipTerm->save();
 
-        return response([ 'data' => [
-          'message' => 'Shipment term updated successfully',
-          'shipTerm' => $shipTerm,
-          'status'=>'1'
-        ]]);
-      }
+            return response([ 'data' => [
+              'message' => 'Shipment term updated successfully',
+              'shipTerm' => $shipTerm,
+              'status'=>'1'
+            ]]);
+          }
+          else {
+            $errors = $shipTerm->errors();// failure, get errors
+            $errors_str = $shipTerm->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          }
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);

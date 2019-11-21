@@ -14,22 +14,38 @@ class StoreBin extends BaseValidator
 
     protected $fillable=['store_id','substore_id','store_bin_name','store_bin_description'];
 
-    protected $rules=array(
+    /*protected $rules=array(
         'store_bin_name'=>'required',
         'store_id'=>'required',
         'substore_id'=>'required'
-    );
+    );*/
 
     public function __construct() {
-        
         parent::__construct();
     }
-    
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'payment_code' => [
+            'required',
+            'unique:fin_payment_term,payment_code,'.$data['payment_term_id'].',payment_term_id',
+          ],
+          'payment_description' => 'required'
+      ];
+    }
+
+    //Relationships.............................................................
+
     public function store()
     {
         return $this->belongsTo('App\Models\Store\Store' , 'store_id');
     }
-    
+
     public function substore()
     {
         return $this->belongsTo('App\Models\Store\SubStore' , 'substore_id');

@@ -10,6 +10,7 @@ use App\Models\Org\Customer;
 use App\Models\Org\Division;
 use App\Models\Merchandising\ProductFeature;
 use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Org\SilhouetteClassification;
 use App\Models\Merchandising\ProductCategory;
 use App\Models\Merchandising\ProductType;
 use App\Models\Merchandising\StyleProductFeature;
@@ -221,7 +222,7 @@ class StyleCreationController extends Controller
 
         $customer = Customer::find($style['customer_id']);
         $productFeature = ProductFeature::find($style['product_feature_id']);
-        $ProductSilhouette = ProductSilhouette::find($style['product_silhouette_id']);
+        $ProductSilhouette = SilhouetteClassification::select('org_silhouette_classification.sil_class_id AS product_silhouette_id', 'org_silhouette_classification.sil_class_description AS product_silhouette_description')->find($style['product_silhouette_id']);
         $ProductCategory = ProductCategory::find($style['product_category_id']);
         $productType = ProductType::find($style['pack_type_id']);
         $divisions=DB::table('org_customer_divisions')

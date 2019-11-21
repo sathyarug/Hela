@@ -184,9 +184,10 @@ class AuthController extends Controller
 
    private function store_load_permissions($user_id, $location){
      DB::table('usr_login_permission')->where('user_id', '=', $user_id)->delete();
-     DB::insert("INSERT INTO usr_login_permission(user_id, permission_code)
-      SELECT user_roles.user_id, permission_role_assign.permission FROM permission_role_assign
+     DB::insert("INSERT INTO usr_login_permission(user_id, permission_category, permission_code)
+      SELECT user_roles.user_id, permission.category, permission_role_assign.permission FROM permission_role_assign
       INNER JOIN user_roles ON user_roles.role_id = permission_role_assign.role
+      INNER JOIN permission ON permission_role_assign.permission = permission.code
       WHERE user_roles.user_id = ? AND user_roles.loc_id = ? GROUP BY permission_role_assign.permission", [$user_id, $location]);
    }
 
