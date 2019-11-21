@@ -50,6 +50,12 @@ class ColorController extends Controller
           $search=$request->id;
           return response(['data'=>$this->colorqulityLoding($search)]);
           }
+          else if($type == 'color_selector'){
+            $search = $request->search;
+            return response([
+              'data' => $this->color_selector_list($search)
+            ]);
+          }
           else {
             $active = $request->active;
             $fields = $request->fields;
@@ -86,8 +92,9 @@ class ColorController extends Controller
         }
         else
         {
-            $errors = $color->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $color->errors();// failure, get errors
+          $errors_str = $color->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else {
@@ -156,7 +163,8 @@ class ColorController extends Controller
         else
         {
           $errors = $color->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $color->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else {
@@ -266,6 +274,13 @@ class ColorController extends Controller
     }
 
 
+    private function color_selector_list($search){
+      $list = Color::select('color_id', 'color_code', 'color_name')
+      ->where('color_code', 'like', '%' . $search . '%')
+      ->orWhere('color_name', 'like', '%' . $search . '%')
+      ->get();
+      return $list;
+    }
 
 
     //get filtered fields only(color_catgory)

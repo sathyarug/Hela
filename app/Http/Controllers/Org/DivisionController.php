@@ -65,8 +65,9 @@ class DivisionController extends Controller
         }
         else
         {
-            $errors = $division->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $division->errors();// failure, get errors
+          $errors_str = $division->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -86,7 +87,7 @@ class DivisionController extends Controller
         else
           return response([ 'data' => $division ]);
       }
-      else{
+      else {
         return response($this->authorize->error_response(), 401);
       }
     }
@@ -120,12 +121,13 @@ class DivisionController extends Controller
             'division' => $division,
             'status'=>1
           ]]);
-        }
+          }
         }
         else
         {
           $errors = $division->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors_str = $division->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

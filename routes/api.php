@@ -185,6 +185,13 @@ Route::prefix('org/')->group(function(){
 
   Route::apiResource('ship-modes','Org\ShipModeController');
 
+  Route::get('sizes-chart/validate' , 'Org\SizeChartController@validate_data');
+  Route::apiResource('sizes-chart','Org\SizeChartController');
+
+  Route::apiResource('conv-factor','Org\ConversionFactorController');
+
+  Route::apiResource('pack-types','Org\PackTypeController');
+
 });
 
 
@@ -370,10 +377,13 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('customer-orders','Merchandising\CustomerOrderController');
     Route::post('load_header_season' , 'Merchandising\CustomerOrderController@load_header_season');
     Route::post('load_header_stage' , 'Merchandising\CustomerOrderController@load_header_stage');
+    Route::post('load_header_buy_name' , 'Merchandising\CustomerOrderController@load_header_buy_name');
+
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
+    Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
@@ -517,6 +527,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
+    Route::post('items/create-inventory-items', 'Merchandising\Item\ItemController@create_inventory_items');
     Route::apiResource('items','Merchandising\Item\ItemController');
 
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
@@ -547,6 +558,8 @@ Route::prefix('merchandising/')->group(function(){
 
     //Route::post('bom/setzeromaterialratio','Merchandising\BomController@clearMatRatio');
 
+    Route::get('buy-master/validate' , 'Merchandising\BuyMasterController@validate_data');
+    Route::apiResource('buy-master','Merchandising\BuyMasterController');
 
 });
 
@@ -635,7 +648,7 @@ Route::prefix('app/')->group(function(){
 
     Route::GET('menus','App\MenuController@index');
     Route::POST('search','App\SearchController@index');
-    Route::POST('required-permissions','App\PermissionController@get_required_permissions');
+    Route::apiResource('permissions','App\PermissionController');
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
 
 });
@@ -663,6 +676,7 @@ Route::GET('/getProductCategory','Merchandising\ProductCategoryController@loadPr
 Route::GET('/getProductType','Merchandising\ProductTypeController@loadProductType');
 Route::GET('/getProductFeature','Merchandising\ProductFeatureController@loadProductFeature');
 Route::GET('/getProductSilhouette','Merchandising\ProductSilhouetteController@loadProductSilhouette');
+Route::GET('/getProductSilhouetteHome','Merchandising\ProductSilhouetteController@loadProductSilhouetteHome');
 
 Route::POST('/style-creation.save','Merchandising\StyleCreationController@saveStyleCreation');
 Route::get('/loadstyles','Merchandising\StyleCreationController@loadStyles');
@@ -700,3 +714,13 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
   //Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
+
+Route::prefix('reports/')->group(function(){
+
+  Route::post('load_po_details','Reports\POReportController@load_po_details');
+  Route::get('export_excel_po_details' , 'Reports\POReportController@po_export_excel');
+  Route::apiResource('load_po','Reports\POReportController');
+  Route::apiResource('load_status','Reports\POReportController');
+
+
+});

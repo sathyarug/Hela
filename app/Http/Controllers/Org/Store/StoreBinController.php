@@ -51,8 +51,9 @@ class StoreBinController extends Controller {
                 ]
                     ], Response::HTTP_CREATED);
         } else {
-            $errors = $store->errors(); // failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $storeBin->errors();// failure, get errors
+          $errors_str = $storeBin->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -88,8 +89,9 @@ class StoreBinController extends Controller {
                     'storeBin' => $storeBin
             ]]);
         } else {
-            $errors = $storeBin->errors(); // failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $storeBin->errors();// failure, get errors
+          $errors_str = $storeBin->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 

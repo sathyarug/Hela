@@ -51,16 +51,24 @@ class TransactionController extends Controller
       if($this->authorize->hasPermission('TRANSACTION_MANAGE'))//check permission
       {
         $transaction = new Transaction();
-        $transaction->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
-        $transaction->status = 1;
-        $transaction->save();
+        if($transaction->validate($request->all()))
+        {
+          $transaction->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
+          $transaction->status = 1;
+          $transaction->save();
 
-        return response([ 'data' => [
-          'message' => ' Transaction saved successfully',
-          'transaction' => $transaction
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => ' Transaction saved successfully',
+            'transaction' => $transaction
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else {
+          $errors = $transaction->errors();// failure, get errors
+          $errors_str = $transaction->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -90,14 +98,22 @@ class TransactionController extends Controller
       if($this->authorize->hasPermission('TRANSACTION_MANAGE'))//check permission
       {
         $transaction = Transaction::find($id);
-        $transaction->fill($request->except('trans_code'));
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
-        $transaction->save();
+        if($transaction->validate($request->all()))
+        {
+          $transaction->fill($request->except('trans_code'));
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($transaction);
+          $transaction->save();
 
-        return response([ 'data' => [
-          'message' => 'Transaction updated successfully',
-          'transaction' => $transaction
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Transaction updated successfully',
+            'transaction' => $transaction
+          ]]);
+        }
+        else {
+          $errors = $transaction->errors();// failure, get errors
+          $errors_str = $transaction->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else{
         return response($this->authorize->error_response(), 401);

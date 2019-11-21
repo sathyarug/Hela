@@ -53,17 +53,25 @@ class GoodsTypeController extends Controller
       if($this->authorize->hasPermission('GOODS_TYPE_MANAGE'))//check permission
       {
         $goodsType = new GoodsType();
-        $goodsType->goods_type_description = $request->goods_type_description;
-        $goodsType->status = 1;
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
-        $goodsType->save();
+        if($goodsType->validate($request->all()))
+        {
+          $goodsType->goods_type_description = $request->goods_type_description;
+          $goodsType->status = 1;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
+          $goodsType->save();
 
-        return response([ 'data' => [
-          'message' => 'Goods type saved successfully',
-          'goodsType' => $goodsType,
-          'status'=>'1'
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Goods type saved successfully',
+            'goodsType' => $goodsType,
+            'status'=>'1'
+            ]
+          ], Response::HTTP_CREATED );
+        }
+        else {
+          $errors = $goodsType->errors();// failure, get errors
+          $errors_str = $goodsType->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
       else {
         return response($this->authorize->error_response(), 401);
@@ -102,18 +110,25 @@ class GoodsTypeController extends Controller
 
           }else{
         $goodsType = GoodsType::find($id);
-        $goodsType->goods_type_description = $request->goods_type_description;
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
-        $goodsType->save();
+        if($goodsType->validate($request->all()))
+        {
+          $goodsType->goods_type_description = $request->goods_type_description;
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($goodsType);
+          $goodsType->save();
 
-        return response([ 'data' => [
-          'message' => 'Goods type updated successfully',
-          'goodsType' => $goodsType,
-          'status'=>'1'
-        ]]);
+          return response([ 'data' => [
+            'message' => 'Goods type updated successfully',
+            'goodsType' => $goodsType,
+            'status'=>'1'
+          ]]);
+        }
+        else {
+          $errors = $goodsType->errors();// failure, get errors
+          $errors_str = $goodsType->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
       }
     }
-
       else{
         return response($this->authorize->error_response(), 401);
       }

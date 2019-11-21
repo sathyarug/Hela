@@ -10,8 +10,11 @@ namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
 use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Org\SilhouetteClassification;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCategoryResource;
+
+
 
 
 class ProductSilhouetteController extends Controller
@@ -55,15 +58,22 @@ class ProductSilhouetteController extends Controller
 
     public function loadProductSilhouette(Request $request) {
         try{
-//            echo json_encode(ProductCategory::all());
             echo json_encode(ProductSilhouette::where('product_silhouette_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
-//            return ProductCategoryResource::collection(ProductCategory::where('prod_cat_description', 'LIKE', '%'.$request->search.'%')->get() );
         }
         catch (JWTException $e) {
-            // something went wrong whilst attempting to encode the token
+
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
-//        $customer_list = Customer::all();
-//        echo json_encode($customer_list);
+    }
+
+    public function loadProductSilhouetteHome(Request $request) {
+        try{
+            echo json_encode(SilhouetteClassification::select('org_silhouette_classification.sil_class_id AS product_silhouette_id', 'org_silhouette_classification.sil_class_description AS product_silhouette_description')
+            ->where('sil_class_description', 'LIKE', '%'.$request->search.'%')->where('status',1)->get());
+        }
+        catch (JWTException $e) {
+
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
     }
 }
