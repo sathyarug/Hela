@@ -133,7 +133,14 @@ merc_customer_order_details.po_no,
 merc_customer_order_header.order_id,
 merc_customer_order_details.details_id as cus_order_details_id,
 item_master.master_id,
+merc_shop_order_header.shop_order_id,
+merc_shop_order_detail.shop_order_detail_id,
 item_master.category_id,
+item_master.master_code,
+merc_po_order_details.purchase_price,
+item_master.standard_price,
+item_master.inventory_uom,
+
 (SELECT
                                       IFNULL(SUM(SGD.grn_qty),0)
                                       FROM
@@ -173,33 +180,24 @@ merc_po_order_header
 INNER JOIN merc_po_order_details ON merc_po_order_header.po_number = merc_po_order_details.po_no
 INNER JOIN style_creation ON merc_po_order_details.style = style_creation.style_id
 INNER JOIN cust_customer ON style_creation.customer_id = cust_customer.customer_id
-INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
-INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
+#INNER JOIN merc_customer_order_header ON style_creation.style_id = merc_customer_order_header.order_style
+#INNER JOIN merc_customer_order_details ON merc_customer_order_header.order_id = merc_customer_order_details.order_id
+INNER JOIN merc_shop_order_detail on merc_po_order_details.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+INNER JOIN merc_shop_order_header on  merc_shop_order_detail.shop_order_id=merc_shop_order_header.shop_order_id
+INNER JOIN merc_shop_order_delivery on merc_shop_order_header.shop_order_id=merc_shop_order_delivery.shop_order_id
+#INNER JOIN merc_shop_order_detail on merc_shop_order_header.shop_order_id=merc_shop_order_detail.shop_order_id
+INNER JOIN merc_customer_order_details ON merc_shop_order_delivery.delivery_id = merc_customer_order_details.details_id
+INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
 INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
 LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
 LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
 LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id
 LEFT JOIN org_uom ON merc_po_order_details.uom = org_uom.uom_id
 /*LEFT JOIN store_grn_detail ON merc_po_order_details.id=store_grn_detail.po_details_id*/
-
 WHERE
-merc_po_order_header.po_id = $request->id
+merc_po_order_header.po_id =$request->id
 AND merc_po_order_header.po_sup_code=$request->sup_id
-
-AND merc_po_order_details.tot_qty>(SELECT
-                                      IFNULL(SUM(SGD.grn_qty),0)
-                                      FROM
-                                     store_grn_detail AS SGD
-
-                                     WHERE
-                                    SGD.po_details_id = merc_po_order_details.id
-																		#GROUP BY(merc_po_order_details.id)
-
-                                   )
-AND merc_po_order_details.po_status='CONFIRMED'
-/*or store_grn_detail.status='0'*/
 GROUP BY(merc_po_order_details.id)
-
 ");
 
   //$poData->toArray();
