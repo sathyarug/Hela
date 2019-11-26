@@ -56,7 +56,6 @@ class CategoryController extends Controller
      {
      }
 
-
      private function list(){
        $category_list = Category::where('status','=','1')->get();
        return $category_list;

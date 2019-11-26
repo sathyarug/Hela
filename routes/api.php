@@ -661,6 +661,9 @@ Route::prefix('approval-process/')->group(function(){
 
 });
 
+Route::prefix('dashboard/')->group(function(){
+    Route::apiResource('dashboard', 'DashBoard\DashBoardController');
+});
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
 
