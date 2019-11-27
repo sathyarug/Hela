@@ -49,9 +49,12 @@ class ItemController extends Controller
           ]);
         }
         else if($type == 'item_selector'){
-          $search = $request->search;
+          $search = $request->search_text;
+          $search_type = $request->search_type;
+          $category = $request->category;
+          $sub_category = $request->sub_category;
           return response([
-            'data' => $this->item_selector_list($search)
+            'data' => $this->item_selector_list($search_type, $category, $sub_category, $search)
           ]);
         }
         else {
@@ -334,8 +337,8 @@ class ItemController extends Controller
           $i->color_id = $item['color_id'];
           $i->size_id = $item['size_id'];
           $i->article_no = '';
-          $i->moq = 0;
-          $i->mcq = 0;
+          $i->moq = $item['moq'];
+          $i->mcq = $item['mcq'];
           $i->status = 1;
           $i->save();
           //generate item codes
@@ -430,11 +433,28 @@ class ItemController extends Controller
     }
 
 
-    private function item_selector_list($search){
-      $list = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+    private function item_selector_list($search_type, $category, $sub_category, $search){
+      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name', 'item_subcategory.subcategory_code')
+      ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
-      ->where('item_master.master_description', 'like', '%' . $search . '%')->get();
-      return $list;
+      ->where('item_master.master_description', 'like', '%' . $search . '%');
+
+      if($search_type == 'MATERIAL_ITEMS'){
+        $list = $list->whereNull('master_code');
+      }
+      else if($search_type == 'INVENTORY_ITEMS'){
+        $list = $list->whereNotNull('master_code');
+      }
+
+      if($category != null && $category != ''){
+        $list = $list->where('item_master.category_id', '=', $category);
+      }
+      if($sub_category != null && $sub_category != ''){
+        $list = $list->where('item_master.subcategory_id', '=', $sub_category);
+      }
+
+      $result = $list->get();
+      return $result;
     }
 
 

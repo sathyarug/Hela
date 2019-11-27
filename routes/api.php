@@ -666,6 +666,9 @@ Route::prefix('approval-process/')->group(function(){
 
 });
 
+Route::prefix('dashboard/')->group(function(){
+    Route::apiResource('dashboard', 'DashBoard\DashBoardController');
+});
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
 
@@ -720,12 +723,23 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
-Route::prefix('reports/')->group(function(){
 
+
+Route::prefix('reports/')->group(function(){
+  //Sales Report
+  Route::apiResource('load_sales','Reports\SalesReportController');
+  //PO Report
   Route::post('load_po_details','Reports\POReportController@load_po_details');
-  Route::get('export_excel_po_details' , 'Reports\POReportController@po_export_excel');
   Route::apiResource('load_po','Reports\POReportController');
   Route::apiResource('load_status','Reports\POReportController');
+  //Costing Report
+  Route::apiResource('costing/costing_details','Reports\CostingReportController');
+  //Costing Details Report
+  Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
+  //Costing variance Report
+  Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails'); 
+});
 
-
+Route::prefix('common/')->group(function(){
+  Route::apiResource('load_costing_id','Reports\CommonController'); 
 });

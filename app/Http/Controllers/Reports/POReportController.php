@@ -45,15 +45,10 @@ class POReportController extends Controller
       }
       else{
         $fields = explode(',', $fields);
-        $query = Status::select($fields);
+        $query = Status::select('*')
+        ->where('type'  , 'like', '%'.$fields[1].'%' );
       }
       return $query->get();
-    }
-
-    public function po_export_excel(Request $request)
-    {
-      return (new PODownload)->download('po_report.xlsx', \Maatwebsite\Excel\Excel::XLSX,
-      ['Content-Type' => 'text/xlsx']);
     }
 
     private function autocomplete_search($search)
