@@ -382,6 +382,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
+    Route::post('released_SO','Merchandising\CustomerOrderDetailsController@released_SO');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
@@ -560,6 +561,10 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('buy-master/validate' , 'Merchandising\BuyMasterController@validate_data');
     Route::apiResource('buy-master','Merchandising\BuyMasterController');
+
+
+    Route::apiResource('shop-orders','Merchandising\ShopOrderController');
+    Route::post('load_shop_order_header' , 'Merchandising\ShopOrderController@load_shop_order_header');
 
 });
 

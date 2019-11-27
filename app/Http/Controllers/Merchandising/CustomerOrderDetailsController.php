@@ -348,7 +348,7 @@ class CustomerOrderDetailsController extends Controller
           return response([
             'data' => [
               'status' => 'error',
-              'message' => "This line alredy connected with costing."
+              'message' => "This line alredy released ."
             ]
           ] , 200);
         }
@@ -371,6 +371,27 @@ class CustomerOrderDetailsController extends Controller
 
 
   }
+
+
+
+  public function released_SO(Request $request){
+
+    $details  = $request->details;
+
+    dd($details);
+
+
+
+
+    // return response([
+    //   'data' => [
+    //     'status' => 'success',
+    //     'message' => 'Successfully Deleted.'
+    //   ]
+    // ] , 200);
+
+
+}
 
 
     //validate anything based on requirements
@@ -558,7 +579,7 @@ class CustomerOrderDetailsController extends Controller
         for($x = 0 ; $x < sizeof($deli_st) ; $x++)
         {
           if($deli_check != null  &&  $deli_check != $deli_st[$x])
-            { $new_deli_status = 'CONNECTED'; }else{$new_deli_status=$first['delivery_status'];}
+            { $new_deli_status = 'RELEASED'; }else{$new_deli_status=$first['delivery_status'];}
               $deli_check = $deli_st[$x];
         }
 
@@ -787,7 +808,7 @@ class CustomerOrderDetailsController extends Controller
       from merc_customer_order_details b where b.order_id = a.order_id and a.line_no=b.line_no)
 
       order by a.active_status ASC,a.line_no ASC",
-      [$order_id , 'CONNECTED']);
+      [$order_id , 'RELEASED']);
       return $order_details;
     }
 
