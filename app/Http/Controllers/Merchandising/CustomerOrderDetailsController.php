@@ -22,6 +22,10 @@ use App\Models\Merchandising\Costing\CostingFinishGood;
 use App\Models\Merchandising\Costing\CostingFinishGoodComponent;
 use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 
+use App\Models\Merchandising\ShopOrderHeader;
+use App\Models\Merchandising\ShopOrderDetail;
+use App\Models\Merchandising\ShopOrderDelivery;
+
 class CustomerOrderDetailsController extends Controller
 {
     public function __construct()
@@ -373,22 +377,167 @@ class CustomerOrderDetailsController extends Controller
   }
 
 
+  public function released_SO_All(Request $request){
+
+    $details  = $request->details;
+    $shop_order_id = '';
+    for($x = 0 ; $x < sizeof($details) ; $x++)
+    {
+      if($details[$x]['delivery_status'] == 'PLANNED')
+      {
+        $shoporder = new ShopOrderHeader();
+        $shoporder->order_qty = $request->details[$x]['order_qty'];
+        $shoporder->fg_id = $request->details[$x]['fng_id'];
+        $shoporder->order_status = 'PLANNED';
+        $shoporder->status = '1';
+        $shoporder->save();
+
+        $shop_order_id = $shoporder->shop_order_id;
+
+        $shoporder_delivery = new ShopOrderDelivery();
+        $shoporder_delivery->shop_order_id = $shop_order_id;
+        $shoporder_delivery->delivery_id = $request->details[$x]['details_id'];
+        $shoporder_delivery->status = '1';
+        $shoporder_delivery->save();
+
+        $load_Bom_details = BOMHeader::join('bom_details', 'bom_details.bom_id', '=', 'bom_header.bom_id')
+         ->select('bom_details.*','bom_header.fng_id')
+         ->Where('bom_header.fng_id','=', $request->details[$x]['fng_id'])
+         ->get();
+
+         for($y = 0 ; $y < sizeof($load_Bom_details) ; $y++)
+         {
+
+         $shoporder_detail= new ShopOrderDetail();
+         $shoporder_detail->shop_order_id = $shop_order_id;
+         $shoporder_detail->bom_id = $load_Bom_details[$y]['bom_id'];
+         $shoporder_detail->costing_item_id = $load_Bom_details[$y]['costing_item_id'];
+         $shoporder_detail->costing_id = $load_Bom_details[$y]['costing_id'];
+         $shoporder_detail->component_id = $load_Bom_details[$y]['component_id'];
+         $shoporder_detail->inventory_part_id = $load_Bom_details[$y]['inventory_part_id'];
+         $shoporder_detail->supplier = $load_Bom_details[$y]['supplier_id'];
+         $shoporder_detail->purchase_price = $load_Bom_details[$y]['purchase_price'];
+         $shoporder_detail->postion_id = $load_Bom_details[$y]['position_id'];
+         $shoporder_detail->purchase_uom = $load_Bom_details[$y]['purchase_uom_id'];
+         $shoporder_detail->orign_type_id = $load_Bom_details[$y]['origin_type_id'];
+         $shoporder_detail->garment_option_id = $load_Bom_details[$y]['garment_options_id'];
+         $shoporder_detail->unit_price = $load_Bom_details[$y]['bom_unit_price'];
+         $shoporder_detail->net_consumption = $load_Bom_details[$y]['net_consumption'];
+         $shoporder_detail->wastage = $load_Bom_details[$y]['wastage'];
+         $shoporder_detail->gross_consumption = $load_Bom_details[$y]['gross_consumption'];
+         $shoporder_detail->material_type = $load_Bom_details[$y]['meterial_type'];
+         $shoporder_detail->freight_charges = $load_Bom_details[$y]['freight_charges'];
+         $shoporder_detail->surcharge = $load_Bom_details[$y]['surcharge'];
+         $shoporder_detail->total_cost = $load_Bom_details[$y]['total_cost'];
+         $shoporder_detail->ship_mode = $load_Bom_details[$y]['ship_mode'];
+         $shoporder_detail->ship_term = $load_Bom_details[$y]['ship_term'];
+         $shoporder_detail->lead_time = $load_Bom_details[$y]['lead_time'];
+         $shoporder_detail->country_id = $load_Bom_details[$y]['country_id'];
+         $shoporder_detail->comments = $load_Bom_details[$y]['comments'];
+
+         $shoporder_detail->status = '1';
+         $shoporder_detail->save();
+
+
+         }
+
+         $user = auth()->user();
+
+         DB::table('merc_customer_order_details')
+           ->where('details_id', $request->details[$x]['details_id'])
+           ->update(['shop_order_id' => $shop_order_id,
+                     'shop_order_connected_by' => $user->user_id,
+                     'shop_order_connected_date' => date("Y-m-d H:i:s"),
+                     'delivery_status' => 'RELEASED']);
+
+      }else{
+
+        //return response([ 'data' => ['status' => 'error','message' => 'already released !']]);
+      }
+    }
+
+    return response([
+      'data' => [
+        'status' => 'success',
+        'message' => 'Successfully Released.'
+      ]
+    ] , 200);
+
+  }
 
   public function released_SO(Request $request){
 
-    $details  = $request->details;
+    $shoporder = new ShopOrderHeader();
+    $shoporder->order_qty = $request->details['order_qty'];
+    $shoporder->fg_id = $request->details['fng_id'];
+    $shoporder->order_status = 'PLANNED';
+    $shoporder->status = '1';
+    $shoporder->save();
 
-    dd($details);
+    $shop_order_id = $shoporder->shop_order_id;
+
+    $shoporder_delivery = new ShopOrderDelivery();
+    $shoporder_delivery->shop_order_id = $shop_order_id;
+    $shoporder_delivery->delivery_id = $request->details['details_id'];
+    $shoporder_delivery->status = '1';
+    $shoporder_delivery->save();
+
+    $load_Bom_details = BOMHeader::join('bom_details', 'bom_details.bom_id', '=', 'bom_header.bom_id')
+     ->select('bom_details.*','bom_header.fng_id')
+     ->Where('bom_header.fng_id','=', $request->details['fng_id'])
+     ->get();
+
+    for($x = 0 ; $x < sizeof($load_Bom_details) ; $x++)
+    {
+
+    $shoporder_detail= new ShopOrderDetail();
+    $shoporder_detail->shop_order_id = $shop_order_id;
+    $shoporder_detail->bom_id = $load_Bom_details[$x]['bom_id'];
+    $shoporder_detail->costing_item_id = $load_Bom_details[$x]['costing_item_id'];
+    $shoporder_detail->costing_id = $load_Bom_details[$x]['costing_id'];
+    $shoporder_detail->component_id = $load_Bom_details[$x]['component_id'];
+    $shoporder_detail->inventory_part_id = $load_Bom_details[$x]['inventory_part_id'];
+    $shoporder_detail->supplier = $load_Bom_details[$x]['supplier_id'];
+    $shoporder_detail->purchase_price = $load_Bom_details[$x]['purchase_price'];
+    $shoporder_detail->postion_id = $load_Bom_details[$x]['position_id'];
+    $shoporder_detail->purchase_uom = $load_Bom_details[$x]['purchase_uom_id'];
+    $shoporder_detail->orign_type_id = $load_Bom_details[$x]['origin_type_id'];
+    $shoporder_detail->garment_option_id = $load_Bom_details[$x]['garment_options_id'];
+    $shoporder_detail->unit_price = $load_Bom_details[$x]['bom_unit_price'];
+    $shoporder_detail->net_consumption = $load_Bom_details[$x]['net_consumption'];
+    $shoporder_detail->wastage = $load_Bom_details[$x]['wastage'];
+    $shoporder_detail->gross_consumption = $load_Bom_details[$x]['gross_consumption'];
+    $shoporder_detail->material_type = $load_Bom_details[$x]['meterial_type'];
+    $shoporder_detail->freight_charges = $load_Bom_details[$x]['freight_charges'];
+    $shoporder_detail->surcharge = $load_Bom_details[$x]['surcharge'];
+    $shoporder_detail->total_cost = $load_Bom_details[$x]['total_cost'];
+    $shoporder_detail->ship_mode = $load_Bom_details[$x]['ship_mode'];
+    $shoporder_detail->ship_term = $load_Bom_details[$x]['ship_term'];
+    $shoporder_detail->lead_time = $load_Bom_details[$x]['lead_time'];
+    $shoporder_detail->country_id = $load_Bom_details[$x]['country_id'];
+    $shoporder_detail->comments = $load_Bom_details[$x]['comments'];
+
+    $shoporder_detail->status = '1';
+    $shoporder_detail->save();
 
 
+    }
 
+    $user = auth()->user();
 
-    // return response([
-    //   'data' => [
-    //     'status' => 'success',
-    //     'message' => 'Successfully Deleted.'
-    //   ]
-    // ] , 200);
+    DB::table('merc_customer_order_details')
+      ->where('details_id', $request->details['details_id'])
+      ->update(['shop_order_id' => $shop_order_id,
+                'shop_order_connected_by' => $user->user_id,
+                'shop_order_connected_date' => date("Y-m-d H:i:s"),
+                'delivery_status' => 'RELEASED']);
+
+    return response([
+      'data' => [
+        'status' => 'success',
+        'message' => 'Successfully Released.'
+      ]
+    ] , 200);
 
 
 }
