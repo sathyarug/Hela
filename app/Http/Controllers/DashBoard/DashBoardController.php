@@ -8,6 +8,8 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
 use App\Models\Admin\ProcessApproval;
+use App\Models\Merchandising\Costing\Costing;
+use App\Models\Merchandising\PoOrderHeader;
 use DB;
 
 class DashBoardController extends Controller
@@ -29,7 +31,51 @@ class DashBoardController extends Controller
            return response([
                'cus_data' => $this->loadPendingCostingDetails()
            ]);
+       }elseif($request->type == 'edit-mode-data'){
+
+           return response([
+               'cus_data' => $this->loadEditModeDetails()
+           ]);
+       }elseif($request->type == 'load-po-approval'){
+
+           return response([
+               'cus_data' => $this->loadPoApprovalData()
+           ]);
        }
+
+
+    }
+
+    public function loadPoApprovalData(){
+        $approvalData['pending'] = PoOrderHeader::select(DB::raw("count(merc_po_order_header.po_id) as pending"))
+            ->where('merc_po_order_header.created_by', '=', auth()->user()->user_id)
+            ->where('merc_po_order_header.po_status', '=', 'PLANNED')
+            ->get()
+            ->toArray();
+
+
+
+        $approvalData['approved'] = PoOrderHeader::select(DB::raw("count(merc_po_order_header.po_id) as approved"))
+            ->where('merc_po_order_header.created_by', '=', auth()->user()->user_id)
+            ->where('merc_po_order_header.po_status', '=', 'CONFIRMED')
+            ->get()
+            ->toArray();
+
+        return $approvalData;
+    }
+
+    public function loadEditModeDetails(){
+        $editabaledata['po'] = PoOrderHeader::select(DB::raw("count(merc_po_order_header.po_id) as poCount"))
+            ->where('merc_po_order_header.created_by', '=', auth()->user()->user_id)
+            ->get()
+            ->toArray();
+
+        $editabaledata['costing'] = Costing::select(DB::raw("count(id) as costingCount"))
+            ->where('costing.created_by', '=', auth()->user()->user_id)
+            ->get()
+            ->toArray();
+
+       return $editabaledata;
     }
 
     public function loadPendingCostingDetails(){
