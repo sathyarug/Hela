@@ -269,7 +269,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
           $storeUpdate->transfer_status="STOCKUPDATE";
           $storeUpdate->status=1;
-          $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_id);
+          $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
           $shopOrder->asign_qty=$fabricInspection->received_qty+$shopOrder->asign_qty;
           $shopOrder->save();
           $storeUpdate->save();
@@ -281,7 +281,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
             //if previous standerd price and new price is same
 
-            if($stock->standard_price!=$rollplanDetail[0]->standard_price){
+            if($stock->standard_price!=$rollplanDetail[0]->purchase_price){
               $priceVariance= new PriceVariance;
               $priceVariance->item_id=$rollplanDetail[0]->item_code;
               $priceVariance->standard_price=$rollplanDetail[0]->standard_price;
@@ -325,7 +325,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
             }
 
-            $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_id);
+            $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
             $shopOrder->asign_qty=$fabricInspection->received_qty+$shopOrder->asign_qty;
             $shopOrder->save();
             //$stock->total_qty=$stock->total_qty+$fabricInspection->received_qty;
@@ -640,7 +640,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
             $storeUpdate->transfer_status="STOCKUPDATE";
             $storeUpdate->status=1;
-            $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_id);
+            $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
             //if previous status pass
             if($data[$i]['previous_status_name']=="PASS"){
               $shopOrder->asign_qty=$fabricInspection->qty-(double)$data[$i]['previous_received_qty']+$shopOrder->asign_qty;
@@ -675,7 +675,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
               $stock->standard_price = $rollplanDetail[0]->standard_price;
               $stock->purchase_price = $rollplanDetail[0]->purchase_price;
-              $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_id);
+              $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
               if($rollplanDetail[0]->uom!=$rollplanDetail[0]->inventory_uom){
 
                   $stock->uom = $rollplanDetail[0]->inventory_uom;
