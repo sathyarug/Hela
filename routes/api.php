@@ -382,6 +382,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
+    Route::post('released_SO','Merchandising\CustomerOrderDetailsController@released_SO');
+    Route::post('released_SO_All','Merchandising\CustomerOrderDetailsController@released_SO_All');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
@@ -561,6 +563,12 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('buy-master/validate' , 'Merchandising\BuyMasterController@validate_data');
     Route::apiResource('buy-master','Merchandising\BuyMasterController');
 
+
+    Route::apiResource('shop-orders','Merchandising\ShopOrderController');
+    Route::post('load_shop_order_header' , 'Merchandising\ShopOrderController@load_shop_order_header');
+    Route::post('load_shop_order_list' , 'Merchandising\ShopOrderController@load_shop_order_list');
+    Route::post('update_shop_order_details','Merchandising\ShopOrderController@update_shop_order_details');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -661,6 +669,9 @@ Route::prefix('approval-process/')->group(function(){
 
 });
 
+Route::prefix('dashboard/')->group(function(){
+    Route::apiResource('dashboard', 'DashBoard\DashBoardController');
+});
 //Route::group(['middleware' => ['jwt.auth']], function() {
 
 
@@ -715,12 +726,23 @@ Route::get('flashcosting/getcostitems', 'Merchandising\Costing\Flash\FlashContro
 
 Route::GET('/getDivision','Org\CustomerController@loadCustomerDivision');
 
-Route::prefix('reports/')->group(function(){
 
+
+Route::prefix('reports/')->group(function(){
+  //Sales Report
+  Route::apiResource('load_sales','Reports\SalesReportController');
+  //PO Report
   Route::post('load_po_details','Reports\POReportController@load_po_details');
-  Route::get('export_excel_po_details' , 'Reports\POReportController@po_export_excel');
   Route::apiResource('load_po','Reports\POReportController');
   Route::apiResource('load_status','Reports\POReportController');
+  //Costing Report
+  Route::apiResource('costing/costing_details','Reports\CostingReportController');
+  //Costing Details Report
+  Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
+  //Costing variance Report
+  Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails');
+});
 
-
+Route::prefix('common/')->group(function(){
+  Route::apiResource('load_costing_id','Reports\CommonController');
 });
