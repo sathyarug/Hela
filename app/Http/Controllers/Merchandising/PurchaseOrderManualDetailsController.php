@@ -18,6 +18,10 @@ use App\Models\Merchandising\StyleCreation;
 use App\Models\Store\GrnHeader;
 use App\Models\Store\GrnDetail;
 
+use App\Models\Merchandising\ShopOrderHeader;
+use App\Models\Merchandising\ShopOrderDetail;
+use App\Models\Merchandising\ShopOrderDelivery;
+
 class PurchaseOrderManualDetailsController extends Controller
 {
     public function __construct()
@@ -122,6 +126,19 @@ class PurchaseOrderManualDetailsController extends Controller
     //deactivate a customer
     public function destroy($id)
     {
+
+      $check_details = PoOrderDetails::select('*')
+                   ->where('id' , '=', $id )
+                   ->where('status' , '<>', 0 )
+                   ->get();
+
+      //dd($check_details[0]['po_status']);
+
+      if($check_details[0]['po_status'] == "CONFIRMED")
+      {
+        return response([ 'data' => ['status' => 'error','message' => 'Purchase Order Line already CONFIRMED !']]);
+      }
+
       $check_grn = GrnDetail::select('*')
                    ->where('po_details_id' , '=', $id )
                    ->where('status' , '<>', 0 )
@@ -153,22 +170,39 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_details_r->version =$this->get_max_version($intv_value[0]->po_header_id);
       $po_details_r->reason = 'LINE_CANCELLATION';
       $po_details_r->bom_id = $intv_value[0]->bom_id;
-      $po_details_r->bom_detail_id = $intv_value[0]->bom_detail_id;
-      $po_details_r->mat_id = $intv_value[0]->mat_id;
+      //$po_details_r->bom_detail_id = $intv_value[0]->bom_detail_id;
+      //$po_details_r->mat_id = $intv_value[0]->mat_id;
+      $po_details_r->shop_order_id = $intv_value[0]->shop_order_id;
+      $po_details_r->shop_order_detail_id = $intv_value[0]->shop_order_detail_id;
       $po_details_r->mat_colour = $intv_value[0]->mat_colour;
       $po_details_r->po_header_id = $intv_value[0]->po_header_id;
       $po_details_r->save();
+
+      $tot_po_qty = 0;
+      $find_po_qty = DB::select('SELECT * FROM merc_shop_order_detail AS SOD
+                     WHERE SOD.shop_order_detail_id =  "'.$intv_value[0]->shop_order_detail_id.'"
+                     AND SOD.status = 1 ' );
+
+      $tot_po_qty = $find_po_qty[0]->po_qty - $intv_value[0]->req_qty;
+      $balance_qty = $find_po_qty[0]->po_balance_qty + $intv_value[0]->req_qty ;
+
+      DB::table('merc_shop_order_detail')
+          ->where('shop_order_detail_id', $intv_value[0]->shop_order_detail_id)
+          ->update([ 'po_qty' => $tot_po_qty ,
+                     'po_balance_qty' => $balance_qty ]);
 
 
       //$poline = PoOrderDetails::where('id', $id)->update(['status' => 0]);
       $Delete_poline = PoOrderDetails::where('id', $id)->delete();
 
-      return response([
+      return response([ 'data' => ['status' => 'succes','message' => 'Line was deactivated successfull']]);
+
+      /*return response([
         'data' => [
           'message' => 'Line was deactivated successfully.',
           'poline' => $Delete_poline
         ]
-      ] , Response::HTTP_NO_CONTENT);
+      ] , Response::HTTP_NO_CONTENT);*/
 
     }
 
@@ -318,7 +352,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $po = $formData['po_id'];
       //dd($formData);
       $prl_id = $formData['prl_id'];
-    //  print_r($lines[0]['bom_id']);
+      //print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
@@ -326,7 +360,9 @@ class PurchaseOrderManualDetailsController extends Controller
 
         $po_details->po_no = $formData['po_number'];
         $po_details->bom_id = $lines[$x]['bom_id'];
-        $po_details->bom_detail_id = $lines[$x]['bom_detail_id'];
+        $po_details->shop_order_id = $lines[$x]['shop_order_id'];
+        $po_details->shop_order_detail_id = $lines[$x]['shop_order_detail_id'];
+        //$po_details->bom_detail_id = $lines[$x]['bom_detail_id'];
         $po_details->line_no = $this->get_next_line_no($po);
         $po_details->item_code = $lines[$x]['master_id'];
         $po_details->style = $lines[$x]['style_id'];
@@ -341,7 +377,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->status = '1';
         $po_details->ori_unit_price = $lines[$x]['unit_price'];
         $po_details->base_unit_price = $lines[$x]['unit_price'];
-        $po_details->mat_id = $lines[$x]['mat_id'];
+        //$po_details->mat_id = $lines[$x]['mat_id'];
         $po_details->mat_colour = $lines[$x]['mat_colour'];
         $po_details->po_status = 'PLANNED';
         $po_details->po_header_id = $formData['po_id'];
@@ -352,10 +388,25 @@ class PurchaseOrderManualDetailsController extends Controller
             ->where('merge_no', $prl_id)
             ->update(['status_user' => 'RELEASED']);
 
+        $tot_po_qty = 0;
+        $find_po_qty = DB::select('SELECT Sum(POD.req_qty) AS req_qty FROM merc_po_order_details AS POD
+                       WHERE POD.shop_order_detail_id =  "'.$lines[$x]['shop_order_detail_id'].'"
+                       AND POD.status = 1 ' );
+
+        $tot_order_qty = $lines[$x]['order_qty'] * $lines[$x]['gross_consumption'];
+        $tot_po_qty = $find_po_qty[0]->req_qty;
+        $balance_qty = $tot_order_qty - $tot_po_qty;
+
+
+        DB::table('merc_shop_order_detail')
+            ->where('shop_order_detail_id', $lines[$x]['shop_order_detail_id'])
+            ->update([ 'po_qty' => $tot_po_qty ,
+                       'po_balance_qty' => $balance_qty ]);
+
         }
 
         DB::table('merc_purchase_req_lines')
-            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->join('merc_shop_order_detail', 'merc_shop_order_detail.shop_order_detail_id', '=', 'merc_purchase_req_lines.shop_order_detail_id')
             ->where('merge_no', $prl_id)
             ->update(['po_status' => null]);
 
@@ -386,13 +437,26 @@ class PurchaseOrderManualDetailsController extends Controller
           DB::table('merc_po_order_details')
             ->where('po_header_id', $formData['po_id'])
             ->where('bom_id', $lines[$x]['bom_id'])
-            ->where('bom_detail_id', $lines[$x]['bom_detail_id'])
+            ->where('shop_order_detail_id', $lines[$x]['shop_order_detail_id'])
             ->where('line_no', $lines[$x]['line_no'])
             ->update(['req_qty' => $lines[$x]['tra_qty'],
                       'tot_qty' => $lines[$x]['value_sum'],
                       'base_unit_price' => $lines[$x]['base_unit_price_revise'],
                       'po_status' => 'PLANNED']);
 
+            $tot_po_qty = 0;
+            $find_po_qty = DB::select('SELECT Sum(POD.req_qty) AS req_qty FROM merc_po_order_details AS POD
+                                     WHERE POD.shop_order_detail_id =  "'.$lines[$x]['shop_order_detail_id'].'"
+                                     AND POD.status = 1 ' );
+
+            $tot_order_qty = $lines[$x]['order_qty'] * $lines[$x]['gross_consumption'];
+            $tot_po_qty = $find_po_qty[0]->req_qty;
+            $balance_qty = $tot_order_qty - $tot_po_qty;
+
+            DB::table('merc_shop_order_detail')
+              ->where('shop_order_detail_id', $lines[$x]['shop_order_detail_id'])
+              ->update([ 'po_qty' => $tot_po_qty ,
+                         'po_balance_qty' => $balance_qty ]);
 
         }
 
@@ -415,10 +479,16 @@ class PurchaseOrderManualDetailsController extends Controller
       $po = $formData['po_number'];
       $po_id = $formData['po_id'];
 
+      if($formData['po_status'] == "CONFIRMED")
+      {
+        return response([ 'data' => ['status' => 'error','message' => 'Purchase Order Line already CONFIRMED !']]);
+      }
+
       $check_grn = GrnHeader::select('*')
                    ->where('po_number' , '=', $po_id )
                    ->where('status' , '<>', 0 )
                    ->get();
+
       if(sizeof($check_grn) > 0)
       {
         return response([ 'data' => ['status' => 'error','message' => 'Purchase Order Line already in use !']]);
@@ -463,8 +533,10 @@ class PurchaseOrderManualDetailsController extends Controller
       $POD_R = new PoOrderDetailsRevision();
       $POD_R->po_no = $POD[$x]->po_no;
       $POD_R->bom_id = $POD[$x]->bom_id;
-      $POD_R->bom_detail_id = $POD[$x]->bom_detail_id;
-      $POD_R->mat_id = $POD[$x]->mat_id;
+      //$POD_R->bom_detail_id = $POD[$x]->bom_detail_id;
+      $POD_R->shop_order_id = $POD[$x]->shop_order_id;
+      $POD_R->shop_order_detail_id = $POD[$x]->shop_order_detail_id;
+      //$POD_R->mat_id = $POD[$x]->mat_id;
       $POD_R->line_no = $POD[$x]->line_no;
       $POD_R->item_code = $POD[$x]->item_code;
       $POD_R->style = $POD[$x]->style;
@@ -497,6 +569,21 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->req_qty = $lines[$y]['tra_qty'];
         $po_details->tot_qty = $lines[$y]['value_sum'];
         $po_details->save();
+
+        $tot_po_qty = 0;
+        $find_po_qty = DB::select('SELECT Sum(POD.req_qty) AS req_qty FROM merc_po_order_details AS POD
+                       WHERE POD.shop_order_detail_id =  "'.$lines[$y]['shop_order_detail_id'].'"
+                       AND POD.status = 1 ' );
+
+        $tot_order_qty = $lines[$y]['order_qty'] * $lines[$y]['gross_consumption'];
+        $tot_po_qty = $find_po_qty[0]->req_qty;
+        $balance_qty = $tot_order_qty - $tot_po_qty;
+
+
+        DB::table('merc_shop_order_detail')
+            ->where('shop_order_detail_id', $lines[$y]['shop_order_detail_id'])
+            ->update([ 'po_qty' => $tot_po_qty ,
+                       'po_balance_qty' => $balance_qty ]);
 
       }
 
@@ -688,6 +775,8 @@ class PurchaseOrderManualDetailsController extends Controller
       $user = auth()->user();
 
       $load_list = PoOrderDetails::join('item_master', 'item_master.master_id', '=', 'merc_po_order_details.item_code')
+       ->join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+       ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
        ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
        ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
@@ -695,7 +784,11 @@ class PurchaseOrderManualDetailsController extends Controller
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
-       ->select('fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.tot_qty as value_sum','merc_po_order_details.base_unit_price as base_unit_price_revise',
+       ->select('fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*',
+       'item_master.*','org_uom.*','org_color.*','org_size.*','merc_po_order_details.*',
+       'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.tot_qty as value_sum',
+       'merc_po_order_details.base_unit_price as base_unit_price_revise',
+       'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption',
          DB::raw('(CASE WHEN merc_po_order_details.status = 1 THEN "ACTIVE" ELSE "INACTIVE" END) AS polineststus'))
        //->where('merc_po_order_details.status'  , '=', 1 )
        ->where('po_id'  , '=', $po_id )
@@ -727,7 +820,7 @@ class PurchaseOrderManualDetailsController extends Controller
       $prl_id = $request->prl_id;
       $user = auth()->user();
 
-      $load_list = PoOrderDetails::join("bom_details",function($join){
+      /*$load_list = PoOrderDetails::join("bom_details",function($join){
         $join->on("bom_details.bom_id","=","merc_po_order_details.bom_id")
              ->on("bom_details.id","=","merc_po_order_details.bom_detail_id");
             })
@@ -742,10 +835,34 @@ class PurchaseOrderManualDetailsController extends Controller
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
        //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_po_order_details.*','merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order','merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise')
+       ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*',
+       'bom_details.*','org_color.*','org_size.*','merc_po_order_details.*',
+       'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order',
+       'merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise')
        ->where('prl_id'  , '=', $prl_id )
        ->Where('merc_po_order_details.created_by','=', $user->user_id)
-       ->get();
+       ->get();*/
+
+
+
+       $load_list = PoOrderDetails::join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+        ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+        ->join('item_master', 'item_master.master_id', '=', 'merc_shop_order_detail.inventory_part_id')
+        ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
+        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+        ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
+        ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
+        ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
+        ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*',
+        'org_color.*','org_size.*','merc_po_order_details.*',
+        'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order',
+        'merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise',
+        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption')
+        ->where('prl_id'  , '=', $prl_id )
+        ->Where('merc_po_order_details.created_by','=', $user->user_id)
+        ->get();
 
        //print_r($load_list);
        return response([ 'data' => [

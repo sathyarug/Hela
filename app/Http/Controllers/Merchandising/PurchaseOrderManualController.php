@@ -13,6 +13,10 @@ use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\BOMDetails;
 use App\Models\Merchandising\PurchaseReqLines;
 
+use App\Models\Merchandising\ShopOrderHeader;
+use App\Models\Merchandising\ShopOrderDetail;
+use App\Models\Merchandising\ShopOrderDelivery;
+
 class PurchaseOrderManualController extends Controller
 {
     public function __construct()
@@ -98,7 +102,7 @@ class PurchaseOrderManualController extends Controller
             ->update(['status_user' => 'HOLD']);
 
         DB::table('merc_purchase_req_lines')
-            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->join('merc_shop_order_detail', 'merc_shop_order_detail.shop_order_detail_id', '=', 'merc_purchase_req_lines.shop_order_detail_id')
             ->where('merge_no', $load_poh_status[0]->prl_id)
             ->update(['po_status' => 'HOLD','po_con' => 'CREATE']);
 
@@ -340,7 +344,7 @@ class PurchaseOrderManualController extends Controller
 
       $customer_list = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
       ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.shop_order_detail_id) AS bom_lines"),
        DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
        )
       ->where('status_user'  , '=', 'OPEN' )
@@ -354,7 +358,7 @@ class PurchaseOrderManualController extends Controller
 
       $customer_count = PurchaseReqLines::join('usr_profile', 'usr_profile.user_id', '=', 'merc_purchase_req_lines.created_by')
       ->select('merc_purchase_req_lines.merge_no as prl_id','merc_purchase_req_lines.status_user as po_status','merc_purchase_req_lines.created_date','usr_profile.first_name'
-      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.bom_detail_id) AS bom_lines"),
+      ,DB::raw("GROUP_CONCAT(merc_purchase_req_lines.shop_order_detail_id) AS bom_lines"),
        DB::raw("DATE_FORMAT(merc_purchase_req_lines.created_date, '%d-%b-%Y') AS cd")
        )
       ->where('status_user'  , '=', 'OPEN' )
@@ -386,7 +390,7 @@ class PurchaseOrderManualController extends Controller
     $item_code = $request->item['master_id'];
     $supplier= $request->supplier['supplier_id'];
 
-    $load_list = DB::select(" SELECT
+    /*$load_list = DB::select(" SELECT
                                     bom_details.bom_id,
                                     merc_customer_order_details.po_no,
                                     bom_details.master_id,
@@ -468,7 +472,82 @@ class PurchaseOrderManualController extends Controller
                                     bom_details.master_id LIKE '%".$item_code."' AND
                                     (bom_details.supplier_id IS NULL OR bom_details.supplier_id LIKE '%".$supplier."' ) AND
                                     bom_details.po_status is null
-                                    ");
+                                    ");*/
+
+      $load_list = DB::select("SELECT
+                    merc_shop_order_header.shop_order_id,
+                    merc_shop_order_detail.shop_order_detail_id,
+                    merc_shop_order_detail.bom_id,
+                    merc_shop_order_delivery.delivery_id,
+                    merc_customer_order_header.order_stage,
+                    cust_customer.customer_name,
+                    style_creation.style_no,
+                    merc_customer_order_header.order_code,
+                    merc_customer_order_details.po_no,
+                    merc_customer_order_details.pcd,
+                    DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') as pcd_01,
+                    merc_customer_order_details.fng_id,
+                    FNG.master_code AS fng_number,
+                    MAT.master_code AS mat_code,
+                    MAT.master_description,
+                    STY_COLOUR.color_id,
+                    STY_COLOUR.color_name,
+                    MAT_COL.color_id AS material_color_id,
+                    MAT_COL.color_name AS material_color,
+                    MAT_SIZE.size_id,
+                    MAT_SIZE.size_name,
+                    org_uom.uom_id,
+                    org_uom.uom_code,
+                    org_supplier.supplier_id,
+                    org_supplier.supplier_name,
+                    merc_shop_order_detail.unit_price,
+                    merc_customer_order_details.order_qty,
+                    merc_shop_order_detail.gross_consumption,
+                    ( ROUND((merc_customer_order_details.order_qty*merc_shop_order_detail.gross_consumption),4)) AS total_qty,
+                    MAT.moq,
+                    MAT.mcq,
+                    org_location.loc_id,
+                    org_location.loc_name,
+                    (SELECT Count(EX.currency) AS ex_rate
+                      FROM org_exchange_rate AS EX
+                      WHERE EX.currency = org_supplier.currency ) AS ex_rate,
+                    merc_customer_order_details.ship_mode,
+                    org_origin_type.origin_type_id,
+                    org_origin_type.origin_type,
+                    item_category.category_id,
+                    item_category.category_name,
+                    IFNULL(merc_shop_order_detail.po_qty,0) as req_qty,
+                    IFNULL(merc_shop_order_detail.po_balance_qty,0) AS po_balance_qty,
+                    merc_shop_order_detail.inventory_part_id
+                    FROM
+                    merc_shop_order_header
+                    INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id = merc_shop_order_detail.shop_order_id
+                    INNER JOIN merc_shop_order_delivery ON merc_shop_order_header.shop_order_id = merc_shop_order_delivery.shop_order_id
+                    INNER JOIN merc_customer_order_details ON merc_shop_order_delivery.delivery_id = merc_customer_order_details.details_id AND merc_shop_order_header.fg_id = merc_customer_order_details.fng_id
+                    INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
+                    INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
+                    INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
+                    INNER JOIN item_master AS MAT ON merc_shop_order_detail.inventory_part_id = MAT.master_id
+                    INNER JOIN item_master AS FNG ON merc_customer_order_details.fng_id = FNG.master_id
+                    LEFT JOIN org_color AS STY_COLOUR ON FNG.color_id = STY_COLOUR.color_id
+                    LEFT JOIN org_color AS MAT_COL ON MAT.color_id = MAT_COL.color_id
+                    LEFT JOIN org_size AS MAT_SIZE ON MAT.size_id = MAT_SIZE.size_id
+                    LEFT JOIN org_uom ON merc_shop_order_detail.purchase_uom = org_uom.uom_id
+                    LEFT JOIN org_supplier ON merc_shop_order_detail.supplier = org_supplier.supplier_id
+                    INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
+                    INNER JOIN org_origin_type ON merc_shop_order_detail.orign_type_id = org_origin_type.origin_type_id
+                    INNER JOIN item_category ON MAT.category_id = item_category.category_id
+                    WHERE
+                    merc_customer_order_header.order_stage LIKE '%$stage%' AND
+                    cust_customer.customer_name LIKE '%$customer_name%' AND
+                    style_creation.style_no LIKE '%".$style_no."%' AND
+                    merc_customer_order_header.order_code LIKE '%".$order_code."%' AND
+                    merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
+                    merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
+                    MAT.master_description LIKE '%".$item_code."' AND
+                    org_supplier.supplier_id LIKE '%".$supplier."'
+                    AND merc_shop_order_detail.po_status is null
+                    ");
 
        //return $customer_list;
        return response([ 'data' => [
@@ -487,8 +566,8 @@ class PurchaseOrderManualController extends Controller
       for($r = 0 ; $r < sizeof($lines) ; $r++)
       {
         //bom_details
-        $check_hold = BOMDetails::where('bom_id'  , '=', $lines[$r]['bom_id'] )
-        ->where('id'  , '=', $lines[$r]['bom_detail_id'] )
+        $check_hold = ShopOrderDetail::where('shop_order_detail_id'  , '=', $lines[$r]['shop_order_detail_id'] )
+        //->where('id'  , '=', $lines[$r]['bom_detail_id'] )
         ->where('po_status'  , '=', 'HOLD' )
         ->count();
 
@@ -510,13 +589,15 @@ class PurchaseOrderManualController extends Controller
 
 
         $temp_line = new PurchaseReqLines();
+        $temp_line->shop_order_id = $lines[$x]['shop_order_id'];
+        $temp_line->shop_order_detail_id = $lines[$x]['shop_order_detail_id'];
         $temp_line->bom_id = $lines[$x]['bom_id'];
-        $temp_line->bom_detail_id= $lines[$x]['bom_detail_id'];//
-        $temp_line->mat_id= $lines[$x]['mat_id'];//
+        //$temp_line->bom_detail_id= $lines[$x]['bom_detail_id'];//
+        //$temp_line->mat_id= $lines[$x]['mat_id'];//
         $temp_line->merge_no = $max_no;
-        $temp_line->item_code = $lines[$x]['master_id'];
+        $temp_line->item_code = $lines[$x]['inventory_part_id'];
         $temp_line->item_color = $lines[$x]['color_id'];
-        $temp_line->mat_colour = $lines[$x]['material_color'];//
+        $temp_line->mat_colour = $lines[$x]['material_color_id'];//
         $temp_line->item_size = $lines[$x]['size_id'];
         $temp_line->uom_id = $lines[$x]['uom_id'];
         $temp_line->supplier_id = $lines[$x]['supplier_id'];
@@ -535,7 +616,7 @@ class PurchaseOrderManualController extends Controller
         $temp_line->save();
 
         DB::table('merc_purchase_req_lines')
-            ->join('bom_details', 'bom_details.id', '=', 'merc_purchase_req_lines.bom_detail_id')
+            ->join('merc_shop_order_detail', 'merc_shop_order_detail.shop_order_detail_id', '=', 'merc_purchase_req_lines.shop_order_detail_id')
             ->where('merge_no', $max_no)
             ->update(['po_status' => 'HOLD','po_con' => 'CREATE']);
 
@@ -561,7 +642,7 @@ class PurchaseOrderManualController extends Controller
       $prl_id = $request->prl_id;
       $user = auth()->user();
 
-      $load_list = PurchaseReqLines::join("bom_details",function($join){
+      /*$load_list = PurchaseReqLines::join("bom_details",function($join){
                $join->on("bom_details.bom_id","=","merc_purchase_req_lines.bom_id")
                     ->on("bom_details.id","=","merc_purchase_req_lines.bom_detail_id");
 
@@ -577,10 +658,31 @@ class PurchaseOrderManualController extends Controller
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
 	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
+       ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*',
+       'bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
        ->where('merge_no'  , '=', $prl_id )
        ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
-       ->get();
+       ->get();*/
+
+
+       $load_list = PurchaseReqLines::join('merc_shop_order_detail', 'merc_purchase_req_lines.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+        ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+        ->join('item_master', 'item_master.master_id', '=', 'merc_shop_order_detail.inventory_part_id')
+        ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+        ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
+        ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
+        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
+        ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
+        ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
+        ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
+ 	      ->select('item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*',
+        'org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty',
+        'merc_shop_order_detail.unit_price as ori_unit_price','merc_shop_order_detail.shop_order_detail_id',
+        'merc_shop_order_detail.shop_order_id','merc_customer_order_header.order_style AS style_id',
+        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption')
+        ->where('merge_no'  , '=', $prl_id )
+        ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
+        ->get();
 
        //echo $load_list;
 
