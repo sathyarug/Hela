@@ -741,7 +741,6 @@ Route::prefix('reports/')->group(function(){
   Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
   //Costing variance Report
   Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails');
-<<<<<<< HEAD
   //Inventory ageing Report
   Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
   //Pick List
@@ -752,9 +751,6 @@ Route::prefix('reports/')->group(function(){
   Route::post('fabric_roll_barcode_print','Reports\FabticRollBarcode@getData');
   Route::post('update_print_status','Reports\FabticRollBarcode@updatePrint');
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
-
-=======
->>>>>>> 29f87e212756ad300823c9357923f2b7dc99f5e0
 });
 
 Route::prefix('common/')->group(function(){
