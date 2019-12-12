@@ -382,6 +382,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('cod/copy_line','Merchandising\CustomerOrderDetailsController@copy_line');
     Route::post('load_colour_type' , 'Merchandising\CustomerOrderDetailsController@load_colour_type');
     Route::post('cod/delete_line','Merchandising\CustomerOrderDetailsController@delete_line');
+    Route::post('released_SO','Merchandising\CustomerOrderDetailsController@released_SO');
+    Route::post('released_SO_All','Merchandising\CustomerOrderDetailsController@released_SO_All');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
@@ -561,6 +563,12 @@ Route::prefix('merchandising/')->group(function(){
     Route::get('buy-master/validate' , 'Merchandising\BuyMasterController@validate_data');
     Route::apiResource('buy-master','Merchandising\BuyMasterController');
 
+
+    Route::apiResource('shop-orders','Merchandising\ShopOrderController');
+    Route::post('load_shop_order_header' , 'Merchandising\ShopOrderController@load_shop_order_header');
+    Route::post('load_shop_order_list' , 'Merchandising\ShopOrderController@load_shop_order_list');
+    Route::post('update_shop_order_details','Merchandising\ShopOrderController@update_shop_order_details');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -733,6 +741,7 @@ Route::prefix('reports/')->group(function(){
   Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
   //Costing variance Report
   Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails');
+<<<<<<< HEAD
   //Inventory ageing Report
   Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
   //Pick List
@@ -744,8 +753,10 @@ Route::prefix('reports/')->group(function(){
   Route::post('update_print_status','Reports\FabticRollBarcode@updatePrint');
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
 
+=======
+>>>>>>> 29f87e212756ad300823c9357923f2b7dc99f5e0
 });
 
 Route::prefix('common/')->group(function(){
-  Route::apiResource('load_costing_id','Reports\CommonController'); 
+  Route::apiResource('load_costing_id','Reports\CommonController');
 });
