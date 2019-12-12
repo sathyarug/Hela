@@ -751,6 +751,8 @@ Route::prefix('reports/')->group(function(){
   Route::post('fabric_roll_barcode_print','Reports\FabticRollBarcode@getData');
   Route::post('update_print_status','Reports\FabticRollBarcode@updatePrint');
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
+  //Style list
+  Route::post('style-list','Reports\StyleListController@getStyles');
 });
 
 Route::prefix('common/')->group(function(){
