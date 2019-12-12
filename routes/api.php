@@ -427,19 +427,27 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('loadCostingDataForCombine','Merchandising\Costing\CostingController@getCostingDataForCombine');
     Route::get('costing/validate' , 'Merchandising\Costing\CostingController@validate_data');
-    Route::post('costing/finish-good/copy','Merchandising\Costing\CostingController@copy_finish_good');
+    //Route::post('costing/finish-good/copy','Merchandising\Costing\CostingController@copy_finish_good');
     Route::post('costing/finish-good/delete','Merchandising\Costing\CostingController@delete_finish_good');
 
     Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
     Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
+    Route::post('costing/update-size-chart', 'Merchandising\Costing\CostingController@update_size_chart');
+    Route::post('costing/save-costing-colors', 'Merchandising\Costing\CostingController@save_costing_colors');
+    Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
+    Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
+    Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
 
-    Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
-    Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
-    Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+    //Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
+    //Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
+    //Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+    Route::post('costing-items-save','Merchandising\Costing\CostingItemController@save_items');
+    Route::post('costing-items-copy','Merchandising\Costing\CostingItemController@copy');
+    Route::apiResource('costing-items','Merchandising\Costing\CostingItemController');
 
     Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
 

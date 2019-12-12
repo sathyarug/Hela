@@ -17,12 +17,20 @@ class Item extends BaseValidator
 
     protected $table = 'item_master';
     protected $primaryKey = 'master_id';
-    protected $fillable = ['master_id', 'subcategory_id', 'master_code', 'master_description', 'uom_id', 'status', 'category_id'];
+    protected $fillable = ['master_id', 'subcategory_id', 'master_code', 'master_description', 'uom_id', 'status', 'category_id', 'supplier_reference'];
 
     protected $rules = array(
         'subcategory_id'  => 'required',
         'master_description'  => 'required'
     );
+
+    //Accessors & Mutators......................................................
+
+    public function setSupplierReferenceAttribute($value) {
+        $this->attributes['supplier_reference'] = strtoupper($value);
+    }
+
+    //Relationships.............................................................
 
     public function uoms() {
         return $this->belongsToMany('App\Models\Org\UOM', 'item_uom', 'master_id', 'uom_id');
