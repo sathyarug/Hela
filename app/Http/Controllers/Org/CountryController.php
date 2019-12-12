@@ -43,6 +43,12 @@ class CountryController extends Controller
            'data' => $this->handsontable_search($search)
          ]);
        }
+       else if($type == 'country_selector'){
+         $search = $request->search;
+         return response([
+           'data' => $this->country_selector_list($search)
+         ]);
+       }
        else{
          return response([]);
        }
@@ -267,4 +273,12 @@ class CountryController extends Controller
       return $list;
     }
 
+
+    private function country_selector_list($search){
+      $list = Country::select('country_id', 'country_code', 'country_description')
+      ->where('country_code', 'like', '%' . $search . '%')
+      ->orWhere('country_description', 'like', '%' . $search . '%')
+      ->get();
+      return $list;
+    }
 }

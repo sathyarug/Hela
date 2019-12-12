@@ -217,6 +217,7 @@ class UomController extends Controller
     private function autocomplete_search($search)
   	{
   		$uom_lists = UOM::select('uom_id','uom_code')
+      ->where('status', '=', 1)
   		->where([['uom_code', 'like', '%' . $search . '%'],]) ->get();
   		return $uom_lists;
   	}
