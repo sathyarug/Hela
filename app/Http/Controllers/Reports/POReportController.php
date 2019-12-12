@@ -12,7 +12,6 @@ use App\Models\Merchandising\BOMDetails;
 use App\Models\Core\Status;
 use App\Models\Merchandising\PoOrderHeader;
 
-
 class POReportController extends Controller
 { 
 

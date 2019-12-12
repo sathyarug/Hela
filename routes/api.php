@@ -732,7 +732,18 @@ Route::prefix('reports/')->group(function(){
   //Costing Details Report
   Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
   //Costing variance Report
-  Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails'); 
+  Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails');
+  //Inventory ageing Report
+  Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
+  //Pick List
+  Route::apiResource('load_pick_list','Reports\PickListController');
+  //Costing variance Report
+  Route::get('view-pick_list','Reports\PickListController@viewPickList');
+  //Barcode printing
+  Route::post('fabric_roll_barcode_print','Reports\FabticRollBarcode@getData');
+  Route::post('update_print_status','Reports\FabticRollBarcode@updatePrint');
+  Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
+
 });
 
 Route::prefix('common/')->group(function(){

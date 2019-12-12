@@ -26,7 +26,11 @@ class MrnController extends Controller
         if($type == 'datatable')   {
           $data = $request->all();
           return response($this->datatable_search($data));
-          }
+        }
+        else if($type == 'auto'){
+          $search = $request->search;
+          return response($this->autocomplete_search($search));
+        }
         elseif($type == 'load-mrn'){
             $mrnId = $request['mrn'];
             $locId = $request['loc'];
@@ -41,6 +45,18 @@ class MrnController extends Controller
         }
 
     }
+
+    //search MRN for autocomplete
+    private function autocomplete_search($search)
+    {
+      $active=1;
+      $mrn_list = MRNHeader::select('mrn_id','mrn_no')
+      ->where([['mrn_no', 'like', '%' . $search . '%'],])
+      ->where('status','=',$active)
+      ->get();
+      return $mrn_list;
+    }
+
 
     /**
      * Store a newly created resource in storage.
