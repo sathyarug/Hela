@@ -176,6 +176,7 @@ class SupplierController extends Controller
     private function autocomplete_search($search)
   	{
   		$supplier_lists = Supplier::select('supplier_id','supplier_name', 'supplier_code')
+      ->where('status', '=', 1)
   		->where([['supplier_name', 'like', '%' . $search . '%'],]) ->get();
   		return $supplier_lists;
   	}

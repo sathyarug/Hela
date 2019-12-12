@@ -12,7 +12,8 @@ use App\Models\Merchandising\Item\SubCategory;
 //use App\Models\Merchandising\Item\ContentType;
 use App\Models\Merchandising\Item\Composition;
 use App\Models\Merchandising\Item\PropertyValueAssign;
-use App\Models\Merchandising\BulkCostingDetails;
+//use App\Models\Merchandising\BulkCostingDetails;
+use App\Models\Merchandising\Costing\CostingItem;
 use App\Models\Merchandising\Item\Item;
 
 
@@ -35,7 +36,13 @@ class ItemController extends Controller
         $type = $request->type;
         if($type == 'datatable') {
           $data = $request->all();
-          return response($this->datatable_search($data));
+          $search_type = $data['search_type'];
+          if($search_type == 'MATERIAL_ITEMS'){
+            return response($this->datatable_search_material($data));
+          }
+          else if($search_type == 'INVENTORY_ITEMS') {
+            return response($this->datatable_search_items($data));
+          }
         }
         else if($type == 'auto')    {
           $search = $request->search;
@@ -189,8 +196,8 @@ class ItemController extends Controller
      public function destroy($id)
      {
         //to check the deleting item used in costing
-        $bukDetails = BulkCostingDetails::where([['main_item','=',$id]])->first();
-        if($bukDetails != null) {
+        $item = CostingItem::where([['inventory_part_id','=',$id]])->first();
+        if($item != null) {
           return response([
             'data' => [
               'status'=>'error',
@@ -210,7 +217,7 @@ class ItemController extends Controller
         }
      }
 
-    private function datatable_search($data)
+    private function datatable_search_material($data)
     {
       $start = $data['start'];
       $length = $data['length'];
@@ -223,17 +230,73 @@ class ItemController extends Controller
       $item_list = Item::select('item_master.*', 'item_category.category_name', 'item_subcategory.subcategory_name','item_subcategory.subcategory_code')
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->whereNull('master_code')
       ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-      ->orWhere('item_category.category_name'  , 'like', $search.'%' )
+      ->where(function($query) use ($search) {
+        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
+        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
+      })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $item_count = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->whereNull('master_code')
       ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-      ->orWhere('item_category.category_name'  , 'like', $search.'%' )
+      ->where(function($query) use ($search) {
+        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
+        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
+      })
+      ->count();
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $item_count,
+          "recordsFiltered" => $item_count,
+          "data" => $item_list
+      ];
+    }
+
+
+    private function datatable_search_items($data)
+    {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+
+      $item_list = Item::select('item_master.*', 'item_category.category_name', 'item_subcategory.subcategory_name',
+      'org_color.color_name', 'org_size.size_name', 'org_uom.uom_code', 'org_supplier.supplier_name')
+      ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->leftJoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftJoin('org_size', 'org_size.size_id', '=', 'item_master.size_id')
+      ->leftJoin('org_uom', 'org_uom.uom_id', '=', 'item_master.inventory_uom')
+      ->leftJoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->whereNotNull('master_code')
+      ->where('item_master.master_description'  , 'like', $search.'%' )
+      ->where(function($query) use ($search) {
+        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
+        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
+      })
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $item_count = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->leftJoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftJoin('org_size', 'org_size.size_id', '=', 'item_master.size_id')
+      ->leftJoin('org_uom', 'org_uom.uom_id', '=', 'item_master.inventory_uom')
+      ->leftJoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->whereNotNull('master_code')
+      ->where('item_master.master_description'  , 'like', $search.'%' )
+      ->where(function($query) use ($search) {
+        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
+        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
+      })
       ->count();
 
       return [
@@ -316,8 +379,11 @@ class ItemController extends Controller
 
     public function create_inventory_items(Request $request){
       $items = $request->items;
-      $parent_item = Item::find($request->item_data['parent_item_id']);
+      $parent_item = Item::with(['uoms'])->find($request->item_data['parent_item_id']);
       $category = Category::find($parent_item->category_id);
+      $uom_list = $parent_item->uoms;
+
+      $arr = [];
       //echo json_encode($parent_item);die();
       $res_arr = [];
       foreach($items as $item) {
@@ -332,6 +398,7 @@ class ItemController extends Controller
           $i->inventory_uom = $request->item_data['inventory_uom']['uom_id'];
           $i->standard_price = $item['standard_price'];
           $i->supplier_id = ($request->item_data['supplier_id'] == null) ? null : $request->item_data['supplier_id']['supplier_id'];
+          $i->supplier_reference = $request->item_data['supplier_reference'];
           $i->color_wise = ($request->item_data['color_wise'] == true) ? 1 : 0;
           $i->size_wise = ($request->item_data['size_wise'] == true) ? 1 : 0;
           $i->color_id = $item['color_id'];
@@ -344,6 +411,13 @@ class ItemController extends Controller
           //generate item codes
           $i->master_code = $category->category_code . str_pad($i->master_id, 7, '0', STR_PAD_LEFT);
           $i->save();
+
+          for($z = 0 ; $z < sizeof($uom_list) ; $z++){
+            DB::table('item_uom')->insert([
+                'master_id' => $i->master_id,
+                'uom_id' => $uom_list[$z]['uom_id']
+            ]);
+          }
 
           $item['master_id'] = $i->master_id;
           $item['master_code'] = $i->master_code;
