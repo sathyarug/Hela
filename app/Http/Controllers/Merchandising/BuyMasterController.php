@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Merchandising;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Libraries\CapitalizeAllFields;
 use App\Http\Controllers\Controller;
@@ -108,14 +109,30 @@ class BuyMasterController extends Controller
         $buy_name = BuyMaster::find($id);
         if ($buy_name->validate($request->all()))
         {
-          $buy_name->fill($request->except('created_date,created_by'));
-          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($buy_name);
-          $buy_name->save();
 
-          return response([ 'data' => [
-            'message' => 'Buy updated successfully',
-            'buy_name' => $buy_name
-          ]]);
+          $is_exists_comp_smv = DB::table('ie_component_smv_header')->where('buy_id', $id)->exists();
+  
+          if($is_exists_comp_smv==true)
+          {
+            return response([ 'data' => [
+              'status' => 'fail',
+              'message' => 'Buy Already in Use',
+              'buy_name' => ''
+            ]]);
+          }
+          else
+          {
+            $buy_name->fill($request->except('created_date,created_by'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($buy_name);
+            $buy_name->save();
+
+            return response([ 'data' => [
+              'status' => 'success',
+              'message' => 'Buy updated successfully',
+              'buy_name' => $buy_name
+            ]]);
+          }
+
         }
         else
         {

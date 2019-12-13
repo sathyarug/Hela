@@ -7,7 +7,7 @@ use App\BaseValidator;
 class MRNDetail extends  BaseValidator
 {
     protected $table='store_mrn_detail';
-    protected $primaryKey='id';
+    protected $primaryKey='mrn_detail_id';
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 

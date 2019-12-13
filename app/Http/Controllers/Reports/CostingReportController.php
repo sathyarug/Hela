@@ -14,7 +14,7 @@ use App\Models\Merchandising\PoOrderHeader;
 use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\Costing\CostingHistory;
 use PDF;
-use Dompdf\Dompdf;
+
 class CostingReportController extends Controller
 { 
 
