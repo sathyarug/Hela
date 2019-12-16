@@ -64,6 +64,12 @@ class ItemController extends Controller
             'data' => $this->item_selector_list($search_type, $category, $sub_category, $search)
           ]);
         }
+        else if($type == 'get_items_from_group_id'){
+          $group_id = $request->group_id;
+          return response([
+            'data' => $this->get_items_from_group_id($group_id)
+          ]);
+        }
         else {
         /*  $active = $request->active;
           $fields = $request->fields;
@@ -382,7 +388,7 @@ class ItemController extends Controller
       $parent_item = Item::with(['uoms'])->find($request->item_data['parent_item_id']);
       $category = Category::find($parent_item->category_id);
       $uom_list = $parent_item->uoms;
-
+      $group_id = uniqid($parent_item->master_id/*prefix*/);
       $arr = [];
       //echo json_encode($parent_item);die();
       $res_arr = [];
@@ -407,6 +413,7 @@ class ItemController extends Controller
           $i->moq = $item['moq'];
           $i->mcq = $item['mcq'];
           $i->status = 1;
+          $i->group_id = $group_id;
           $i->save();
           //generate item codes
           $i->master_code = $category->category_code . str_pad($i->master_id, 7, '0', STR_PAD_LEFT);
@@ -433,7 +440,8 @@ class ItemController extends Controller
       return response(['data' => [
         'status' => 'success',
         'message' => 'Item created successfully',
-        'items' => $res_arr
+        'items' => $res_arr,
+        'group_id' => $group_id
         ]]);
     }
 
@@ -541,6 +549,11 @@ class ItemController extends Controller
     }
 
 
+    private function get_items_from_group_id($group_id){
+      $list = Item::select('item_master.*')
+      ->where('group_id', '=', $group_id)->get();
+      return $list;
+    }
 
   /*  public function GetItemList(Request $data){
 

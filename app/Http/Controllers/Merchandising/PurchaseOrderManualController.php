@@ -299,7 +299,10 @@ class PurchaseOrderManualController extends Controller
       ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
       ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'merc_po_order_header.po_type')
 	    ->select('merc_po_order_header.*','org_location.loc_name','org_supplier.supplier_name',
-          'fin_currency.currency_code','merc_bom_stage.bom_stage_description')
+          'fin_currency.currency_code','merc_bom_stage.bom_stage_description',
+          DB::raw("DATE_FORMAT(merc_po_order_header.po_date, '%d-%b-%Y') AS new_date")
+
+          )
       ->Where('merc_po_order_header.created_by','=', $user->user_id)
       ->Where(function ($query) use ($search) {
   			$query->orWhere('po_number', 'like', $search.'%')
