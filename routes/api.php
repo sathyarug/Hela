@@ -538,6 +538,8 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::post('items/create-inventory-items', 'Merchandising\Item\ItemController@create_inventory_items');
+    Route::post('items/load_item_edit', 'Merchandising\Item\ItemController@load_item_edit');
+    Route::post('items/update_item_edit', 'Merchandising\Item\ItemController@update_item_edit');
     Route::apiResource('items','Merchandising\Item\ItemController');
 
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
