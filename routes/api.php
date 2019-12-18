@@ -767,4 +767,5 @@ Route::prefix('reports/')->group(function(){
 
 Route::prefix('common/')->group(function(){
   Route::apiResource('load_costing_id','Reports\CommonController');
+  Route::apiResource('user_locations','Reports\CommonController');
 });
