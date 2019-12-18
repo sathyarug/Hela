@@ -15,6 +15,8 @@ use App\Models\Merchandising\Item\PropertyValueAssign;
 //use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\Costing\CostingItem;
 use App\Models\Merchandising\Item\Item;
+use App\Models\Merchandising\Item\Item_History;
+use App\Models\Org\Supplier;
 
 
 class ItemController extends Controller
@@ -64,6 +66,12 @@ class ItemController extends Controller
             'data' => $this->item_selector_list($search_type, $category, $sub_category, $search)
           ]);
         }
+        else if($type == 'get_items_from_group_id'){
+          $group_id = $request->group_id;
+          return response([
+            'data' => $this->get_items_from_group_id($group_id)
+          ]);
+        }
         else {
         /*  $active = $request->active;
           $fields = $request->fields;
@@ -96,6 +104,7 @@ class ItemController extends Controller
           else{
             $item->fill($request->all());
             $item->master_description = strtoupper($item->master_description);
+
             $item->status=1;
             $item->save();
 
@@ -376,13 +385,71 @@ class ItemController extends Controller
       }
     }
 
+    public function load_item_edit(Request $request){
+      $items = $request->item_id;
+
+      $list = Item::select('item_master.master_id','item_master.master_description','org_color.color_code','org_size.size_name','merc_color_options.color_option','item_master.supplier_reference','org_supplier.supplier_id','org_supplier.supplier_name','item_master.standard_price','item_master.moq','item_master.mcq')
+      ->leftjoin('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+      ->leftjoin('org_size', 'item_master.size_id', '=', 'org_size.size_id')
+      ->leftjoin('merc_color_options', 'item_master.color_option', '=', 'merc_color_options.col_opt_id')
+      ->leftjoin('org_supplier', 'item_master.supplier_id', '=', 'org_supplier.supplier_id')
+      ->where('item_master.master_id', '=',  $items )
+      ->get();
+
+      return response([
+        'data' => [
+          'list' => $list
+        ]
+      ] , 200);
+
+    }
+
+    public function update_item_edit(Request $request){
+
+      $lines          = $request->lines;
+
+      if($lines != null && sizeof($lines) >= 1){
+      for($y = 0 ; $y < sizeof($lines) ; $y++){
+
+        $max_no = Item_History::where('master_id','=',$lines[$y]['master_id'])->max('version');
+        if($max_no == NULL){ $max_no= 0;}
+
+        $supplier = Supplier::where('supplier_name','=',$lines[$y]['supplier_name'])->first();
+
+        Item::where('master_id', $lines[$y]['master_id'])
+            ->update(['supplier_id' => $supplier->supplier_id,
+                      'standard_price' => $lines[$y]['standard_price'],
+                      'moq' => $lines[$y]['moq'],
+                      'mcq' => $lines[$y]['mcq'] ]);
+
+        $item_history = new Item_History();
+        $item_history->master_id            = $lines[$y]['master_id'];
+        $item_history->version              = $max_no + 1;
+        $item_history->standard_price       = $lines[$y]['standard_price'];
+        $item_history->supplier_id          = $supplier->supplier_id;
+        $item_history->moq                  = $lines[$y]['moq'];
+        $item_history->mcq                  = $lines[$y]['mcq'];
+        $item_history->save();
+
+      }
+
+      return response([
+              'data' => [
+              'status' => 'success',
+              'message' => 'Update successfully.'
+          ]
+         ] , 200);
+    }
+
+
+    }
 
     public function create_inventory_items(Request $request){
       $items = $request->items;
       $parent_item = Item::with(['uoms'])->find($request->item_data['parent_item_id']);
       $category = Category::find($parent_item->category_id);
       $uom_list = $parent_item->uoms;
-
+      $group_id = uniqid($parent_item->master_id/*prefix*/);
       $arr = [];
       //echo json_encode($parent_item);die();
       $res_arr = [];
@@ -400,6 +467,7 @@ class ItemController extends Controller
           $i->supplier_id = ($request->item_data['supplier_id'] == null) ? null : $request->item_data['supplier_id']['supplier_id'];
           $i->supplier_reference = $request->item_data['supplier_reference'];
           $i->color_wise = ($request->item_data['color_wise'] == true) ? 1 : 0;
+          $i->color_option = ($request->item_data['color_option'] == true) ? 1 : 0;
           $i->size_wise = ($request->item_data['size_wise'] == true) ? 1 : 0;
           $i->color_id = $item['color_id'];
           $i->size_id = $item['size_id'];
@@ -407,6 +475,7 @@ class ItemController extends Controller
           $i->moq = $item['moq'];
           $i->mcq = $item['mcq'];
           $i->status = 1;
+          $i->group_id = $group_id;
           $i->save();
           //generate item codes
           $i->master_code = $category->category_code . str_pad($i->master_id, 7, '0', STR_PAD_LEFT);
@@ -433,7 +502,8 @@ class ItemController extends Controller
       return response(['data' => [
         'status' => 'success',
         'message' => 'Item created successfully',
-        'items' => $res_arr
+        'items' => $res_arr,
+        'group_id' => $group_id
         ]]);
     }
 
@@ -541,6 +611,11 @@ class ItemController extends Controller
     }
 
 
+    private function get_items_from_group_id($group_id){
+      $list = Item::select('item_master.*')
+      ->where('group_id', '=', $group_id)->get();
+      return $list;
+    }
 
   /*  public function GetItemList(Request $data){
 
