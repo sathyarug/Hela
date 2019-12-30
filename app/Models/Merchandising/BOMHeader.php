@@ -15,6 +15,23 @@ class BOMHeader extends Model
 
     protected $fillable = ['bom_id', 'costing_id'];
 
+
+    //Relationships.............................................................
+
+    public function finish_good()
+    {
+        return $this->belongsTo('App\Models\Merchandising\Item\Item', 'fng_id')->select(['master_id', 'master_code', 'master_description']);
+    }
+
+    public function country()
+    {
+        return $this->belongsTo('App\Models\Org\Country', 'country_id')->select(['country_id', 'country_code', 'country_description']);
+    }
+
+
+
+
+
     public function getBOMOrderQty($bomID){
 
         return DB::table('merc_customer_order_details')->select(DB::raw("SUM(order_qty) AS Order_Qty"))

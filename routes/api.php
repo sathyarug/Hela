@@ -440,6 +440,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
+    Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');

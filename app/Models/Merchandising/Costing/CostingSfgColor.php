@@ -18,6 +18,17 @@ class CostingSfgColor extends BaseValidator {
 
     protected $fillable = ['sfg_color_id', 'fng_color_id', 'color_id'];
 
+    //Relationships.............................................................
+
+    public function product_component()
+    {
+        return $this->belongsTo('App\Models\Merchandising\ProductComponent', 'product_component_id')->select(['product_component_description']);
+    }
+
+    public function product_silhouette()
+    {
+        return $this->belongsTo('App\Models\Merchandising\ProductSilhouette', 'product_silhouette_id')->select(['product_silhouette_description']);
+    }
 
     //Validation functions......................................................
     /**
