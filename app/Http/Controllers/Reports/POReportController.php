@@ -12,7 +12,6 @@ use App\Models\Merchandising\BOMDetails;
 use App\Models\Core\Status;
 use App\Models\Merchandising\PoOrderHeader;
 
-
 class POReportController extends Controller
 { 
 
@@ -71,73 +70,71 @@ class POReportController extends Controller
       $pcd_to = $data['pcd_to'];
       $status = $data['data']['po_status']['status'];
 
-      $query = DB::table('bom_details')
-      ->join('bom_header','bom_header.bom_id','=','bom_details.bom_id')
-      ->join('merc_customer_order_details','bom_header.delivery_id','=','merc_customer_order_details.details_id')
-      ->join('item_master','bom_details.master_id','=','item_master.master_id')
-      ->leftJoin('org_color','bom_details.color_id','=','org_color.color_id')
-      ->leftJoin('mat_ratio','bom_details.id','=','mat_ratio.bom_detail_id')
-      ->leftJoin('org_size','mat_ratio.size_id','=','org_size.size_id')
-      ->join('org_uom','bom_details.uom_id','=','org_uom.uom_id')
-      ->leftJoin('org_supplier','bom_details.supplier_id','=','org_supplier.supplier_id')
-      ->join('org_location','merc_customer_order_details.projection_location','=','org_location.loc_id')
+      $query = DB::table('merc_shop_order_header')
+      ->join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
+      ->join('merc_shop_order_delivery','merc_shop_order_header.shop_order_id','=','merc_shop_order_delivery.shop_order_id')
+      ->join("merc_customer_order_details",function($join){
+         $join->on("merc_shop_order_delivery.delivery_id","=","merc_customer_order_details.details_id")
+              ->on("merc_shop_order_header.fg_id","=","merc_customer_order_details.fng_id");
+      })
       ->join('merc_customer_order_header','merc_customer_order_details.order_id','=','merc_customer_order_header.order_id')
       ->join('cust_customer','merc_customer_order_header.order_customer','=','cust_customer.customer_id')
       ->join('style_creation','merc_customer_order_header.order_style','=','style_creation.style_id')
-      ->join('item_category','bom_details.category_id','=','item_category.category_id')
-      ->join('org_origin_type','bom_details.origin_type_id','=','org_origin_type.origin_type_id')
+      ->join('item_master AS MAT','merc_shop_order_detail.inventory_part_id','=','MAT.master_id')
+      ->join('item_master AS FNG','merc_customer_order_details.fng_id','=','FNG.master_id')
+      ->leftJoin('org_color AS STY_COLOUR','FNG.color_id','=','STY_COLOUR.color_id')
+      ->leftJoin('org_color AS MAT_COL','MAT.color_id','=','MAT_COL.color_id')
+      ->leftJoin('org_size AS MAT_SIZE','MAT.size_id','=','MAT_SIZE.size_id')
+      ->leftJoin('org_uom','merc_shop_order_detail.purchase_uom','=','org_uom.uom_id')
+      ->leftJoin('org_supplier','merc_shop_order_detail.supplier','=','org_supplier.supplier_id')
+      ->join('org_location','merc_customer_order_details.projection_location','=','org_location.loc_id')
+      ->join('org_origin_type','merc_shop_order_detail.orign_type_id','=','org_origin_type.origin_type_id')
+      ->join('item_category','MAT.category_id','=','item_category.category_id')
       ->join('merc_bom_stage','merc_customer_order_header.order_stage','=','merc_bom_stage.bom_stage_id')
-      ->leftJoin('org_color AS OC','mat_ratio.color_id','=','OC.color_id')
-      ->select('bom_details.bom_id',
-      'merc_customer_order_details.po_no AS cus_po',
-      'bom_details.master_id',
-      'item_master.master_description',
-      'org_color.color_name AS color_name',
-      'mat_ratio.color_id AS material_color_id',
-      'OC.color_name AS material_color',
-      'org_size.size_name AS size_name',
-      'org_uom.uom_code',
-      'org_supplier.supplier_name',
-      'bom_details.bom_unit_price AS unit_price',
-      'bom_details.moq',
-      'bom_details.mcq',
+      ->select('merc_shop_order_header.shop_order_id',
+      'merc_shop_order_detail.shop_order_detail_id',
+      'merc_shop_order_detail.bom_id',
+      'merc_shop_order_delivery.delivery_id',
+      'merc_customer_order_header.order_stage',
+      'merc_bom_stage.bom_stage_description',
+      'cust_customer.customer_name',
+      'style_creation.style_no',
+      'merc_customer_order_header.order_code',
+      'merc_customer_order_details.po_no',
       'merc_customer_order_details.pcd',
+      'merc_customer_order_details.fng_id',
+      'FNG.master_code AS fng_number',
+      'MAT.master_code AS mat_code',
+      'MAT.master_description',
+      'STY_COLOUR.color_id',
+      'STY_COLOUR.color_name',
+      'MAT_COL.color_id AS material_color_id',
+      'MAT_COL.color_name AS material_color',
+      'MAT_SIZE.size_id',
+      'MAT_SIZE.size_name',
+      'org_uom.uom_id',
+      'org_uom.uom_code',
+      'org_supplier.supplier_id',
+      'org_supplier.supplier_name',
+      'merc_shop_order_detail.unit_price',
+      'merc_customer_order_details.order_qty',
+      'merc_shop_order_detail.gross_consumption',
+      'MAT.moq',
+      'MAT.mcq',
       'org_location.loc_id',
       'org_location.loc_name',
-      'bom_details.id AS bom_detail_id',
-      'mat_ratio.id as mat_id',
-      'bom_details.color_id',
-      'mat_ratio.size_id',
-      'org_uom.uom_id',
-      'org_supplier.supplier_id',
-      'merc_customer_order_header.order_stage',
+      'merc_shop_order_detail.inventory_part_id',
       'merc_customer_order_details.ship_mode',
-      'item_category.category_name',
-      'org_origin_type.origin_type',
       'org_origin_type.origin_type_id',
-      'cust_customer.customer_name',
-      'merc_bom_stage.bom_stage_description',
+      'org_origin_type.origin_type',
+      'item_category.category_id',
+      'item_category.category_name',
       'merc_customer_order_header.order_status',
-      DB::raw("(CASE WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty ELSE mat_ratio.required_qty END) AS order_qty"),
-      DB::raw("(SELECT Sum(MPD.req_qty)AS received_qty
-          FROM merc_po_order_details AS MPD
-          WHERE
-          MPD.bom_id = bom_details.bom_id AND
-          MPD.bom_detail_id = bom_details.id AND
-          (MPD.mat_id IS NULL OR MPD.mat_id = mat_ratio.id OR
-          MPD.size = mat_ratio.size_id OR MPD.mat_colour = mat_ratio.color_id)) AS received_qty"),
-      DB::raw("(SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
-          FROM merc_po_order_details AS MPOD WHERE
-          MPOD.bom_id = bom_details.bom_id AND
-          MPOD.bom_detail_id = bom_details.id AND
-          (MPOD.mat_id IS NULL OR MPOD.mat_id = mat_ratio.id OR
-          MPOD.size = mat_ratio.size_id OR MPOD.mat_colour = mat_ratio.color_id)) AS po_nos"),
-      DB::raw("(SELECT
-          Count(EX.currency) AS ex_rate
-          FROM
-          org_exchange_rate AS EX
-          WHERE
-          EX.currency = org_supplier.currency) AS ex_rate")
+      DB::raw("(ROUND((merc_customer_order_details.order_qty * merc_shop_order_detail.gross_consumption),4)) AS total_qty"),
+      DB::raw("(DATE_FORMAT(merc_customer_order_details.pcd,'%d-%b-%Y')) AS pcd_01"),
+      DB::raw("(SELECT COUNT(EX.currency)AS ex_rate FROM org_exchange_rate AS EX WHERE EX.currency = org_supplier.currency) AS ex_rate"),
+      DB::raw("(IFNULL(merc_shop_order_detail.po_qty,0)) AS req_qty"),
+      DB::raw("(IFNULL(merc_shop_order_detail.po_balance_qty,0)) AS po_balance_qty")
       );
       if($customer!=null || $customer!=""){
         $query->where('cust_customer.customer_id', $customer);
@@ -148,17 +145,17 @@ class POReportController extends Controller
       if($style!=null || $style!=""){
         $query->where('style_creation.style_no', $style);
       }
-      if($item!=null || $item!=""){
-        $query->where('bom_details.master_id', $item);
-      }
       if($supplier!=null || $supplier!=""){
-        $query->where('bom_details.supplier_id', $supplier);
+        $query->where('merc_shop_order_detail.supplier', $supplier);
       }
       if($cus_po!=null || $cus_po!=""){
         $query->where('merc_customer_order_details.po_no', $cus_po);
       }
       if($sales_order!=null || $sales_order!=""){
         $query->where('merc_customer_order_header.order_code', $sales_order);
+      }
+      if($item!=null || $item!=""){
+        $query->where('merc_shop_order_detail.inventory_part_id', $item);
       }
       if($pcd_from!=null || $pcd_from!=""){
         $query->whereBetween('merc_customer_order_details.pcd', [date("Y-m-d",strtotime($pcd_from)), date("Y-m-d",strtotime($pcd_to))]);
@@ -175,6 +172,7 @@ class POReportController extends Controller
       ]);
 
   }
+
 
   private function load_po_header($data)
   {

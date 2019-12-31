@@ -19,7 +19,7 @@ class Costing extends BaseValidator {
     protected $fillable = [
       'style_id', 'bom_stage_id', 'season_id', 'color_type_id', 'total_order_qty',
       'fob', 'planned_efficiency', 'cost_per_std_min', 'pcd', 'cost_per_std_min','upcharge',
-      'upcharge_reason', 'design_source_id'];
+      'upcharge_reason', 'design_source_id', 'buy_id', 'style_type'];
 
     protected $rules = array(
         'style_id' => 'required',
@@ -36,7 +36,7 @@ class Costing extends BaseValidator {
 
     public function style()
     {
-        return $this->belongsTo('App\Models\Merchandising\StyleCreation', 'style_id')->select(['style_id', 'style_no', 'style_description']);
+        return $this->belongsTo('App\Models\Merchandising\StyleCreation', 'style_id')->select(['style_id', 'style_no', 'style_description', 'product_feature_id', 'product_silhouette_id','division_id']);
     }
 
     public function bom_stage()
@@ -57,6 +57,21 @@ class Costing extends BaseValidator {
     public function upcharge_reason()
     {
         return $this->belongsTo('App\Models\Org\Cancellation\CancellationReason', 'upcharge_reason')->select(['reason_id', 'reason_description']);
+    }
+
+    public function buy()
+    {
+        return $this->belongsTo('App\Models\Merchandising\BuyMaster', 'buy_id')->select(['buy_id', 'buy_name']);
+    }
+
+    public function design_source()
+    {
+        return $this->belongsTo('App\Models\Merchandising\Costing\CostingDesignSource', 'design_source_id')->select(['design_source_id', 'design_source_name']);
+    }
+
+    public function pack_type()
+    {
+        return $this->belongsTo('App\Models\Org\PackType', 'style_type')->select(['style_type', 'style_type_name']);
     }
 
 //    public static function boot()
@@ -127,9 +142,18 @@ class Costing extends BaseValidator {
               `merc_costing_so_combine`.`color`
           ORDER BY
               `costing_bulk`.`bulk_costing_id` ASC');
-
-
     }
 
+    //other functions...........................................................
+
+    public function calculate_epm($fob, $total_rm_cost, $smv){
+      $epm = ($smv == 0) ? 0 : ($fob - $total_rm_cost) / $smv; //(fob - rm cost) / smv
+      return round($epm, 4, PHP_ROUND_HALF_UP ); //round and return
+    }
+
+    public function calculate_np($fob, $total_cost){
+      $np = ($total_cost == 0) ? 0 : ($total_cost - $fob) / $total_cost; //(total cost - fob) / total cost
+      return round($np, 4, PHP_ROUND_HALF_UP ); //round and return
+    }
 
 }

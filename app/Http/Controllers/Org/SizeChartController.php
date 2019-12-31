@@ -26,6 +26,16 @@ class SizeChartController extends Controller
         $data = $request->all();
         return response($this->datatable_search($data));
       }
+      else if($type == 'auto')    {
+        $search = $request->search;
+        return response($this->autocomplete_search($search));
+      }
+      else if($type == 'chart_sizes'){
+        $size_chart_id = $request->size_chart_id;
+        return response([
+          'data' => $this->load_saved_sizes($size_chart_id)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -134,7 +144,7 @@ class SizeChartController extends Controller
     {
       $data = SizeChartSizes::join('org_size','org_size_chart_sizes.size_id','=','org_size.size_id')
       ->select('org_size_chart_sizes.size_id','size_name')
-      ->where('size_chart_id' ,'=', $id)
+      ->where('org_size_chart_sizes.size_chart_id' ,'=', $id)
       ->orderBy('size_name','ASC')
       ->get();
       return $data;
@@ -199,13 +209,20 @@ class SizeChartController extends Controller
           $fields = explode(',', $fields);
           $query = Color::select($fields);
         }
-        
+
         if($active != null && $active != ''){
           $query->where([['status', '=', $active]]);
         }
         return $query->get();
      }
 
+
+    private function autocomplete_search($search)
+   	{
+   		$size_lists = SizeChart::select('size_chart_id', 'chart_name', 'description')
+   		->where([['chart_name', 'like', '%' . $search . '%'],]) ->get();
+   		return $size_lists;
+   	}
 
     //get searched data for datatable plugin format
     private function datatable_search($data)

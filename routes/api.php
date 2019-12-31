@@ -430,19 +430,28 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::get('loadCostingDataForCombine','Merchandising\Costing\CostingController@getCostingDataForCombine');
     Route::get('costing/validate' , 'Merchandising\Costing\CostingController@validate_data');
-    Route::post('costing/finish-good/copy','Merchandising\Costing\CostingController@copy_finish_good');
+    //Route::post('costing/finish-good/copy','Merchandising\Costing\CostingController@copy_finish_good');
     Route::post('costing/finish-good/delete','Merchandising\Costing\CostingController@delete_finish_good');
 
     Route::post('costing/copy','Merchandising\Costing\CostingController@copy');
     Route::post('costing/approval/send','Merchandising\Costing\CostingController@send_to_approval');
     Route::get('costing/approve','Merchandising\Costing\CostingController@approve_costing');
+    Route::post('costing/update-size-chart', 'Merchandising\Costing\CostingController@update_size_chart');
+    Route::post('costing/save-costing-colors', 'Merchandising\Costing\CostingController@save_costing_colors');
+    Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
+    Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
+    Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
+    Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
 
-    Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
-    Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
-    Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+    //Route::post('costing-finish-good-items-save','Merchandising\Costing\CostingFinishGoodItemController@save_items');
+    //Route::post('costing-finish-good-items-copy','Merchandising\Costing\CostingFinishGoodItemController@copy');
+    //Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
+    Route::post('costing-items-save','Merchandising\Costing\CostingItemController@save_items');
+    Route::post('costing-items-copy','Merchandising\Costing\CostingItemController@copy');
+    Route::apiResource('costing-items','Merchandising\Costing\CostingItemController');
 
     Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
 
@@ -531,6 +540,8 @@ Route::prefix('merchandising/')->group(function(){
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::post('items/create-inventory-items', 'Merchandising\Item\ItemController@create_inventory_items');
+    Route::post('items/load_item_edit', 'Merchandising\Item\ItemController@load_item_edit');
+    Route::post('items/update_item_edit', 'Merchandising\Item\ItemController@update_item_edit');
     Route::apiResource('items','Merchandising\Item\ItemController');
 
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
@@ -749,8 +760,21 @@ Route::prefix('reports/')->group(function(){
   Route::get('view-costing','Reports\CostingReportController@viewCostingDetails');
   //Costing variance Report
   Route::get('view-costing-variance','Reports\CostingReportController@viewCostingVersionDetails');
+  //Inventory ageing Report
+  Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
+  //Pick List
+  Route::apiResource('load_pick_list','Reports\PickListController');
+  //Costing variance Report
+  Route::get('view-pick_list','Reports\PickListController@viewPickList');
+  //Barcode printing
+  Route::post('fabric_roll_barcode_print','Reports\FabticRollBarcode@getData');
+  Route::post('update_print_status','Reports\FabticRollBarcode@updatePrint');
+  Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
+  //Style list report
+  Route::post('style-list','Reports\StyleListController@getStyles');
 });
 
 Route::prefix('common/')->group(function(){
   Route::apiResource('load_costing_id','Reports\CommonController');
+  Route::apiResource('user_locations','Reports\CommonController');
 });
