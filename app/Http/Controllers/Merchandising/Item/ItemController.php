@@ -41,6 +41,10 @@ class ItemController extends Controller
           $search = $request->search;
           return response($this->autocomplete_search($search));
         }
+        else if($type == 'auto_master_code')    {
+          $search = $request->search;
+          return response($this->autocomplete_search_master_code($search));
+        }
         else if($type == 'handsontable') {
           $search = $request->search;
           $category = $request->category;
@@ -137,6 +141,13 @@ class ItemController extends Controller
   		->where([['master_description', 'like', '%' . $search . '%'],]) ->get();
   		return $master_lists;
   	}
+
+    private function autocomplete_search_master_code($search)
+    {
+      $master_lists = Item::select('master_id','master_code')
+      ->where([['master_code', 'like', '%' . $search . '%'],]) ->get();
+      return $master_lists;
+    }
 
     public function validate_data(Request $request){
 

@@ -111,7 +111,10 @@ class ShopOrderController extends Controller
     //search customer for autocomplete
     private function autocomplete_search($search)
   	{
-
+      //dd($search);
+      $shopOrder = ShopOrderHeader::select('shop_order_id')
+      ->where([['shop_order_id', 'like', '%' . $search . '%'],]) ->get();
+      return $shopOrder;
   	}
 
 

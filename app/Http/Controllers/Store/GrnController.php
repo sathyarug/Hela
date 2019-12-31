@@ -549,6 +549,7 @@ class GrnController extends Controller
           //if data set have grn id (updaated line with several new lines)
           if(isset($dataset[$i]['grn_detail_id'])==true){
             //find related grn line in detail table
+            //dd($dataset[$i]['grn_detail_id']);
             $grnDetails=GrnDetail::find($dataset[$i]['grn_detail_id']);
             //update grn qtys
             $grnDetails['grn_qty']=(float)$dataset[$i]['qty'];
@@ -591,6 +592,7 @@ class GrnController extends Controller
                  //find relted item in stock
                  $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
                                                   where item_id= $poDetails->item_code");
+                                                  //dd($findStoreStockLine);
                     $stock=Stock::find($findStoreStockLine[0]->id);
                     //check if purchase price and starned price is varied
                     if($dataset[$i]['purchase_price']!=$dataset[$i]['standard_price']){
@@ -879,7 +881,7 @@ class GrnController extends Controller
     $sub_store=SubStore::find($headerData[0]->sub_store);
 
     $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.grn_qty as pre_qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
-      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.category_id,store_grn_detail.uom as inventory_uom
+      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.master_code,item_master.category_id,store_grn_detail.uom as inventory_uom
 
       from
       store_grn_header
@@ -1101,6 +1103,64 @@ class GrnController extends Controller
             'data' => $grnLines
         ]);
     }
+    public function isreadyForTrimPackingDetails(Request $request){
+      $is_type_fabric=DB::table('item_category')->select('category_code')->where('category_id','=',$request->category_id)->first();
+      $substorewiseBins=DB::table('org_substore')->select('*')->where('substore_id','=',$request->substore_id)->get();
+      $status=0;
+      $message="";
+      $is_grn_same_qty=DB::table('store_grn_header')
+      ->select('*')
+      ->join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+      ->where('store_grn_header.inv_number','=',$request->invoice_no)
+      ->where('store_grn_header.po_number','=',$request->po_id)
+      ->where('store_grn_header.grn_id','=',$request->grn_id)
+      ->where('store_grn_detail.po_details_id','=',$request->po_line_id)
+      ->first();
+      //dd($is_grn_same_qty);
+      if($is_type_fabric->category_code=='FA'){
+        $status=0;
+        $is_grn_same_qty=null;
+        $message="Selected Item is Fabric type";
+      }
+      else if($is_type_fabric->category_code!='FA'){
+        //dd($is_type_fabric->category_code);
+      if($is_grn_same_qty==null){
+            $status=0;
+        $message="Error Can't Add Trim packing Details";
+      }
+       else if($is_grn_same_qty!=null){
+      if($is_grn_same_qty->grn_qty==$request->qty)
+     {
+       $is_aLLreaddy_trim_packing_details_added=DB::table('store_trim_packing_detail')->select('*')->where('grn_detail_id','=',$is_grn_same_qty->grn_detail_id)->first();
+          //dd($is_aLLreaddy_roll_plned);
+              if($is_aLLreaddy_trim_packing_details_added!=null){
+                $status=0;
+               $message="Trim Packing Details Already Added";
+                }
+       else{
+        $status=1;
+      }
+     }
+     else if($is_grn_same_qty->grn_qty!=$request->qty)
+        {
+           $status=0;
+           $message="Error Can't Add Trim Packing Details";
+        }
+      }
+    }
+      return response([
+          'data'=> [
+            'dataModel'=>$is_grn_same_qty,
+             'status'=>$status,
+             'message'=>$message,
+             'substoreWiseBin'=>$substorewiseBins
+            ]
+      ]);
+
+
+    }
+
+
     public function isreadyForRollPlan(Request $request){
       $is_type_fabric=DB::table('item_category')->select('category_code')->where('category_id','=',$request->category_id)->first();
       $substorewiseBins=DB::table('org_substore')->select('*')->where('substore_id','=',$request->substore_id)->get();

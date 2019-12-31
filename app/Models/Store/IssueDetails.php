@@ -13,7 +13,9 @@ use App\BaseValidator;
 class IssueDetails extends BaseValidator
 {
     protected $table='store_issue_detail';
-    protected $primaryKey='id';
+    protected $primaryKey='issue_detail_id';
+    const UPDATED_AT='updated_date';
+    const CREATED_AT='created_date';
 
     protected $fillable=['issue_id','so_no', 'cus_po','item_code','material_code', 'color','size', 'grn_no', 'qty', 'uom' ];
 
