@@ -534,7 +534,10 @@ Route::prefix('merchandising/')->group(function(){
   //  Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
   //  Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
 
-    Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    //Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    Route::post('bom/save-item','Merchandising\BomController@save_item');
+    Route::post('bom/remove-item','Merchandising\BomController@remove_item');
+    Route::post('bom/copy-item','Merchandising\BomController@copy_item');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
