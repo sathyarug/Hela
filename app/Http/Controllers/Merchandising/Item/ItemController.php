@@ -240,22 +240,23 @@ class ItemController extends Controller
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->whereNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('item_master.master_description', 'like', $search.'%')
+              ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+              ->orWhere('item_category.category_name', 'like', $search.'%');
+              })
+
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $item_count = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->whereNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('item_master.master_description', 'like', $search.'%')
+              ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+              ->orWhere('item_category.category_name', 'like', $search.'%');
+              })
       ->count();
 
       return [
@@ -453,6 +454,7 @@ class ItemController extends Controller
       $arr = [];
       //echo json_encode($parent_item);die();
       $res_arr = [];
+      $count=0;
       foreach($items as $item) {
         $exists_item = Item::where('master_description', '=', $item['master_description'])->first();
         if($exists_item == null) {//not a duplicate
@@ -491,6 +493,8 @@ class ItemController extends Controller
           $item['master_id'] = $i->master_id;
           $item['master_code'] = $i->master_code;
           $item['save_status'] = 'SAVE';
+
+          $count++;
         }
         else {//already exists item
           $item['master_id'] = $exists_item->master_id;
@@ -503,7 +507,8 @@ class ItemController extends Controller
         'status' => 'success',
         'message' => 'Item created successfully',
         'items' => $res_arr,
-        'group_id' => $group_id
+        'group_id' => $group_id,
+        'count' => $count
         ]]);
     }
 
