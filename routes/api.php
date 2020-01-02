@@ -351,6 +351,7 @@ Route::prefix('stores/')->group(function(){
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
+  Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
   //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
 });
@@ -440,6 +441,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
+    Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
@@ -634,9 +636,16 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('bin-config','Store\BinConfigController');
     Route::get('mrn/loadDetails','Store\MrnController@loadDetails');
     Route::apiResource('mrn','Store\MrnController');
+    Route::post('mrn/filterData','Store\MrnController@filterData');
+    Route::post('issue/confirm-issue-data','Store\IssueController@confirmIssueData');
     Route::apiResource('issue','Store\IssueController');
     Route::apiResource('return-to-stores','Store\ReturnToStoresController');
     Route::apiResource('roll','Store\RollPlanController');
+    Route::apiResource('trimPacking','Store\TrimPackingController');
+    Route::get('loadMrnData','Store\IssueController@loadMrnData');
+    Route::get('loadBinDetails','Store\IssueController@loadBinDetails');
+
+
 });
 
 

@@ -6,11 +6,13 @@ use App\Models\Merchandising\StyleCreation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchandising\CustomerOrder;
+use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Org\Customer;
 use App\Models\Org\Division;
 use App\Models\Admin\ProcessApproval;
 use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\PoOrderHeader;
+use App\Models\Merchandising\Item\Item;
 use App\Models\Store\GrnHeader;
 use DB;
 
@@ -57,38 +59,74 @@ class DashBoardController extends Controller
            return response([
                'cus_data' => $this->loadPendingGrnData()
            ]);
+       }elseif($request->type == 'load-item-creation'){
+
+           return response([
+               'cus_data' => $this->loadItemApprovalData()
+           ]);
        }
 
 
     }
 
-    public function loadPendingGrnData(){
-        $style = PoOrderHeader::select(DB::raw('COUNT(merc_po_order_header.po_id) as count'))
-            ->join('store_grn_header', 'store_grn_header.po_number', '<>', 'merc_po_order_header.po_id')
-            ->where('merc_po_order_header.status', '=', 1)
-            //->groupBy('style_creation.customer_id')
+    public function loadItemApprovalData(){
+        $itemApp = Item::select('master_id')
+            ->where('status', '=', 1)
+            ->whereNull('approval_status')
+            ->where('created_by', '=', auth()->user()->user_id)
             ->get()
             ->toArray();
 
-        return $style;
+        return count($itemApp);
+
+    }
+
+    public function loadPendingGrnData(){
+        $grn = DB::select('SELECT
+                    `merc_customer_order_details`.`order_id`,
+                    `store_grn_detail`.`grn_id`
+                FROM
+                    `merc_customer_order_details`
+                LEFT JOIN `store_grn_detail` ON `store_grn_detail`.`shop_order_id` = `merc_customer_order_details`.`shop_order_id`
+                WHERE
+                    `merc_customer_order_details`.`created_by` = '.auth()->user()->user_id.'
+                    AND merc_customer_order_details.rm_in_date < NOW()
+                GROUP BY
+                    `merc_customer_order_details`.`order_id`
+                HAVING
+                    `store_grn_detail`.`grn_id` IS NULL');
+
+        return count($grn);
     }
 
     public function loadOrderStatus(){
         //$customer['customers'] = Customer::pluck('customer_name')->toArray();
-        $style = StyleCreation::select('style_creation.customer_id', 'cust_customer.customer_name',DB::raw('COUNT(style_id) as count'))
+        $style = StyleCreation::select('style_creation.customer_id', 'cust_customer.customer_name',DB::raw('COUNT(style_creation.style_id) as count'))
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
+            ->join('ie_component_smv_header', 'style_creation.style_id', '=', 'ie_component_smv_header.style_id')
             ->where('style_creation.status', '=', 1)
+            ->whereNotNull('ie_component_smv_header.total_smv')
             ->groupBy('style_creation.customer_id')
             ->get()
             ->toArray();
 
-        return $style;
+        $pending = StyleCreation::select('style_creation.customer_id', 'cust_customer.customer_name',DB::raw('COUNT(*) as count'))
+            ->join('cust_customer', 'cust_customer.customer_id', '=', 'style_creation.customer_id')
+            ->leftjoin('ie_component_smv_header', 'style_creation.style_id', '=', 'ie_component_smv_header.style_id')
+            ->where('style_creation.status', '=', 1)
+            ->whereNull('ie_component_smv_header.total_smv')
+            ->groupBy('style_creation.customer_id')
+            ->groupBy('ie_component_smv_header.style_id')
+            ->get()
+            ->toArray();
+
+        return $pending;
     }
 
     public function loadPendingSmvData($custId){
         $custDivisions = Customer::select('cust_customer.customer_code', 'cust_division.division_description')
             ->join('cust_division', 'cust_division.customer_code', '=', 'cust_customer.customer_code')
-            ->where('cust_customer.customer_id', '=', 3)
+            ->where('cust_customer.customer_id', '=', $custId)
             ->where('cust_division.status', '=', 1)
             ->groupBy('cust_customer.customer_id')
             ->get()
@@ -107,31 +145,37 @@ class DashBoardController extends Controller
 
         foreach($custDivisions as $division ){
 
-            $upCount = StyleCreation::select(DB::raw("count(`ie_component_smv_header`.style_id) as updated"), "cust_division.division_description")
+            $upCount = StyleCreation::select('ie_component_smv_header.style_id', "cust_division.division_description")
                 ->join('ie_component_smv_header','ie_component_smv_header.style_id', '=', 'style_creation.style_id' )
                 ->join('cust_division','cust_division.division_id', '=', 'style_creation.division_id' )
                 ->where('style_creation.status', '=', 1)
                 ->where('style_creation.customer_id', '=', $custId)
                 ->where('cust_division.customer_code', '=', $division['customer_code'])
                 ->groupBy('style_creation.division_id')
+                ->groupBy('ie_component_smv_header.style_id')
                 ->get();
 
-
-            //$smvData[$division['customer_code']]['updated']
-            $output['updated'][$division['division_description']]= $upCount[0]['updated'];
+            $output['updated'][$division['division_description']]= count($upCount);
 
 
-            $pendCount = StyleCreation::select(DB::raw("count(`ie_component_smv_header`.style_id) as pending"), "cust_division.division_description")
-                ->join('ie_component_smv_header','ie_component_smv_header.style_id', '<>', 'style_creation.style_id' )
-                ->join('cust_division','cust_division.division_id', '=', 'style_creation.division_id' )
-                ->where('style_creation.status', '=', 1)
-                ->where('style_creation.customer_id', '=', $custId)
-                ->groupBy('style_creation.division_id')
-                ->get()
-                ->toArray();
+            $pendCount = DB::select('SELECT
+                                    `style_creation`.style_id,	
+                                    `cust_division`.`division_description`,
+                                    ie_component_smv_header.total_smv
+                                FROM
+                                    `style_creation`
+                                LEFT JOIN `ie_component_smv_header` ON `ie_component_smv_header`.`style_id` = `style_creation`.`style_id`
+                                INNER JOIN `cust_division` ON `cust_division`.`division_id` = `style_creation`.`division_id`
+                                WHERE
+                                    `style_creation`.`status` = 1
+                                AND `style_creation`.`customer_id` = '.$custId.'
+                                AND  `cust_division`.`customer_code` = "'.$division['customer_code'].'"
+                                GROUP BY
+                                    `style_creation`.`division_id`
+                                HAVING total_smv IS NULL');
 
-            $output['pending'][$division['division_description']]= $upCount[0]['updated'];
-            //$smvData[$division['customer_code']]['pending'] = $upCount[0]['pending'];
+            $output['pending'][$division['division_description']]= count($pendCount);;
+
         }
         $output['divisions'] = $custDivisions;
 
