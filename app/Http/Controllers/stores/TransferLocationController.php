@@ -15,7 +15,8 @@ use App\Models\stores\TransferLocationUpdate;
 use App\models\stores\GatePassHeader;
 use App\models\stores\GatePassDetails;
 use App\models\store\StockTransaction;
-
+use App\Models\Merchandising\ShopOrderHeader;
+use App\Models\Merchandising\ShopOrderDetail;
 
 
  class TransferLocationController extends Controller{
@@ -68,14 +69,16 @@ use App\models\store\StockTransaction;
 
     private function styleFromSearch($searchFrom, $searchTo){
 
-   $stylefrom=CustomerOrder::join('style_creation','merc_customer_order_header.order_style','=','style_creation.style_id')
-                          //->join('merc_customer_order_details','merc_cutomer_order_header.order_id','=','merc_customer_order_details.order_id')
+   $stylefrom=ShopOrderHeader::join('bom_header','merc_shop_order_header.shop_order_id','=','bom_header.bom_id')
+                           ->join('costing','merc_shop_order_header.costing_id','=','costing.order_id')
+                          ->join('style_creation','merc_po_order_header.style_id','=','style_creation.style_id')
                           ->select('style_creation.style_no')
                           ->where('merc_customer_order_header.order_code','=',$searchFrom)
                           ->where('style_creation.status','=',1)
                           ->first();
-  $styleTo=CustomerOrder::join('style_creation','merc_customer_order_header.order_style','=','style_creation.style_id')
-                     //->join('merc_customer_order_details','merc_cutomer_order_header.order_id','=','merc_customer_order_details.order_id')
+  $styleTo=ShopOrderHeader::join('bom_header','merc_shop_order_header.shop_order_id','=','bom_header.bom_id')
+                          ->join('costing','merc_shop_order_header.costing_id','=','costing.order_id')
+                          ->join('style_creation','merc_po_order_header.style_id','=','style_creation.style_id')
                          ->select('style_creation.style_no')
                          ->where('merc_customer_order_header.order_code','=',$searchTo)
                          ->where('style_creation.status','=',1)
