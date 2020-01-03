@@ -180,6 +180,44 @@ class BomController extends Controller
     }
 
 
+    public function save_items(Request $request){
+      $items = $request->items;
+      if(sizeof($items)){
+        for($x = 0 ; $x < sizeof($items) ; $x++){
+          $bom_detail = null;
+          if($items[$x]['bom_detail_id'] <= 0){
+            $bom_detail = new BOMDetails();
+          }
+          else{
+            $bom_detail = BOMDetails::find($items[$x]['bom_detail_id']);
+          }
+
+          $item_data = $this->generate_item_data($items[$x]);
+
+          if($bom_detail->validate($item_data))
+          {
+            $bom_detail->fill($item_data);
+            if($item_data['bom_detail_id'] <= 0){
+              $bom_detail->status = 1;
+            }
+            $bom_detail->save();
+          }
+          else{
+            continue;
+          }
+        }
+        $this->update_bom_summary_after_modify_item($items[0]['bom_id']);
+      }
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Items saved successfully',
+          'items' => $this->get_items($items[0]['bom_id'])
+        ]
+      ]);
+    }
+
+
     public function remove_item(Request $request)
     {
         $bom_detail_id = $request->bom_detail_id;

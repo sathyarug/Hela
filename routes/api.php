@@ -537,6 +537,7 @@ Route::prefix('merchandising/')->group(function(){
 
     //Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
     Route::post('bom/save-item','Merchandising\BomController@save_item');
+    Route::post('bom/save-items','Merchandising\BomController@save_items');
     Route::post('bom/remove-item','Merchandising\BomController@remove_item');
     Route::post('bom/copy-item','Merchandising\BomController@copy_item');
     Route::apiResource('bom','Merchandising\BomController');
