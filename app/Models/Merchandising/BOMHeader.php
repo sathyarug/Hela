@@ -15,6 +15,23 @@ class BOMHeader extends Model
 
     protected $fillable = ['bom_id', 'costing_id'];
 
+
+    //Relationships.............................................................
+
+    public function finish_good()
+    {
+        return $this->belongsTo('App\Models\Merchandising\Item\Item', 'fng_id')->select(['master_id', 'master_code', 'master_description']);
+    }
+
+    public function country()
+    {
+        return $this->belongsTo('App\Models\Org\Country', 'country_id')->select(['country_id', 'country_code', 'country_description']);
+    }
+
+
+
+
+
     public function getBOMOrderQty($bomID){
 
         return DB::table('merc_customer_order_details')->select(DB::raw("SUM(order_qty) AS Order_Qty"))
@@ -33,6 +50,17 @@ class BOMHeader extends Model
                 ->where('costing_bulk_feature_details.bulkheader_id',$costingId)
                 ->groupBy('org_color.color_id','org_color.color_name')
                 ->get();
+    }
 
+    //other functions...........................................................
+
+    public function calculate_epm($fob, $total_rm_cost, $smv){
+      $epm = ($smv == 0) ? 0 : ($fob - $total_rm_cost) / $smv; //(fob - rm cost) / smv
+      return round($epm, 4, PHP_ROUND_HALF_UP ); //round and return
+    }
+
+    public function calculate_np($fob, $total_cost){
+      $np = ($total_cost == 0) ? 0 : ($total_cost - $fob) / $total_cost; //(total cost - fob) / total cost
+      return round($np, 4, PHP_ROUND_HALF_UP ); //round and return
     }
 }

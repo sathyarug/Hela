@@ -36,7 +36,7 @@ class Costing extends BaseValidator {
 
     public function style()
     {
-        return $this->belongsTo('App\Models\Merchandising\StyleCreation', 'style_id')->select(['style_id', 'style_no', 'style_description', 'product_feature_id']);
+        return $this->belongsTo('App\Models\Merchandising\StyleCreation', 'style_id')->select(['style_id', 'style_no', 'style_description', 'product_feature_id', 'product_silhouette_id','division_id']);
     }
 
     public function bom_stage()

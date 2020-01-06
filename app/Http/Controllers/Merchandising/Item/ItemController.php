@@ -15,6 +15,8 @@ use App\Models\Merchandising\Item\PropertyValueAssign;
 //use App\Models\Merchandising\BulkCostingDetails;
 use App\Models\Merchandising\Costing\CostingItem;
 use App\Models\Merchandising\Item\Item;
+use App\Models\Merchandising\Item\Item_History;
+use App\Models\Org\Supplier;
 
 
 class ItemController extends Controller
@@ -47,6 +49,10 @@ class ItemController extends Controller
         else if($type == 'auto')    {
           $search = $request->search;
           return response($this->autocomplete_search($search));
+        }
+        else if($type == 'auto_master_code')    {
+          $search = $request->search;
+          return response($this->autocomplete_search_master_code($search));
         }
         else if($type == 'handsontable') {
           $search = $request->search;
@@ -102,6 +108,7 @@ class ItemController extends Controller
           else{
             $item->fill($request->all());
             $item->master_description = strtoupper($item->master_description);
+
             $item->status=1;
             $item->save();
 
@@ -150,6 +157,13 @@ class ItemController extends Controller
   		->where([['master_description', 'like', '%' . $search . '%'],]) ->get();
   		return $master_lists;
   	}
+
+    private function autocomplete_search_master_code($search)
+    {
+      $master_lists = Item::select('master_id','master_code')
+      ->where([['master_code', 'like', '%' . $search . '%'],]) ->get();
+      return $master_lists;
+    }
 
     public function validate_data(Request $request){
 
@@ -237,22 +251,23 @@ class ItemController extends Controller
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->whereNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('item_master.master_description', 'like', $search.'%')
+              ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+              ->orWhere('item_category.category_name', 'like', $search.'%');
+              })
+
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $item_count = Item::join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->whereNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+        $query->orWhere('item_master.master_description', 'like', $search.'%')
+              ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+              ->orWhere('item_category.category_name', 'like', $search.'%');
+              })
       ->count();
 
       return [
@@ -382,6 +397,64 @@ class ItemController extends Controller
       }
     }
 
+    public function load_item_edit(Request $request){
+      $items = $request->item_id;
+
+      $list = Item::select('item_master.master_id','item_master.master_description','org_color.color_code','org_size.size_name','merc_color_options.color_option','item_master.supplier_reference','org_supplier.supplier_id','org_supplier.supplier_name','item_master.standard_price','item_master.moq','item_master.mcq')
+      ->leftjoin('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+      ->leftjoin('org_size', 'item_master.size_id', '=', 'org_size.size_id')
+      ->leftjoin('merc_color_options', 'item_master.color_option', '=', 'merc_color_options.col_opt_id')
+      ->leftjoin('org_supplier', 'item_master.supplier_id', '=', 'org_supplier.supplier_id')
+      ->where('item_master.master_id', '=',  $items )
+      ->get();
+
+      return response([
+        'data' => [
+          'list' => $list
+        ]
+      ] , 200);
+
+    }
+
+    public function update_item_edit(Request $request){
+
+      $lines          = $request->lines;
+
+      if($lines != null && sizeof($lines) >= 1){
+      for($y = 0 ; $y < sizeof($lines) ; $y++){
+
+        $max_no = Item_History::where('master_id','=',$lines[$y]['master_id'])->max('version');
+        if($max_no == NULL){ $max_no= 0;}
+
+        $supplier = Supplier::where('supplier_name','=',$lines[$y]['supplier_name'])->first();
+
+        Item::where('master_id', $lines[$y]['master_id'])
+            ->update(['supplier_id' => $supplier->supplier_id,
+                      'standard_price' => $lines[$y]['standard_price'],
+                      'moq' => $lines[$y]['moq'],
+                      'mcq' => $lines[$y]['mcq'] ]);
+
+        $item_history = new Item_History();
+        $item_history->master_id            = $lines[$y]['master_id'];
+        $item_history->version              = $max_no + 1;
+        $item_history->standard_price       = $lines[$y]['standard_price'];
+        $item_history->supplier_id          = $supplier->supplier_id;
+        $item_history->moq                  = $lines[$y]['moq'];
+        $item_history->mcq                  = $lines[$y]['mcq'];
+        $item_history->save();
+
+      }
+
+      return response([
+              'data' => [
+              'status' => 'success',
+              'message' => 'Update successfully.'
+          ]
+         ] , 200);
+    }
+
+
+    }
 
     public function create_inventory_items(Request $request){
       $items = $request->items;
@@ -392,6 +465,7 @@ class ItemController extends Controller
       $arr = [];
       //echo json_encode($parent_item);die();
       $res_arr = [];
+      $count=0;
       foreach($items as $item) {
         $exists_item = Item::where('master_description', '=', $item['master_description'])->first();
         if($exists_item == null) {//not a duplicate
@@ -406,6 +480,7 @@ class ItemController extends Controller
           $i->supplier_id = ($request->item_data['supplier_id'] == null) ? null : $request->item_data['supplier_id']['supplier_id'];
           $i->supplier_reference = $request->item_data['supplier_reference'];
           $i->color_wise = ($request->item_data['color_wise'] == true) ? 1 : 0;
+          $i->color_option = ($request->item_data['color_option'] == true) ? 1 : 0;
           $i->size_wise = ($request->item_data['size_wise'] == true) ? 1 : 0;
           $i->color_id = $item['color_id'];
           $i->size_id = $item['size_id'];
@@ -429,6 +504,8 @@ class ItemController extends Controller
           $item['master_id'] = $i->master_id;
           $item['master_code'] = $i->master_code;
           $item['save_status'] = 'SAVE';
+
+          $count++;
         }
         else {//already exists item
           $item['master_id'] = $exists_item->master_id;
@@ -441,7 +518,8 @@ class ItemController extends Controller
         'status' => 'success',
         'message' => 'Item created successfully',
         'items' => $res_arr,
-        'group_id' => $group_id
+        'group_id' => $group_id,
+        'count' => $count
         ]]);
     }
 
@@ -519,7 +597,7 @@ class ItemController extends Controller
       $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name', 'item_subcategory.subcategory_code')
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
-      ->where('item_master.master_description', 'like', '%' . $search . '%');
+      ->where('item_master.master_code', 'like', '%' . $search . '%');
 
       if($search_type == 'MATERIAL_ITEMS'){
         $list = $list->whereNull('master_code');

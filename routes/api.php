@@ -351,6 +351,7 @@ Route::prefix('stores/')->group(function(){
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
+  Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
   //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
 });
@@ -440,6 +441,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
+    Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
@@ -533,11 +535,17 @@ Route::prefix('merchandising/')->group(function(){
   //  Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
   //  Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
 
-    Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    //Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    Route::post('bom/save-item','Merchandising\BomController@save_item');
+    Route::post('bom/save-items','Merchandising\BomController@save_items');
+    Route::post('bom/remove-item','Merchandising\BomController@remove_item');
+    Route::post('bom/copy-item','Merchandising\BomController@copy_item');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
     Route::post('items/create-inventory-items', 'Merchandising\Item\ItemController@create_inventory_items');
+    Route::post('items/load_item_edit', 'Merchandising\Item\ItemController@load_item_edit');
+    Route::post('items/update_item_edit', 'Merchandising\Item\ItemController@update_item_edit');
     Route::apiResource('items','Merchandising\Item\ItemController');
 
     Route::apiResource('item-categories','Merchandising\Item\CategoryController');
@@ -632,9 +640,16 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('bin-config','Store\BinConfigController');
     Route::get('mrn/loadDetails','Store\MrnController@loadDetails');
     Route::apiResource('mrn','Store\MrnController');
+    Route::post('mrn/filterData','Store\MrnController@filterData');
+    Route::post('issue/confirm-issue-data','Store\IssueController@confirmIssueData');
     Route::apiResource('issue','Store\IssueController');
     Route::apiResource('return-to-stores','Store\ReturnToStoresController');
     Route::apiResource('roll','Store\RollPlanController');
+    Route::apiResource('trimPacking','Store\TrimPackingController');
+    Route::get('loadMrnData','Store\IssueController@loadMrnData');
+    Route::get('loadBinDetails','Store\IssueController@loadBinDetails');
+
+
 });
 
 

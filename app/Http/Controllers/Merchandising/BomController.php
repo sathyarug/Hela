@@ -12,8 +12,18 @@ use App\Models\Merchandising\BOMSOAllocation;
 use App\Models\Merchandising\MaterialRatio;
 
 use App\Models\Merchandising\StyleCreation;
+use App\Models\Org\UOM;
+use App\Models\Org\OriginType;
+use App\Models\Merchandising\ProductFeature;
+use App\Models\Merchandising\ProductComponent;
+use App\Models\Merchandising\ProductSilhouette;
+use App\Models\Merchandising\Position;
+use App\Models\Org\Color;
+use App\Models\Org\Supplier;
+use App\Models\Org\GarmentOptions;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
@@ -41,6 +51,19 @@ class BomController extends Controller
       else if($type == 'datatable') {
           $data = $request->all();
           $this->datatable_search($data);
+      }
+      else if($type == 'style_components'){
+        $bom_id = $request->bom_id;
+        return response([
+          'data' => $this->get_style_components($bom_id)
+        ]);
+      }
+      else if($type == 'style_component_silhouettes'){
+        $bom_id = $request->bom_id;
+        $component = $request->component;
+        return response([
+          'data' => $this->get_style_component_silhouettes($bom_id, $component)
+        ]);
       }
     }
 
@@ -87,13 +110,14 @@ class BomController extends Controller
 
     public function show($id)
     {
-      $bom = BomHeader::find($id);
-      $header_data = $this->get_header_data($bom->costing_id);
-      $items = $this->get_items($bom->delivery_id);
+      $bom = BomHeader::with(['finish_good', 'country'])->find($id);
+
+      //$header_data = $this->get_header_data($bom->costing_id);
+      $items = $this->get_items($bom->bom_id);
       return [
         'data' => [
           'bom' => $bom,
-          'header_data' => $header_data,
+          //'header_data' => $header_data,
           'items' => $items
         ]
       ];
@@ -116,6 +140,343 @@ class BomController extends Controller
     {
         //
     }
+
+
+
+    public function save_item(Request $request){
+      $item_data = $this->generate_item_data($request->item_data);
+      //  echo json_encode($item_data);die();
+      $bom_detail = null;
+      if($item_data['bom_detail_id'] <= 0){
+        $bom_detail = new BOMDetails();
+      }
+      else{
+        $bom_detail = BOMDetails::find($item_data['bom_detail_id']);
+      }
+
+      if($bom_detail->validate($item_data))
+      {
+        $bom_detail->fill($item_data);
+        if($item_data['bom_detail_id'] <= 0){
+          $bom_detail->status = 1;
+        }
+        $bom_detail->save();
+
+        $this->update_bom_summary_after_modify_item($bom_detail->bom_id);
+
+        $saved_item = $this->get_item($bom_detail->bom_detail_id);
+        $saved_item['edited'] = false;
+        return response([
+          'data' => [
+            'message' => 'BOM item saved successfully',
+            'item' => $saved_item
+          ]
+        ] , Response::HTTP_CREATED );
+      }
+      else{
+        $errors = $costing_item->errors();// failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+    }
+
+
+    public function save_items(Request $request){
+      $items = $request->items;
+      if(sizeof($items)){
+        for($x = 0 ; $x < sizeof($items) ; $x++){
+          $bom_detail = null;
+          if($items[$x]['bom_detail_id'] <= 0){
+            $bom_detail = new BOMDetails();
+          }
+          else{
+            $bom_detail = BOMDetails::find($items[$x]['bom_detail_id']);
+          }
+
+          $item_data = $this->generate_item_data($items[$x]);
+
+          if($bom_detail->validate($item_data))
+          {
+            $bom_detail->fill($item_data);
+            if($item_data['bom_detail_id'] <= 0){
+              $bom_detail->status = 1;
+            }
+            $bom_detail->save();
+          }
+          else{
+            continue;
+          }
+        }
+        $this->update_bom_summary_after_modify_item($items[0]['bom_id']);
+      }
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Items saved successfully',
+          'items' => $this->get_items($items[0]['bom_id'])
+        ]
+      ]);
+    }
+
+
+    public function remove_item(Request $request)
+    {
+        $bom_detail_id = $request->bom_detail_id;
+        $item = BOMDetails::find($bom_detail_id);
+        $item->delete();
+
+        $this->update_bom_summary_after_modify_item($item->bom_id);
+
+        return response([
+          'data' => [
+            'message' => 'Item was deleted successfully.',
+            'item' => $item,
+            'items' => $this->get_items($item->bom_id)
+          ]
+        ] , Response::HTTP_OK);
+    }
+
+
+    public function copy_item(Request $request){
+      $old_item = BOMDetails::find($request->bom_detail_id);
+      $new_item = $old_item->replicate();
+      $new_item->push();
+      $new_item->inventory_part_id = null;
+      $new_item->save();
+
+      $this->update_bom_summary_after_modify_item($new_item->bom_id);
+
+      return response([
+        'data' => [
+          'status' => 'success',
+          'message' => 'Item copied successfully',
+          'item' => $this->get_item($new_item->bom_detail_id)
+        ]
+      ]);
+    }
+
+
+    private function generate_item_data($item_data){
+      //$item_data['category_id'] = Category::where('category_name', '=', $item_data['category_name'])->first()->category_id;
+      //$item_data['inventory_part_id'] = Item::where('master_description', '=', $item_data['master_description'])->first()->master_id;
+      $item_data['purchase_uom_id'] = UOM::where('uom_code', '=', $item_data['uom_code'])->first()->uom_id;
+      $item_data['origin_type_id'] = OriginType::where('origin_type', '=', $item_data['origin_type'])->first()->origin_type_id;
+
+      //position
+      if($item_data['position'] != null && $item_data['position'] != ''){
+        $item_data['position_id'] = Position::where('position', '=', $item_data['position'])->first()->position_id;
+      }
+      else{
+        $item_data['position_id'] = null;
+      }
+      //item color
+      if($item_data['color_code'] != null && $item_data['color_code'] != ''){
+        $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_code'])->first()->color_id;
+      }
+      else{
+        $item_data['color_id'] = null;
+      }
+      //supplier
+      if($item_data['supplier_name'] != null && $item_data['supplier_name'] != ''){
+        $item_data['supplier_id'] = Supplier::where('supplier_name', '=', $item_data['supplier_name'])->first()->supplier_id;
+      }
+      else{
+        $item_data['supplier_id'] = null;
+      }
+      //garment options
+      if($item_data['garment_options_description'] != null && $item_data['garment_options_description'] != ''){
+        $item_data['garment_options_id'] = GarmentOptions::where('garment_options_description', '=', $item_data['garment_options_description'])->first()->garment_options_id;
+      }
+      else{
+        $item_data['garment_options_id'] = null;
+      }
+      //ship term
+      if($item_data['ship_term_description'] != null && $item_data['ship_term_description'] != ''){
+        $item_data['ship_term_id'] = ShipmentTerm::where('ship_term_description', '=', $item_data['ship_term_description'])->first()->ship_term_id;
+      }
+      else{
+        $item_data['ship_term_id'] = null;
+      }
+      //country
+      if($item_data['country_description'] != null && $item_data['country_description'] != ''){
+        $item_data['country_id'] = Country::where('country_description', '=', $item_data['country_description'])->first()->country_id;
+      }
+      else{
+        $item_data['country_id'] = null;
+      }
+      //product component
+      if($item_data['product_component_description'] != null && $item_data['product_component_description'] != ''){
+        $item_data['product_component_id'] = ProductComponent::where('product_component_description', '=', $item_data['product_component_description'])->first()->product_component_id;
+      }
+      else{
+        $item_data['product_component_id'] = null;
+      }
+      //product silhuatte
+      if($item_data['product_silhouette_description'] != null && $item_data['product_silhouette_description'] != ''){
+        $item_data['product_silhouette_id'] = ProductSilhouette::where('product_silhouette_description', '=', $item_data['product_silhouette_description'])->first()->product_silhouette_id;
+      }
+      else{
+        $item_data['product_silhouette_id'] = null;
+      }
+
+      return $item_data;
+    }
+
+
+    private function update_bom_summary_after_modify_item($bom_id){
+      //$costing_item = CostingItem::find($costing_item_id);
+      $bom = BomHeader::find($bom_id);
+
+      $fabric_cost = $this->calculate_fabric_cost($bom->bom_id);
+      $trim_cost = $this->calculate_trim_cost($bom->bom_id);
+      $packing_cost = $this->calculate_packing_cost($bom->bom_id);
+      $elastic_cost = $this->calculate_elastic_cost($bom->bom_id);
+      $other_cost = $this->calculate_other_cost($bom->bom_id);
+
+      $total_rm_cost = $this->calculate_rm_cost($bom->bom_id);
+      $finance_cost = ($total_rm_cost * $bom->finance_charges) / 100;
+      $total_cost = $total_rm_cost + $bom->labour_cost + $finance_cost + $bom->coperate_cost;//rm cost + labour cost + finance cost + coperate cost
+      $epm = $bom->calculate_epm($bom->fob, $total_rm_cost, $bom->total_smv);//calculate fg epm
+      $np = $bom->calculate_np($bom->fob, $total_cost); //calculate fg np value
+
+      $bom->total_rm_cost = round($total_rm_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->finance_cost = round($finance_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->fabric_cost = round($fabric_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->trim_cost = round($trim_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->packing_cost = round($packing_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->elastic_cost = round($elastic_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->other_cost = round($other_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->total_cost = round($total_cost, 4, PHP_ROUND_HALF_UP ); //round and assign
+      $bom->epm = $epm;
+      $bom->np_margin = $np;
+      $bom->save();
+    }
+
+
+    private function calculate_rm_cost($bom_id){
+      $cost = BOMDetails::where('bom_id', '=', $bom_id)
+      ->sum('total_cost');
+      return $cost;
+    }
+
+
+    private function calculate_fabric_cost($bom_id){
+      $cost = BOMDetails::join('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->where('bom_details.bom_id', '=', $bom_id)
+      ->where('item_category.category_code', '=', 'FAB')
+      ->sum('bom_details.total_cost');
+      return $cost;
+    }
+
+    private function calculate_trim_cost($bom_id){
+      $cost = BOMDetails::join('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->where('bom_details.costing_id', '=', $bom_id)
+      ->where('item_category.category_code', '=', 'TRM')
+      ->sum('bom_details.total_cost');
+      return $cost;
+    }
+
+    private function calculate_packing_cost($bom_id){
+      $cost = BOMDetails::join('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->where('bom_details.bom_id', '=', $bom_id)
+      ->where('item_category.category_code', '=', 'PAC')
+      ->sum('bom_details.total_cost');
+      return $cost;
+    }
+
+    private function calculate_elastic_cost($bom_id){
+      $cost = BOMDetails::join('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->where('bom_details.bom_id', '=', $bom_id)
+      ->where('item_category.category_code', '=', 'ELA')
+      ->sum('bom_details.total_cost');
+      return $cost;
+    }
+
+    private function calculate_other_cost($bom_id){
+      $cost = BOMDetails::join('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->where('bom_details.bom_id', '=', $bom_id)
+      ->where('item_category.category_code', '=', 'OTHER')
+      ->sum('bom_details.total_cost');
+      return $cost;
+    }
+
+
+    private function get_item($id){
+      $item = BOMDetails::leftjoin('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+      ->leftjoin('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->leftjoin('merc_position', 'merc_position.position_id', '=', 'bom_details.position_id')
+      ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'bom_details.purchase_uom_id')
+      ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'bom_details.origin_type_id')
+      ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'bom_details.garment_options_id')
+      ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'bom_details.ship_term_id')
+      ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
+      ->leftJoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
+      ->leftJoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
+      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id',
+        'item_master.article_no', 'item_master.master_code','item_master.master_description',
+        'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
+        'bom_details.gross_consumption', 'bom_details.meterial_type', 'bom_details.freight_charges',
+        'bom_details.mcq', 'bom_details.surcharge', 'bom_details.total_cost',
+        'bom_details.ship_mode', 'bom_details.lead_time', 'bom_details.comments',
+        'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
+        'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
+        'org_country.country_description','product_component.product_component_description','product_silhouette.product_silhouette_description')
+        ->where('bom_details.bom_detail_id', '=', $id)->first();
+        //echo json_encode($item);die();
+        return $item;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private function get_style_components($bom_id){
+      $components = BOMHeader::select('product_component.product_component_description')
+      ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
+      ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
+      ->join('product_feature', 'product_feature.product_feature_id', '=', 'style_creation.product_feature_id')
+      ->join('product_feature_component', 'product_feature_component.product_feature_id', '=', 'product_feature.product_feature_id')
+      ->join('product_component', 'product_component.product_component_id', '=', 'product_feature_component.product_component_id')
+      ->where('bom_header.bom_id', '=', $bom_id)->get()->pluck('product_component_description');
+      /*$components = DB::select("SELECT product_component.product_component_description FROM bom_header
+        INNER JOIN costing ON costing.id = bom_header.costing_id
+        INNER JOIN style_creation ON style_creation.style_id = costing.style_id
+        INNER JOIN product_feature ON product_feature.product_feature_id = style_creation.product_feature_id
+        INNER JOIN product_feature_component ON product_feature_component.product_feature_id = product_feature.product_feature_id
+        INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id
+        WHERE bom_header.bom_id = ?", [$bom_id])->pluck('product_component_description');;*/
+      return $components;
+    }
+
+
+    private function get_style_component_silhouettes($bom_id, $component){
+      $silhouettes = BOMHeader::select('product_silhouette.product_silhouette_description')
+      ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
+      ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
+      ->join('product_feature', 'product_feature.product_feature_id', '=', 'style_creation.product_feature_id')
+      ->join('product_feature_component', 'product_feature_component.product_feature_id', '=', 'product_feature.product_feature_id')
+      ->join('product_component', 'product_component.product_component_id', '=', 'product_feature_component.product_component_id')
+      ->join('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'product_feature_component.product_silhouette_id')
+      ->where('bom_header.bom_id', '=', $bom_id)
+      ->where('product_component.product_component_description', '=', $component)
+      ->get()->pluck('product_silhouette_description');
+      return $silhouettes;
+    }
+
 
     /*public function getCustOrders(Request $request){
         $customerOrder = new CustomerOrder();
@@ -430,7 +791,7 @@ class BomController extends Controller
 private function get_header_data($costing_id){
   $costing = Costing::with(['bom_stage', 'season', 'color_type'])->find($costing_id);
   $style = StyleCreation::with(['customer', 'division'])->find($costing->style_id);
-  $deliveries = $this->get_costing_connected_deliveries($costing_id);
+  //$deliveries = $this->get_costing_connected_deliveries($costing_id);
   return [
     'style_id' => $style->style_id,
     'style_no' => $style->style_no,
@@ -463,7 +824,7 @@ private function get_costing_connected_deliveries($costing_id){
 }
 
 
-private function get_items($delivery_id) {
+/*private function get_items($delivery_id) {
   $delivery = CustomerOrderDetails::find($delivery_id);
 
   $items = BOMDetails::join('bom_header', 'bom_header.bom_id', '=', 'bom_details.bom_id')
@@ -486,6 +847,35 @@ private function get_items($delivery_id) {
       DB::raw('false as edited')
    )->where('bom_header.delivery_id', '=', $delivery->details_id)->get();
   return $items;
+}*/
+
+private function get_items($bom_id){
+  $items = BOMDetails::leftjoin('item_master', 'item_master.master_id', '=', 'bom_details.inventory_part_id')
+  ->leftjoin('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+  ->leftjoin('merc_position', 'merc_position.position_id', '=', 'bom_details.position_id')
+  ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'bom_details.purchase_uom_id')
+  ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+  ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+  ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'bom_details.origin_type_id')
+  ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'bom_details.garment_options_id')
+  ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'bom_details.ship_term_id')
+  ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
+  ->leftjoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
+  ->leftjoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
+  ->select('bom_details.*','item_master.article_no', 'item_master.master_code','item_master.master_description',
+  /*->select('bom_details.costing_item_id','bom_details.inventory_part_id','bom_details.costing_id',*/
+    /*'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
+    'bom_details.gross_consumption', 'bom_details.meterial_type', 'bom_details.freight_charges',
+    'bom_details.mcq', 'bom_details.surcharge', 'bom_details.total_cost',
+    'bom_details.ship_mode', 'bom_details.lead_time', 'bom_details.comments',*/
+    'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
+    'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
+    'org_country.country_description','product_component.product_component_description','product_silhouette.product_silhouette_description')
+    ->where('bom_details.bom_id', '=', $bom_id)->orderBy('bom_details.product_component_id', 'ASC')
+    ->orderBy('bom_details.product_silhouette_id', 'ASC')
+    ->orderBy('bom_details.inventory_part_id', 'ASC')->get();
+    //echo json_encode($item);die();
+    return $items;
 }
 
 
@@ -543,14 +933,13 @@ private function datatable_search($data){
   $order_type = $order['dir'];
 
   $bom_list = BomHeader::select('bom_header.*','style_creation.style_no','merc_bom_stage.bom_stage_description',
-    'org_season.season_name', 'merc_color_options.color_option', 'merc_customer_order_details.line_no',
-    'merc_customer_order_details.order_qty')
+    'org_season.season_name', 'merc_color_options.color_option','item_master.master_code')
   ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
   ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
   ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
   ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
   ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
-  ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'bom_header.delivery_id')
+  ->join('item_master', 'item_master.master_id', '=', 'bom_header.fng_id')
   ->where('bom_header.bom_id'  , 'like', $search.'%' )
   ->orWhere('bom_header.sc_no'  , 'like', $search.'%' )
   ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
@@ -565,7 +954,7 @@ private function datatable_search($data){
   ->join('merc_bom_stage', 'merc_bom_stage.bom_stage_id', '=', 'costing.bom_stage_id')
   ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
   ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
-  ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'bom_header.delivery_id')
+  ->join('item_master', 'item_master.master_id', '=', 'bom_header.fng_id')
   ->where('bom_header.bom_id'  , 'like', $search.'%' )
   ->orWhere('bom_header.sc_no'  , 'like', $search.'%' )
   ->orWhere('style_creation.style_no'  , 'like', $search.'%' )

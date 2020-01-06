@@ -30,6 +30,10 @@ class SupplierController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'auto2')    {
+        $search = $request->search;
+        return response($this->autocomplete_search2($search));
+      }
       else if($type == 'currency')    {
         $search = $request->search;
         return response($this->currency_search($search));
@@ -179,6 +183,15 @@ class SupplierController extends Controller
       ->where('status', '=', 1)
   		->where([['supplier_name', 'like', '%' . $search . '%'],]) ->get();
   		return $supplier_lists;
+  	}
+
+    private function autocomplete_search2($search)
+  	{
+      $supplier_lists = Supplier::where([['supplier_name', 'like', '%' . $search . '%'],])
+       ->where('status','1')
+       ->pluck('supplier_name')
+       ->toArray();
+  		return  json_encode($supplier_lists);
   	}
 
 
