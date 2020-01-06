@@ -10,14 +10,18 @@ use App\Models\Merchandising\CustomerOrder;
 use App\Models\Merchandising\CustomerOrderDetails;
 use App\Models\Merchandising\StyleCreation;
 use App\Models\Finance\Item\SubCategory;
+use App\Models\Merchandising\Item\Item;
+use App\Models\stores\RollPlan;
 use App\Models\Store\Stock;
 use App\Models\stores\TransferLocationUpdate;
 use App\models\stores\GatePassHeader;
 use App\models\stores\GatePassDetails;
 use App\models\store\StockTransaction;
+use App\Models\Store\GrnHeader;
 use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
-
+use App\Models\Store\GrnDetail;
+use Illuminate\Support\Facades\DB;
 
  class TransferLocationController extends Controller{
 
@@ -69,18 +73,20 @@ use App\Models\Merchandising\ShopOrderDetail;
 
     private function styleFromSearch($searchFrom, $searchTo){
 
-   $stylefrom=ShopOrderHeader::join('bom_header','merc_shop_order_header.shop_order_id','=','bom_header.bom_id')
-                           ->join('costing','merc_shop_order_header.costing_id','=','costing.order_id')
-                          ->join('style_creation','merc_po_order_header.style_id','=','style_creation.style_id')
+   $stylefrom=ShopOrderHeader::join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
+                            ->join('bom_header','merc_shop_order_detail.bom_id','=','bom_header.bom_id')
+                           ->join('costing','merc_shop_order_detail.costing_id','=','costing.id')
+                          ->join('style_creation','costing.style_id','=','style_creation.style_id')
                           ->select('style_creation.style_no')
-                          ->where('merc_customer_order_header.order_code','=',$searchFrom)
+                          ->where('merc_shop_order_detail.shop_order_id','=',$searchFrom)
                           ->where('style_creation.status','=',1)
                           ->first();
-  $styleTo=ShopOrderHeader::join('bom_header','merc_shop_order_header.shop_order_id','=','bom_header.bom_id')
-                          ->join('costing','merc_shop_order_header.costing_id','=','costing.order_id')
-                          ->join('style_creation','merc_po_order_header.style_id','=','style_creation.style_id')
+  $styleTo=ShopOrderHeader::join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
+                          ->join('bom_header','merc_shop_order_detail.bom_id','=','bom_header.bom_id')
+                          ->join('costing','merc_shop_order_detail.costing_id','=','costing.id')
+                          ->join('style_creation','costing.style_id','=','style_creation.style_id')
                          ->select('style_creation.style_no')
-                         ->where('merc_customer_order_header.order_code','=',$searchTo)
+                         ->where('merc_shop_order_detail.shop_order_id','=',$searchTo)
                          ->where('style_creation.status','=',1)
                          ->first();
 
@@ -101,11 +107,11 @@ use App\Models\Merchandising\ShopOrderDetail;
                         $user = auth()->payload();
                         $user_location=$user['loc_id'];
 
+                        //dd($style);
 
 
 
-
-                        $details=Stock::join('style_creation','store_stock.style_id','=','style_creation.style_id')
+                    /*    $details=Stock::join('style_creation','store_stock.style_id','=','style_creation.style_id')
                                         ->join('item_master','item_master.master_id','=','store_stock.item_id')
                                         ->join('org_color','org_color.color_id','=','store_stock.color')
                                         ->join('org_size','org_size.size_id','=','store_stock.size')
@@ -119,13 +125,38 @@ use App\Models\Merchandising\ShopOrderDetail;
                                         ->get();
                                         $this->setStatuszero($details);
                                         return $details;
+                                        */
+
+
+                                        $detailsTrimPacking=GrnHeader::join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+                                                       ->Join('style_creation','store_grn_detail.style_id','=','style_creation.style_id')
+                                                      ->Join('store_trim_packing_detail','store_grn_detail.grn_detail_id','=','store_trim_packing_detail.grn_detail_id')
+                                                      ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+                                                      ->join('org_store_bin','store_trim_packing_detail.bin','=','org_store_bin.store_bin_id')
+                                                      ->select('store_trim_packing_detail.*','item_master.master_code','org_store_bin.store_bin_name','store_grn_header.main_store','store_grn_header.sub_store','store_grn_detail.style_id','store_grn_detail.size','store_grn_detail.uom','store_grn_detail.shop_order_id','store_grn_detail.shop_order_detail_id')
+                                                      ->where('style_creation.style_no','=',$style)
+                                                      ->where('store_trim_packing_detail.user_loc_id','=',$user_location);
+
+                                                  $detailsRollPlan=GrnHeader::join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
+                                                                ->join('style_creation','store_grn_detail.style_id','=','style_creation.style_id')
+                                                                ->join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+                                                                ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+                                                                ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
+                                                                ->select('store_roll_plan.*','item_master.master_code','org_store_bin.store_bin_name','store_grn_header.main_store','store_grn_header.sub_store','store_grn_detail.style_id','store_grn_detail.size','store_grn_detail.color','store_grn_detail.uom',,'store_grn_detail.shop_order_id','store_grn_detail.shop_order_detail_id')
+                                                                ->where('style_creation.style_no','=',$style)
+                                                                ->where('store_roll_plan.user_loc_id','=',$user_location)
+                                                              //  ->get();
+                                                              ->union($detailsTrimPacking)
+                                                              ->get();
+
+                                                        return $detailsRollPlan;
 
                       }
 
                       private function setStatuszero($details){
                         for($i=0;$i<count($details);$i++){
                           $id=$details[$i]["id"];
-                          $setStatusZero=TransferLocationUpdate::find($id);
+                          //$setStatusZero=TransferLocationUpdate::find($id);
                           $setStatusZero->status=0;
                           $setStatusZero->save();
 
@@ -149,15 +180,37 @@ use App\Models\Merchandising\ShopOrderDetail;
                               $id=$details[$i]["id"];
                               $gatePassHeader=new GatePassHeader();
 
-                              $stockUpdateDetails= TransferLocationUpdate::find($id);
-                              if($details[$i]["trns_qty"]!=0){
-                              $status="transfer";
-                              }
-                              $qty=$details[$i]["total_qty"]-$details[$i]["trns_qty"];
+                              $stockUpdateDetails= TransferLocationUpdate::select('*')
+                              ->where('style_id','=',$details[$i]['style_id'])
+                              ->where('item_id','=',$details[$i]['item_id'])
+                              ->where('store','=',$details[$i]['main_store'])
+                              ->where('sub_store','=',$details[$i]['sub_store_id'])
+                              ->where('bin','=',$details[$i]['bin'])
+                              ->where('location','=',$transer_location)
+                              ->first();
 
-                            $stockUpdateDetails->transfer_status=$status;
-                            $stockUpdateDetails->total_qty=$qty;
-                            $stockUpdateDetails->status=1;
+                              $itemType=Item::join('item_category','item_master.category_id','=','item_category.category_id')
+                                             ->select('item_category.category_code')
+                                             ->where('item_master.master_id','=',$details[$i]['item_code'])
+                                             ->first();
+                                               if($itemType->category_code=="FA"){
+                                                 $rollPlan=RollPlan::find($details[$i]['roll_plan_id']);
+                                                 $rollPlan->qty=$rollPlan->qty-$details[$i]['trans_qty'];
+                                                 $rollPlan->save();
+
+                                               }
+                                                 else if($itemType->category_code=!"FA") {
+                                                  $trimPacking=TrimPacking::find($details[$i]['roll_plan_id']);
+                                                  $trimPacking->qty=$trimPacking->qty-$details[$i]['trans_qty'];
+                                                  $trimPacking->save();
+
+                                                 }
+
+
+
+
+                            $stockUpdateDetails->total_qty=$stockUpdateDetails->$details[$i]['trans_qty'];
+                           //$stockUpdateDetails->status=1;
                             $stockUpdateDetails->save();
 
                           }
@@ -169,15 +222,19 @@ use App\Models\Merchandising\ShopOrderDetail;
                             $gate_pass_id=$gatePassHeader->gate_pass_id;
                             //print_r($gate_pass_id);*/
                             for($i=0;$i<count($details);$i++){
-                            $id=$details[$i]["id"];
-                            $stockUpdateDetails= TransferLocationUpdate::find($id);
+                            //$id=$details[$i]["id"];
+                            $itemType=Item::join('item_category','item_master.category_id','=','item_category.category_id')
+                                           ->select('item_category.category_code')
+                                           ->where('item_master.master_id','=',$details[$i]['item_code'])
+                                           ->first();
                             $gatePassDetails= new GatePassDetails();
                             $stockTransaction=new StockTransaction();
-                            if($stockUpdateDetails->transfer_status=="transfer"){
+                            //if($stockUpdateDetails->transfer_status=="transfer"){
                             $gatePassDetails->gate_pass_id=$gate_pass_id;
-                            $gatePassDetails->size_id=$stockUpdateDetails->size;
-                            $gatePassDetails->customer_po_id=$stockUpdateDetails->customer_po_id;
-                            $gatePassDetails->style_id=$stockUpdateDetails->style_id;
+                            $gatePassDetails->size_id=$details[$i]['size'];
+                            $gatePassDetails->shop_order_id=$details[$i]['shop_order_id'];
+                            $gatePassDetails->shop_order_detail_id=$details[$i]['shop_order_detail_id'];
+                            $gatePassDetails->style_id=$details[$i]['style_id'];
                             $gatePassDetails->item_id=$stockUpdateDetails->item_id;
                             $gatePassDetails->color_id=$stockUpdateDetails->color;
                             $gatePassDetails->store_id=$stockUpdateDetails->store;
@@ -204,7 +261,7 @@ use App\Models\Merchandising\ShopOrderDetail;
                             $stockTransaction->status="PLANED";
                             $stockTransaction->qty= -$qty;
                             $stockTransaction->save();
-                          }
+                          //}
                             }
 
 

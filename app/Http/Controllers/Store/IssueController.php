@@ -95,15 +95,15 @@ class IssueController extends Controller
                              ->where('item_master.master_id','=',$details[$i]['item_code'])
                              ->first();
 
-                if($itemType->category_code=="FA"){
+                if($itemType->category_code=="FAB"){
                 $rollPlan =RollPlan::find($details[$i]['roll_plan_id']);
-                $rollPlan->received_qty=$details[$i]['received_qty']-$details[$i]['issue_qty'];
+                $rollPlan->qty=$details[$i]['qty']-$details[$i]['issue_qty'];
                 $rollPlan->save();
                 $issueDetails->item_detail_id=$details[$i]['roll_plan_id'];
               }
-              else if($itemType->category_code=!"FA") {
+              else if($itemType->category_code=!"FAB") {
                $trimPacking=TrimPacking::find($details[$i]['trim_packing_id']);
-                $trimPacking->received_qty=$details[$i]['received_qty']-$details[$i]['issue_qty'];
+                $trimPacking->qty=$details[$i]['qty']-$details[$i]['issue_qty'];
                 $$trimPacking->save();
                 $issueDetails->item_detail_id=$details[$i]['trim_packing_id'];
               }
@@ -322,7 +322,7 @@ class IssueController extends Controller
                       ->where('item_master.master_id','=',$request->item_id)
                       ->first();
                     //dd($itemType);
-              if($itemType->category_code=="FA"){
+              if($itemType->category_code=="FAB"){
                   //dd($request->shop_order_detail_id);
                   $grnDetails=GrnDetail::join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
                                         ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
@@ -335,7 +335,7 @@ class IssueController extends Controller
 
 
               }
-              else if ($itemType->category_code!="FA"){
+              else if ($itemType->category_code!="FAB"){
                 $grnDetails=GrnDetail::join('store_trim_packing_detail','store_grn_detail.grn_detail_id','=','store_trim_packing_detail.grn_detail_id')
                                       ->join('org_store_bin','store_trim_packing_detail.bin','=','org_store_bin.store_bin_id')
                                       ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')

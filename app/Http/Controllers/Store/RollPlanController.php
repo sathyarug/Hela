@@ -60,7 +60,7 @@ class RollPlanController extends Controller
         $rollPlan->lot_no=$data->lot_no;
         $rollPlan->batch_no=$data->batch_no;
         $rollPlan->roll_no=$data->roll_no;
-        //$rollPlan->qty=$data->qty;
+        $rollPlan->qty=$data->qty;
         $rollPlan->received_qty=$data->received_qty;
         $rollPlan->bin=$binID->store_bin_id;
         ///dd($binID);
@@ -160,7 +160,7 @@ public function update(Request $request, $id){
     $rollPlan->lot_no=$data->lot_no;
     $rollPlan->batch_no=$data->batch_no;
     $rollPlan->roll_no=$data->roll_no;
-    //$rollPlan->qty=$data->qty;
+    $rollPlan->qty=$data->qty;
     $rollPlan->received_qty=$data->received_qty;
     $rollPlan->bin=$data->bin;
     ///dd($binID);

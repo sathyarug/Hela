@@ -348,7 +348,7 @@ class MrnController extends Controller
         $sction=Section::find($mrnHeader['section_id']);
 
         if($mrndetails == null)
-          throw new ModelNotFoundException("Requested color not found", 1);
+          throw new ModelNotFoundException("Requested mrn details not found", 1);
         else
           return response([ 'data'  => ['dataDetails'=>$mrndetails,
                                       'dataHeader'=>$mrnHeader,
