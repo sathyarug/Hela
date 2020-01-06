@@ -26,6 +26,10 @@ class CommonController extends Controller
         return response($this->usr_loc_autocomplete_search($search));
       }else if($type == 'loc_stores')    {
         return response($this->usr_stores_autocomplete_search($request));
+      }else if($type == 'code')    {
+        return response($this->code_autocomplete_search($request));
+      }else if($type == 'codeTo')    {
+        return response($this->code_to_autocomplete_search($request));
       }
     }
 
@@ -34,6 +38,28 @@ class CommonController extends Controller
       $lists = Costing::select('id')
       ->where([['id', 'like', '%' . $search . '%'],]) ->get();
       return $lists;
+    }
+
+    private function code_autocomplete_search($request)
+    {
+      $query = DB::table('item_master')
+      ->select('item_master.master_id','item_master.master_code','category_id')
+      ->where([['item_master.master_code', 'like', '%' . $request->search . '%'],])
+      ->orderBy('master_code', 'ASC')
+      ->get();
+      return $query;
+    }
+
+    private function code_to_autocomplete_search($request)
+    {
+      $query = DB::table('item_master')
+      ->select('item_master.master_id','item_master.master_code','category_id')
+      ->where([['item_master.master_code', 'like', '%' . $request->search . '%'],])
+      ->where('item_master.category_id', $request->category)
+      ->where('item_master.master_id','>=', $request->item)
+      ->orderBy('master_code', 'ASC')
+      ->get();
+      return $query;
     }
 
     private function usr_loc_autocomplete_search($search)
@@ -59,5 +85,17 @@ class CommonController extends Controller
       return $query;
     }
 
+    public function load_advance_parameters(){
+      $query = DB::table('scarp_parameters')
+      ->select('*') 
+      ->where('status', 1)
+      ->orderBy('description', 'ASC')
+      ->get();
+        
+      echo json_encode([
+        "data" => $query
+      ]);
+
+    }
 
 }
