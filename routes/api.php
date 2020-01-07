@@ -777,9 +777,22 @@ Route::prefix('reports/')->group(function(){
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
   //Style list report
   Route::post('style-list','Reports\StyleListController@getStyles');
+  //MSR Report
+  Route::apiResource('load_msr','Reports\MSRReportController');
+  Route::apiResource('load_shop_order','Reports\MSRReportController');
+  //Issue Report
+  Route::apiResource('load_issue','Reports\IssueReportController');
+  //Inventory scarp header report
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
+  Route::apiResource('eject_stock','Reports\InventoryScarpController');
+
 });
 
 Route::prefix('common/')->group(function(){
   Route::apiResource('load_costing_id','Reports\CommonController');
   Route::apiResource('user_locations','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::post('load_advance_parameters','Reports\CommonController@load_advance_parameters');
 });
