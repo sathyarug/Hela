@@ -8,22 +8,15 @@ use DB;
 
 use App\BaseValidator;
 
-class CostingFngColor extends BaseValidator {
+class CostingSfgItem extends BaseValidator {
 
-    protected $table = 'costing_fng_color';
-    protected $primaryKey = 'fng_color_id';
+    protected $table = 'costing_sfg_item';
+    protected $primaryKey = 'costing_sfg_id';
 
     const CREATED_AT = 'created_date';
     const UPDATED_AT = 'updated_date';
 
-    protected $fillable = ['fng_color_id', 'costing_id', 'color_id'];
-
-    //Relationships.............................................................
-
-    public function color()
-    {
-        return $this->belongsTo('App\Models\Org\Color', 'color_id')->select(['color_code', 'color_name']);
-    }
+    protected $fillable = ['costing_sfg_id', 'costing_id', 'sfg_id', 'country_id', 'color_id'];
 
 
     //Validation functions......................................................
@@ -34,6 +27,8 @@ class CostingFngColor extends BaseValidator {
     protected function getValidationRules($data /*model data with attributes*/) {
       return [
         'costing_id' => 'required',
+        'sfg_id' => 'required',
+        'country_id' => 'required',
         'color_id' => 'required'
       ];
     }

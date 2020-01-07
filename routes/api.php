@@ -351,6 +351,7 @@ Route::prefix('stores/')->group(function(){
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
+  Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
   //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
 });
@@ -440,6 +441,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/remove-costing-color', 'Merchandising\Costing\CostingController@remove_costing_color');
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
+    Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
@@ -533,7 +535,11 @@ Route::prefix('merchandising/')->group(function(){
   //  Route::post('bom/savesoallocation','Merchandising\BomController@saveSOAllocation');
   //  Route::post('bom/savesmaterialratio','Merchandising\BomController@saveMaterialRatio');
 
-    Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    //Route::post('bom/ratio/save','Merchandising\BomController@saveMeterialRatio');
+    Route::post('bom/save-item','Merchandising\BomController@save_item');
+    Route::post('bom/save-items','Merchandising\BomController@save_items');
+    Route::post('bom/remove-item','Merchandising\BomController@remove_item');
+    Route::post('bom/copy-item','Merchandising\BomController@copy_item');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
@@ -634,9 +640,16 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('bin-config','Store\BinConfigController');
     Route::get('mrn/loadDetails','Store\MrnController@loadDetails');
     Route::apiResource('mrn','Store\MrnController');
+    Route::post('mrn/filterData','Store\MrnController@filterData');
+    Route::post('issue/confirm-issue-data','Store\IssueController@confirmIssueData');
     Route::apiResource('issue','Store\IssueController');
     Route::apiResource('return-to-stores','Store\ReturnToStoresController');
     Route::apiResource('roll','Store\RollPlanController');
+    Route::apiResource('trimPacking','Store\TrimPackingController');
+    Route::get('loadMrnData','Store\IssueController@loadMrnData');
+    Route::get('loadBinDetails','Store\IssueController@loadBinDetails');
+
+
 });
 
 
@@ -763,9 +776,22 @@ Route::prefix('reports/')->group(function(){
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
   //Style list report
   Route::post('style-list','Reports\StyleListController@getStyles');
+  //MSR Report
+  Route::apiResource('load_msr','Reports\MSRReportController');
+  Route::apiResource('load_shop_order','Reports\MSRReportController');
+  //Issue Report
+  Route::apiResource('load_issue','Reports\IssueReportController');
+  //Inventory scarp header report
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
+  Route::apiResource('eject_stock','Reports\InventoryScarpController');
+
 });
 
 Route::prefix('common/')->group(function(){
   Route::apiResource('load_costing_id','Reports\CommonController');
   Route::apiResource('user_locations','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::post('load_advance_parameters','Reports\CommonController@load_advance_parameters');
 });

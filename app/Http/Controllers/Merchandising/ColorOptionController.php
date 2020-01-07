@@ -197,7 +197,8 @@ class ColorOptionController extends Controller
     {
       $query = null;
       if($fields == null || $fields == '') {
-        $query = ColorOption::select('*');
+        $query = ColorOption::select('*')->where('status','=','1');
+
       }
       else{
         $fields = explode(',', $fields);
