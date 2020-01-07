@@ -301,6 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('fabricInspection','Store\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
+  Route::post('transfer-location/approval/send','Stores\TransferLocationController@send_to_approval');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
