@@ -511,6 +511,7 @@ Route::prefix('merchandising/')->group(function(){
 
 
     Route::post('po-manual-details/save_line_details_revision','Merchandising\PurchaseOrderManualDetailsController@save_line_details_revision');
+Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderManualDetailsController@send_to_approval');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');

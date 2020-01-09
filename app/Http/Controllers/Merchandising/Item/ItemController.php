@@ -594,10 +594,12 @@ class ItemController extends Controller
 
 
     private function item_selector_list($search_type, $category, $sub_category, $search){
+      //dd($search);
+      if($search=="null"){$search='';}
       $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name', 'item_subcategory.subcategory_code')
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
-      ->where('item_master.master_code', 'like', '%' . $search . '%');
+      ->where('item_master.master_description', 'like', '%' . $search . '%');
 
       if($search_type == 'MATERIAL_ITEMS'){
         $list = $list->whereNull('master_code');

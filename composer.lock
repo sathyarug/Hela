@@ -3934,16 +3934,16 @@
         },
         {
             "name": "webklex/laravel-imap",
-            "version": "1.4.3",
+            "version": "1.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Webklex/laravel-imap.git",
-                "reference": "c887d6339143f0032c7059ec4d0a4e97b717ffff"
+                "reference": "0f93655ca26498a12d2bfebd96dd5dc9e14cc480"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Webklex/laravel-imap/zipball/c887d6339143f0032c7059ec4d0a4e97b717ffff",
-                "reference": "c887d6339143f0032c7059ec4d0a4e97b717ffff",
+                "url": "https://api.github.com/repos/Webklex/laravel-imap/zipball/0f93655ca26498a12d2bfebd96dd5dc9e14cc480",
+                "reference": "0f93655ca26498a12d2bfebd96dd5dc9e14cc480",
                 "shasum": ""
             },
             "require": {
@@ -3993,7 +3993,7 @@
                 "mail",
                 "webklex"
             ],
-            "time": "2019-09-17T15:26:25+00:00"
+            "time": "2019-11-29T17:45:55+00:00"
         },
         {
             "name": "yajra/laravel-datatables-oracle",
