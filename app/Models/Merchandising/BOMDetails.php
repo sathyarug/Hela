@@ -2,17 +2,41 @@
 
 namespace App\Models\Merchandising;
 
-use Illuminate\Database\Eloquent\Model;
+use App\BaseValidator;
 use Illuminate\Support\Facades\DB;
 
-class BOMDetails extends Model
+class BOMDetails extends BaseValidator
 {
 
     protected $table = 'bom_details';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'bom_detail_id';
     public $timestamps = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+      'feature_component_id', 'inventory_part_id', 'position_id', 'purchase_uom_id', 'origin_type_id', 'garment_options_id',
+    'bom_unit_price', 'net_consumption', 'wastage', 'gross_consumption', 'meterial_type', 'freight_charges', 'mcq',
+    'surcharge', 'total_cost', 'ship_mode', 'ship_term_id', 'lead_time', 'country_id', 'comments','bom_id',
+    'product_component_id', 'product_silhouette_id'];
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          /*'color_code' => [
+            'required',
+            'unique:org_color,color_code,'.$data['color_id'].',color_id',
+          ],
+          'color_name' => 'required'*/
+      ];
+    }
+
+
+
+
+
 
     public function GetBOMDetails($bomId){
 

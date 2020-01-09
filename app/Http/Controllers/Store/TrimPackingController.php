@@ -59,6 +59,7 @@ class TrimPackingController extends Controller{
             $trimPacking->batch_no=$data->batch_no;
             $trimPacking->box_no=$data->box_no;
             $trimPacking->received_qty=$data->received_qty;
+            $trimPacking->qty=$data->received_qty;
             $trimPacking->bin=$binID->store_bin_id;
             $trimPacking->shade=$data->shade;
             $trimPacking->comment=$data->comment;

@@ -1117,12 +1117,12 @@ class GrnController extends Controller
       ->where('store_grn_detail.po_details_id','=',$request->po_line_id)
       ->first();
       //dd($is_grn_same_qty);
-      if($is_type_fabric->category_code=='FA'){
+      if($is_type_fabric->category_code=='FAB'){
         $status=0;
         $is_grn_same_qty=null;
         $message="Selected Item is Fabric type";
       }
-      else if($is_type_fabric->category_code!='FA'){
+      else if($is_type_fabric->category_code!='FAB'){
         //dd($is_type_fabric->category_code);
       if($is_grn_same_qty==null){
             $status=0;
@@ -1175,12 +1175,12 @@ class GrnController extends Controller
       ->where('store_grn_detail.po_details_id','=',$request->po_line_id)
       ->first();
       //dd($is_grn_same_qty);
-      if($is_type_fabric->category_code!='FA'){
+      if($is_type_fabric->category_code!='FAB'){
         $status=0;
         $is_grn_same_qty=null;
         $message="Selected Item not a Fabric type";
       }
-      else if($is_type_fabric->category_code=='FA'){
+      else if($is_type_fabric->category_code=='FAB'){
         //dd($is_type_fabric->category_code);
       if($is_grn_same_qty==null){
             $status=0;
