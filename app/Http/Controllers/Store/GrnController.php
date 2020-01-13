@@ -121,7 +121,7 @@ class GrnController extends Controller
                      $grnDetails->inventory_uom =$rec['inventory_uom'];
                      $grnDetails->status=1;
 
-                     $grnDetails->save();
+
                      $responseData[$y]=$grnDetails;
                      $y++;
                      $i++;
@@ -134,36 +134,48 @@ class GrnController extends Controller
                      //Update Stock Transaction
                      $transaction = Transaction::where('trans_description', 'ARRIVAL')->first();
 
-                     $st = new StockTransaction;
-                     $st->status = 'CONFIRM';
-                     $st->doc_type = $transaction->trans_code;
-                     $st->doc_num = $header->grn_id;
-                     $st->style_id = $poDetails->style;
-                     $st->main_store = $store->store_id;
-                     $st->sub_store = $store->substore_id;
-                     $st->item_code = $poDetails->item_code;
-                     $st->size = $poDetails->size;
-                     $st->color = $poDetails->colour;
-                     $st->uom = $poDetails->uom;
-                     $st->customer_po_id=$rec['cus_order_details_id'];
-                     $st->qty = (double)$rec['qty'];
-                     $st->standard_price =(double)$rec['standard_price'];
-                     $st->purchase_price =(double)$rec['purchase_price'];
-                     $st->shop_order_id =$rec['shop_order_id'];
-                     $st->shop_order_detail_id =$rec['shop_order_detail_id'];
-                     $st->location = auth()->payload()['loc_id'];
-                     $st->bin = $bin->store_bin_id;
-                     $st->created_by = auth()->payload()['user_id'];
-                     $st->save();
+
 
                      if(empty($rec['inspection_allowed'])==true|| $rec['inspection_allowed']==0){
+                       $grnDetails->inspection_allowed=0;
+                       $grnDetails->save();
+                       $st = new StockTransaction;
+                       $st->status = 'CONFIRM';
+                       $st->doc_type = $transaction->trans_code;
+                       $st->doc_num = $header->grn_id;
+                       $st->style_id = $poDetails->style;
+                       $st->main_store = $store->store_id;
+                       $st->sub_store = $store->substore_id;
+                       $st->item_code = $poDetails->item_code;
+                       $st->size = $poDetails->size;
+                       $st->color = $poDetails->colour;
+                       $st->uom = $poDetails->uom;
+                       $st->customer_po_id=$rec['cus_order_details_id'];
+                       $st->qty = (double)$rec['qty'];
+                       $st->standard_price =(double)$rec['standard_price'];
+                       $st->purchase_price =(double)$rec['purchase_price'];
+                       $st->shop_order_id =$rec['shop_order_id'];
+                       $st->shop_order_detail_id =$rec['shop_order_detail_id'];
+                       $st->location = auth()->payload()['loc_id'];
+                       $st->bin = $bin->store_bin_id;
+                       $st->direction="+";
+                       $st->created_by = auth()->payload()['user_id'];
+                       $st->save();
 
                        $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
-                                                        where item_id= $poDetails->item_code");
+                                                        where item_id= $poDetails->item_code
+                                                        AND shop_order_id=$st->shop_order_id
+                                                        AND style_id=$poDetails->style
+                                                        AND shop_order_detail_id=$st->shop_order_detail_id
+                                                        AND bin=$bin->store_bin_id
+                                                        AND store=$store->store_id
+                                                        AND sub_store=$store->substore_id
+                                                        AND location=$st->location");
                       if($findStoreStockLine==null){
                           $storeUpdate=new Stock();
                                     $storeUpdate=new Stock();
-                                    $storeUpdate->customer_po_id=$rec['cus_order_details_id'];
+                                    $storeUpdate->shop_order_id=$rec['shop_order_id'];
+                                    $storeUpdate->shop_order_detail_id=$rec['shop_order_detail_id'];
                                     $storeUpdate->style_id = $poDetails->style;
                                     $storeUpdate->item_id=$poDetails->item_code;
                                     $storeUpdate->size = $poDetails->size;
@@ -175,10 +187,10 @@ class GrnController extends Controller
                                     $storeUpdate->standard_price = $rec['standard_price'];
                                     $storeUpdate->purchase_price = $rec['purchase_price'];
 
-                                    if($storeUpdate->standard_price!=$storeUpdate->purchase_price){
+                                    if($rec['standard_price']!=(double)$rec['purchase_price']){
                                       //save data on price variation table
                                       $priceVariance= new PriceVariance;
-                                      $priceVariance->item_id=$$poDetails->item_code;
+                                      $priceVariance->item_id=$poDetails->item_code;
                                       $priceVariance->standard_price=$rec['standard_price'];
                                       $priceVariance->purchase_price =$rec['purchase_price'];
                                       $priceVariance->shop_order_id =$rec['shop_order_id'];
@@ -199,22 +211,22 @@ class GrnController extends Controller
                                                                         ->first();
                                   //dd($ConversionFactor);
                                                                           // convert values according to the convertion rate
-                                                                        $storeUpdate->inv_qty =(double)($grnDetails->grn_qty *$ConversionFactor->present_factor);
-                                                                        $storeUpdate->total_qty = (double)( $grnDetails->grn_qty*$ConversionFactor->present_factor);
-                                                                        $storeUpdate->tolerance_qty = (double)($grnDetails->maximum_tolarance*$ConversionFactor->present_factor);
+                                                                        //$storeUpdate->inv_qty =(double)($grnDetails->grn_qty *$ConversionFactor->present_factor);
+                                                                        $storeUpdate->qty = (double)( $grnDetails->grn_qty*$ConversionFactor->present_factor);
+                                                                        //$storeUpdate->tolerance_qty = (double)($grnDetails->maximum_tolarance*$ConversionFactor->present_factor);
                                 }
                                 //if inventory uom and purchase uom are the same
                                 if($poDetails->uom==$rec['inventory_uom']){
 
-                                  $storeUpdate->inv_qty =(double)($grnDetails->grn_qty);
-                                  $storeUpdate->total_qty = (double)($grnDetails->grn_qty);
-                                  $storeUpdate->tolerance_qty = (double)($grnDetails->maximum_tolarance);
+                                  //$storeUpdate->inv_qty =(double)($grnDetails->grn_qty);
+                                  $storeUpdate->qty = (double)($grnDetails->grn_qty);
+                                  //$storeUpdate->tolerance_qty = (double)($grnDetails->maximum_tolarance);
                                 }
 
-                                $storeUpdate->transfer_status="STOCKUPDATE";
+                              //  $storeUpdate->transfer_status="STOCKUPDATE";
                                 $storeUpdate->status=1;
                                 $shopOrder=ShopOrderDetail::find($rec['shop_order_detail_id']);
-                                $shopOrder->asign_qty=$storeUpdate->inv_qty+$shopOrder->asign_qty;
+                                $shopOrder->asign_qty=$storeUpdate->qty+$shopOrder->asign_qty;
                                 $shopOrder->save();
                                 $storeUpdate->save();
 
@@ -248,9 +260,9 @@ class GrnController extends Controller
                                                               ->first();
                                                                 // convert values according to the convertion rate
                                                                 //update stock qty with convertion qty
-                                                                $stock->inv_qty =(double)$stock->inv_qty+(double)($grnDetails->grn_qty*$ConversionFactor->present_factor);
-                                                                $stock->total_qty = (double)$stock->total_qty+(double)($grnDetails->grn_qty*$ConversionFactor->present_factor);
-                                                                $stock->tolerance_qty = (double)($grnDetails->maximum_tolarance*$ConversionFactor->present_factor);
+                                                                $stock->qty =(double)$stock->qty+(double)($grnDetails->grn_qty*$ConversionFactor->present_factor);
+                                                                //$stock->total_qty = (double)$stock->total_qty+(double)($grnDetails->grn_qty*$ConversionFactor->present_factor);
+                                                                //$stock->tolerance_qty = (double)($grnDetails->maximum_tolarance*$ConversionFactor->present_factor);
 
 
                       }
@@ -258,9 +270,9 @@ class GrnController extends Controller
                       //if inventory uom and purchase uom is same
                       if($poDetails->uom==$rec['inventory_uom']){
 
-                        $stock->inv_qty = (double)$stock->inv_qty+(double)($grnDetails->grn_qty);
-                        $stock->total_qty=(double)$stock->total_qty+(double)($grnDetails->grn_qty);
-                        $stock->tolerance_qty = $grnDetails->maximum_tolarance;
+                        $stock->qty = (double)$stock->qty+(double)($grnDetails->grn_qty);
+                        //$stock->total_qty=(double)$stock->total_qty+(double)($grnDetails->grn_qty);
+                        //$stock->tolerance_qty = $grnDetails->maximum_tolarance;
 
 
                       }
@@ -280,9 +292,34 @@ class GrnController extends Controller
 
                      }
 
+                     else if(empty($rec['inspection_allowed'])==false|| $rec['inspection_allowed']==1){
+                       $grnDetails->inspection_allowed=1;
+                       $grnDetails->save();
+                       $st = new StockTransaction;
+                       $st->status = 'CONFIRM';
+                       $st->doc_type = $transaction->trans_code;
+                       $st->doc_num = $header->grn_id;
+                       $st->style_id = $poDetails->style;
+                       $st->main_store = $store->store_id;
+                       $st->sub_store = $store->substore_id;
+                       $st->item_code = $poDetails->item_code;
+                       $st->size = $poDetails->size;
+                       $st->color = $poDetails->colour;
+                       $st->uom = $poDetails->uom;
+                       $st->customer_po_id=$rec['cus_order_details_id'];
+                       $st->qty = (double)$rec['qty'];
+                       $st->standard_price =(double)$rec['standard_price'];
+                       $st->purchase_price =(double)$rec['purchase_price'];
+                       $st->shop_order_id =$rec['shop_order_id'];
+                       $st->shop_order_detail_id =$rec['shop_order_detail_id'];
+                       $st->location = auth()->payload()['loc_id'];
+                       $st->bin = $bin->store_bin_id;
+                       $st->created_by = auth()->payload()['user_id'];
+                       $st->save();
 
+                     }
 
-                     if (!$st->save()) {
+                     if (!$grnDetails->save()) {
                          return response(['data' => [
                              'type' => 'error',
                              'message' => 'Not Saved',
@@ -342,7 +379,7 @@ class GrnController extends Controller
           $st->status = 'CONFIRM';
           $st->doc_type = $transaction->trans_code;
           $st->doc_num = $header->grn_id;
-          $st->style_id = $grnDetailupdate[$i]->style;
+          $st->style_id = $grnDetailupdate[$i]->style_id;
           $st->main_store =  $header->main_store;
           $st->sub_store = $header->sub_store;
           $st->item_code = $grnDetailupdate[$i]->item_code;
@@ -357,7 +394,7 @@ class GrnController extends Controller
           $st->shop_order_detail_id =$grnDetailupdate[$i]->shop_order_detail_id;
           $st->location = auth()->payload()['loc_id'];
           //Get Quarantine Bin
-          //dd($header->substore);
+        //  dd($st->uom);
           $bin = StoreBin::where('substore_id',$header->sub_store)
               ->where('quarantine','=',1)
               ->first();
@@ -366,6 +403,47 @@ class GrnController extends Controller
           $st->direction="-";
           $st->created_by = auth()->payload()['user_id'];
           $st->save();
+          //dd($grnDetailupdate[$i]->style_id);
+
+       $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
+                                                                  where item_id=$st->item_code
+                                                                  AND shop_order_id=$st->shop_order_id
+                                                                  AND style_id=$st->style_id
+                                                                  AND shop_order_detail_id=$st->shop_order_detail_id
+                                                                  AND bin=$st->bin
+                                                                  AND store=$st->main_store
+                                                                  AND sub_store=$st->sub_store
+                                                                  AND location=$st->location");
+
+                if($grnDetailupdate[$i]['inspection_allowed']==0){
+                  $shopOrder=ShopOrderDetail::find($grnDetailupdate[$i]->shop_order_detail_id);
+                  $shopOrder->asign_qty=$shopOrder->asign_qty-(double)$grnDetailupdate[$i]->grn_qty;
+                  $shopOrder->save();
+
+                    $stock=Stock::find($findStoreStockLine[0]->id);
+
+                    if($stock->uom!=$grnDetailupdate[$i]->uom){
+                     $_uom_unit_code=UOM::where('uom_id','=',$stock->uom)->pluck('uom_code');
+                      $_uom_base_unit_code=UOM::where('uom_id','=',$grnDetailupdate[$i]->uom)->pluck('uom_code');
+                      //get convertion equatiojn details
+                      $ConversionFactor=ConversionFactor::select('*')
+                                                          ->where('unit_code','=',$_uom_unit_code[0])
+                                                          ->where('base_unit','=',$_uom_base_unit_code[0])
+                                                          ->first();
+                                                            // convert values according to the convertion rate
+                                                            //update stock qty with convertion qty
+                                                            $stock->qty =(double)$stock->qty-(double)($grnDetailupdate[$i]->grn_qty*$ConversionFactor->present_factor);
+                                                            //$stock->total_qty = (double)$stock->total_qty+(double)($grnDetails->grn_qty*$ConversionFactor->present_factor);
+                                                            //$stock->tolerance_qty = (double)($grnDetails->maximum_tolarance*$ConversionFactor->present_factor);
+                                                            $stock->save();
+
+
+                  }
+                  else if($stock[0]->uom==$grnDetailupdate[$i]->uom){
+                    $stock->qty =(double)$stock->qty-(double)($grnDetailupdate[$i]->grn_qty);
+                    $stock->save();
+
+                }
 
         }
       //  dd($grnDetailupdate);
@@ -380,7 +458,7 @@ class GrnController extends Controller
 
     }
 
-
+}
     public function datatable_search($data){
         $start = $data['start'];
         $length = $data['length'];
@@ -591,15 +669,22 @@ class GrnController extends Controller
 
                  //find relted item in stock
                  $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
-                                                  where item_id= $poDetails->item_code");
+                                                  where item_id= $poDetails->item_code
+                                                  AND shop_order_id=$st->shop_order_id
+                                                  AND style_id=$poDetails->style
+                                                  AND shop_order_detail_id=$st->shop_order_detail_id
+                                                  AND bin=$bin->store_bin_id
+                                                  AND store=$grnHeader->main_store
+                                                  AND sub_store=$grnHeader->sub_store
+                                                  AND location=$st->location");
                                                   //dd($findStoreStockLine);
                     $stock=Stock::find($findStoreStockLine[0]->id);
                     //check if purchase price and starned price is varied
-                    if($dataset[$i]['purchase_price']!=$dataset[$i]['standard_price']){
+                    if($stock->standard_price!=$dataset[$i]['purchase_price']){
                       //create price variance object
                       $priceVariance= new PriceVariance;
                       $priceVariance->item_id=$poDetails->item_code;
-                      $priceVariance->standard_price=$dataset[$i]['standard_price'];
+                      $priceVariance->standard_price=$stock->standard_price;
                       $priceVariance->purchase_price =$dataset[$i]['purchase_price'];
                       $priceVariance->shop_order_id =$dataset[$i]['shop_order_id'];
                       $priceVariance->shop_order_detail_id =$dataset[$i]['shop_order_detail_id'];
@@ -623,21 +708,21 @@ class GrnController extends Controller
                                                             ->first();
                                                             //dd((double)$stock->inv_qty-(double)$data[$i]['previous_received_qty']);
 
-                                                            $stock->inv_qty =(double)$stock->inv_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
-                                                            $stock->total_qty = (double)$stock->total_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                            $stock->qty =(double)$stock->qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                            //$stock->total_qty = (double)$stock->total_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
                                                             $shopOrder->asign_qty=$dataset['qty']-(double)$dataset[$i]['pre_qty']+$shopOrder->asign_qty;
-                                                            $stock->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
+                                                            //$stock->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
 
 
                     }
 
                     // if po uom and inventory uom is the same
                     if($poDetails->uom==$dataset[$i]['inventory_uom']){
-                     $stock->inv_qty = (double)$stock->inv_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']);
-                      $stock->total_qty=(double)$stock->total_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']);
+                     $stock->qty = (double)$stock->qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']);
+                      //$stock->total_qty=(double)$stock->total_qty-(double)$dataset[$i]['pre_qty']+(double)($dataset[$i]['qty']);
                       $shopOrder->asign_qty=$dataset[$i]['qty']-(double)$dataset[$i]['pre_qty']+$shopOrder->asign_qty;
 
-                      $stock->tolerance_qty = $dataset[$i]['maximum_tolarance'];
+                      //$stock->tolerance_qty = $dataset[$i]['maximum_tolarance'];
 
 
                     }
@@ -686,7 +771,7 @@ class GrnController extends Controller
               $grnDetails->inventory_uom =$dataset[$i]['inventory_uom'];
               $grnDetails->status=1;
 
-              $grnDetails->save();
+
 
               //$poDetails = PoOrderDetails::find($dataset[$i]['id']);
 
@@ -708,6 +793,8 @@ class GrnController extends Controller
               $st->direction="+";
               $st->customer_po_id=$dataset[$i]['cus_order_details_id'];
               $st->qty = (double)$dataset[$i]['qty'];
+              $st->shop_order_id =$dataset[$i]['shop_order_id'];
+              $st->shop_order_detail_id =$dataset[$i]['shop_order_detail_id'];
               $st->location = auth()->payload()['loc_id'];
               //dd($bin);
               $st->bin = $bin->store_bin_id;
@@ -717,15 +804,26 @@ class GrnController extends Controller
               //add newly
                 //if new line is not allowed for isnpection directly update the stock table
               if(empty($dataset[$i]['inspection_allowed'])==true|| $dataset[$i]['inspection_allowed']==0){
+                  $grnDetails->inspection_allowed=0;
+                  //$grnDetails->save();
                 //find related stock line
-                $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
-                                                 where item_id= $poDetails->item_code");
+                $findStoreStockLine==DB::SELECT ("SELECT * FROM store_stock
+                                                 where item_id= $poDetails->item_code
+                                                 AND shop_order_id=$st->shop_order_id
+                                                 AND style_id=$poDetails->style
+                                                 AND shop_order_detail_id=$st->shop_order_detail_id
+                                                 AND bin=$bin->store_bin_id
+                                                 AND store=$grnHeader->main_store
+                                                 AND sub_store=$grnHeader->sub_store
+                                                 AND location=$st->location");
                   //if stock line not found
                if($findStoreStockLine==null){
                 //create new line
+
                              //$storeUpdate=new Stock();
                              $storeUpdate=new Stock();
-                             $storeUpdate->customer_po_id=$dataset[$i]['cus_order_details_id'];
+                             $storeUpdate->shop_order_id=$dataset[$i]['shop_order_id'];
+                             $storeUpdate->shop_order_detail_id=$dataset[$i]['shop_order_detail_id'];
                              $storeUpdate->style_id = $poDetails->style;
                              $storeUpdate->item_id=$poDetails->item_code;
                              $storeUpdate->size = $poDetails->size;
@@ -761,24 +859,25 @@ class GrnController extends Controller
                                                                  ->first();
                            //dd($ConversionFactor);
                                                                    // convert values according to the convertion rate
-                                                                 $storeUpdate->inv_qty =(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
-                                                                 $storeUpdate->total_qty = (double)( $dataset[$i]['qty']*$ConversionFactor->present_factor);
-                                                                 $storeUpdate->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
+                                                                 $storeUpdate->qty =(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                                 //$storeUpdate->total_qty = (double)( $dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                                 //$storeUpdate->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
                          }
                          //if inventory uom and purchase uom are the same
                          if($poDetails->uom==$dataset[$i]['inventory_uom']){
 
-                           $storeUpdate->inv_qty =(double)($dataset[$i]['qty']);
-                           $storeUpdate->total_qty = (double)($dataset[$i]['qty']);
-                           $storeUpdate->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']);
+                           $storeUpdate->qty =(double)($dataset[$i]['qty']);
+                           //$storeUpdate->total_qty = (double)($dataset[$i]['qty']);
+                          //$storeUpdate->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']);
                          }
 
                          $storeUpdate->transfer_status="STOCKUPDATE";
                          $storeUpdate->status=1;
                          $shopOrder=ShopOrderDetail::find($dataset[$i]['shop_order_detail_id']);
-                         $shopOrder->asign_qty=$storeUpdate->inv_qty+$shopOrder->asign_qty;
+                         $shopOrder->asign_qty=$storeUpdate->qty+$shopOrder->asign_qty;
                          $shopOrder->save();
                          $storeUpdate->save();
+                        // c cxcxcxcx
 
                }
                  else if($findStoreStockLine!=null){
@@ -800,7 +899,7 @@ class GrnController extends Controller
 
                    //check inventory uom and purchase uom varied each other
                  if($poDetails->uom!=$dataset[$i]['inventory_uom']){
-                   $stock->uom = $dataset[$i]['inventory_uom'];
+                   //$stock->uom = $dataset[$i]['inventory_uom'];
                    $_uom_unit_code=UOM::where('uom_id','=',$dataset[$i]['inventory_uom'])->pluck('uom_code');
                    $_uom_base_unit_code=UOM::where('uom_id','=',$poDetails->uom)->pluck('uom_code');
                    //get convertion equatiojn details
@@ -810,9 +909,9 @@ class GrnController extends Controller
                                                        ->first();
                                                          // convert values according to the convertion rate
                                                          //update stock qty with convertion qty
-                                                         $stock->inv_qty =(double)$stock->inv_qty+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
-                                                         $stock->total_qty = (double)$stock->total_qty+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
-                                                         $stock->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
+                                                         $stock->qty =(double)$stock->qty+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                         //$stock->total_qty = (double)$stock->total_qty+(double)($dataset[$i]['qty']*$ConversionFactor->present_factor);
+                                                         //$stock->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']*$ConversionFactor->present_factor);
 
 
                }
@@ -820,9 +919,9 @@ class GrnController extends Controller
                //if inventory uom and purchase uom is same
                if($poDetails->uom==$dataset[$i]['inventory_uom']){
 
-                 $stock->inv_qty = (double)$stock->inv_qty+(double)($dataset[$i]['qty']);
-                 $stock->total_qty=(double)$stock->total_qty+(double)($dataset[$i]['qty']);
-                 $stock->tolerance_qty =$dataset[$i]['maximum_tolarance'];
+                 $stock->qty = (double)$stock->qty+(double)($dataset[$i]['qty']);
+                 //$stock->total_qty=(double)$stock->total_qty+(double)($dataset[$i]['qty']);
+                 //$stock->tolerance_qty =$dataset[$i]['maximum_tolarance'];
 
 
                }
@@ -841,7 +940,8 @@ class GrnController extends Controller
 
 
               }
-
+              $grnDetails->inspection_allowed=1;
+              $grnDetails->save();
             //$line_no++;
               $responseData[$y]=$grnDetails;
             }

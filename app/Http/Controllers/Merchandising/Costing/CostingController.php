@@ -550,8 +550,8 @@ class CostingController extends Controller {
               $costing->approval_sent_date = date("Y-m-d H:i:s");
               $costing->save();
 
-              //$approval = new Approval();
-              //$approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
+              $approval = new Approval();
+              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
 
               return response([
                 'data' => [
