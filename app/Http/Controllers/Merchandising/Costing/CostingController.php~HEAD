@@ -219,7 +219,7 @@ class CostingController extends Controller {
 
 
           $finish_good_component = new CostingFinishGoodComponent();
-          $finish_good_component->fg_id
+          //$finish_good_component->fg_id
         }
       }
       echo json_encode($request->finish_goods);

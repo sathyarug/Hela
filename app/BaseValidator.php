@@ -14,17 +14,22 @@ class BaseValidator extends Model
     public static function boot()
     {
         static::creating(function ($model) {
-          $user = auth()->user();
-          $payload = auth()->payload();
+          //$user = auth()->user();
+          try {
+              $user = auth()->userOrFail();
+              $payload = auth()->payload();
 
-          $model->created_by = $user->user_id;
-          $model->updated_by = $user->user_id;
-          $model->user_loc_id = $payload['loc_id'];        
+              $model->created_by = $user->user_id;
+              $model->updated_by = $user->user_id;
+              $model->user_loc_id = $payload['loc_id'];
+          } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) { }
         });
 
         static::updating(function ($model) {
-            $user = auth()->user();
-            $model->updated_by = $user->user_id;
+          try {
+              $user = auth()->userOrFail();
+              $model->updated_by = $user->user_id;
+          } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) { }             
         });
 
         /*static::deleting(function ($model) {
