@@ -681,7 +681,7 @@ class PurchaseOrderManualController extends Controller
  	      ->select('item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*',
         'org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty',
         'merc_shop_order_detail.unit_price as ori_unit_price','merc_shop_order_detail.shop_order_detail_id',
-        'merc_shop_order_detail.shop_order_id','merc_customer_order_header.order_style AS style_id',
+        'merc_shop_order_detail.shop_order_id','merc_shop_order_detail.purchase_price','merc_customer_order_header.order_style AS style_id',
         'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption')
         ->where('merge_no'  , '=', $prl_id )
         ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)

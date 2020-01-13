@@ -87,16 +87,32 @@ class DashBoardController extends Controller
                     `store_grn_detail`.`grn_id`
                 FROM
                     `merc_customer_order_details`
-                LEFT JOIN `store_grn_detail` ON `store_grn_detail`.`shop_order_id` = `merc_customer_order_details`.`shop_order_id`
+                INNER JOIN `store_grn_detail` ON `store_grn_detail`.`shop_order_id` = `merc_customer_order_details`.`shop_order_id`
+                INNER JOIN merc_customer_order_header ON `merc_customer_order_header`.`order_id` = `merc_customer_order_details`.`order_id`
+                WHERE
+                    `merc_customer_order_details`.`created_by` = '.auth()->user()->user_id.'
+                    AND merc_customer_order_details.rm_in_date < NOW()
+                    AND merc_customer_order_header.order_status = "PLANNED"
+                GROUP BY
+                    `merc_customer_order_details`.`order_id`
+                HAVING
+                    `store_grn_detail`.`grn_id` IS NOT NULL');
+
+        $response['grn'] = count($grn);
+
+        $pendGrn = DB::select('SELECT
+                    `merc_customer_order_details`.`order_id`
+                FROM
+                    `merc_customer_order_details`
                 WHERE
                     `merc_customer_order_details`.`created_by` = '.auth()->user()->user_id.'
                     AND merc_customer_order_details.rm_in_date < NOW()
                 GROUP BY
-                    `merc_customer_order_details`.`order_id`
-                HAVING
-                    `store_grn_detail`.`grn_id` IS NULL');
+	                `merc_customer_order_details`.`order_id`');
 
-        return count($grn);
+        $response['non_grn'] = count($pendGrn);
+
+        return $response;
     }
 
     public function loadOrderStatus(){

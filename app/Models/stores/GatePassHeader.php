@@ -16,9 +16,9 @@ class GatePassHeader extends BaseValidator{
   public function __construct() {
       parent::__construct();
   }
-  public static function boot(){
+  /*public static function boot(){
 
-    static::creating(function($model){
+    /*static::creating(function($model){
 
       $user=auth()->user();
       $gate_pass_no=UniqueIdGenerator::generateUniqueId('GATE_PASS',$user->location);
@@ -29,6 +29,6 @@ class GatePassHeader extends BaseValidator{
 
       parent::boot();
 
-  }
+  }*/
 
 }

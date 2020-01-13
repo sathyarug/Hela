@@ -95,15 +95,15 @@ class IssueController extends Controller
                              ->where('item_master.master_id','=',$details[$i]['item_code'])
                              ->first();
 
-                if($itemType->category_code=="FA"){
+                if($itemType->category_code=="FAB"){
                 $rollPlan =RollPlan::find($details[$i]['roll_plan_id']);
-                $rollPlan->received_qty=$details[$i]['received_qty']-$details[$i]['issue_qty'];
+                $rollPlan->qty=$details[$i]['qty']-$details[$i]['issue_qty'];
                 $rollPlan->save();
                 $issueDetails->item_detail_id=$details[$i]['roll_plan_id'];
               }
-              else if($itemType->category_code=!"FA") {
+              else if($itemType->category_code=!"FAB") {
                $trimPacking=TrimPacking::find($details[$i]['trim_packing_id']);
-                $trimPacking->received_qty=$details[$i]['received_qty']-$details[$i]['issue_qty'];
+                $trimPacking->qty=$details[$i]['qty']-$details[$i]['issue_qty'];
                 $$trimPacking->save();
                 $issueDetails->item_detail_id=$details[$i]['trim_packing_id'];
               }
@@ -201,6 +201,7 @@ class IssueController extends Controller
     //get searched Colors for datatable plugin format
     private function datatable_search($data)
     {
+      //dd(csc);
 
           $start = $data['start'];
           $length = $data['length'];
@@ -214,7 +215,7 @@ class IssueController extends Controller
                                     ->join('item_master','store_issue_detail.item_id','=','item_master.master_id')
                                     ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
                                     ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
-                                    ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.substore_id')
+                                    ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
 
 
           ->select('store_issue_detail.*','store_issue_header.*','org_store.store_name','org_substore.substore_name','org_substore.substore_name','item_master.master_description')
@@ -224,12 +225,13 @@ class IssueController extends Controller
           ->orWhere('org_store_bin.store_bin_description','like',$search.'%')
           ->orderBy($order_column, $order_type)
           ->offset($start)->limit($length)->get();
+          //dd($issue_list);
 
           $issue_list_count = IssueHeader::join('store_issue_detail','store_issue_detail.issue_id','=','store_issue_header.issue_id')
                                     ->join('item_master','store_issue_detail.item_id','=','item_master.master_id')
                                     ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
                                     ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
-                                    ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.substore_id')
+                                    ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
 
 
           ->select('store_issue_detail.*','store_issue_header.*','org_store.store_name','org_substore.substore_name','org_substore.substore_name')
@@ -322,7 +324,7 @@ class IssueController extends Controller
                       ->where('item_master.master_id','=',$request->item_id)
                       ->first();
                     //dd($itemType);
-              if($itemType->category_code=="FA"){
+              if($itemType->category_code=="FAB"){
                   //dd($request->shop_order_detail_id);
                   $grnDetails=GrnDetail::join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
                                         ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
@@ -335,7 +337,7 @@ class IssueController extends Controller
 
 
               }
-              else if ($itemType->category_code!="FA"){
+              else if ($itemType->category_code!="FAB"){
                 $grnDetails=GrnDetail::join('store_trim_packing_detail','store_grn_detail.grn_detail_id','=','store_trim_packing_detail.grn_detail_id')
                                       ->join('org_store_bin','store_trim_packing_detail.bin','=','org_store_bin.store_bin_id')
                                       ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
@@ -422,20 +424,30 @@ class IssueController extends Controller
                     $st->bin = $issueHeader[$i]['bin'];
                     $st->created_by = auth()->payload()['user_id'];
                     $st->direction="-";
-                  //  dd($st);
+                  //dd($st);
                     $st->save();
 
-                    $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
+                    /*$findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
                                                      where item_id=$issueDetails->item_id
                                                      AND store=$issueDetails->store_id
                                                       AND sub_store=$issueDetails->sub_store_id
                                                       AND location=$st->location
                                                       AND bin=$issueDetails->bin
-                                                      ");
+                                                      ");*/
+                                                      $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
+                                                                                       where item_id=$issueDetails->item_id
+                                                                                       AND shop_order_id=$st->shop_order_id
+                                                                                       AND style_id=$st->style_id
+                                                                                       AND shop_order_detail_id=$st->shop_order_detail_id
+                                                                                       AND bin=$st->bin
+                                                                                       AND store=$st->main_store
+                                                                                       AND sub_store=$st->sub_store
+                                                                                       AND location=$st->location");
+                                                                                       //dd($findStoreStockLine);
 
                     $stock=Stock::find($findStoreStockLine[0]->id);
-                    $stock->inv_qty=(double)$stock->inv_qty- (double)$st->qty;
-                    $stock->total_qty=(double)$stock->total_qty- (double)$st->qty;
+                    $stock->qty=(double)$stock->qty- (double)$st->qty;
+                    //$stock->total_qty=(double)$stock->total_qty- (double)$st->qty;
                     $stock->save();
 }
 

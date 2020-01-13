@@ -21,6 +21,10 @@ use App\Models\Store\GrnDetail;
 use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
 use App\Models\Merchandising\ShopOrderDelivery;
+use App\Models\Merchandising\PoOrderApproval;
+
+
+use App\Libraries\Approval;
 
 class PurchaseOrderManualDetailsController extends Controller
 {
@@ -381,6 +385,7 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->mat_colour = $lines[$x]['mat_colour'];
         $po_details->po_status = 'PLANNED';
         $po_details->po_header_id = $formData['po_id'];
+        $po_details->purchase_price = $lines[$x]['purchase_price'];
 
         $po_details->save();
 
@@ -468,6 +473,28 @@ class PurchaseOrderManualDetailsController extends Controller
         ] , 200);
 
       }
+
+    }
+
+    public function send_to_approval(Request $request){
+
+      $lines = $request->lines;
+      $formData = $request->formData;
+
+      $POA = new PoOrderApproval();
+      $POA->po_id      = $formData['po_id'];
+      $POA->po_header  = json_encode($formData);
+      $POA->po_details = json_encode($lines);
+      $POA->save();
+
+      //dd();
+      $approval = new Approval();
+      $approval->start('PO', $POA['email_id'], $POA['created_by']);//start po approval process
+
+      DB::table('merc_po_order_header')
+          ->where('po_id', $formData['po_id'])
+          ->update([ 'approval_status' => 'PENDING' ,
+                     'approval_no' => $POA['email_id'] ]);
 
     }
 
@@ -597,6 +624,14 @@ class PurchaseOrderManualDetailsController extends Controller
       $po_header->ship_mode = $formData['ship_mode']['ship_mode'];
       $po_header->ship_term = $formData['ship_term'];
       $po_header->save();
+
+
+      if($formData['po_status'] == "CONFIRMED")
+      {
+
+
+
+      }
 
 
       return response([
@@ -859,7 +894,7 @@ class PurchaseOrderManualDetailsController extends Controller
         'org_color.*','org_size.*','merc_po_order_details.*',
         'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order',
         'merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise',
-        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption')
+        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption','merc_po_order_details.purchase_price')
         ->where('prl_id'  , '=', $prl_id )
         ->Where('merc_po_order_details.created_by','=', $user->user_id)
         ->get();

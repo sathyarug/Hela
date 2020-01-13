@@ -301,6 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('fabricInspection','Store\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
+  Route::post('transfer-location/approval/send','Stores\TransferLocationController@send_to_approval');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
@@ -514,6 +515,7 @@ Route::prefix('merchandising/')->group(function(){
 
 
     Route::post('po-manual-details/save_line_details_revision','Merchandising\PurchaseOrderManualDetailsController@save_line_details_revision');
+Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderManualDetailsController@send_to_approval');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
@@ -780,9 +782,22 @@ Route::prefix('reports/')->group(function(){
   Route::post('delete_barcode','Reports\FabticRollBarcode@deleteBarcode');
   //Style list report
   Route::post('style-list','Reports\StyleListController@getStyles');
+  //MSR Report
+  Route::apiResource('load_msr','Reports\MSRReportController');
+  Route::apiResource('load_shop_order','Reports\MSRReportController');
+  //Issue Report
+  Route::apiResource('load_issue','Reports\IssueReportController');
+  //Inventory scarp header report
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
+  Route::apiResource('eject_stock','Reports\InventoryScarpController');
+
 });
 
 Route::prefix('common/')->group(function(){
   Route::apiResource('load_costing_id','Reports\CommonController');
   Route::apiResource('user_locations','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::apiResource('load_item_code','Reports\CommonController');
+  Route::post('load_advance_parameters','Reports\CommonController@load_advance_parameters');
 });

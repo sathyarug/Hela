@@ -75,14 +75,15 @@ class FabricInspectionController extends Controller
       $itemData=Item::select("*")->where('master_id','=',$grnDetails[0]['item_code'])->first();
       $invoice = GrnHeader::select('*')->where('inv_number','=',$grnDetails[0]['invoice_no'])->first();
       $batch= GrnHeader::select('*')->where('batch_no','=',$grnDetails[0]['batch_no'])->first();
-
+      $grn_detail_id=$grnDetails[0]['grn_detail_id'];
       if($grnDetails == null)
         throw new ModelNotFoundException("Requested color not found", 1);
       else
         return response([ 'data'  => ['data'=>$grnDetails,
                                     'item'=>$itemData,
                                       'invoiceNo'=>$invoice,
-                                      'batchNo'=>$batch
+                                      'batchNo'=>$batch,
+                                      'grn_detail_id'=>$grn_detail_id
                                     ]
                             ]);
 
@@ -213,14 +214,23 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           }*/
           //find exact line related to item code
           $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
-                                           where item_id=$item_code");
+                                           where item_id= $item_code
+                                           AND shop_order_id=$st->shop_order_id
+                                           AND style_id=$style_id
+                                           AND shop_order_detail_id=$st->shop_order_detail_id
+                                           AND bin=$bin
+                                           AND store=$main_store
+                                           AND sub_store=$sub_store
+                                           AND location=$st->location");
+                    //dd($findStoreStockLine);
 
             //if relted item is'nt avalabe in the stock
         if($findStoreStockLine==null){
           //enter as a new line
 
           $storeUpdate=new Stock();
-          $storeUpdate->customer_po_id=$rollplanDetail[0]->customer_po_id;
+          $storeUpdate->shop_order_id=$rollplanDetail[0]->shop_order_id;
+          $storeUpdate->shop_order_detail_id=$rollplanDetail[0]->shop_order_detail_id;
           $storeUpdate->style_id = $rollplanDetail[0]->style_id;
           $storeUpdate->item_id= $rollplanDetail[0]->item_code;
           $storeUpdate->size = $rollplanDetail[0]->size;
@@ -232,7 +242,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           $storeUpdate->standard_price = $rollplanDetail[0]->standard_price;
           $storeUpdate->purchase_price = $rollplanDetail[0]->purchase_price;
           //check staned price and purchase price is varied
-          if($storeUpdate->standard_price!=$storeUpdate->purchase_price){
+          if($storeUpdate->standard_price!=$rollplanDetail[0]->purchase_price){
             //save data on price variation table
             $priceVariance= new PriceVariance;
             $priceVariance->item_id=$rollplanDetail[0]->item_code;
@@ -254,23 +264,23 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
                                                   ->where('base_unit','=',$_uom_base_unit_code[0])
                                                   ->first();
                                                     // convert values according to the convertion rate
-                                                  $storeUpdate->inv_qty =(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                  $storeUpdate->total_qty = (double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                  $storeUpdate->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
+                                                  $storeUpdate->qty =(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                  //$storeUpdate->total_qty = (double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                  //$storeUpdate->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
           }
           //if inventory uom and purchase uom are the same
           if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
 
-            $storeUpdate->inv_qty =(double)($fabricInspection->qty);
-            $storeUpdate->total_qty = (double)($fabricInspection->qty);
-            $storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
+            $storeUpdate->qty =(double)($fabricInspection->qty);
+            //$storeUpdate->total_qty = (double)($fabricInspection->qty);
+            //$storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
           }
 
 
-          $storeUpdate->transfer_status="STOCKUPDATE";
+          //$storeUpdate->transfer_status="STOCKUPDATE";
           $storeUpdate->status=1;
           $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
-          $shopOrder->asign_qty=$fabricInspection->received_qty+$shopOrder->asign_qty;
+          $shopOrder->asign_qty=$fabricInspection->qty+$shopOrder->asign_qty;
           $shopOrder->save();
           $storeUpdate->save();
         }
@@ -292,12 +302,12 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
               $priceVariance->save();
             }
 
-            $stock->standard_price = $rollplanDetail[0]->standard_price;
+            //$stock->standard_price = $rollplanDetail[0]->standard_price;
             $stock->purchase_price = $rollplanDetail[0]->purchase_price;
             //if inventory uom and purchase uom is changed
             if($rollplanDetail[0]->uom!=$rollplanDetail[0]->inventory_uom){
 
-                $stock->uom = $rollplanDetail[0]->inventory_uom;
+                //$stock->uom = $rollplanDetail[0]->inventory_uom;
 
                 $_uom_unit_code=UOM::where('uom_id','=',$rollplanDetail[0]->inventory_uom)->pluck('uom_code');
                 $_uom_base_unit_code=UOM::where('uom_id','=',$rollplanDetail[0]->uom)->pluck('uom_code');
@@ -308,9 +318,9 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
                                                     ->where('base_unit','=',$_uom_base_unit_code[0])
                                                     ->first();
                                                     //update stock qty with convertion qty
-                                                    $stock->inv_qty =(double)$stock->inv_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                    $stock->total_qty = (double)$stock->total_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                    $stock->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
+                                                    $stock->qty =(double)$stock->qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                    //$stock->total_qty = (double)$stock->total_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                    //$stock->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
                                                   //  if($i==1)
                                                     //dd($stock->inv_qty);
 
@@ -318,15 +328,15 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
             //if inventory uom and purchase uom is same
             if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
 
-              $stock->inv_qty = (double)$stock->inv_qty+(double)($fabricInspection->qty);
-              $stock->total_qty=(double)$stock->total_qty+(double)($fabricInspection->qty);
-              $stock->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
+              $stock->qty = (double)$stock->qty+(double)($fabricInspection->qty);
+              //$stock->total_qty=(double)$stock->total_qty+(double)($fabricInspection->qty);
+              //$stock->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
 
 
             }
 
             $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
-            $shopOrder->asign_qty=$fabricInspection->received_qty+$shopOrder->asign_qty;
+            $shopOrder->asign_qty=$fabricInspection->qty+$shopOrder->asign_qty;
             $shopOrder->save();
             //$stock->total_qty=$stock->total_qty+$fabricInspection->received_qty;
            //$stock->inv_qty = $stock->inv_qty+$fabricInspection->received_qty;
@@ -412,11 +422,12 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           AND store_grn_detail.status='".$status."'
           "
           );
-          //dd($rollPlanDetails);
+        $grn_detail_id=0;
           return response([ 'data'  => ['data'=>$rollPlanDetails,
                                       'item'=>$item_code,
                                         'invoiceNo'=>$invoice_no,
-                                        'batchNo'=>$batch_no
+                                        'batchNo'=>$batch_no,
+                                        'grn_detail_id'=>$grn_detail_id
                                       ]
                               ]);
     }
@@ -587,12 +598,20 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
             }*/
             //find exact line on stock table
             $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
-                                             where item_id=$item_code");
+                                             where item_id=$st->item_code
+                                             AND shop_order_id=$st->shop_order_id
+                                             AND style_id=$st->style_id
+                                             AND shop_order_detail_id=$st->shop_order_detail_id
+                                             AND bin=$bin
+                                             AND store=$main_store
+                                             AND sub_store=$sub_store
+                                             AND location=$st->location");
             //if related line is not available
           if($findStoreStockLine==null){
             //update the stock table
             $storeUpdate=new Stock();
-            $storeUpdate->customer_po_id=$rollplanDetail[0]->customer_po_id;
+            $storeUpdate->shop_order_id=$rollplanDetail[0]->shop_order_id;
+            $storeUpdate->shop_order_detail_id=$rollplanDetail[0]->shop_order_detail_id;
             $storeUpdate->style_id = $rollplanDetail[0]->style_id;
             $storeUpdate->item_id= $rollplanDetail[0]->item_code;
             $storeUpdate->size = $rollplanDetail[0]->size;
@@ -625,20 +644,20 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
                                                     ->where('base_unit','=',$_uom_base_unit_code[0])
                                                     ->first();
 
-                                                    $storeUpdate->inv_qty =(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                    $storeUpdate->total_qty = (double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                    $storeUpdate->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
+                                                    $storeUpdate->qty =(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                    //$storeUpdate->total_qty = (double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                    //$storeUpdate->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
             }
             //if inventory uom and purchase varid
             if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
 
-              $storeUpdate->inv_qty =(double)($fabricInspection->qty);
-              $storeUpdate->total_qty = (double)($fabricInspection->qty);
-              $storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
+              $storeUpdate->qty =(double)($fabricInspection->qty);
+              //$storeUpdate->total_qty = (double)($fabricInspection->qty);
+              //$storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
             }
 
 
-            $storeUpdate->transfer_status="STOCKUPDATE";
+            //$storeUpdate->transfer_status="STOCKUPDATE";
             $storeUpdate->status=1;
             $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
             //if previous status pass
@@ -678,7 +697,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
               $shopOrder=ShopOrderDetail::find($rollplanDetail[0]->shop_order_detail_id);
               if($rollplanDetail[0]->uom!=$rollplanDetail[0]->inventory_uom){
 
-                  $stock->uom = $rollplanDetail[0]->inventory_uom;
+                  //$stock->uom = $rollplanDetail[0]->inventory_uom;
                   $_uom_unit_code=UOM::where('uom_id','=',$rollplanDetail[0]->inventory_uom)->pluck('uom_code');
                   $_uom_base_unit_code=UOM::where('uom_id','=',$rollplanDetail[0]->uom)->pluck('uom_code');
                   $ConversionFactor=ConversionFactor::select('*')
@@ -687,19 +706,19 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
                                                       ->first();
                                                       //dd((double)$stock->inv_qty-(double)$data[$i]['previous_received_qty']);
                                                       if($data[$i]['previous_status_name']=="PASS"){
-                                                      $stock->inv_qty =(double)$stock->inv_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                      $stock->total_qty = (double)$stock->total_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                      $stock->qty =(double)$stock->qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                      //$stock->total_qty = (double)$stock->total_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
                                                       $shopOrder->asign_qty=$fabricInspection->qty-(double)$data[$i]['previous_received_qty']+$shopOrder->asign_qty;
                                                     }
                                                   else if ($data[$i]['previous_status_name']!="PASS"){
 
-                                                      $stock->inv_qty =(double)$stock->inv_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
-                                                      $stock->total_qty = (double)$stock->total_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                      $stock->qty =(double)$stock->qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
+                                                      //$stock->total_qty = (double)$stock->total_qty+(double)($fabricInspection->qty*$ConversionFactor->present_factor);
                                                       $shopOrder->asign_qty=$fabricInspection->qty+$shopOrder->asign_qty;
                                                     }
 
 
-                                                      $stock->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
+                                                      //$stock->tolerance_qty = (double)($rollplanDetail[0]->maximum_tolarance*$ConversionFactor->present_factor);
                                                     //  if($i==1)
 
 
@@ -707,16 +726,16 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
               if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
                 //dd($fabricInspection->qty);
                 if($data[$i]['previous_status_name']=="PASS"){
-                $stock->inv_qty = (double)$stock->inv_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty);
-                $stock->total_qty=(double)$stock->total_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty);
+                $stock->qty = (double)$stock->qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty);
+                //$stock->total_qty=(double)$stock->total_qty-(double)$data[$i]['previous_received_qty']+(double)($fabricInspection->qty);
                 $shopOrder->asign_qty=$fabricInspection->qty-(double)$data[$i]['previous_received_qty']+$shopOrder->asign_qty;
               }
               else if ($data[$i]['previous_status_name']!="PASS"){
-                $stock->inv_qty = (double)$stock->inv_qty+(double)($fabricInspection->qty);
-                $stock->total_qty=(double)$stock->total_qty+(double)($fabricInspection->qty);
+                $stock->qty = (double)$stock->inv_qty+(double)($fabricInspection->qty);
+                //$stock->total_qty=(double)$stock->total_qty+(double)($fabricInspection->qty);
                 $shopOrder->asign_qty=$fabricInspection->qty+$shopOrder->asign_qty;
               }
-                $stock->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
+                //$stock->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
 
 
               }
