@@ -25,6 +25,7 @@ use App\Models\Store\GrnDetail;
 use App\Models\Org\UOM;
 use Illuminate\Support\Facades\DB;
 use App\Libraries\UniqueIdGenerator;
+use App\Libraries\Approval;
  class TransferLocationController extends Controller{
 
 
@@ -150,8 +151,19 @@ use App\Libraries\UniqueIdGenerator;
                       }
 
                       public function send_to_approval(Request $request) {
+                        $gate_pass_id=$request->formData['gate_pass_id'];
+                        //dd($gate_pass_id);
+                        $approval = new Approval();
+                        $user_id=auth()->payload()['user_id'];
+                        $approval->start('GATE_PASS',$gate_pass_id,$user_id);//start costing approval process
 
-                        dd($request);
+                        return response([
+                          'data' => [
+                            'status' => 'success',
+                            'message' => 'Gate Pass sent for approval',
+                            'costing' => $request
+                          ]
+                        ]);
 
                       }
                       public function storedetails (Request $request){
@@ -172,10 +184,26 @@ use App\Libraries\UniqueIdGenerator;
                               ->where('style_id','=',$details[$i]['style_id'])
                               ->where('item_id','=',$details[$i]['item_code'])
                               ->where('store','=',$details[$i]['main_store'])
+                              ->where('style_id','=',$details[$i]['style_id'])
+                              ->where('shop_order_id','=',$details[$i]['shop_order_id'])
+                              ->where('shop_order_detail_id','=',$details[$i]['shop_order_detail_id'])
                               ->where('sub_store','=',$details[$i]['sub_store'])
                               ->where('bin','=',$details[$i]['bin'])
                               ->where('location','=',$transer_location)
                               ->first();
+
+                              /*$findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
+                                                               where item_id= $poDetails->item_code
+                                                               AND shop_order_id=$st->shop_order_id
+                                                               AND style_id=$poDetails->style
+                                                               AND shop_order_detail_id=$st->shop_order_detail_id
+                                                               AND bin=$bin->store_bin_id
+                                                               AND store=$store->store_id
+                                                               AND sub_store=$store->substore_id
+                                                               AND location=$st->location");*/
+
+
+
                               //dd((double)$details[$i]['trans_qty']);
                               $itemType=Item::join('item_category','item_master.category_id','=','item_category.category_id')
                                              ->select('item_category.category_code')
@@ -215,13 +243,13 @@ use App\Libraries\UniqueIdGenerator;
                                                                                        ->first();
                                                  //dd($ConversionFactor);
                                                                                          // convert values according to the convertion rate
-                                                                                     $stockUpdateDetails->total_qty =$stockUpdateDetails->total_qty-(double)( $details[$i]['trans_qty']*$ConversionFactor->present_factor);
+                                                                                     $stockUpdateDetails->qty =$stockUpdateDetails->qty-(double)( $details[$i]['trans_qty']*$ConversionFactor->present_factor);
 
                                                }
                                                //if inventory uom and purchase uom are the same
                                                if($details[$i]['uom']==$details[$i]['inventory_uom']){
 
-                                              $stockUpdateDetails->total_qty=$stockUpdateDetails->total_qty-$details[$i]['trans_qty'];
+                                              $stockUpdateDetails->qty=$stockUpdateDetails->qty-$details[$i]['trans_qty'];
                                                }
 
 

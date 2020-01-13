@@ -31,7 +31,7 @@ class ApprovalController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-    //  $this->middleware('jwt.verify', ['except' => ['index']]);
+      $this->middleware('jwt.verify', ['except' => ['index', 'approve']]);
     }
 
     //get Color list
@@ -46,7 +46,7 @@ class ApprovalController extends Controller
    }
 
 
-   public function approve(Request $request){
+   public function approve(Request $request){    
       $approval = new Approval();
       $approval->readMail();
    }

@@ -23,6 +23,8 @@ use App\Models\Admin\UsrProfile;
 
 use App\Jobs\ApprovalMailSendJob;
 
+use App\Services\Merchandising\Costing\CostingService;
+
 //will be remove in later developments
 use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\Costing\CostingFinishGood;
@@ -319,6 +321,10 @@ class Approval
 
         $approval_stage_user = ProcessApprovalStageUser::find($approval_id);
         $user_profile = UsrProfile::where('email', '=', $message->getFrom()[0]->mail)->first();
+        if($approval_stage_user == null || $user_profile == null){
+          continue;
+        }
+        //echo json_encode($approval_id);die();
         //chek email replied user is same as approval user
         if($user_profile != null && $user_profile->user_id == $approval_stage_user->user_id) {
           $response = $this->approve($approval_id, $status, $approval_remark, $user_profile->user_id);
@@ -363,7 +369,9 @@ class Approval
         'costing' => Costing::find($document_id)
       ];
 
-      $this->generate_bom_for_costing($document_id);
+      $costingService = new CostingService();      
+      $costingService->genarate_bom($document_id);
+      //$this->generate_bom_for_costing($document_id);
 
       $mail_subject = 'COSTING ' . $status . ' - '.$document_id;
       $created_user = UsrProfile::find($data['costing']->created_by);
@@ -441,7 +449,7 @@ class Approval
   //those are use temporally
 
 
-  private function generate_bom_for_costing($costing_id) {
+  /*private function generate_bom_for_costing($costing_id) {
     $deliveries = CustomerOrderDetails::where('costing_id', '=', $costing_id)->get();
     $costing = Costing::find($costing_id);
     for($y = 0; $y < sizeof($deliveries); $y++) {
@@ -470,6 +478,6 @@ class Approval
       }
       DB::table('bom_details')->insert($items);
     }
-  }
+  }*/
 
 }

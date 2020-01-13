@@ -443,6 +443,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
     Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
+    Route::post('costing/edit-mode', 'Merchandising\Costing\CostingController@edit_mode');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
@@ -455,6 +456,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('costing-items','Merchandising\Costing\CostingItemController');
 
     Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
+
+
 
   //  Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
   //  Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
@@ -542,6 +545,7 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('bom/save-items','Merchandising\BomController@save_items');
     Route::post('bom/remove-item','Merchandising\BomController@remove_item');
     Route::post('bom/copy-item','Merchandising\BomController@copy_item');
+    Route::post('bom/edit-mode', 'Merchandising\BomController@edit_mode');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');

@@ -291,7 +291,7 @@ class CostingItemController extends Controller
       ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'costing_items.ship_term_id')
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
-        'item_master.article_no', 'item_master.master_code','item_master.master_description',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
         'costing_items.gross_consumption', 'costing_items.meterial_type', 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
@@ -337,7 +337,7 @@ class CostingItemController extends Controller
       ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'costing_items.ship_term_id')
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
-        'item_master.article_no', 'item_master.master_code','item_master.master_description','costing_items.feature_component_id',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description','costing_items.feature_component_id',
         'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
         'costing_items.gross_consumption', 'costing_items.meterial_type', 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',

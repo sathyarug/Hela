@@ -21,6 +21,8 @@ use App\Models\Merchandising\Position;
 use App\Models\Org\Color;
 use App\Models\Org\Supplier;
 use App\Models\Org\GarmentOptions;
+use App\Models\Finance\ShipmentTerm;
+use App\Models\Org\Country;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -144,69 +146,97 @@ class BomController extends Controller
 
 
     public function save_item(Request $request){
-      $item_data = $this->generate_item_data($request->item_data);
-      //  echo json_encode($item_data);die();
-      $bom_detail = null;
-      if($item_data['bom_detail_id'] <= 0){
-        $bom_detail = new BOMDetails();
-      }
-      else{
-        $bom_detail = BOMDetails::find($item_data['bom_detail_id']);
-      }
+      $request_data = $request->item_data;
+      $bom = BOMHeader::find($request_data['bom_id']);
+      $costing = Costing::find($bom->costing_id);
 
-      if($bom_detail->validate($item_data))
-      {
-        $bom_detail->fill($item_data);
+      if($costing->status == 'APPROVED'){//can add item
+        $item_data = $this->generate_item_data($request_data);
+        //  echo json_encode($item_data);die();
+        $bom_detail = null;
         if($item_data['bom_detail_id'] <= 0){
-          $bom_detail->status = 1;
+          $bom_detail = new BOMDetails();
         }
-        $bom_detail->save();
+        else{
+          $bom_detail = BOMDetails::find($item_data['bom_detail_id']);
+        }
 
-        $this->update_bom_summary_after_modify_item($bom_detail->bom_id);
+        if($bom_detail->validate($item_data))
+        {
+          $bom_detail->fill($item_data);
+          if($item_data['bom_detail_id'] <= 0){
+            $bom_detail->status = 1;
+          }
+          $bom_detail->save();
 
-        $saved_item = $this->get_item($bom_detail->bom_detail_id);
-        $saved_item['edited'] = false;
+          $this->update_bom_summary_after_modify_item($bom_detail->bom_id);
+
+          $saved_item = $this->get_item($bom_detail->bom_detail_id);
+          $saved_item['edited'] = false;
+          return response([
+            'data' => [
+              'status' => 'success',
+              'message' => 'BOM item saved successfully',
+              'item' => $saved_item
+            ]
+          ] , Response::HTTP_CREATED );
+        }
+        else{
+          $errors = $costing_item->errors();// failure, get errors
+          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+      }
+      else {//cannot add item
         return response([
           'data' => [
-            'message' => 'BOM item saved successfully',
-            'item' => $saved_item
+            'status' => 'error',
+            'message' => 'Cannot add itema to BOM. Costing is not approved.'
           ]
-        ] , Response::HTTP_CREATED );
-      }
-      else{
-        $errors = $costing_item->errors();// failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        ]);
       }
     }
 
 
     public function save_items(Request $request){
       $items = $request->items;
-      if(sizeof($items)){
-        for($x = 0 ; $x < sizeof($items) ; $x++){
-          $bom_detail = null;
-          if($items[$x]['bom_detail_id'] <= 0){
-            $bom_detail = new BOMDetails();
-          }
-          else{
-            $bom_detail = BOMDetails::find($items[$x]['bom_detail_id']);
-          }
+      if(sizeof($items) > 0){
+        $bom = BOMHeader::find($items[0]['bom_id']);
+        $costing = Costing::find($bom->costing_id);
 
-          $item_data = $this->generate_item_data($items[$x]);
-
-          if($bom_detail->validate($item_data))
-          {
-            $bom_detail->fill($item_data);
-            if($item_data['bom_detail_id'] <= 0){
-              $bom_detail->status = 1;
+        if($costing->status == 'APPROVED') {
+          for($x = 0 ; $x < sizeof($items) ; $x++){
+            $bom_detail = null;
+            if($items[$x]['bom_detail_id'] <= 0){
+              $bom_detail = new BOMDetails();
             }
-            $bom_detail->save();
+            else{
+              $bom_detail = BOMDetails::find($items[$x]['bom_detail_id']);
+            }
+
+            $item_data = $this->generate_item_data($items[$x]);
+
+            if($bom_detail->validate($item_data))
+            {
+              $bom_detail->fill($item_data);
+              if($item_data['bom_detail_id'] <= 0){
+                $bom_detail->status = 1;
+              }
+              $bom_detail->save();
+            }
+            else{
+              continue;
+            }
           }
-          else{
-            continue;
-          }
+          $this->update_bom_summary_after_modify_item($items[0]['bom_id']);
         }
-        $this->update_bom_summary_after_modify_item($items[0]['bom_id']);
+        else {
+          return response([
+            'data' => [
+              'status' => 'errors',
+              'message' => 'Cannot save items. Costing not approved.'
+            ]
+          ]);
+        }
       }
       return response([
         'data' => [
@@ -253,6 +283,118 @@ class BomController extends Controller
         ]
       ]);
     }
+
+
+    public function edit_mode(Request $request){
+      $bom_id = $request->bom_id;
+      $edit_status = $request->edit_status;
+      $bom = BOMHeader::find($bom_id);
+
+      if($bom != null){ //has a bom
+        $costing = Costing::find($bom->costing_id);
+
+        if($edit_status == 1){//put to edit status
+            $user_id = auth()->user()->user_id;
+
+            if($bom->edit_status == 1 && $bom->created_by == $user_id){//already in edit mode
+              //chek costing
+
+              if($costing->edit_status == 1){ //costing is in edit mode, cannot update bom
+                return response([
+                  'status' => 'error',
+                  'message' => "Cannot edit bom. Costing is in edit mode."
+                ]);
+              }
+              else if($costing->status != 'APPROVED'){
+                return response([
+                  'status' => 'error',
+                  'message' => "Cannot edit bom. Costing is not approved"
+                ]);
+              }
+              else {
+                return response([
+                  'status' => 'success',
+                  'message' => "You can edit costing"
+                ]);
+              }
+            }
+            else if($bom->edit_status == 1 && $bom->created_by != $user_id){
+              return response([
+                'status' => 'error',
+                'message' => "You cannot edit bom. It's already in edit mode"
+              ]);
+            }
+            else {
+              if($costing->status == 'APPROVED'){
+                if($bom->created_by == $user_id) {//costing created user and can edit
+                  $bom->edit_status = 1;
+                  $bom->edit_user = $user_id;
+                  $bom->save();
+                  //add costing to edit mode
+                  /*$costing->edit_status = 1;
+                  $costing->edit_user = $user_id;
+                  $costing->save();*/
+
+                  return response([
+                    'status' => 'success',
+                    'message' => "You can edit bom"
+                  ]);
+                }
+                else {
+                  return response([
+                    'status' => 'error',
+                    'message' => "Only Bom created user can edit the Bom"
+                  ]);
+                }
+              }
+              else {
+                return response([
+                  'status' => 'error',
+                  'message' => "Cannot edit bom. Costing is not approved"
+                ]);
+              }
+            }
+        }
+        else {//exit from edit mode
+          $user_id = auth()->user()->user_id;
+          if($bom->edit_status == 1 && $bom->edit_user == $user_id){//can edit
+            $bom->edit_status = 0;
+            $bom->edit_user = null;
+            $bom->save();
+            //remove costing from edit mode
+            /*$costing->edit_status = 0;
+            $costing->edit_user = null;
+            $costing->save();*/
+
+            return response([
+              'status' => 'success',
+              'message' => "Bom removed from edit status"
+            ]);
+          }
+          else {
+            return response([
+              'status' => 'error',
+              'message' => "Costing is not in the edit status or user don't have permissions to edit costing"
+            ]);
+          }
+        }
+      }
+      else {//no costing
+        return response([
+          'status' => 'error',
+          'message' => "Incorrect Bom"
+        ]);
+      }
+    }
+
+
+
+
+
+
+
+
+
 
 
     private function generate_item_data($item_data){
@@ -419,7 +561,7 @@ class BomController extends Controller
       ->leftJoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
       ->leftJoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
       ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id',
-        'item_master.article_no', 'item_master.master_code','item_master.master_description',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
         'bom_details.gross_consumption', 'bom_details.meterial_type', 'bom_details.freight_charges',
         'bom_details.mcq', 'bom_details.surcharge', 'bom_details.total_cost',
@@ -855,14 +997,14 @@ private function get_items($bom_id){
   ->leftjoin('merc_position', 'merc_position.position_id', '=', 'bom_details.position_id')
   ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'bom_details.purchase_uom_id')
   ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
-  ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+  ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'bom_details.supplier_id')
   ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'bom_details.origin_type_id')
   ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'bom_details.garment_options_id')
   ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'bom_details.ship_term_id')
   ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
   ->leftjoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
   ->leftjoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
-  ->select('bom_details.*','item_master.article_no', 'item_master.master_code','item_master.master_description',
+  ->select('bom_details.*','item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
   /*->select('bom_details.costing_item_id','bom_details.inventory_part_id','bom_details.costing_id',*/
     /*'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
     'bom_details.gross_consumption', 'bom_details.meterial_type', 'bom_details.freight_charges',
