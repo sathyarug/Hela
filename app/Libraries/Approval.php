@@ -31,6 +31,8 @@ use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\Costing\CostingFinishGoodComponent;
 use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 
+use App\Models\Merchandising\PoOrderApproval;
+
 use Webklex\IMAP\Facades\Client;
 
 
@@ -343,6 +345,12 @@ class Approval
     else if($process == 'CUSTOMER_ORDER'){
 
     }
+    else if($process == 'PO'){
+      $response_data = [
+        'po' => PoOrderApproval::find($document_id)
+      ];
+
+    }
     return $response_data;
   }
 
@@ -362,6 +370,67 @@ class Approval
       $to = [['email' => $created_user->email]];
       $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
       dispatch($job);
+    }
+
+    if($process_name == 'PO') {
+
+      if($status == 'APPROVED'){
+
+        $poApp = PoOrderApproval::find($document_id);
+        $data = [ 'po' => $poApp ];
+
+        $header = json_decode($poApp->po_header);
+        $details = json_decode($poApp->po_details);
+
+        $po_id= $header->po_id;
+        $deli_date = explode("T",$header->delivery_date);
+        $deliverto = $header->deliverto->loc_id;
+        $invoiceto = $header->invoiceto->company_id;
+
+        DB::table('merc_po_order_header')
+          ->where('po_id', $po_id)
+          ->update(['delivery_date' => $deli_date[0],
+                    'po_deli_loc' => $deliverto,
+                    'invoice_to' => $invoiceto ]);
+
+        for($x = 0 ; $x < sizeof($details) ; $x++){
+
+          DB::table('merc_po_order_details')
+            ->where('id', $details[$x]->id)
+            ->update(['req_qty' => $details[$x]->tra_qty,
+                      'tot_qty' => $details[$x]->value_sum]);
+
+        }
+
+        DB::table('merc_po_order_header')
+            ->where('po_id', $poApp->po_id)
+            ->update([ 'approval_status' => $status  ]);
+
+        $mail_subject = 'PO ' . $status . ' - '.$document_id;
+        $created_user = UsrProfile::find($poApp->created_by);
+        $to = [['email' => $created_user->email]];
+        $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
+        dispatch($job);
+
+      }else{
+
+        $poApp = PoOrderApproval::find($document_id);
+        $data = [ 'po' => $poApp ];
+
+        DB::table('merc_po_order_header')
+            ->where('po_id', $poApp->po_id)
+            ->update([ 'approval_status' => $status  ]);
+
+        $mail_subject = 'PO ' . $status . ' - '.$document_id;
+        $created_user = UsrProfile::find($poApp->created_by);
+        $to = [['email' => $created_user->email]];
+        $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
+        dispatch($job);
+
+
+      }
+
+
     }
   }
 

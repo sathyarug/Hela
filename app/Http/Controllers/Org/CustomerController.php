@@ -256,7 +256,9 @@ class CustomerController extends Controller
    public function loadCustomer(Request $request) {
 
         try{
-            echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get());
+            echo json_encode(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')
+            ->where('status', '<>', '0')
+            ->get());
 //            return CustomerResource::collection(Customer::where('customer_name', 'LIKE', '%'.$request->search.'%')->get() );
         }
         catch (JWTException $e) {

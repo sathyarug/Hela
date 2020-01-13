@@ -163,7 +163,7 @@ class ShopOrderController extends Controller
                    ->join('org_uom AS IUOM', 'item_master.inventory_uom', '=', 'IUOM.uom_id')
                    ->join('org_uom AS PUOM', 'merc_shop_order_detail.purchase_uom', '=', 'PUOM.uom_id')
                    ->join('org_supplier', 'merc_shop_order_detail.supplier', '=', 'org_supplier.supplier_id')
-                   ->join('merc_position', 'merc_shop_order_detail.postion_id', '=', 'merc_position.position_id')
+                   ->leftjoin('merc_position', 'merc_shop_order_detail.postion_id', '=', 'merc_position.position_id')
                    ->where('merc_shop_order_header.shop_order_id', '=', $shop_order_id)
                    ->where('merc_shop_order_header.status', '=',1)
                    ->get();
