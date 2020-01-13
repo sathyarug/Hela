@@ -18,9 +18,9 @@ class CostingItem extends BaseValidator {
 
     protected $fillable = [
       'feature_component_id', 'inventory_part_id', 'position_id', 'purchase_uom_id', 'origin_type_id', 'garment_options_id',
-      'unit_price', 'net_consumption', 'wastage', 'gross_consumption', 'meterial_type', 'freight_charges', 'mcq',
+      'unit_price', 'net_consumption', 'wastage', 'gross_consumption', /*'meterial_type',*/ 'freight_charges', 'mcq',
       'surcharge', 'total_cost', 'ship_mode', 'ship_term_id', 'lead_time', 'country_id', 'comments','costing_id',
-      'product_component_id', 'product_silhouette_id','product_component_line_no'
+      'product_component_id', 'product_silhouette_id','product_component_line_no', 'supplier_id'
   ];
 
     protected $rules = array(
