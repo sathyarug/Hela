@@ -495,7 +495,7 @@ class CustomerOrderDetailsController extends Controller
     $shoporder_detail->bom_id = $load_Bom_details[$x]['bom_id'];
     $shoporder_detail->costing_item_id = $load_Bom_details[$x]['costing_item_id'];
     $shoporder_detail->costing_id = $load_Bom_details[$x]['costing_id'];
-    $shoporder_detail->component_id = $load_Bom_details[$x]['component_id'];
+    $shoporder_detail->component_id = $load_Bom_details[$x]['product_component_id'];
     $shoporder_detail->inventory_part_id = $load_Bom_details[$x]['inventory_part_id'];
     $shoporder_detail->supplier = $load_Bom_details[$x]['supplier_id'];
     $shoporder_detail->purchase_price = $load_Bom_details[$x]['purchase_price'];
