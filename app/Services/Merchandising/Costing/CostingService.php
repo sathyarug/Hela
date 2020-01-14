@@ -107,9 +107,11 @@ class CostingService
           $bom_header->costing_id = $costing->id;
           $bom_header->fng_id = $item->master_id;
           $bom_header->country_id = $country->country_id;
+          $bom_header->fob = $country->fob;
           $bom_header->total_smv = $costing->total_smv;
           $bom_header->epm = $costing->epm;
           $bom_header->np_margin = $costing->np_margine;
+          $bom_header->finance_charges = $costing->finance_charges;
           $bom_header->finance_cost = $costing->finance_cost;
           $bom_header->fabric_cost = $costing->fabric_cost;
           $bom_header->elastic_cost = $costing->elastic_cost;
@@ -135,8 +137,10 @@ class CostingService
                 $component = ProductComponent::find($sfg_color->product_component_id);
             //echo json_encode($sfg_color->product_component_id);die();
                 $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
-                  .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code.
-                  '_'.$costing->buy->buy_name.'_'.$component->product_component_description.'_'.
+                  .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
+
+                $description .= ($costing->buy == null) ? '' : ('_'.$costing->buy->buy_name);
+                $description .= '_'.$costing->buy->buy_name.'_'.$component->product_component_description.'_'.
                   $silhouette->product_silhouette_description;
 
                 $sfg_item_count = Item::where('master_description', '=', $description)->count();
@@ -266,7 +270,7 @@ class CostingService
       $bom_detail->inventory_part_id = $costing_item->inventory_part_id;
       $bom_detail->position_id = $costing_item->position_id;
       $bom_detail->purchase_uom_id = $costing_item->purchase_uom_id;
-      $bom_detail->supplier_id = null;
+      $bom_detail->supplier_id = $costing_item->supplier_id;
       $bom_detail->origin_type_id = $costing_item->origin_type_id;
       $bom_detail->garment_options_id = $costing_item->garment_options_id;
       $bom_detail->purchase_price = $costing_item->unit_price;

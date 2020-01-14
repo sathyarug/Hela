@@ -411,12 +411,12 @@ class BomController extends Controller
         $item_data['position_id'] = null;
       }
       //item color
-      if($item_data['color_code'] != null && $item_data['color_code'] != ''){
+      /*if($item_data['color_code'] != null && $item_data['color_code'] != ''){
         $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_code'])->first()->color_id;
       }
       else{
         $item_data['color_id'] = null;
-      }
+      }*/
       //supplier
       if($item_data['supplier_name'] != null && $item_data['supplier_name'] != ''){
         $item_data['supplier_id'] = Supplier::where('supplier_name', '=', $item_data['supplier_name'])->first()->supplier_id;
@@ -553,17 +553,17 @@ class BomController extends Controller
       ->leftjoin('merc_position', 'merc_position.position_id', '=', 'bom_details.position_id')
       ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'bom_details.purchase_uom_id')
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
-      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'bom_details.supplier_id')
       ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'bom_details.origin_type_id')
       ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'bom_details.garment_options_id')
       ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'bom_details.ship_term_id')
       ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
       ->leftJoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
       ->leftJoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
-      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id',
+      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id','bom_details.bom_id',
         'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
-        'bom_details.gross_consumption', 'bom_details.meterial_type', 'bom_details.freight_charges',
+        'bom_details.gross_consumption', /*'bom_details.meterial_type',*/ 'bom_details.freight_charges',
         'bom_details.mcq', 'bom_details.surcharge', 'bom_details.total_cost',
         'bom_details.ship_mode', 'bom_details.lead_time', 'bom_details.comments',
         'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',

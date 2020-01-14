@@ -599,9 +599,12 @@ class ItemController extends Controller
     private function item_selector_list($search_type, $category, $sub_category, $search){
       //dd($search);
       if($search=="null"){$search='';}
-      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name', 'item_subcategory.subcategory_code')
+      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name',
+        'item_subcategory.subcategory_code', 'org_color.color_code', 'org_color.color_name', 'org_supplier.supplier_name')
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
       ->where('item_master.master_description', 'like', '%' . $search . '%');
 
       if($search_type == 'MATERIAL_ITEMS'){
