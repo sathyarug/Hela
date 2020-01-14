@@ -39,8 +39,8 @@
   </style>
 </head>
 
-<body yahoo bgcolor="#f6f8f1">
-<table width="100%" bgcolor="#f6f8f1" border="0" cellpadding="0" cellspacing="0">
+<body yahoo bgcolor="#E2E2E2">
+<table width="100%" bgcolor="#E2E2E2" border="0" cellpadding="0" cellspacing="0">
 <tr>
   <td>
     <!--[if (gte mso 9)|(IE)]>

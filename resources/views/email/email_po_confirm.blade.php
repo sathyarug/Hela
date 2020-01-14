@@ -58,34 +58,7 @@
               </td>
             </tr>
           </table>
-          <!--[if (gte mso 9)|(IE)]>
-            <table width="425" align="left" cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                <td>
-          <![endif]-->
-          <!--<table class="col425" align="left" border="0" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 425px;">
-            <tr>
-              <td height="70">
-                <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                  <tr>
-                    <td class="subhead" style="padding: 0 0 0 3px;">
-                      CREATING
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="h1" style="padding: 5px 0 0 0;">
-                      Responsive
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>-->
-          <!--[if (gte mso 9)|(IE)]>
-                </td>
-              </tr>
-          </table>
-          <![endif]-->
+
         </td>
       </tr>
       <tr>
@@ -93,12 +66,12 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td class="h2">
-                Costing Approval
+
               </td>
             </tr>
             <tr>
               <td class="bodycopy">
-                This is a sample costing approval email
+                
               </td>
             </tr>
           </table>
@@ -113,15 +86,22 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                   <tr>
                     <td class="bodycopy">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, eget accumsan dictum, nisi libero ultricies ipsum, in posuere mauris neque at erat.
+                      <table border="1">
+                        <tr>
+
+                        </tr>
+                        <tr>
+
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 20px 0 0 0;">
+                    <td style="padding: 10px 0 0 0;">
                       <table class="buttonwrapper" bgcolor="#e05443" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                           <td class="button" height="45">
-                            <a href="#">Claim yours!</a>
+                            <a href="#">Login To System</a>
                           </td>
                         </tr>
                       </table>
@@ -140,25 +120,14 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" class="footercopy">
-                &reg; Someone, somewhere 20XX<br/>
-                <a href="#" class="unsubscribe"><font color="#ffffff">Unsubscribe</font></a>
-                <span class="hide">from this newsletter instantly</span>
+                &reg; HELA CLOTHING PVT LTD, 2019<br/>
+
               </td>
             </tr>
             <tr>
               <td align="center" style="padding: 20px 0 0 0;">
                 <table border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.facebook.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/facebook.png" width="37" height="37" alt="Facebook" border="0" />
-                      </a>
-                    </td>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.twitter.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/twitter.png" width="37" height="37" alt="Twitter" border="0" />
-                      </a>
-                    </td>
                   </tr>
                 </table>
               </td>

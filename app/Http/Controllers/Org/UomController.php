@@ -36,6 +36,14 @@ class UomController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+
+      else if($type == 'auto_2')    {
+        $master_id = $request->master_id;
+        return response([
+          'data' => $this->mat_uom_list($master_id)
+        ]);
+      }
+
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -196,6 +204,24 @@ class UomController extends Controller
     }
 
 
+    public function mat_uom_list($master_id){
+      //$uom_lists = SubCategory::where('category_id', '=', $category_id)->where('status','=','1')->get();
+      //return $uom_lists;
+      //$uom_lists = UOM::select('uom_id','uom_code')
+      //->where('status', '=', 1)
+  		//->where([['uom_code', 'like', '%' . $search . '%'],]) ->get();
+
+    $uom_lists =  DB::table('item_uom')
+                      ->select('org_uom.uom_id','org_uom.uom_code')
+                      ->join('org_uom', 'item_uom.uom_id', '=', 'org_uom.uom_id')
+                      ->where('item_uom.master_id' , '=', $master_id )
+                      ->where('org_uom.status' , '<>', 0 )
+                      ->get();
+
+      return $uom_lists;
+    }
+
+
     //get filtered fields only
     private function list($active = 0 , $fields = null)
     {
@@ -221,6 +247,8 @@ class UomController extends Controller
   		->where([['uom_code', 'like', '%' . $search . '%'],]) ->get();
   		return $uom_lists;
   	}
+
+
 
 
     //get searched UOMs for datatable plugin format
