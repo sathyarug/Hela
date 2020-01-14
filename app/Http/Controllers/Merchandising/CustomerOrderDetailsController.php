@@ -25,6 +25,7 @@ use App\Models\Merchandising\Costing\CostingFinishGoodComponentItem;
 use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
 use App\Models\Merchandising\ShopOrderDelivery;
+use App\Models\Merchandising\Item\Item;
 
 class CustomerOrderDetailsController extends Controller
 {
@@ -137,6 +138,9 @@ class CustomerOrderDetailsController extends Controller
     {
       $detail = CustomerOrderDetails::with(['order_country','order_location'])->find($id);
       $header = CustomerOrder::find($detail['order_id']);
+      $fng = $detail['fng_id'];
+
+      //dd($fng);
 
       $colour_type = CustomerOrderDetails::select('merc_color_options.col_opt_id', 'merc_color_options.color_option')
                    ->join('merc_color_options', 'merc_customer_order_details.colour_type', '=', 'merc_color_options.col_opt_id')
@@ -145,7 +149,7 @@ class CustomerOrderDetailsController extends Controller
 
       $detail['col_type'] = $colour_type;
 
-      $st_colour = Costing::select('item_master.master_id','item_master.master_code','item_master.master_description','org_color.color_id', 'org_color.color_code')
+    /*  $st_colour = Costing::select('item_master.master_id','item_master.master_code','item_master.master_description','org_color.color_id', 'org_color.color_code')
                    ->join('bom_header', 'costing.id', '=', 'bom_header.costing_id')
                    ->join('item_master', 'bom_header.fng_id', '=', 'item_master.master_id')
                    ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
@@ -153,9 +157,49 @@ class CustomerOrderDetailsController extends Controller
                    ->where('bom_stage_id', '=', $header['order_stage'])
                    ->where('season_id', '=', $header['order_season'])
                    ->where('color_type_id', '=', $detail['colour_type'])
-                   ->get();
+                   ->get(); */
 
-      $detail['style_colour']  = $st_colour;
+       $fng_main=  DB::table('item_master')
+                     ->select('item_master.master_id','item_master.master_code')
+                     ->where('item_master.master_id' , '=', $fng )
+                     ->get();
+
+       $fng_col=  DB::table('item_master')
+                     ->select('org_color.color_id', 'org_color.color_code')
+                     ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+                     ->where('item_master.master_id' , '=', $fng )
+                     ->get();
+
+       $item_des =  DB::table('item_master')
+                     ->select('item_master.master_description')
+                     ->where('item_master.master_id' , '=', $fng )
+                     ->get();
+
+       $fng_fob =  DB::table('bom_header')
+                     ->select('bom_header.fob')
+                     ->where('bom_header.fng_id' , '=', $fng )
+                     ->get();
+
+      $detail['style_fng']  = $fng_main;
+      $detail['style_colour']  = $fng_col;
+      $detail['item_des']  = $item_des;
+      $detail['fob']  = $fng_fob;
+
+    /*  $st_colour = Item::select('org_color.color_id', 'org_color.color_code')
+                   ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+                   ->where('item_master.master_id', '=', $fng)
+                   ->get();
+      $arr['item_fng_colour']  = $st_colour;
+
+      $fng_fob =  DB::table('bom_header')
+                      ->select('bom_header.fob')
+                      ->where('bom_header.fng_id' , '=', $fng )
+                      ->get();
+
+      $item_des =  DB::table('item_master')
+                      ->select('item_master.master_description')
+                      ->where('item_master.master_id' , '=', $fng )
+                      ->get();*/
 
       if($detail == null)
         throw new ModelNotFoundException("Requested order details not found", 1);
@@ -944,11 +988,12 @@ class CustomerOrderDetailsController extends Controller
       DATE_FORMAT(a.ex_factory_date, '%d-%b-%Y') as ex_factory_date_01,
       DATE_FORMAT(a.pcd, '%d-%b-%Y') as pcd_01,
        a.*,round((a.order_qty * a.fob),4) as total_value,
-      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name
+      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name,item_master.master_code
       from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
       inner join org_color on a.style_color = org_color.color_id
+      inner join item_master on a.fng_id = item_master.master_id
       where
       a.order_id = ? and
       #a.delivery_status != ? and
@@ -1080,6 +1125,38 @@ class CustomerOrderDetailsController extends Controller
     ->get();
 
     $arr['fob']  = $fob;
+
+    if($arr == null)
+      throw new ModelNotFoundException("Requested section not found", 1);
+    else
+      return response([ 'data' => $arr ]);
+
+    }
+
+
+    public function load_fng_colour(Request $request){
+
+    $fng  = $request->fng;
+    //item_fng_colour
+
+    $st_colour = Item::select('org_color.color_id', 'org_color.color_code')
+                 ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
+                 ->where('item_master.master_id', '=', $fng)
+                 ->get();
+    $arr['item_fng_colour']  = $st_colour;
+
+    $fng_fob =  DB::table('bom_header')
+                    ->select('bom_header.fob')
+                    ->where('bom_header.fng_id' , '=', $fng )
+                    ->get();
+
+    $item_des =  DB::table('item_master')
+                    ->select('item_master.master_description')
+                    ->where('item_master.master_id' , '=', $fng )
+                    ->get();
+
+    $arr['fob'] = $fng_fob;
+    $arr['descrip'] = $item_des;
 
     if($arr == null)
       throw new ModelNotFoundException("Requested section not found", 1);
