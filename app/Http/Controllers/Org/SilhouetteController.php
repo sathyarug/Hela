@@ -56,14 +56,15 @@ class SilhouetteController extends Controller
         return response([ 'data' => [
           'message' => 'Silhouette saved successfully',
           'silhouette' => $silhouette,
-            'status'=>'1'
+          'status'=>'1'
           ]
         ], Response::HTTP_CREATED );
       }
       else
       {
-          $errors = $silhouette->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $silhouette->errors();// failure, get errors
+        $errors_str = $silhouette->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
@@ -145,13 +146,17 @@ class SilhouetteController extends Controller
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->product_silhouette_id , $request->product_silhouette_description));
+        return response($this->validate_duplicate_name($request->product_silhouette_id , $request->product_silhouette_description));
+      }
+      if($for == 'duplicate-code')
+      {
+        return response($this->validate_duplicate_code($request->product_silhouette_id , $request->silhouette_code));
       }
     }
 
 
     //check Silhouette code already exists
-    private function validate_duplicate_code($id , $code)
+    private function validate_duplicate_name($id , $code)
     {
       $silhouette = Silhouette::where('product_silhouette_description','=',$code)->first();
       if($silhouette == null){
@@ -162,6 +167,20 @@ class SilhouetteController extends Controller
       }
       else {
         return ['status' => 'error','message' => 'Silhouette description already exists'];
+      }
+    }
+
+    private function validate_duplicate_code($id , $code)
+    {
+      $silhouette = Silhouette::where('silhouette_code','=',$code)->first();
+      if($silhouette == null){
+        return ['status' => 'success'];
+      }
+      else if($silhouette->product_silhouette_id == $id){
+        return ['status' => 'success'];
+      }
+      else {
+        return ['status' => 'error','message' => 'Silhouette code already exists'];
       }
     }
 

@@ -13,7 +13,7 @@ class BOMDetails extends BaseValidator
     public $timestamps = false;
 
     protected $fillable = [
-      'feature_component_id', 'inventory_part_id', 'position_id', 'purchase_uom_id', 'origin_type_id', 'garment_options_id',
+      'feature_component_id', 'inventory_part_id', 'costing_id', 'position_id', 'purchase_uom_id', 'origin_type_id', 'garment_options_id',
     'bom_unit_price', 'net_consumption', 'wastage', 'gross_consumption', /*'meterial_type',*/ 'freight_charges', 'mcq',
     'surcharge', 'total_cost', 'ship_mode', 'ship_term_id', 'lead_time', 'country_id', 'comments','bom_id',
     'product_component_id', 'product_silhouette_id', 'supplier_id'];

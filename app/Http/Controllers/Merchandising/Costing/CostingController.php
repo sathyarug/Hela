@@ -865,7 +865,7 @@ class CostingController extends Controller {
       return response([
         'data' => [
           'status' => 'success',
-          'message' => 'Size chart updated successfully.'
+          'message' => 'Size chart saved successfully.'
         ]
       ]);
     }

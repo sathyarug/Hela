@@ -306,7 +306,7 @@ class IssueController extends Controller
 
        ");
         //dd((double)$pendingIssueQty[0]->pendindg_qty);
-      if($request->requested_qty<=(double)$pendingIssueQty[0]->pendindg_qty){
+      /*if($request->requested_qty<=(double)$pendingIssueQty[0]->pendindg_qty){
         $grnDetails=[];
 
         return response([ 'data' => [
@@ -317,7 +317,7 @@ class IssueController extends Controller
           ]
         ], Response::HTTP_CREATED );
 
-      }
+      }*/
 
        $itemType=Item::join('item_category','item_master.category_id','=','item_category.category_id')
                       ->select('item_category.category_code')
