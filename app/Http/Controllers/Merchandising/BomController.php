@@ -560,7 +560,7 @@ class BomController extends Controller
       ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
       ->leftJoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
       ->leftJoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
-      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id',
+      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id','bom_details.bom_id',
         'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
         'bom_details.gross_consumption', /*'bom_details.meterial_type',*/ 'bom_details.freight_charges',
