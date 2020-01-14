@@ -424,6 +424,7 @@ class CustomerOrderDetailsController extends Controller
   public function released_SO_All(Request $request){
 
     $details  = $request->details;
+    //dd($details);
     $shop_order_id = '';
     for($x = 0 ; $x < sizeof($details) ; $x++)
     {
@@ -493,6 +494,10 @@ class CustomerOrderDetailsController extends Controller
                      'shop_order_connected_by' => $user->user_id,
                      'shop_order_connected_date' => date("Y-m-d H:i:s"),
                      'delivery_status' => 'RELEASED']);
+
+         DB::table('merc_customer_order_header')
+             ->where('order_id', $request->details['order_id'])
+             ->update(['order_status' => 'RELEASED']);
 
       }else{
 
@@ -575,6 +580,11 @@ class CustomerOrderDetailsController extends Controller
                 'shop_order_connected_by' => $user->user_id,
                 'shop_order_connected_date' => date("Y-m-d H:i:s"),
                 'delivery_status' => 'RELEASED']);
+
+     DB::table('merc_customer_order_header')
+       ->where('order_id', $request->details['order_id'])
+       ->update(['order_status' => 'RELEASED']);
+
 
     return response([
       'data' => [
