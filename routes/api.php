@@ -388,6 +388,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('released_SO_All','Merchandising\CustomerOrderDetailsController@released_SO_All');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
+    Route::post('load_fng_colour' , 'Merchandising\CustomerOrderDetailsController@load_fng_colour');
+    Route::post('load_fng_country' , 'Merchandising\CustomerOrderDetailsController@load_fng_country');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
@@ -788,7 +790,7 @@ Route::prefix('reports/')->group(function(){
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
   //Inventory scarp header report
-  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
 

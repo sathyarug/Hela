@@ -106,7 +106,7 @@ class GrnController extends Controller
                      $grnDetails->color = $poDetails->colour;
                      $grnDetails->size = $poDetails->size;
                      $grnDetails->uom = $poDetails->uom;
-                     $grnDetails->po_qty = (double)$poDetails->tot_qty;
+                     $grnDetails->po_qty = (double)$poDetails->req_qty;
                      $grnDetails->grn_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
                      $grnDetails->original_bal_qty=(double)$rec['original_bal_qty'];
@@ -505,7 +505,7 @@ class GrnController extends Controller
         $qty = 0;
         foreach ($dataArr as $data){
             $qty += $data['qty'];
-            $poQty += $data['tot_qty'];
+            $poQty += $data['req_qty'];
 
         }
 
@@ -563,7 +563,7 @@ class GrnController extends Controller
                     $grnDetails->color = $poData->colour;
                     $grnDetails->size = $poData->size;
                     $grnDetails->uom = $poData->uom;
-                    $grnDetails->po_qty = $poData->tot_qty;
+                    $grnDetails->po_qty = $poData->req_qty;
                     $grnDetails->grn_qty = (float)$rec['qty'];
                     $grnDetails->bal_qty = $poData->bal_qty - (float)$rec['qty'];
                     $grnDetails->status = 0;
@@ -756,7 +756,7 @@ class GrnController extends Controller
               $grnDetails->color = $poDetails->colour;
               $grnDetails->size = $poDetails->size;
               $grnDetails->uom = $poDetails->uom;
-              $grnDetails->po_qty = (double)$poDetails->tot_qty;
+              $grnDetails->po_qty = (double)$poDetails->req_qty;
               $grnDetails->grn_qty = $dataset[$i]['qty'];
               $grnDetails->bal_qty =(double)$dataset[$i]['bal_qty'];
               $grnDetails->maximum_tolarance =$dataset[$i]['maximum_tolarance'];
@@ -980,7 +980,7 @@ class GrnController extends Controller
     //dd();
     $sub_store=SubStore::find($headerData[0]->sub_store);
 
-    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.grn_qty as pre_qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
+    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as req_qty,store_grn_detail.grn_qty as qty,store_grn_detail.grn_qty as pre_qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
       org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.master_code,item_master.category_id,store_grn_detail.uom as inventory_uom
 
       from
@@ -1058,7 +1058,7 @@ class GrnController extends Controller
                                        org_color.color_name,
                                       org_size.size_name,
                                       org_uom.uom_code,
-                                      merc_po_order_details.tot_qty,
+                                      merc_po_order_details.req_qty,
                                     DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y')as rm_in_date,
                                         #merc_customer_order_details.rm_in_date,
                                     DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y')as pcd,
@@ -1136,7 +1136,7 @@ class GrnController extends Controller
                     AND item_master.master_id like '%".$itemDesacription."%'
                     AND merc_customer_order_details.pcd like '%".$pcd."%'
                     AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."%'
-                    AND merc_po_order_details.tot_qty>(SELECT
+                    AND merc_po_order_details.req_qty>(SELECT
                                                           IFNULL(SUM(SGD.grn_qty),0)
                                                           FROM
                                                          store_grn_detail AS SGD
