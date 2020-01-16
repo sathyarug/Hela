@@ -998,7 +998,7 @@ class CustomerOrderDetailsController extends Controller
       DATE_FORMAT(a.ex_factory_date, '%d-%b-%Y') as ex_factory_date_01,
       DATE_FORMAT(a.pcd, '%d-%b-%Y') as pcd_01,
        a.*,round((a.order_qty * a.fob),4) as total_value,
-      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name,item_master.master_code
+      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name,item_master.master_code,item_master.master_description
       from merc_customer_order_details a
       inner join org_country on a.country = org_country.country_id
       inner join org_location on a.projection_location = org_location.loc_id
