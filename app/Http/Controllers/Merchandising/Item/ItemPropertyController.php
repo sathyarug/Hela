@@ -261,7 +261,8 @@ class ItemPropertyController extends Controller
       }
 
     private function load_property_values($property_id){
-        $list = PropertyValueAssign::where('property_id', '=', $property_id)->get();
+        $list = PropertyValueAssign::where([['status', '=', '1'],['property_id','=',$property_id]])->get();
+
         return $list;
     }
 
