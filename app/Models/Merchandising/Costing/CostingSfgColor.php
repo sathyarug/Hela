@@ -30,6 +30,11 @@ class CostingSfgColor extends BaseValidator {
         return $this->belongsTo('App\Models\Merchandising\ProductSilhouette', 'product_silhouette_id')->select(['product_silhouette_description']);
     }
 
+    public function color()
+    {
+        return $this->belongsTo('App\Models\Org\Color', 'color_id')->select(['color_code', 'color_name']);
+    }
+
     //Validation functions......................................................
     /**
     *unique:table,column,except,idColumn

@@ -28,6 +28,7 @@ use App\Models\Merchandising\Costing\CostingSfgItem;
 use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\BOMDetails;
 use App\Services\Merchandising\Bom;
+use App\Models\Org\SilhouetteClassification;
 
 class CostingService
 {
@@ -42,7 +43,7 @@ class CostingService
     $category = Category::where('category_code', '=', 'FNG')->first();
     $sfg_category = Category::where('category_code', '=', 'SFG')->first();
 
-    $product_silhouette = ProductSilhouette::find($costing->style->product_silhouette_id);
+    $product_silhouette = SilhouetteClassification::find($costing->style->product_silhouette_id);//ProductSilhouette::find($costing->style->product_silhouette_id);
     $division = Division::find($costing->style->division_id);
     //echo json_encode($division);die();
     $season = Season::find($costing->season_id);
@@ -64,8 +65,11 @@ class CostingService
         if($exists_fng_item == null) {//no finish good exists, create new one and generate bom
           //generate new fng
           $item = new Item();
-          $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
-            .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
+          /*$description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
+            .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;*/
+
+            $description = $costing->style->style_no.'_'.$product_silhouette->sil_class_description.'_'
+              .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
 
           $description .= ($costing->buy == null) ? '' : ('_'.$costing->buy->buy_name);
 
@@ -137,12 +141,15 @@ class CostingService
                 $silhouette = ProductSilhouette::find($sfg_color->product_silhouette_id);
                 $component = ProductComponent::find($sfg_color->product_component_id);
             //echo json_encode($sfg_color->product_component_id);die();
-                $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
-                  .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
+              /*  $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
+                  .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;*/
+
+                  $description = $costing->style->style_no.'_'.$product_silhouette->sil_class_description.'_'
+                    .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
 
                 $description .= ($costing->buy == null) ? '' : ('_'.$costing->buy->buy_name);
-                $description .= '_'.$costing->buy->buy_name.'_'.$component->product_component_description.'_'.
-                  $silhouette->product_silhouette_description;
+                $description .= '_'.$component->product_component_description.'_'.
+                  $silhouette->product_silhouette_description.'_'.$sfg_color->color->color_code;
 
                 $sfg_item_count = Item::where('master_description', '=', $description)->count();
                 if($sfg_item_count > 0){
@@ -186,7 +193,8 @@ class CostingService
 
                 $costing_items = CostingItem::where('costing_id', '=', $costing_id)
                 ->where('product_component_id', '=', $sfg_item->product_component_id)
-                ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)->get();
+                ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)
+                ->where('product_component_line_no', '=', $sfg_item->product_component_line_no)->get();
                 //create bom items
                 $this->create_bom_items($bom_header, $costing_items, $bom_header->created_by, $bom_header->user_loc_id);
             }
