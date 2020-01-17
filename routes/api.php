@@ -354,7 +354,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
   Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
-  //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
+  //Route::post('fabricInspection/autoBatchNoFilter','Store\FabricInspectionController@autocomplete_search_bacth_filter');
 });
 Route::prefix('d2d/')->group(function(){
 
@@ -788,7 +788,7 @@ Route::prefix('reports/')->group(function(){
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
   //Inventory scarp header report
-  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
 
