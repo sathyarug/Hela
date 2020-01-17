@@ -25,6 +25,7 @@ use App\Models\Merchandising\Costing\Costing;
 use App\Models\Merchandising\Costing\CostingFinishGood;
 
 use App\Libraries\Approval;
+use App\Services\Merchandising\Costing\CostingService;
 
 class ApprovalController extends Controller
 {
@@ -46,9 +47,11 @@ class ApprovalController extends Controller
    }
 
 
-   public function approve(Request $request){    
-      $approval = new Approval();
-      $approval->readMail();
+   public function approve(Request $request){
+      $costingService = new CostingService();
+      $costingService->genarate_bom(26);
+      /*$approval = new Approval();
+      $approval->readMail();*/
    }
 
 

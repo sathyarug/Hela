@@ -388,6 +388,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('released_SO_All','Merchandising\CustomerOrderDetailsController@released_SO_All');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
+    Route::post('load_fng_colour' , 'Merchandising\CustomerOrderDetailsController@load_fng_colour');
+    Route::post('load_fng_country' , 'Merchandising\CustomerOrderDetailsController@load_fng_country');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
