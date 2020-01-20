@@ -35,8 +35,6 @@ class FabticRollBarcode extends Controller
                 ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'merc_shop_order_delivery.delivery_id')
                 ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
                 ->join('item_master', 'item_master.master_id', '=', 'store_grn_detail.item_code')
-                // ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
-                // ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
                 ->join('org_supplier', 'org_supplier.supplier_id', '=', 'store_grn_header.sup_id')
                 ->select(
                     'store_roll_plan.roll_plan_id',
@@ -98,8 +96,6 @@ class FabticRollBarcode extends Controller
                 ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'merc_shop_order_delivery.delivery_id')
                 ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
                 ->join('item_master', 'item_master.master_id', '=', 'store_grn_detail.item_code')
-                // ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
-                // ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
                 ->join('org_supplier', 'org_supplier.supplier_id', '=', 'store_grn_header.sup_id')
                 ->select(
                     'store_trim_packing_detail.trim_packing_id',

@@ -51,18 +51,27 @@ class  ProductSpecificationController extends Controller
     {
       if($this->authorize->hasPermission('PROD_SPEC_MANAGE'))//check permission
       {
-        $productSpecification= new  ProductSpecification ();
-        $productSpecification->fill($request->all());
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($productSpecification);
-        $productSpecification->status = 1;
-        $productSpecification->save();
+        
+        $productSpecification = new  ProductSpecification ();
+        if($productSpecification->validate($request->all()))
+        {
+          $productSpecification->fill($request->all());
+          $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($productSpecification);
+          $productSpecification->status = 1;
+          $productSpecification->save();
 
-        return response([ 'data' => [
-          'message' => 'Product Type saved successfully',
-          'productSpecification' => $productSpecification,
-          'status'=>1
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => 'Product Type saved successfully',
+            'productSpecification' => $productSpecification,
+            'status'=>1
+            ]
+          ], Response::HTTP_CREATED );
+        }else{
+          $errors = $productSpecification->errors();// failure, get errors
+          $errors_str = $productSpecification->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
       }
       else{
         return response($this->authorize->error_response(), 401);
@@ -145,19 +154,39 @@ class  ProductSpecificationController extends Controller
         return response($this->authorize->error_response(), 401);
       }
     }
-
-
+    
     //validate anything based on requirements
     public function validate_data(Request $request){
       $for = $request->for;
       if($for == 'duplicate')
       {
-        return response($this->validate_duplicate_code($request->prod_cat_id , $request->prod_cat_description));
+        return response($this->validate_duplicate_name($request->prod_cat_id , $request->prod_cat_description));
+      }
+      else if($for == 'duplicate-code')
+      {
+        return response($this->validate_duplicate_code($request->prod_cat_id , $request->category_code));
       }
     }
 
     //check shipment cterm code code already exists
     private function validate_duplicate_code($id , $code)
+    {
+       $productSpecification = ProductSpecification::where([['category_code','=',$code]])->first();
+
+      if( $productSpecification  == null){
+         echo json_encode(array('status' => 'success'));
+      }
+      else if( $productSpecification ->prod_cat_id == $id){
+         echo json_encode(array('status' => 'success'));
+      }
+      else {
+       echo json_encode(array('status' => 'error','message' => 'Product type code already exists'));
+      }
+    }
+
+
+    //check shipment cterm code code already exists
+    private function validate_duplicate_name($id , $code)
     {
        $productSpecification = ProductSpecification::where([['prod_cat_description','=',$code]])->first();
 
@@ -168,10 +197,9 @@ class  ProductSpecificationController extends Controller
          echo json_encode(array('status' => 'success'));
       }
       else {
-       echo json_encode(array('status' => 'error','message' => 'Record already exists'));
+       echo json_encode(array('status' => 'error','message' => 'Product type already exists'));
       }
     }
-
 
     //get filtered fields only
     private function list($active = 0 , $fields = null)

@@ -30,12 +30,10 @@ class StoreBin extends BaseValidator
     *The field under validation must not exist within the given database table
     */
     protected function getValidationRules($data /*model data with attributes*/) {
-      return [
-          'payment_code' => [
-            'required',
-            'unique:fin_payment_term,payment_code,'.$data['payment_term_id'].',payment_term_id',
-          ],
-          'payment_description' => 'required'
+      return [         
+          'store_bin_name' => 'required',
+          'store_id' => 'required',
+          'substore_id' => 'required',
       ];
     }
 

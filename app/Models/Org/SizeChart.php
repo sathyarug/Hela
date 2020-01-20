@@ -14,10 +14,25 @@ class SizeChart extends BaseValidator
 
     protected $fillable = ['size_chart_id','chart_name'];
     
-    protected $rules=array(
-        'chart_name'=>'required',
-        'description'=>'required'
-    );
+    // protected $rules=array(
+    //     'chart_name'=>'required',
+    //     'description'=>'required'
+    // );
+
+    //Validation Functions
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    **/
+    protected function getValidationRules($data) {
+      return [
+          'chart_name' => [
+            'required',
+            'unique:org_size_chart,chart_name,'.$data['size_chart_id'].',size_chart_id',
+          ],
+          'description' => 'required'
+      ];
+    }
 
     public function __construct()
     {

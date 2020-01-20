@@ -12,7 +12,6 @@ class Component extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-
     public function __construct() {
         parent::__construct();
     }

@@ -345,7 +345,7 @@ class InventoryScarpController extends Controller
             $st->sub_store = $row['sub_store'];
             $st->bin = $row['bin'];
             $st->style_id = $row['style_id'];
-            $st->item_id = $row['item_code'];
+            $st->item_code = $row['item_code'];
             $st->material_code = $row['master_code'];
             $st->uom = $row['inventory_uom'];
             $st->qty = (double)$row['scarp_qty']*-1;

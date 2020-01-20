@@ -16,9 +16,18 @@ class BuyMaster extends BaseValidator{
 
   protected $fillable = ['buy_name'];
 
-  protected $rules=array(
-      'buy_name'=>'required'
-  );
+  // protected $rules=array(
+  //     'buy_name'=>'required'
+  // );
+
+  protected function getValidationRules($data) {
+    return [
+        'buy_name' => [
+          'required',
+          'unique:buy_master,buy_name,'.$data['buy_id'].',buy_id',
+        ],
+    ];
+  }
 
   public function __construct() {
         parent::__construct();

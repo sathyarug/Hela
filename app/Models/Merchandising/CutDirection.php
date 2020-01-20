@@ -21,7 +21,20 @@ class CutDirection extends BaseValidator{
   //
   //    );
 
-
+  //Validation Functions
+  /**
+  *unique:table,column,except,idColumn
+  *The field under validation must not exist within the given database table
+  **/
+  protected function getValidationRules($data) {
+    return [
+        'cut_dir_description' => [
+          'required',
+          'unique:merc_cut_direction,cut_dir_description,'.$data['cut_dir_id'].',cut_dir_id',
+        ],
+        'cd_acronyms' => 'required'
+    ];
+  }
 
   public function __construct() {
       parent::__construct();

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
-///use App\Models\Report\DbLog;
+use App\Models\Report\DbLog;
 
 class SalesReportController extends Controller
 {
@@ -53,29 +53,20 @@ class SalesReportController extends Controller
   }
 
   private function datatable_search($customer, $pcd_from, $pcd_to, $status)
-  {
-    // $customer = $cus['customer_name']['customer_id'];
-    // dd($customer);   
-    // $pcd_from = $data['from'];
-    // $pcd_to = $data['to'];
-    // $status = $data['search']['po_status']['status'];
-
+  {    
     $query = DB::table('merc_customer_order_details')
       ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
-      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
-      ->join('org_customer_divisions', 'org_customer_divisions.customer_id', '=', 'cust_customer.customer_id')
-      ->join('cust_division', 'cust_division.division_id', '=', 'org_customer_divisions.division_id')
+      ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')      
+      ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
       ->join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
       ->join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
-      ->join('merc_shop_order_delivery', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.order_id')
-      ->join('merc_shop_order_header', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
+      ->join('merc_shop_order_header', 'merc_shop_order_header.shop_order_id' , '=', 'merc_customer_order_details.shop_order_id')
+      ->join('merc_shop_order_detail', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id') 
       ->join('item_master', 'item_master.master_id', '=', 'merc_customer_order_details.fng_id')
-      ->join('costing', 'costing.style_id', '=', 'style_creation.style_id')
-      ->join('org_season', 'org_season.season_id', '=', 'costing.season_id')
+      ->join('costing', 'costing.id', '=', 'merc_customer_order_details.costing_id')
+      ->join('org_season', 'org_season.season_id', '=', 'merc_customer_order_header.order_season')
       ->join('org_location', 'org_location.loc_id', '=', 'merc_customer_order_details.user_loc_id')
-      // ->join('merc_customer_order_size', 'merc_customer_order_size.details_id', '=', 'merc_customer_order_details.details_id')
-      // ->join('org_size', 'org_size.size_id', '=', 'merc_customer_order_size.size_id')
       ->select(
         'merc_customer_order_details.details_id',
         'cust_customer.customer_name',
@@ -89,7 +80,7 @@ class SalesReportController extends Controller
         'style_creation.style_description',
         'org_color.color_code',
         'org_color.color_name',
-        'merc_customer_order_details.created_date',
+        DB::raw('(SELECT DATE(merc_customer_order_details.created_date)) AS order_date'),        
         'merc_customer_order_details.ac_date',
         'merc_customer_order_details.revised_delivery_date',
         'merc_customer_order_details.ship_mode',
@@ -103,8 +94,6 @@ class SalesReportController extends Controller
         'org_season.season_name',
         'org_location.loc_name',
         'merc_customer_order_details.details_id'
-        // 'org_size.size_name AS size',
-        // 'merc_customer_order_size.order_qty AS quantity'
       )
       ->where('merc_customer_order_details.active_status', 'ACTIVE');
 
@@ -185,8 +174,8 @@ class SalesReportController extends Controller
     }
 
     $arr = [];
-    $arraysx = [];
     $arrFinal = [];
+    $arraysx = [];
     $sizeLastC = count($merged_collection);
 
     for ($x = 0; $x < $sizeLastC; $x++) {

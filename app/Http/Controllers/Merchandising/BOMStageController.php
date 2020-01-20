@@ -68,8 +68,9 @@ class BOMStageController extends Controller
         }
         else
         {
-            $errors = $bomstage->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $bomstage->errors();// failure, get errors
+          $errors_str = $bomstage->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

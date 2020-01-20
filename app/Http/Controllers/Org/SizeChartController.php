@@ -87,37 +87,47 @@ class SizeChartController extends Controller
         $chart_name .= $row['size_name'] . ",";
       }
 
-      $SizeChartHeader = new SizeChart();
-      $SizeChartHeader->chart_name = $request->description;
-      $SizeChartHeader->description = $chart_name;
-      $SizeChartHeader->status = 1;
-      CapitalizeAllFields::setCapitalAll($SizeChartHeader);
-      $SizeChartHeader->save();
-      $size_chart_id = $SizeChartHeader->size_chart_id;
+      $data = array("size_chart_id"=>$request->size_chart_id, "description"=>$chart_name, "chart_name"=>$request->description);
 
-      if($SizeChartHeader){
-           foreach($request['size_name'] as $row){
-              $SizeChartDetails = new SizeChartSizes();
-              $SizeChartDetails->size_chart_id = $size_chart_id;
-              $SizeChartDetails->size_id = $row['size_id'];
-              $SizeChartDetails->status = 1;
-              $SizeChartDetails->save();
-           }
-           return response([ 'data' => [
-              'result' => 'insert',
-              'message' => 'Size chart saved successfully'
-             ]
-           ], Response::HTTP_CREATED );
-        }
-        else
-        {
-            $errors = $SizeChartHeader->errors();
-            return response([ 'data' => [
-                'result' => $errors,
-                'message' => 'Size chart saved fail'
-              ]
-            ], Response::HTTP_CREATED );
-        }
+      $SizeChartHeader = new SizeChart();
+      if($SizeChartHeader->validate($data)){
+
+        $SizeChartHeader->chart_name = $request->description;
+        $SizeChartHeader->description = $chart_name;
+        $SizeChartHeader->status = 1;
+        CapitalizeAllFields::setCapitalAll($SizeChartHeader);
+        $SizeChartHeader->save();
+        $size_chart_id = $SizeChartHeader->size_chart_id;
+
+        if($SizeChartHeader){
+             foreach($request['size_name'] as $row){
+                $SizeChartDetails = new SizeChartSizes();
+                $SizeChartDetails->size_chart_id = $size_chart_id;
+                $SizeChartDetails->size_id = $row['size_id'];
+                $SizeChartDetails->status = 1;
+                $SizeChartDetails->save();
+             }
+             return response([ 'data' => [
+                'result' => 'insert',
+                'message' => 'Size chart saved successfully'
+               ]
+             ], Response::HTTP_CREATED );
+          }
+          else
+          {
+              $errors = $SizeChartHeader->errors();
+              return response([ 'data' => [
+                  'result' => $errors,
+                  'message' => 'Size chart saved fail'
+                ]
+              ], Response::HTTP_CREATED );
+          }
+
+      }else{
+        $errors = $SizeChartHeader->errors();// failure, get errors
+        $errors_str = $SizeChartHeader->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
 
     }
 

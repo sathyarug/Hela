@@ -84,7 +84,8 @@ class SizeController extends Controller
         else
         {
             $errors = $size->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            $errors_str = $size->errors_tostring();
+            return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{
@@ -275,6 +276,7 @@ class SizeController extends Controller
         ->offset($start)->limit($length)->get();
 
         $size_count = Size::where('size_name'  , 'like', $search.'%' )
+        ->where('type','=','G')
         ->count();
 
         return [
