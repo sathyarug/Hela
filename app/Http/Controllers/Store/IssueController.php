@@ -378,10 +378,13 @@ class IssueController extends Controller
                           $issueDetails=IssueDetails::find($issueHeader[$i]['issue_detail_id']);
                           $issueDetails->issue_status="CONFIRM";
                           $issueDetails->save();
+                          //dd()
                           $shopOrderDetail=ShopOrderDetail::find($issueHeader[$i]['shop_order_detail_id']);
+                          //dd($issueDetails[$i]['qty']);
+                          $shopOrderDetail->balance_to_issue_qty=(double)$shopOrderDetail->balance_to_issue_qty-(double)$issueDetails->qty;
+                          $shopOrderDetail->issue_qty=(double)$shopOrderDetail->issue_qty+(double)$issueDetails->qty;
                           //dd($shopOrderDetail);
-                          $shopOrderDetail->balance_to_issue_qty=$shopOrderDetail->balance_to_issue_qty-$issueDetails[$i]['qty'];
-                          $shopOrderDetail->issue_qty=$shopOrderDetail->issue_qty+$issueDetails[$i]['qty'];
+                          $shopOrderDetail->save();
                           $transaction = Transaction::where('trans_description', 'ISSUE')->first();
                           //$mrnDetail=MRNDetail::find($issueDetails->mrn_detail_id);
                           $st = new StockTransaction;

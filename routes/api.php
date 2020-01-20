@@ -354,7 +354,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
   Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
-  //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
+  //Route::post('fabricInspection/autoBatchNoFilter','Store\FabricInspectionController@autocomplete_search_bacth_filter');
 });
 Route::prefix('d2d/')->group(function(){
 
