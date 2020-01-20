@@ -48,12 +48,22 @@ class ApprovalController extends Controller
 
 
    public function approve(Request $request){
-      $costingService = new CostingService();
-      $costingService->genarate_bom(26);
-      /*$approval = new Approval();
-      $approval->readMail();*/
+      /*$costingService = new CostingService();
+      $costingService->genarate_bom(26);*/
+      $approval = new Approval();
+      $approval->readMail();
    }
 
+
+   public function generate_costing_bom(Request $request){
+     $costing_id = $request->costing_id;
+     $costing = Costing::find($costing_id);
+     if($costing != null && $costing->status == 'APPROVED'){
+       $costingService = new CostingService();
+       $res = $costingService->genarate_bom($costing_id);
+       echo json_encode($res);
+     }
+   }
 
 
 
