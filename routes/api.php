@@ -301,6 +301,7 @@ Route::prefix('stores/')->group(function(){
   Route::apiResource('fabricInspection','Store\FabricInspectionController');
   Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
   Route::post('transfer-location-store','Stores\TransferLocationController@storedetails');
+  Route::post('transfer-location/approval/send','Stores\TransferLocationController@send_to_approval');
   Route::apiResource('transfer-location','Stores\TransferLocationController');
   Route::apiResource('grn', 'Store\GrnController');
   Route::post('save-grn-bin', 'Store\GrnController@saveGrnBins');
@@ -353,7 +354,7 @@ Route::prefix('stores/')->group(function(){
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
   Route::get('isreadyForTrimPackingDetails','Store\GrnController@isreadyForTrimPackingDetails');
   Route::get('searchRollPlanDetails','Store\FabricInspectionController@search_rollPlan_details');
-  //Route::post('saveFabricInspection','Store\FabricInspectionController@search_rollPlan_details');
+  //Route::post('fabricInspection/autoBatchNoFilter','Store\FabricInspectionController@autocomplete_search_bacth_filter');
 });
 Route::prefix('d2d/')->group(function(){
 
@@ -387,6 +388,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('released_SO_All','Merchandising\CustomerOrderDetailsController@released_SO_All');
     Route::post('change_style_colour' , 'Merchandising\CustomerOrderDetailsController@change_style_colour');
     Route::post('load_fng' , 'Merchandising\CustomerOrderDetailsController@load_fng');
+    Route::post('load_fng_colour' , 'Merchandising\CustomerOrderDetailsController@load_fng_colour');
+    Route::post('load_fng_country' , 'Merchandising\CustomerOrderDetailsController@load_fng_country');
     Route::post('full_deactivate','Merchandising\CustomerOrderController@full_deactivate');
 
     Route::post('customer-order-details/split-delivery','Merchandising\CustomerOrderDetailsController@split_delivery');
@@ -442,6 +445,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('costing/save-costing-countries', 'Merchandising\Costing\CostingController@save_costing_countries');
     Route::post('costing/remove-costing-country', 'Merchandising\Costing\CostingController@remove_costing_country');
     Route::post('costing/generate-bom', 'Merchandising\Costing\CostingController@genarate_bom');
+    Route::post('costing/edit-mode', 'Merchandising\Costing\CostingController@edit_mode');
     Route::apiResource('costing','Merchandising\Costing\CostingController');
 
     Route::apiResource('costing-design-sources','Merchandising\Costing\CostingDesignSourceController');
@@ -454,6 +458,8 @@ Route::prefix('merchandising/')->group(function(){
     Route::apiResource('costing-items','Merchandising\Costing\CostingItemController');
 
     Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
+
+
 
   //  Route::get('bulk/validate' , 'Merchandising\BulkCosting\BulkDetailsController@validate_data');
   //  Route::apiResource('bulk','Merchandising\BulkCosting\BulkDetailsController');
@@ -511,6 +517,7 @@ Route::prefix('merchandising/')->group(function(){
 
 
     Route::post('po-manual-details/save_line_details_revision','Merchandising\PurchaseOrderManualDetailsController@save_line_details_revision');
+Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderManualDetailsController@send_to_approval');
     //Route::get('bulk-costing-header' , 'Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-listing','Merchandising\BulkCosting\BulkCostingController');
     Route::apiResource('bulk-cost-header','Merchandising\BulkCosting\BulkCostingController');
@@ -540,6 +547,7 @@ Route::prefix('merchandising/')->group(function(){
     Route::post('bom/save-items','Merchandising\BomController@save_items');
     Route::post('bom/remove-item','Merchandising\BomController@remove_item');
     Route::post('bom/copy-item','Merchandising\BomController@copy_item');
+    Route::post('bom/edit-mode', 'Merchandising\BomController@edit_mode');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
@@ -785,7 +793,7 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_mrn','Reports\MRNNoteController');  
   Route::get('load_mrn_note','Reports\MRNNoteController@getMrnNote');
   //Inventory scarp header report
-  Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
+  Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
 

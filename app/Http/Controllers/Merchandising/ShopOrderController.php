@@ -152,7 +152,7 @@ class ShopOrderController extends Controller
 
       $arr['header_data'] = $load_header;
 
-      $load_details = ShopOrderHeader::select('merc_shop_order_detail.actual_qty','merc_shop_order_detail.actual_consumption','merc_shop_order_detail.required_qty','merc_shop_order_detail.shop_order_detail_id','merc_shop_order_detail.shop_order_id','product_component.product_component_description','item_master.master_code','item_master.master_description','IUOM.uom_code AS inv_uom','PUOM.uom_code AS pur_uom','org_supplier.supplier_name','merc_shop_order_detail.unit_price','merc_shop_order_detail.purchase_price','item_master.article_no'
+      $load_details = ShopOrderHeader::select('merc_shop_order_detail.actual_qty','merc_shop_order_detail.actual_consumption','merc_shop_order_detail.required_qty','merc_shop_order_detail.shop_order_detail_id','merc_shop_order_detail.shop_order_id','product_component.product_component_description','item_master.master_code','item_master.master_description','IUOM.uom_code AS inv_uom','PUOM.uom_code AS pur_uom','org_supplier.supplier_name','merc_shop_order_detail.unit_price','merc_shop_order_detail.purchase_price','item_master.supplier_reference as article_no'
                       ,'merc_position.position','merc_shop_order_detail.net_consumption','merc_shop_order_detail.wastage','merc_shop_order_detail.gross_consumption','merc_shop_order_header.order_qty','merc_shop_order_detail.po_qty as po_qty','merc_shop_order_detail.asign_qty as grn_qty','merc_shop_order_detail.mrn_qty','merc_shop_order_detail.issue_qty as issued_qty')
                    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
                    ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
@@ -163,7 +163,7 @@ class ShopOrderController extends Controller
                    ->join('org_uom AS IUOM', 'item_master.inventory_uom', '=', 'IUOM.uom_id')
                    ->join('org_uom AS PUOM', 'merc_shop_order_detail.purchase_uom', '=', 'PUOM.uom_id')
                    ->join('org_supplier', 'merc_shop_order_detail.supplier', '=', 'org_supplier.supplier_id')
-                   ->join('merc_position', 'merc_shop_order_detail.postion_id', '=', 'merc_position.position_id')
+                   ->leftjoin('merc_position', 'merc_shop_order_detail.postion_id', '=', 'merc_position.position_id')
                    ->where('merc_shop_order_header.shop_order_id', '=', $shop_order_id)
                    ->where('merc_shop_order_header.status', '=',1)
                    ->get();

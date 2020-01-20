@@ -37,6 +37,12 @@ class CountryController extends Controller
          $search = $request->search;
          return response($this->autocomplete_search($search));
        }
+       else if($type == 'auto_2')    {
+         $master_id = $request->master_id;
+         return response([
+           'data' => $this->fng_country($master_id)
+         ]);
+       }
        else if($type == 'handsontable')    {
          $search = $request->search;
          return response([
@@ -229,6 +235,23 @@ class CountryController extends Controller
       ->get();
   		return $country_lists;
   	}
+
+
+    public function fng_country($master_id){
+
+      //dd($master_id);
+
+      $fng_country_lists =  DB::table('bom_header')
+                      ->select('org_country.country_id','org_country.country_description')
+                      ->join('org_country', 'bom_header.country_id', '=', 'org_country.country_id')
+                      ->where('bom_header.fng_id' , '=', $master_id )
+                      ->get();
+
+      
+
+      return $fng_country_lists;
+    }
+
 
 
     //get searched countries for datatable plugin format

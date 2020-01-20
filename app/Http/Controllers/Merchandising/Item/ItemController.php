@@ -298,11 +298,12 @@ class ItemController extends Controller
       ->leftJoin('org_uom', 'org_uom.uom_id', '=', 'item_master.inventory_uom')
       ->leftJoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
       ->whereNotNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('item_master.master_description', 'like', $search.'%')
+  				    ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+  				    ->orWhere('item_category.category_name', 'like', $search.'%')
+              ->orWhere('item_master.master_code', 'like', $search.'%');
+  		        })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
@@ -313,11 +314,12 @@ class ItemController extends Controller
       ->leftJoin('org_uom', 'org_uom.uom_id', '=', 'item_master.inventory_uom')
       ->leftJoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
       ->whereNotNull('master_code')
-      ->where('item_master.master_description'  , 'like', $search.'%' )
-      ->where(function($query) use ($search) {
-        $query->orWhere('item_subcategory.subcategory_name'  , 'like', $search.'%' )
-        ->orWhere('item_category.category_name'  , 'like', $search.'%' );
-      })
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('item_master.master_description', 'like', $search.'%')
+  				    ->orWhere('item_subcategory.subcategory_name', 'like', $search.'%')
+  				    ->orWhere('item_category.category_name', 'like', $search.'%')
+              ->orWhere('item_master.master_code', 'like', $search.'%');
+  		        })
       ->count();
 
       return [
@@ -400,12 +402,13 @@ class ItemController extends Controller
     public function load_item_edit(Request $request){
       $items = $request->item_id;
 
-      $list = Item::select('item_master.master_id','item_master.master_description','org_color.color_code','org_size.size_name','merc_color_options.color_option','item_master.supplier_reference','org_supplier.supplier_id','org_supplier.supplier_name','item_master.standard_price','item_master.moq','item_master.mcq')
+      $list = Item::select('item_master.master_id','item_master.master_code','item_master.master_description','org_color.color_code','org_size.size_name','merc_color_options.color_option','item_master.supplier_reference','org_supplier.supplier_id','org_supplier.supplier_name','item_master.standard_price','item_master.moq','item_master.mcq')
       ->leftjoin('org_color', 'item_master.color_id', '=', 'org_color.color_id')
       ->leftjoin('org_size', 'item_master.size_id', '=', 'org_size.size_id')
       ->leftjoin('merc_color_options', 'item_master.color_option', '=', 'merc_color_options.col_opt_id')
       ->leftjoin('org_supplier', 'item_master.supplier_id', '=', 'org_supplier.supplier_id')
       ->where('item_master.master_id', '=',  $items )
+      ->orderBy('item_master.master_id', 'ASC')
       ->get();
 
       return response([
@@ -594,10 +597,15 @@ class ItemController extends Controller
 
 
     private function item_selector_list($search_type, $category, $sub_category, $search){
-      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name', 'item_subcategory.subcategory_code')
+      //dd($search);
+      if($search=="null"){$search='';}
+      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name',
+        'item_subcategory.subcategory_code', 'org_color.color_code', 'org_color.color_name', 'org_supplier.supplier_name')
       ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
-      ->where('item_master.master_code', 'like', '%' . $search . '%');
+      ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->where('item_master.master_description', 'like', '%' . $search . '%');
 
       if($search_type == 'MATERIAL_ITEMS'){
         $list = $list->whereNull('master_code');

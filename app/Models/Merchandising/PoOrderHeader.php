@@ -124,7 +124,7 @@ item_master.master_description,
 org_color.color_name,
 org_size.size_name,
 org_uom.uom_code,
-merc_po_order_details.tot_qty,
+merc_po_order_details.req_qty,
 DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y')as rm_in_date,
 #  merc_customer_order_details.rm_in_date,
 DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y')as pcd,
@@ -141,6 +141,7 @@ item_master.master_code,
 merc_po_order_details.purchase_price,
 item_master.standard_price,
 item_master.inventory_uom,
+item_category.category_code,
 
 (SELECT
                                       IFNULL(SUM(SGD.grn_qty),0)
@@ -190,6 +191,7 @@ INNER JOIN merc_shop_order_delivery on merc_shop_order_header.shop_order_id=merc
 INNER JOIN merc_customer_order_details ON merc_shop_order_delivery.delivery_id = merc_customer_order_details.details_id
 INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
 INNER JOIN item_master ON merc_po_order_details.item_code = item_master.master_id
+INNER JOIN item_category ON item_master.category_id=item_category.category_id
 LEFT JOIN org_supplier_tolarance AS for_category ON item_master.category_id = for_category.category_id
 LEFT JOIN org_color ON merc_po_order_details.colour = org_color.color_id
 LEFT JOIN org_size ON merc_po_order_details.size = org_size.size_id

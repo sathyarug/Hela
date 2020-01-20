@@ -219,12 +219,12 @@ class CostingItemController extends Controller
         $item_data['position_id'] = null;
       }
       //item color
-      if($item_data['color_code'] != null && $item_data['color_code'] != ''){
+      /*if($item_data['color_code'] != null && $item_data['color_code'] != ''){
         $item_data['color_id'] = Color::where('color_code', '=', $item_data['color_code'])->first()->color_id;
       }
       else{
         $item_data['color_id'] = null;
-      }
+      }*/
       //supplier
       if($item_data['supplier_name'] != null && $item_data['supplier_name'] != ''){
         $item_data['supplier_id'] = Supplier::where('supplier_name', '=', $item_data['supplier_name'])->first()->supplier_id;
@@ -285,13 +285,13 @@ class CostingItemController extends Controller
       ->leftjoin('merc_position', 'merc_position.position_id', '=', 'costing_items.position_id')
       ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'costing_items.purchase_uom_id')
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
-      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'costing_items.supplier_id')
       ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'costing_items.origin_type_id')
       ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'costing_items.garment_options_id')
       ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'costing_items.ship_term_id')
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
-        'item_master.article_no', 'item_master.master_code','item_master.master_description',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
         'costing_items.gross_consumption', 'costing_items.meterial_type', 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
@@ -331,15 +331,15 @@ class CostingItemController extends Controller
       ->leftjoin('merc_position', 'merc_position.position_id', '=', 'costing_items.position_id')
       ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'costing_items.purchase_uom_id')
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
-      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'costing_items.supplier_id')
       ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'costing_items.origin_type_id')
       ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'costing_items.garment_options_id')
       ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'costing_items.ship_term_id')
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
-        'item_master.article_no', 'item_master.master_code','item_master.master_description','costing_items.feature_component_id',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description','costing_items.feature_component_id',
         'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
-        'costing_items.gross_consumption', 'costing_items.meterial_type', 'costing_items.freight_charges',
+        'costing_items.gross_consumption', /*'costing_items.meterial_type',*/ 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
         'costing_items.ship_mode', 'costing_items.lead_time', 'costing_items.comments',
         'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',

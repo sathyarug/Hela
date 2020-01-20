@@ -91,14 +91,95 @@
       <tr>
         <td class="innerpadding borderbottom">
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+            <?php
+              $obj = json_decode($po->po_header);
+              $obj_details = json_decode($po->po_details);
+              $po_number = $obj->po_number;
+              $po_type = $obj->po_type;
+              $po_date = explode("T",$obj->po_date);
+              $supplier = $obj->supplier;
+              $deli_date = explode("T",$obj->delivery_date);
+              $deliverto = $obj->deliverto->loc_name;
+              $invoiceto = $obj->invoiceto->company_name;
+             ?>
+
             <tr>
               <td class="h2">
-                Costing Approval
+                APPROVAL PENDING PO - {{ $po_number }}
               </td>
             </tr>
             <tr>
               <td class="bodycopy">
-                This is a sample costing approval email
+                <table class="table table-borderless" width="100%" border="0" cellspacing="0" cellpadding="0">
+
+      					  <tr>
+      					    <th width="24%" align="left">PO TYPE</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%">{{$po_type}}</td>
+      					    <th width="24%" align="left">PO DATE</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%">{{$po_date[0]}}</td>
+      					  </tr>
+
+                  <tr>
+      					    <th width="24%" align="left">SUPPLIER NAME</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%">{{$supplier}}</td>
+      					    <th width="24%" align="left">DELIVERY DATE</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%">{{$deli_date[0]}}</td>
+      					  </tr>
+
+                  <tr>
+      					    <th width="24%" align="left">DELIVERY TO</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%" colspan="4">{{ $deliverto }}</td>
+
+      					  </tr>
+
+                  <tr>
+      					    <th width="24%" align="left">INVOICE TO</th>
+      					    <th width="2%">:</th>
+      					    <td width="24%" colspan="4">{{ $invoiceto }}</td>
+
+      					  </tr>
+
+                </table>
+
+                <br>
+
+                <table class="table table-striped" width="100%" border="1">
+        				  <thead>
+        				    <tr>
+        				      <th>Meterial</th>
+        				      <th>Item Description</th>
+                      <th>Price</th>
+                      <th>Qty</th>
+                      <th>Value</th>
+        				    </tr>
+        				  </thead>
+        				  <tbody>
+        				  	@foreach($obj_details as $ratio)
+        				    <tr>
+        				      <td>{{ $ratio->category_name }}</td>
+                      <td>{{ $ratio->master_description }}</td>
+                      <td>{{ $ratio->unit_price }}</td>
+                      <td>{{ $ratio->tra_qty }}</td>
+                      <td>{{ $ratio->value_sum }}</td>
+
+        				    </tr>
+        				    @endforeach
+        				  </tbody>
+        				</table>
+
+
+
+
+
+
+
+
               </td>
             </tr>
           </table>
@@ -113,19 +194,22 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                   <tr>
                     <td class="bodycopy">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, eget accumsan dictum, nisi libero ultricies ipsum, in posuere mauris neque at erat.
-                    </td>
+
+                      This is an automatically generated email message from SurfaceTM.
+
+                      </td>
                   </tr>
                   <tr>
-                    <td style="padding: 20px 0 0 0;">
+                    <td style="padding: 10px 0 0 0;">
                       <table class="buttonwrapper" bgcolor="#e05443" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                           <td class="button" height="45">
-                            <a href="#">Claim yours!</a>
+                            <a href="#">Login To System</a>
                           </td>
                         </tr>
                       </table>
                     </td>
+
                   </tr>
                 </table>
               </td>
@@ -140,25 +224,14 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" class="footercopy">
-                &reg; Someone, somewhere 20XX<br/>
-                <a href="#" class="unsubscribe"><font color="#ffffff">Unsubscribe</font></a>
-                <span class="hide">from this newsletter instantly</span>
+                &reg; HELA CLOTHING PVT LTD, 2019<br/>
+
               </td>
             </tr>
             <tr>
               <td align="center" style="padding: 20px 0 0 0;">
                 <table border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.facebook.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/facebook.png" width="37" height="37" alt="Facebook" border="0" />
-                      </a>
-                    </td>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.twitter.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/twitter.png" width="37" height="37" alt="Twitter" border="0" />
-                      </a>
-                    </td>
                   </tr>
                 </table>
               </td>

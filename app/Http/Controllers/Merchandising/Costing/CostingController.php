@@ -65,7 +65,7 @@ class CostingController extends Controller {
         }
         elseif ($type == 'total_smv'){
             return response([
-              'data' => $this->total_smv($request->style_id, $request->bom_stage_id, $request->color_type_id)
+              'data' => $this->total_smv($request->style_id, $request->bom_stage_id, $request->color_type_id, $request->buy_id)
             ]);
         }
         elseif ($type == 'artical_numbers') {
@@ -101,8 +101,9 @@ class CostingController extends Controller {
         }
         else if($type == 'costing_colors'){
             $costing_id = $request->costing_id;
+            $feature_component_count = $request->feature_component_count;
             return response([
-              'data' => $this->get_saved_finish_good_colors($costing_id)
+              'data' => $this->get_saved_finish_good_colors($costing_id, $feature_component_count)
             ]);
         }
         else if($type == 'get_product_feature_components'){
@@ -231,6 +232,8 @@ class CostingController extends Controller {
               $costing->coperate_cost = $coperate_cost;
               $costing->revision_no = 0;
               $costing->status = 'CREATE';
+              $costing->edit_status = 1;
+              $costing->edit_user = auth()->user()->user_id;
               $costing->save();
 
               $costing->sc_no = str_pad($costing->id, 5, '0', STR_PAD_LEFT);
@@ -326,67 +329,6 @@ class CostingController extends Controller {
         $costing->labour_cost = $labour_cost;
         $costing->save();
 
-        /*$current_pack = -1;
-        for($x = 0 ; $x < sizeof($finish_goods) ; ($x = $x + $product_feature->count)){
-            $fg = null;
-            if($finish_goods[$x]['fg_id'] == 0){ //new finish good
-              $fg = new CostingFinishGood();
-              $fg->costing_id = $costing->id;
-              $fg->epm = 0;
-              $fg->np = 0;
-            }
-            else{
-              $fg = CostingFinishGood::find($finish_goods[$x]['fg_id']);// get existing finish good
-              $fg->epm = $fg->calculate_epm($costing->fob, $fg->total_rm_cost, $costing->total_smv);//calculate finish good epm
-              $fg->np = $fg->calculate_np($costing->fob, $fg->total_cost);//calculate np value
-            }
-
-            if($product_feature->count == 1) {//single pack, then set combo color to garment color
-              $fg->combo_color_id = $this->get_color_id_from_name($finish_goods[$x]['color']);
-            }
-            else {// multiple pack
-              $fg->combo_color_id = $this->get_color_id_from_name($finish_goods[$x]['combo_color']);
-            }
-
-            $fg->pack_no = $finish_goods[$x]['pack_no'];
-            $fg->pack_no_code = 'FG'.str_pad($fg->pack_no, 3, '0', STR_PAD_LEFT);
-            $fg->product_feature = $finish_goods[$x]['product_feature_id'];
-            $fg->save();
-
-            //set and save costing header with first finisg good's epm and np margine
-            if($x == 0){//update costing epm and np margine
-              $costing->epm = $fg->epm;
-              $costing->np_margine = $fg->np;
-              $costing->save();
-            }
-
-            $fg->fg_code = 'FNG'.str_pad($fg->fg_id, 7, '0', STR_PAD_LEFT);
-            $fg->save();//generate and save finish good code
-
-            for($y = $x ; $y < ($x + $product_feature->count) ; $y++) {
-              if($finish_goods[$y]['id'] == 0){ //new component
-                $finish_good_component = new CostingFinishGoodComponent();
-                $finish_good_component->fg_id = $fg->fg_id;
-              }
-              else{
-                $finish_good_component = CostingFinishGoodComponent::find($finish_goods[$y]['id']);
-              }
-
-              $finish_good_component->color_id = $this->get_color_id_from_name($finish_goods[$y]['color']);
-              $finish_good_component->product_component_id = $finish_goods[$y]['product_component_id'];
-              $finish_good_component->product_silhouette_id = $finish_goods[$y]['product_silhouette_id'];
-              $finish_good_component->line_no = $finish_goods[$y]['line_no'];
-              $finish_good_component->surcharge = $finish_goods[$y]['surcharge'];
-              $finish_good_component->mcq = $finish_goods[$y]['mcq'];
-              $finish_good_component->smv = $finish_goods[$y]['smv'];
-              $finish_good_component->status = 1;
-              $finish_good_component->save();
-
-              $finish_good_component->sfg_code = 'SFG'.str_pad($finish_good_component->id, 7, '0', STR_PAD_LEFT);
-              $finish_good_component->save();//generate and save finish good code
-            }
-          }*/
-
           return response([
             'data' => [
               'status' => 'success',
@@ -474,6 +416,8 @@ class CostingController extends Controller {
     }
 
 
+
+
     /*private function getFinishGood($id) {
       return [
         'finish_goods' => $this->get_saved_finish_good($id)
@@ -544,14 +488,21 @@ class CostingController extends Controller {
             //check for items
             $item_count = CostingItem::where('costing_id', '=', $costing->id)->count();
             if($item_count > 0){//has item
+
+              $this->remove_boms_from_edit_mode($costing->id);//remove boms from edit stats
+              //change bom status to edit until costing approve
+              DB::table('bom_header')->where('costing_id', $costing->id)->update(['status' => 'PENDING']);
+
               $costing->status = 'PENDING';
               $costing->approval_user = null;
               $costing->approval_sent_user = $user->user_id;
               $costing->approval_sent_date = date("Y-m-d H:i:s");
+              $costing->edit_status = 0;
+              $costing->edit_user = null;
               $costing->save();
 
-              //$approval = new Approval();
-              //$approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
+              $approval = new Approval();
+              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
 
               return response([
                 'data' => [
@@ -748,6 +699,124 @@ class CostingController extends Controller {
     }
 
 
+    public function edit_mode(Request $request){
+      $costing_id = $request->costing_id;
+      $edit_status = $request->edit_status;
+      $costing = Costing::find($costing_id);
+
+      if($costing != null){ //has a costing
+        if($edit_status == 1){//put to edit status
+            $user_id = auth()->user()->user_id;
+
+            if($costing->edit_status == 1 && $costing->created_by == $user_id){//already in edit mode
+              //chek costings boms has shop orders
+              $has_shop_orders = $this->has_shop_orders($costing_id);
+              if($has_shop_orders == true){ //already have shop orders, cannot edit costing
+                return response([
+                  'status' => 'error',
+                  'message' => "Cannot edit costing. Shop orders are already connected to this costing."
+                ]);
+              }
+              else {
+                return response([
+                  'status' => 'success',
+                  'message' => "You can edit costing"
+                ]);
+              }
+            }
+            else if($costing->edit_status == 1 && $costing->created_by != $user_id){
+              return response([
+                'status' => 'error',
+                'message' => "You cannot edit costing. It's already in edit mode"
+              ]);
+            }
+            else {
+              if($costing->created_by == $user_id) {//costing created user and can edit
+                //chek costings boms has shop orders
+                $has_shop_orders = $this->has_shop_orders($costing_id);
+                if($has_shop_orders == true){ //already have shop orders, cannot edit costing
+                  return response([
+                    'status' => 'error',
+                    'message' => "Cannot edit costing. Shop orders are already connected to this costing."
+                  ]);
+                }
+                else {
+                  $costing->edit_status = 1;
+                  $costing->edit_user = $user_id;
+                  $costing->save();
+                  $this->add_boms_to_edit_mode($costing_id);
+
+                  return response([
+                    'status' => 'success',
+                    'message' => "You can edit costing"
+                  ]);
+                }
+              }
+              else {
+                return response([
+                  'status' => 'error',
+                  'message' => "Only costing created user can edit the costing"
+                ]);
+              }
+            }
+        }
+        else {//remove edit status
+          $user_id = auth()->user()->user_id;
+          if($costing->edit_status == 1 && $costing->edit_user == $user_id){//can edit
+            $costing->edit_status = 0;
+            $costing->edit_user = null;
+            $costing->save();
+            $this->remove_boms_from_edit_mode($costing_id);
+
+            return response([
+              'status' => 'success',
+              'message' => "Costing removed from edit status"
+            ]);
+          }
+          else {
+            return response([
+              'status' => 'error',
+              'message' => "Costing is not in the edit status or user don't have permissions to edit costing"
+            ]);
+          }
+        }
+      }
+      else {//no costing
+        return response([
+          'status' => 'error',
+          'message' => "Incorrect costing"
+        ]);
+      }
+    }
+
+
+    private function has_shop_orders($costing_id){
+      $shop_order_list = DB::select("SELECT merc_shop_order_header.shop_order_id FROM merc_shop_order_header
+          INNER JOIN costing_fng_item ON costing_fng_item.fng_id = merc_shop_order_header.fg_id
+          WHERE costing_fng_item.costing_id = ?", [$costing_id]);
+
+      if(sizeof($shop_order_list) > 0){ //already have shop orders
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+
+
+    private function add_boms_to_edit_mode($costing_id){
+      $user_id = auth()->user()->user_id;
+      DB::table('bom_header')->where('costing_id', $costing_id)
+          ->update(['edit_status' => 1, 'edit_user' => $user_id]);
+    }
+
+    private function remove_boms_from_edit_mode($costing_id){
+      $user_id = auth()->user()->user_id;
+      DB::table('bom_header')->where('costing_id', $costing_id)
+          ->update(['edit_status' => 0, 'edit_user' => null]);
+    }
+
+
     public function delete_finish_good(Request $request){
       $fg_id = $request->fg_id;
       $finish_good = CostingFinishGood::find($fg_id);
@@ -796,7 +865,7 @@ class CostingController extends Controller {
       return response([
         'data' => [
           'status' => 'success',
-          'message' => 'Size chart updated successfully.'
+          'message' => 'Size chart saved successfully.'
         ]
       ]);
     }
@@ -859,27 +928,37 @@ class CostingController extends Controller {
         $fng_color->product_feature_id = $colors[$x]['product_feature_id'];
         $fng_color->save();
 
-        for($y = $x ; $y < ($x + $product_feature->count) ; $y++) {
-          $sfg_color = null;
-          if($colors[$y]['sfg_color_id'] == 0){ //new sfg color
-            $sfg_color = new CostingSfgColor();
+
+          for($y = $x ; $y < ($x + $product_feature->count) ; $y++) {
+            $sfg_color = null;
+            if($colors[$y]['sfg_color_id'] == 0){ //new sfg color
+              $sfg_color = new CostingSfgColor();
+            }
+            else {
+              $sfg_color = CostingSfgColor::find($colors[$y]['sfg_color_id']);
+            }
+
+            $sfg_color->fng_color_id = $fng_color->fng_color_id;
+
+            if($product_feature->count > 1){//has semi finish goods
+              $sfg_color->color_id = $colors[$y]['sfg_color'];
+            }
+            else {//no semi finish goods
+              $sfg_color->color_id = $fng_color->color_id;//set sfg color to fng color
+            }
+
+            $sfg_color->product_component_id = $colors[$y]['product_component_id'];
+            $sfg_color->product_silhouette_id = $colors[$y]['product_silhouette_id'];
+            $sfg_color->product_component_line_no = $colors[$y]['product_component_line_no'];
+            $sfg_color->save();
           }
-          else {
-            $sfg_color = CostingSfgColor::find($colors[$y]['sfg_color_id']);
-          }
-          ;
-          $sfg_color->fng_color_id = $fng_color->fng_color_id;
-          $sfg_color->color_id = $colors[$y]['sfg_color'];
-          $sfg_color->product_component_id = $colors[$y]['product_component_id'];
-          $sfg_color->product_silhouette_id = $colors[$y]['product_silhouette_id'];
-          $sfg_color->save();
-        }
+
       }
 
       return response(['data' => [
         'status' => 'success',
         'message' => 'Colors saved successfully',
-        'colors' => $this->get_saved_finish_good_colors($costing->id),
+        'colors' => $this->get_saved_finish_good_colors($costing->id, $product_feature->count),
         'component_count' => $product_feature->count
       ]]);
     }
@@ -887,16 +966,61 @@ class CostingController extends Controller {
 
     public function remove_costing_color(Request $request){
       $fng_color_id = $request->fng_color_id;
-
-      CostingSfgColor::where('fng_color_id', '=', $fng_color_id)->delete();
       $fng_color = CostingFngColor::find($fng_color_id);
-      $fng_color->delete();
+      $costing = Costing::find($fng_color->costing_id);
 
-      return response(['data' => [
-        'status' => 'success',
-        'message' => 'Color removed successfully',
-        'colors' => $this->get_saved_finish_good_colors($fng_color->costing_id),
-      ]]);
+      if($costing->edit_status == 1){
+        $user_id = auth()->user()->user_id;
+
+        if($user_id == $costing->edit_user) {
+            $fng_items = CostingFngItem::where('costing_id', '=', $costing->id)->where('fng_color_id', '=', $fng_color->color_id)->get();
+            //chek finish goods are created for this color
+            if(sizeof($fng_items) > 0) {//has generated finisg goods
+                $fng_item_ids = [];
+                foreach($fng_items as $fng_item) {
+                  $bom = BOMHeader::where('costing_id', '=', $costing->id)->where('fng_id', '=', $fng_item->fng_id)->first();
+                  //remove bom items
+                  BOMDetails::where('bom_id', '=', $bom->bom_id)->delete();
+                  $bom->delete(); //remove bom
+
+                  //get afg ids
+                  $sfg_items = CostingSfgItem::where('costing_fng_id', '=', $fng_item->costing_fng_id)->pluck('sfg_id');
+                  //deactivate sfg items in item master
+                  DB::table('item_master')->whereIn('master_id', $sfg_items)->update(['status' => 0]);
+                  //remove costing sfg items
+                  CostingSfgItem::where('costing_fng_id', '=', $fng_item->costing_fng_id)->delete();
+
+                  array_push($fng_item_ids, $fng_item->fng_id);//add removed fng id
+                  //remove costing fng items
+                  $fng_item->delete();
+                }
+                //deactivate all fng items in item master
+                DB::table('item_master')->whereIn('master_id', $fng_item_ids)->update(['status' => 0]);
+            }
+            //remove all sfg colors
+            CostingSfgColor::where('fng_color_id', '=', $fng_color_id)->delete();
+            //remove selected fng color
+            $fng_color->delete();
+
+            return response(['data' => [
+              'status' => 'success',
+              'message' => 'Color removed successfully',
+              'colors' => $this->get_saved_finish_good_colors($fng_color->costing_id),
+            ]]);
+        }
+        else {
+          return response(['data' => [
+            'status' => 'error',
+            'message' => "You don't have permissions to remove color"
+          ]]);
+        }
+      }
+      else {
+        return response(['data' => [
+          'status' => 'error',
+          'message' => 'Costing is not in the edit mode'
+        ]]);
+      }
     }
 
 
@@ -936,13 +1060,61 @@ class CostingController extends Controller {
     public function remove_costing_country(Request $request){
       $costing_country_id = $request->costing_country_id;
       $costing_country = CostingCountry::find($costing_country_id);
-      $costing_country->delete();
+      $costing = Costing::find($costing_country->costing_id);
 
-      return response(['data' => [
-        'status' => 'success',
-        'message' => 'Country removed successfully',
-        'countries' => $this->get_saved_countries($costing_country->costing_id),
-      ]]);
+      if($costing->edit_status == 1){
+        $user_id = auth()->user()->user_id;
+
+        if($user_id == $costing->edit_user) {
+          $fng_items = CostingFngItem::where('costing_id', '=', $costing->id)->where('country_id', '=', $costing_country->country_id)->get();
+          //chek finish goods are created for this country
+          if(sizeof($fng_items) > 0) {//has generated finisg goods
+              $fng_item_ids = [];
+              foreach($fng_items as $fng_item) {
+                $bom = BOMHeader::where('costing_id', '=', $costing->id)->where('fng_id', '=', $fng_item->fng_id)->first();
+                //remove bom items
+                BOMDetails::where('bom_id', '=', $bom->bom_id)->delete();
+                $bom->delete(); //remove bom
+
+                //get afg ids
+                $sfg_items = CostingSfgItem::where('costing_fng_id', '=', $fng_item->costing_fng_id)->pluck('sfg_id');
+                //deactivate sfg items in item master
+                DB::table('item_master')->whereIn('master_id', $sfg_items)->update(['status' => 0]);
+                //remove costing sfg items
+                CostingSfgItem::where('costing_fng_id', '=', $fng_item->costing_fng_id)->delete();
+
+                array_push($fng_item_ids, $fng_item->fng_id);//add removed fng id
+                //remove costing fng items
+                $fng_item->delete();
+              }
+              //deactivate all fng items in item master
+              DB::table('item_master')->whereIn('master_id', $fng_item_ids)->update(['status' => 0]);
+          }
+          //remove selected country
+          $costing_country->delete();
+
+          return response(['data' => [
+            'status' => 'success',
+            'message' => 'Country removed successfully',
+            'countries' => $this->get_saved_countries($costing_country->costing_id),
+          ]]);
+        }
+        else {
+          return response(['data' => [
+            'status' => 'error',
+            'message' => "You don't have permissions to remove color"
+          ]]);
+        }
+      }
+      else {
+        return response(['data' => [
+          'status' => 'error',
+          'message' => 'Costing is not in the edit mode'
+        ]]);
+      }
+
+
+
     }
 
 
@@ -960,194 +1132,68 @@ class CostingController extends Controller {
 
     //*********************** Costing finish goods and bom *********************
 
-    public function genarate_bom(Request $request){
-      $costing_id = $request->costing_id;
 
-      $costing = Costing::with(['style','buy'])->find($costing_id);
-      $fng_colors = CostingFngColor::where('costing_id', '=', $costing_id)->get();
-      $countries = $this->get_saved_countries($costing_id);
 
-      $category = Category::where('category_code', '=', 'FNG')->first();
-      $sfg_category = Category::where('category_code', '=', 'SFG')->first();
 
-      $product_silhouette = ProductSilhouette::find($costing->style->product_silhouette_id);
-      $division = Division::find($costing->style->division_id);
-    //echo json_encode($division);die();
-      $season = Season::find($costing->season_id);
-      $uom = UOM::where('uom_code', '=', 'pcs')->first();
 
-      //echo json_encode($costing_items);die();
-      //finish good
-      //style_code . silhoutte . division . color_code . season . country . buy name
-      foreach ($fng_colors as $fng_color) {
 
-        //$sfg_colors = CostingSfgColor::with(['product_component', 'product_silhouette'])->where('fng_color_id', '=', $fng_color->fng_color_id)->get();
-        $sfg_colors = CostingSfgColor::where('fng_color_id', '=', $fng_color->fng_color_id)->get();
-
-        foreach($countries as $country){
-          $item = new Item();
-          $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
-            .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code.
-            '_'.$costing->buy->buy_name;
-
-          $item_count = Item::where('master_description', '=', $description)->count();
-          if($item_count > 0){
-            continue;
-          }
-
-          $item->category_id = $category->category_id;
-          $item->subcategory_id = 0;
-          $item->master_description = $description;
-          $item->parent_item_id = null;
-          $item->inventory_uom = $uom->uom_id;
-          $item->standard_price = null;
-          $item->supplier_id = null;
-          $item->supplier_reference = null;
-          $item->color_wise = 1;
-          $item->size_wise = null;
-          $item->color_id = $fng_color->color_id;
-          $item->status = 1;
-          $item->save();
-          //generate item codes
-          $item->master_code = $category->category_code . str_pad($item->master_id, 7, '0', STR_PAD_LEFT);
-          $item->save();
-
-          $fng_item = new CostingFngItem();
-          $fng_item->costing_id = $costing_id;
-          $fng_item->fng_id = $item->master_id;
-          $fng_item->country_id = $country->country_id;
-          $fng_item->fng_color_id = $fng_color->color_id;
-          $fng_item->save();
-
-          $bom_header = new BOMHeader();
-          $bom_header->costing_id = $costing_id;
-          $bom_header->fng_id = $item->master_id;
-          $bom_header->epm = 0;
-          $bom_header->np_margin = 0;
-          $bom_header->total_rm_cost = 0;
-          $bom_header->finance_cost = 0;
-          $bom_header->total_cost = 0;
-          $bom_header->country_id = $country->country_id;
-          $bom_header->status = 'RELEASED';
-          $bom_header->save();
-
-          //generate sfg items
-          foreach ($sfg_colors as $sfg_color) {
-              $item2 = new Item();
-              $silhouette = ProductSilhouette::find($sfg_color->product_silhouette_id);
-              $component = ProductComponent::find($sfg_color->product_component_id);
-          //echo json_encode($sfg_color->product_component_id);die();
-              $description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
-                .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code.
-                '_'.$costing->buy->buy_name.'_'.$component->product_component_description.'_'.
-                $silhouette->product_silhouette_description;
-
-              $sfg_item_count = Item::where('master_description', '=', $description)->count();
-              if($sfg_item_count > 0){
-                continue;
-              }
-
-              $item2->category_id = $sfg_category->category_id;
-              $item2->subcategory_id = 0;
-              $item2->master_description = $description;
-              $item2->parent_item_id = null;
-              $item2->inventory_uom = $uom->uom_id;
-              $item2->standard_price = null;
-              $item2->supplier_id = null;
-              $item2->supplier_reference = null;
-              $item2->color_wise = 1;
-              $item2->size_wise = null;
-              $item2->color_id = $sfg_color->color_id;
-              $item2->status = 1;
-              $item2->save();
-              //generate item codes
-              $item2->master_code = $sfg_category->category_code . str_pad($item2->master_id, 7, '0', STR_PAD_LEFT);
-              $item2->save();
-
-              $sfg_item = new CostingSfgItem();
-              $sfg_item->costing_id = $costing_id;
-              $sfg_item->sfg_id = $item2->master_id;
-              $sfg_item->country_id = $country->country_id;
-              $sfg_item->sfg_color_id = $sfg_color->color_id;
-              $sfg_item->costing_fng_id = $fng_item->costing_fng_id;
-              $sfg_item->product_component_id = $sfg_color->product_component_id;
-              $sfg_item->product_silhouette_id = $sfg_color->product_silhouette_id;
-              $sfg_item->save();
-
-              $costing_items = CostingItem::where('costing_id', '=', $costing_id)
-              ->where('product_component_id', '=', $sfg_item->product_component_id)
-              ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)->get();
-              //create bom items
-              foreach($costing_items as $costing_item) {
-                $bom_detail = new BOMDetails();
-                $bom_detail->bom_id = $bom_header->bom_id;
-                $bom_detail->costing_item_id = $costing_item->costing_item_id;
-                $bom_detail->costing_id = $costing_id;
-                $bom_detail->feature_component_id = $costing_item->feature_component_id;
-                $bom_detail->product_component_id = $costing_item->product_component_id;
-                $bom_detail->product_silhouette_id = $costing_item->product_silhouette_id;
-                $bom_detail->inventory_part_id = $costing_item->inventory_part_id;
-                $bom_detail->position_id = $costing_item->position_id;
-                $bom_detail->purchase_uom_id = $costing_item->purchase_uom_id;
-                $bom_detail->supplier_id = null;
-                $bom_detail->origin_type_id = $costing_item->origin_type_id;
-                $bom_detail->garment_options_id = $costing_item->garment_options_id;
-                $bom_detail->purchase_price = $costing_item->unit_price;
-                $bom_detail->bom_unit_price = $costing_item->unit_price;
-                $bom_detail->net_consumption = $costing_item->net_consumption;
-                $bom_detail->wastage = $costing_item->wastage;
-                $bom_detail->gross_consumption = $costing_item->gross_consumption;
-                $bom_detail->meterial_type = $costing_item->meterial_type;
-                $bom_detail->freight_charges = $costing_item->freight_charges;
-                $bom_detail->mcq = $costing_item->mcq;
-                $bom_detail->surcharge = $costing_item->surcharge;
-                $bom_detail->total_cost = $costing_item->total_cost;
-                $bom_detail->ship_mode = $costing_item->ship_mode;
-                $bom_detail->ship_term_id = $costing_item->ship_term_id;
-                $bom_detail->lead_time = $costing_item->lead_time;
-                $bom_detail->country_id = $costing_item->country_id;
-                $bom_detail->comments = $costing_item->comments;
-                $bom_detail->status = 1;
-                $bom_detail->save();
-              }
-          }
-        }
-        //sfg item generation
-      }
-      return response([
-        'data' => [
-          'status' => 'success',
-          'message' => 'Bom generated successfully.'
-        ]
-      ]);
-    }
 
 
     private function get_costing_finish_goods($costing_id){
-      $list = DB::select("SELECT
-          costing_sfg_item.costing_id,
-          costing_fng_item.costing_fng_id,
-          costing_fng_item.fng_id,
-          item_master_fng.master_code AS fng_code,
-          item_master_fng.master_description AS fng_description,
-          org_color_fng.color_code AS fng_color_code,
-          org_color_fng.color_name AS fng_color_name,
-          costing_sfg_item.costing_sfg_id,
-          costing_sfg_item.sfg_id,
-          item_master_sfg.master_code AS sfg_code,
-          item_master_sfg.master_description AS sfg_description,
-          org_color_sfg.color_code AS sfg_color_code,
-          org_color_sfg.color_name AS sfg_color_name,
-          org_country.country_description
-          FROM
-          costing_sfg_item
-          INNER JOIN costing_fng_item ON costing_fng_item.costing_fng_id = costing_sfg_item.costing_fng_id
-          INNER JOIN item_master AS item_master_sfg ON item_master_sfg.master_id = costing_sfg_item.sfg_id
-          INNER JOIN item_master AS item_master_fng ON item_master_fng.master_id = costing_fng_item.fng_id
-          INNER JOIN org_country ON org_country.country_id = costing_sfg_item.country_id
-          INNER JOIN org_color AS org_color_fng ON org_color_fng.color_id = costing_fng_item.fng_color_id
-          INNEr JOIN org_color AS org_color_sfg ON org_color_sfg.color_id = costing_sfg_item.sfg_color_id
-          WHERE costing_sfg_item.costing_id = ?", [$costing_id]);
+      $costing = Costing::with(['style'])->find($costing_id);
+      $product_feature = ProductFeature::find($costing->style->product_feature_id);
+      $item = [];
+
+      if($product_feature->count > 1){//has sfg items
+        $list = DB::select("SELECT
+            costing_sfg_item.costing_id,
+            costing_fng_item.costing_fng_id,
+            costing_fng_item.fng_id,
+            item_master_fng.master_code AS fng_code,
+            item_master_fng.master_description AS fng_description,
+            org_color_fng.color_code AS fng_color_code,
+            org_color_fng.color_name AS fng_color_name,
+            costing_sfg_item.costing_sfg_id,
+            costing_sfg_item.sfg_id,
+            item_master_sfg.master_code AS sfg_code,
+            item_master_sfg.master_description AS sfg_description,
+            org_color_sfg.color_code AS sfg_color_code,
+            org_color_sfg.color_name AS sfg_color_name,
+            org_country.country_description
+            FROM
+            costing_sfg_item
+            INNER JOIN costing_fng_item ON costing_fng_item.costing_fng_id = costing_sfg_item.costing_fng_id
+            INNER JOIN item_master AS item_master_sfg ON item_master_sfg.master_id = costing_sfg_item.sfg_id
+            INNER JOIN item_master AS item_master_fng ON item_master_fng.master_id = costing_fng_item.fng_id
+            INNER JOIN org_country ON org_country.country_id = costing_sfg_item.country_id
+            INNER JOIN org_color AS org_color_fng ON org_color_fng.color_id = costing_fng_item.fng_color_id
+            INNEr JOIN org_color AS org_color_sfg ON org_color_sfg.color_id = costing_sfg_item.sfg_color_id
+            WHERE costing_sfg_item.costing_id = ?", [$costing_id]);
+      }
+      else {//no sfg items
+        $list = DB::select("SELECT
+            costing_fng_item.costing_id,
+            costing_fng_item.costing_fng_id,
+            costing_fng_item.fng_id,
+            item_master.master_code AS fng_code,
+            item_master.master_description AS fng_description,
+            org_color.color_code AS fng_color_code,
+            org_color.color_name AS fng_color_name,
+            0 AS costing_sfg_id,
+            0 AS sfg_id,
+            '' AS sfg_code,
+            ''  AS sfg_description,
+            '' AS sfg_color_code,
+            '' AS sfg_color_name,
+            org_country.country_description
+            FROM
+            costing_fng_item
+            INNER JOIN item_master ON item_master.master_id = costing_fng_item.fng_id
+            INNER JOIN org_country ON org_country.country_id = costing_fng_item.country_id
+            INNER JOIN org_color ON org_color.color_id = costing_fng_item.fng_color_id
+            WHERE costing_fng_item.costing_id = ?", [$costing_id]);
+      }
+
           return $list;
     }
 
@@ -1198,11 +1244,20 @@ class CostingController extends Controller {
     }
 
 
-    private function total_smv($style_id, $bom_stage_id, $color_type_id) {
-      $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)
-      ->where('bom_stage_id', '=', $bom_stage_id)
-      ->where('col_opt_id', '=', $color_type_id)
-      ->where('status', '=', 1)->first();
+    private function total_smv($style_id, $bom_stage_id, $color_type_id, $buy_id) {
+      $total_smv = null;
+      if($buy_id == 0){//get smv without buy
+        $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)->where('bom_stage_id', '=', $bom_stage_id)
+        ->where('col_opt_id', '=', $color_type_id)->where('status', '=', 1)->first();
+      }
+      else {
+        $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)->where('bom_stage_id', '=', $bom_stage_id)
+        ->where('col_opt_id', '=', $color_type_id)->where('buy_id', '=', $buy_id)->where('status', '=', 1)->first();
+        if($total_smv == null) {
+          $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)->where('bom_stage_id', '=', $bom_stage_id)
+          ->where('col_opt_id', '=', $color_type_id)->where('status', '=', 1)->first();
+        }
+      }
 
       if($total_smv == null || $total_smv == false){
         return [
@@ -1233,16 +1288,16 @@ class CostingController extends Controller {
       }
     }
 
-    private function calculate_fg_component_rm_cost($fg_component_id){
+    /*private function calculate_fg_component_rm_cost($fg_component_id){
       $cost = CostingFinishGoodComponentItem::where('fg_component_id', '=', $fg_component_id)->sum('total_cost');
       return $cost;
-    }
+    }*/
 
-    private function calculate_fg_rm_cost($fg_id){
+    /*private function calculate_fg_rm_cost($fg_id){
       $cost = CostingFinishGoodComponentItem::join('costing_finish_good_components', 'costing_finish_good_components.id', '=', 'costing_finish_good_component_items.fg_component_id')
       ->where('costing_finish_good_components.id', '=', $fg_id)->sum('costing_finish_good_component_items.total_cost');
       return $cost;
-    }
+    }*/
 
 
     /*private function get_finish_good($style_id, $bom_stage, $color_type) {
@@ -1287,6 +1342,7 @@ class CostingController extends Controller {
         product_component.product_component_id,
         product_silhouette.product_silhouette_id,
         product_feature.product_feature_id,
+        product_feature_component.line_no AS product_component_line_no,
         0 AS fng_color,
         0 AS sfg_color,
         '' AS fng_color_code,
@@ -1307,22 +1363,30 @@ class CostingController extends Controller {
     }
 
 
-    private function get_saved_finish_good_colors($costing_id) {
+    private function get_saved_finish_good_colors($costing_id, $feature_component_count) {
 
-      $list = DB::select("SELECT
+      $sql = "SELECT
         product_component.product_component_description,
         product_silhouette.product_silhouette_description,
         product_feature.product_feature_description,
         product_feature.product_feature_id,
         product_component.product_component_id,
         product_silhouette.product_silhouette_id,
+        costing_sfg_color.product_component_line_no,
         org_color_fng.color_id AS fng_color,
         org_color_fng.color_code AS fng_color_code,
         org_color_fng.color_name AS fng_color_name,
-        org_color_sfg.color_id AS sfg_color,
-        org_color_sfg.color_code AS sfg_color_code,
-        org_color_sfg.color_name AS sfg_color_name,
-        costing_fng_color.fng_color_id,
+        org_color_sfg.color_id AS sfg_color,";
+
+      if($feature_component_count > 1){//has semi finish goods, show sfg colors
+        $sql .= "org_color_sfg.color_code AS sfg_color_code,
+          org_color_sfg.color_name AS sfg_color_name,";
+      }
+      else {//no semi finish goods, no nned to show sfg colors
+        $sql .= "'' AS sfg_color_code,
+          '' AS sfg_color_name,";
+      }
+      $sql .= "costing_fng_color.fng_color_id,
         costing_sfg_color.sfg_color_id,
         0 AS edited
         FROM
@@ -1334,8 +1398,9 @@ class CostingController extends Controller {
         INNER JOIN product_component ON product_component.product_component_id = costing_sfg_color.product_component_id
         INNER JOIN org_color AS org_color_fng ON org_color_fng.color_id = costing_fng_color.color_id
         INNER JOIN org_color AS org_color_sfg ON org_color_sfg.color_id = costing_sfg_color.color_id
-        WHERE costing.id = ?", [$costing_id]);
+        WHERE costing.id = ?";
 
+        $list = DB::select($sql, [$costing_id]);
         return $list;
     }
 
@@ -1450,31 +1515,52 @@ class CostingController extends Controller {
       $costing['revision_reason'] = $revision_reason;
       DB::table('costing_history')->insert($costing);
 
-      $finish_goods = DB::table('costing_finish_goods')->where('costing_id', '=', $id)->get();
-      $finish_goods = json_decode( json_encode($finish_goods), true);//convert resullset to array
-      $fg_id_arr = [];
-      for($x = 0 ; $x < sizeof($finish_goods); $x++){
-        $finish_goods[$x]['revision_no'] = $revision_no;
-        array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
+      $countries = DB::table('costing_country')->where('costing_id', '=', $id)->get();
+      $countries = json_decode( json_encode($countries), true);//convert resullset to array
+      //$fg_id_arr = [];
+      for($x = 0 ; $x < sizeof($countries); $x++){
+        $countries[$x]['revision_no'] = $revision_no;
+        //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
       }
-      DB::table('costing_finish_goods_history')->insert($finish_goods);
+      DB::table('costing_country_history')->insert($countries);
 
-      $fg_components = DB::table('costing_finish_good_components')->whereIn('fg_id', $fg_id_arr)->get();
-      $fg_components = json_decode( json_encode($fg_components), true);//convert resullset to array
-      $fg_components_id_arr = [];
-      for($x = 0 ; $x < sizeof($fg_components); $x++){
-        $fg_components[$x]['revision_no'] = $revision_no;
-        array_push($fg_components_id_arr, $fg_components[$x]['id']);
+      $fng_colors = DB::table('costing_fng_color')->where('costing_id', '=', $id)->get();
+      $fng_colors = json_decode( json_encode($fng_colors), true);//convert resullset to array
+      //$fg_id_arr = [];
+      for($x = 0 ; $x < sizeof($fng_colors); $x++){
+        $fng_colors[$x]['revision_no'] = $revision_no;
+        //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
+        $sfg_colors = DB::table('costing_sfg_color')->where('fng_color_id', '=', $id)->get();
+        $sfg_colors = json_decode( json_encode($sfg_colors), true);//convert resullset to array
+        for($y = 0 ; $y < sizeof($sfg_colors); $y++){
+          $sfg_colors[$x]['revision_no'] = $revision_no;
+        }
+        DB::table('costing_sfg_color_history')->insert($sfg_colors);
       }
-      DB::table('costing_finish_good_components_history')->insert($fg_components);
+      DB::table('costing_fng_color_history')->insert($fng_colors);
 
-      $fg_component_items = DB::table('costing_finish_good_component_items')->whereIn('fg_component_id', $fg_components_id_arr)->get();
-      $fg_component_items = json_decode( json_encode($fg_component_items), true);//convert resullset to array
-      for($x = 0 ; $x < sizeof($fg_component_items); $x++){
-        $fg_component_items[$x]['revision_no'] = $revision_no;
+      $fng_items = DB::table('costing_fng_item')->where('costing_id', '=', $id)->get();
+      $fng_items = json_decode( json_encode($fng_items), true);//convert resullset to array
+      //$fg_id_arr = [];
+      for($x = 0 ; $x < sizeof($fng_items); $x++){
+        $fng_items[$x]['revision_no'] = $revision_no;
+        //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
+        $sfg_items = DB::table('costing_sfg_item')->where('costing_fng_id', '=', $id)->get();
+        $sfg_items = json_decode( json_encode($sfg_items), true);//convert resullset to array
+        for($y = 0 ; $y < sizeof($sfg_items); $y++){
+          $sfg_items[$x]['revision_no'] = $revision_no;
+        }
+        DB::table('costing_sfg_item_history')->insert($sfg_items);
       }
-      DB::table('costing_finish_good_component_items_history')->insert($fg_component_items);
+      DB::table('costing_fng_item_history')->insert($fng_items);
 
+
+      $costing_items = DB::table('costing_items')->where('costing_id', '=', $id)->get();
+      $costing_items = json_decode( json_encode($costing_items), true);//convert resullset to array
+      for($x = 0 ; $x < sizeof($costing_items); $x++){
+        $costing_items[$x]['revision_no'] = $revision_no;
+      }
+    //  DB::table('costing_items_history')->insert($costing_items);
     }
 
 
@@ -1515,7 +1601,8 @@ class CostingController extends Controller {
         product_component.product_component_description,
         product_silhouette.product_silhouette_id,
         product_silhouette.product_silhouette_description,
-        product_feature_component.feature_component_id
+        product_feature_component.feature_component_id,
+        product_feature_component.line_no
         FROM product_feature_component
 				INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
