@@ -43,30 +43,33 @@ class MSRReportController extends Controller
             ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
             ->join('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
-            ->join('item_master', 'item_master.master_id', '=', 'merc_shop_order_detail.inventory_part_id')
+            ->join('item_master AS ITEM', 'ITEM.master_id', '=', 'merc_shop_order_detail.inventory_part_id')
+            ->join('item_master AS FNG', 'FNG.master_id', '=', 'merc_customer_order_details.fng_id')
             ->join('product_component', 'product_component.product_component_id', '=', 'merc_shop_order_detail.component_id')
-            ->join('costing', 'costing.id', '=', 'merc_shop_order_detail.costing_id')
-            ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
-            ->join('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'style_creation.product_silhouette_id')
+            // ->join('costing', 'costing.id', '=', 'merc_shop_order_detail.costing_id')
+            // ->join('style_creation', 'style_creation.style_id', '=', 'costing.style_id')
             ->join('bom_header', 'bom_header.bom_id', '=', 'merc_shop_order_detail.bom_id')
+            ->join('bom_details', 'bom_details.bom_id', '=', 'bom_header.bom_id')
+            ->join('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
             ->join('org_location', 'org_location.loc_id', '=', 'merc_customer_order_details.user_loc_id')
             ->join('merc_po_order_details', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
             ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
-            ->join('store_grn_detail', 'store_grn_detail.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
-            ->join('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
+            //->join('store_grn_detail', 'store_grn_detail.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+            ->leftJoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
             ->join('usr_profile', 'usr_profile.user_id', '=', 'merc_po_order_header.created_by')
             ->select(
                 'cust_customer.customer_name',
                 'cust_division.division_description',
-                'item_master.master_code',
-                'item_master.master_description',
+                'ITEM.master_code AS item_code',
+                'ITEM.master_description AS item_des',
+                'FNG.master_code AS fng_code',
+                'FNG.master_description AS fng_des',
                 'product_component.product_component_description',
                 'product_silhouette.product_silhouette_description',
                 'merc_shop_order_header.shop_order_id',
-                'item_master.master_code',
-                DB::raw('(SELECT DATE(bom_header.created_date) AS bom_create_date FROM bom_header AS BOH 
+                DB::raw('(SELECT DATE(bom_header.created_date) AS bom_create_date FROM bom_header AS BOH
                 WHERE BOH.bom_id = merc_shop_order_detail.bom_id) AS bom_create_date'),
-                'item_master.master_description',
+                // 'item_master.master_description',
                 'org_size.size_name',
                 'org_location.loc_name',
                 'merc_shop_order_detail.gross_consumption',
@@ -79,8 +82,8 @@ class MSRReportController extends Controller
                 'merc_po_order_header.po_date',
                 'merc_shop_order_detail.po_qty AS sup_po_order_qty',
                 'merc_shop_order_detail.asign_qty',
-                DB::raw('(SELECT DATE(store_grn_detail.created_date) AS grn_date FROM store_grn_detail 
-                WHERE store_grn_detail.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id) AS grn_date'),                
+                DB::raw('(SELECT DATE(store_grn_detail.created_date) AS grn_date FROM store_grn_detail
+                WHERE store_grn_detail.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id) AS grn_date'),
                 'merc_shop_order_detail.issue_qty'
             );
 

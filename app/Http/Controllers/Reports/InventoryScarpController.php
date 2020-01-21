@@ -40,7 +40,7 @@ class InventoryScarpController extends Controller
         'org_store.store_name AS store_from',
         'store_to.store_name AS store_to',
         'usr_login.user_name',
-        DB::raw("(DATE_FORMAT(store_inv_scarp_header.created_date,'%d-%b-%Y %H:%i:%s')) AS create_date"),
+        DB::raw("(DATE_FORMAT(store_inv_scarp_header.created_date,'%d-%b-%Y %H:%i:%s')) AS create_date")
       );
       if($from_store!=null || $from_store!=""){
         $query->where('store_inv_scarp_header.from_store', $from_store);
@@ -134,14 +134,14 @@ class InventoryScarpController extends Controller
         FROM
         store_issue_detail
         WHERE
-        store_issue_detail.roll_plan_id = store_roll_plan.roll_plan_id
+        store_issue_detail.item_detail_id = store_roll_plan.roll_plan_id
         AND store_issue_detail.item_id = store_grn_detail.item_code) AS bin_wise_balance_qty"),
         DB::raw("(SELECT
         SUM(store_issue_detail.qty)-store_roll_plan.qty
         FROM
         store_issue_detail
         WHERE
-        store_issue_detail.roll_plan_id = store_roll_plan.roll_plan_id
+        store_issue_detail.item_detail_id = store_roll_plan.roll_plan_id
         AND store_issue_detail.item_id = store_grn_detail.item_code)*store_grn_detail.standard_price AS bin_wise_balance_amount"),
         DB::raw("(NULL) AS scarp_qty"),
         DB::raw("(NULL) AS comments"),
@@ -152,7 +152,7 @@ class InventoryScarpController extends Controller
         'store_grn_detail.po_number',
         'item_master.master_code',
         'item_category.category_code',
-        'store_grn_header.inv_number',
+        'store_grn_header.inv_number'
       )
       ->where('merc_shop_order_detail.po_balance_qty','>', 0)
       ->whereIn('item_category.category_code', ['FAB'])
@@ -204,14 +204,14 @@ class InventoryScarpController extends Controller
         FROM
         store_issue_detail
         WHERE
-        store_issue_detail.roll_plan_id = store_trim_packing_detail.trim_packing_id
+        store_issue_detail.item_detail_id = store_trim_packing_detail.trim_packing_id
         AND store_issue_detail.item_id = store_grn_detail.item_code) AS bin_wise_balance_qty"),
         DB::raw("(SELECT
         SUM(store_issue_detail.qty)-store_trim_packing_detail.qty
         FROM
         store_issue_detail
         WHERE
-        store_issue_detail.roll_plan_id = store_trim_packing_detail.trim_packing_id
+        store_issue_detail.item_detail_id = store_trim_packing_detail.trim_packing_id
         AND store_issue_detail.item_id = store_grn_detail.item_code)*store_grn_detail.standard_price AS bin_wise_balance_amount"),
         DB::raw("(NULL) AS scarp_qty"),
         DB::raw("(NULL) AS comments"),
@@ -222,7 +222,7 @@ class InventoryScarpController extends Controller
         'store_grn_detail.po_number',
         'item_master.master_code',
         'item_category.category_code',
-        'store_grn_header.inv_number',
+        'store_grn_header.inv_number'
       )
       ->where('merc_shop_order_detail.po_balance_qty','>', 0)
       ->whereNotIn('item_category.category_code', ['FAB'])

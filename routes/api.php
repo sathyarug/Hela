@@ -776,6 +776,8 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
   //Pick List
   Route::apiResource('load_pick_list','Reports\PickListController');
+  Route::post('update-issue-status','Reports\PickListController@update_issue_status');
+
   //Costing variance Report
   Route::get('view-pick_list','Reports\PickListController@viewPickList');
   //Barcode printing

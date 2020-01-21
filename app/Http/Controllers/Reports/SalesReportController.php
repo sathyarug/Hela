@@ -94,11 +94,11 @@ class SalesReportController extends Controller
         'merc_customer_order_details.active_status',
         'org_season.season_name',
         'org_location.loc_name',
-        'merc_customer_order_details.details_id',
-        DB::raw('(SELECT sum(merc_customer_order_size.order_qty) as total1 FROM merc_customer_order_size 
-                WHERE merc_customer_order_size.details_id = merc_customer_order_details.details_id GROUP BY merc_customer_order_details.details_id) AS total1'),
-        DB::raw('(SELECT sum(merc_customer_order_size.planned_qty) as total2 FROM merc_customer_order_size 
-                WHERE merc_customer_order_size.details_id = merc_customer_order_details.details_id GROUP BY merc_customer_order_details.details_id) AS total2')
+        'merc_customer_order_details.details_id'
+        // DB::raw('(SELECT sum(merc_customer_order_size.order_qty) as total1 FROM merc_customer_order_size 
+        //         WHERE merc_customer_order_size.details_id = merc_customer_order_details.details_id GROUP BY merc_customer_order_details.details_id) AS total1'),
+        // DB::raw('(SELECT sum(merc_customer_order_size.planned_qty) as total2 FROM merc_customer_order_size 
+        //         WHERE merc_customer_order_size.details_id = merc_customer_order_details.details_id GROUP BY merc_customer_order_details.details_id) AS total2')
         // DB::raw('sum(merc_customer_order_size.planned_qty) as total2')
       )
       ->where('merc_customer_order_details.active_status', 'ACTIVE');
