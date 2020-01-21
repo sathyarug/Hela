@@ -18,7 +18,7 @@ class FabticRollBarcode extends Controller
         $query = '';
         $load_list = [];
         $barcode_type = $request->type_of_barcode;
-        $po_number = $request->po_number;
+        $po_number = $request->po_number['po_number'];
         $invoice_no = $request->invoice_no;
         $barcode_from = $request->barcode_from;
         $barcode_to = $request->barcode_to;
