@@ -50,16 +50,26 @@ class CutDirectionController extends Controller{
     if($this->authorize->hasPermission('CUT_DIRECTION_MANAGE'))//check permission
     {
       $cutDirection = new CutDirection();
-      $cutDirection->fill($request->all());
-      $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cutDirection);
-      $cutDirection->status = 1;
-      $cutDirection->save();
+      if($cutDirection->validate($request->all()))
+      {
+        $cutDirection->fill($request->all());
+        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($cutDirection);
+        $cutDirection->status = 1;
+        $cutDirection->save();
 
-      return response([ 'data' => [
-        'message' => ' Cut Direction saved successfully',
-        'cutDirection' => $cutDirection
-        ]
-      ], Response::HTTP_CREATED );
+        return response([ 'data' => [
+          'message' => ' Cut Direction saved successfully',
+          'cutDirection' => $cutDirection
+          ]
+        ], Response::HTTP_CREATED );
+      }
+      else
+      {
+        $errors = $cutDirection->errors();// failure, get errors
+        $errors_str = $cutDirection->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+      }
+
     }
     else{
       return response($this->authorize->error_response(), 401);

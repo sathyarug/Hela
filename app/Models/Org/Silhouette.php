@@ -12,7 +12,7 @@ class Silhouette extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['product_silhouette_description','silhouette_code'];
+    protected $fillable=['product_silhouette_description','silhouette_code','product_component'];
 
     // protected $rules=array(
     //     'product_silhouette_description'=>'required'
@@ -29,7 +29,8 @@ class Silhouette extends BaseValidator
             'required',
             'unique:product_silhouette,silhouette_code,'.$data['product_silhouette_id'].',product_silhouette_id',
           ],
-          'product_silhouette_description' => 'required'
+          'product_silhouette_description' => 'required',
+          'product_component' => 'required'
       ];
     }
 

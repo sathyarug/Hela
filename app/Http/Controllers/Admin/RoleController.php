@@ -75,8 +75,9 @@ class RoleController extends Controller {
       }
       else
       {
-          $errors = $role->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $role->errors();// failure, get errors
+        $errors_str = $role->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 

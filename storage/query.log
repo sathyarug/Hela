@@ -1,0 +1,1419 @@
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from app_menu where level = ? ORDER BY app_menu.order ASC [1]
+select `app_process_approval`.`status`, count(app_process_approval.id) as count from `app_process_approval` inner join `usr_profile` on `usr_profile`.`user_id` = `app_process_approval`.`document_created_by` where `app_process_approval`.`document_created_by` = ? group by `app_process_approval`.`status` [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CATALOGUE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BASIC_SETUP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CLUSTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COMPANY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOCATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DEPARTMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_REASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COUNTRY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DESIGNATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [UOM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CONVERSION_FACTOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ORIGN_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REQUEST_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC POSITION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANDISING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER_DIVISION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SERVICE_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_CENTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENT_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENR_METHOD, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CURRENCY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GOODS_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHIP_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [TRANSACTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [EXCHANGE_RATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE_COST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CONFIG, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [IE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_UPDATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Garment_OPERATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_COMPONENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ADMIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PERMISSION_ROLE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [USERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APPROVAL_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROCESS_APPROVALS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_DEVELOPMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MASTER_DATA, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SPEC, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_CLASIFICATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUT_DIRECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SILHOUETTE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GARMENT_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_PROP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SEASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE_CHART, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BULK_COSTING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REQ, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Material_Size, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REVISION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BUY_MASTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHOP_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLY_CHAIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE2, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GRN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_MRN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOC_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [METERIAL_TRANSFER_IN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INTEGRATION_MAIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FASTREACT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_PRODUCTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_ORDERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [D2D_LOGIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REPORTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_SUMMARY_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APP_PEN_COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_SHEET_VARIANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_AGEING_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PICK_LIST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_SUMMERY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_ROLL_BARCODE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUEANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MRN_NOTE_REPOER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_LIST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MSR_REPORT, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+SELECT
+                    `merc_customer_order_details`.`order_id`,
+                    `store_grn_detail`.`grn_id`
+                FROM
+                    `merc_customer_order_details`
+                LEFT JOIN `store_grn_detail` ON `store_grn_detail`.`shop_order_id` = `merc_customer_order_details`.`shop_order_id`
+                WHERE
+                    `merc_customer_order_details`.`created_by` = 5
+                    AND merc_customer_order_details.rm_in_date < NOW()
+                GROUP BY
+                    `merc_customer_order_details`.`order_id`
+                HAVING
+                    `store_grn_detail`.`grn_id` IS NULL []
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select count(merc_po_order_header.po_id) as pending from `merc_po_order_header` where `merc_po_order_header`.`created_by` = ? and `merc_po_order_header`.`po_status` = ? [5, PLANNED]
+select count(merc_po_order_header.po_id) as approved from `merc_po_order_header` where `merc_po_order_header`.`created_by` = ? and `merc_po_order_header`.`po_status` = ? [5, CONFIRMED]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select `customer_name` from `cust_customer` []
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select `cust_customer`.`customer_name`, `cust_customer`.`customer_id`, ROUND(merc_customer_order_details.fob*merc_customer_order_details.order_qty, 2) as total from `merc_customer_order_header` inner join `cust_customer` on `cust_customer`.`customer_id` = `merc_customer_order_header`.`order_customer` inner join `merc_customer_order_details` on `merc_customer_order_details`.`order_id` = `merc_customer_order_header`.`order_id` group by `cust_customer`.`customer_name` []
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select * from `app_bookmark` where `user` = ? [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+SELECT user_locations.*, org_location.loc_code, org_location.loc_name FROM user_locations
+      INNER JOIN org_location ON org_location.loc_id = user_locations.loc_id WHERE user_locations.user_id = ? [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select * from `org_season` where `season_code` like ? or `season_name` like ? order by `season_id` desc limit 10 offset 0 [%, %]
+select count(*) as aggregate from `org_season` where `season_code` like ? or `Season_name` like ? [%, %]
+select count(*) as aggregate from `org_season` where `season_code` like ? or `Season_name` like ? [%, %]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+SELECT user_locations.*, org_location.loc_code, org_location.loc_name FROM user_locations
+      INNER JOIN org_location ON org_location.loc_id = user_locations.loc_id WHERE user_locations.user_id = ? [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select * from `app_bookmark` where `user` = ? [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from app_menu where level = ? ORDER BY app_menu.order ASC [1]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CATALOGUE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BASIC_SETUP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CLUSTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COMPANY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOCATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DEPARTMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_REASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COUNTRY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DESIGNATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [UOM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CONVERSION_FACTOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ORIGN_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REQUEST_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC POSITION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANDISING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER_DIVISION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SERVICE_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_CENTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENT_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENR_METHOD, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CURRENCY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GOODS_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHIP_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [TRANSACTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [EXCHANGE_RATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE_COST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CONFIG, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [IE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_UPDATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Garment_OPERATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_COMPONENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ADMIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PERMISSION_ROLE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [USERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APPROVAL_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROCESS_APPROVALS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_DEVELOPMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MASTER_DATA, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SPEC, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_CLASIFICATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUT_DIRECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SILHOUETTE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GARMENT_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_PROP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SEASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE_CHART, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BULK_COSTING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REQ, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Material_Size, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REVISION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BUY_MASTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHOP_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLY_CHAIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE2, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GRN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_MRN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOC_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [METERIAL_TRANSFER_IN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INTEGRATION_MAIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FASTREACT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_PRODUCTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_ORDERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [D2D_LOGIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REPORTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_SUMMARY_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APP_PEN_COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_SHEET_VARIANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_AGEING_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PICK_LIST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_SUMMERY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_ROLL_BARCODE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUEANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MRN_NOTE_REPOER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_LIST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MSR_REPORT, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select * from `org_season` where `season_code` like ? or `season_name` like ? order by `season_id` desc limit 10 offset 0 [%, %]
+select * from `org_season` where `season_code` like ? or `season_name` like ? order by `season_id` desc limit 10 offset 0 [%, %]
+select count(*) as aggregate from `org_season` where `season_code` like ? or `Season_name` like ? [%, %]
+select count(*) as aggregate from `org_season` where `season_code` like ? or `Season_name` like ? [%, %]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from app_menu where level = ? ORDER BY app_menu.order ASC [1]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CATALOGUE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BASIC_SETUP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CLUSTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COMPANY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOCATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DEPARTMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_REASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CANCEL_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COUNTRY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [DESIGNATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [UOM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CONVERSION_FACTOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ORIGN_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REQUEST_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC POSITION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANDISING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER_DIVISION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SERVICE_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_CENTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENT_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PAYMENR_METHOD, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CURRENCY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GOODS_TYPE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHIP_TERM, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [TRANSACTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [EXCHANGE_RATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FINANCE_COST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_STORE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_CONFIG, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [IE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_UPDATE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Garment_OPERATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SMV_COMPONENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ADMIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PERMISSION_ROLE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [USERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APPROVAL_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROCESS_APPROVALS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_DEVELOPMENT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MASTER_DATA, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SPEC, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_CLASIFICATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [CUT_DIRECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PROD_SILHOUETTE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GARMENT_OPTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM_STAGE, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUB_CATEGORY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_PROP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ITEM_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COLOR, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SEASON, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SIZE_CHART, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MERCHANT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_CREATION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BULK_COSTING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BOM, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REQ, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [Material_Size, 5]
+SELECT user_locations.*, org_location.loc_code, org_location.loc_name FROM user_locations
+      INNER JOIN org_location ON org_location.loc_id = user_locations.loc_id WHERE user_locations.user_id = ? [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REVISION, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BUY_MASTER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SHOP_ORDER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLY_CHAIN, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SOURCING, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [WAREHOUSE2, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [GRN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_MRN, 5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [LOC_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [BIN_TRANSFER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [METERIAL_TRANSFER_IN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUE, 5]
+select * from `app_bookmark` where `user` = ? [5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_STORES, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [RETURN_TO_SUPPLIER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_INSPECTION, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INTEGRATION_MAIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FASTREACT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_CUSTOMER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_PRODUCTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FR_ORDERS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [D2D_LOGIN, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [REPORTS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_REPORT_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PO_SUMMARY_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [APP_PEN_COST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [COST_SHEET_VARIANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [SALES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STORES_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_AGEING_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [PICK_LIST, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_SUMMERY, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [INV_SCARP_DETAILS, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [FABRIC_ROLL_BARCODE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [ISSUEANCE_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MRN_NOTE_REPOER, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [STYLE_LIST_REPORT, 5]
+select app_menu.* from app_menu where app_menu.parent_menu = ? AND
+            IF(app_menu.permission IS NULL , 1 ,
+              (SELECT COUNT(usr_login_permission.permission_code) FROM usr_login_permission WHERE usr_login_permission.user_id = ? AND
+              usr_login_permission.permission_code=app_menu.permission)) >= 1 ORDER BY app_menu.order ASC [MSR_REPORT, 5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select * from `org_season` where `season_code` = ? limit 1 [HHhj]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select * from `usr_login` where `usr_login`.`user_id` = ? limit 1 [5]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select count(*) as aggregate from `org_season` where `season_code` = ? and `season_id` <> ? [HHhj, ]
+insert into `org_season` (`updated_by`, `season_id`, `season_code`, `season_name`, `status`, `created_by`, `user_loc_id`, `updated_date`, `created_date`) values (?, ?, ?, ?, ?, ?, ?, ?, ?) [5, , HHHJ, JHJHJHJHJ, 1, 5, 24, 2020-01-17 05:38:28, 2020-01-17 05:38:28]
+select * from `usr_login` where `user_id` = ? limit 1 [5]
+select count(*) as aggregate from `usr_login_permission` where `user_id` = ? and `permission_code` = ? [5, SEASON_MANAGE]
+select * from `org_season` where `season_code` like ? or `season_name` like ? order by `season_id` desc limit 10 offset 0 [%, %]
+select count(*) as aggregate from `org_season` where `season_code` like ? or `Season_name` like ? [%, %]

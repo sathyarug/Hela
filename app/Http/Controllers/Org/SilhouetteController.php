@@ -12,6 +12,8 @@ use App\Models\Merchandising\StyleCreation;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Libraries\CapitalizeAllFields;
+use App\Models\Org\Component;
+
 class SilhouetteController extends Controller
 {
     public function __construct()
@@ -28,9 +30,16 @@ class SilhouetteController extends Controller
         $data = $request->all();
         return response($this->datatable_search($data));
       }
-      else if($type == 'auto')    {
+      else if($type == 'auto') {
         $search = $request->search;
         return response($this->autocomplete_search($search));
+      }
+      else if($type == 'pc-list') {
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([
+          'data' => $this->load_pc_list($active , $fields)
+        ]);
       }
       else {
         $active = $request->active;
@@ -41,14 +50,28 @@ class SilhouetteController extends Controller
       }
     }
 
+    private function load_pc_list($active = 0 , $fields = null)
+    {
+      $fields = explode(',', $fields);
+      $query = Component::select('product_component_id','product_component_description');
+      return $query->get();
+    }
 
     //create a Silhouette
     public function store(Request $request)
     {
       $silhouette = new Silhouette();
-      if($silhouette->validate($request->all()))
+
+      $dataArr = array(
+        "product_silhouette_id"=>$request->product_silhouette_id,
+        "silhouette_code"=>$request->silhouette_code, 
+        "product_silhouette_description"=>$request->product_silhouette_description, 
+        "product_component"=>$request->product_component['product_component_id']
+      );
+
+      if($silhouette->validate($dataArr))
       {
-        $silhouette->fill($request->all());
+        $silhouette->fill($dataArr);
         $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($silhouette);
         $silhouette->status = 1;
         $silhouette->save();
@@ -68,17 +91,18 @@ class SilhouetteController extends Controller
       }
     }
 
-
     //get a Silhouette
     public function show($id)
     {
-      $silhouette = Silhouette::find($id);
-      if($silhouette == null)
+      $query = DB::table('product_silhouette');
+      $query->join('product_component','product_silhouette.product_component','=','product_component.product_component_id');
+      $query->where('product_silhouette.product_silhouette_id', $id);
+      $data = $query->first();
+      if($data == null)
         throw new ModelNotFoundException("Requested silhouette not found", 1);
       else
-        return response([ 'data' => $silhouette ]);
+        return response([ 'data' => $data ]);
     }
-
 
     //update a Silhouette
     public function update(Request $request, $id)
@@ -86,7 +110,15 @@ class SilhouetteController extends Controller
       //$styleCreation=StyleCreation::where([['product_silhouette_id','=',$id]]);
       $is_exsits_in_style=DB::table('style_creation')->where('product_silhouette_id',$id)->exists();
       $silhouette = Silhouette::find($id);
-      if($silhouette->validate($request->all()))
+      
+      $dataArr = array(
+        "product_silhouette_id"=>$request->product_silhouette_id,
+        "silhouette_code"=>$request->silhouette_code, 
+        "product_silhouette_description"=>$request->product_silhouette_description, 
+        "product_component"=>$request->product_component['product_component_id']
+      );
+
+      if($silhouette->validate($dataArr))
       {
         if($is_exsits_in_style==true){
           return response([ 'data' => [
@@ -95,7 +127,7 @@ class SilhouetteController extends Controller
           ]]);
         }
         else if($is_exsits_in_style==false){
-        $silhouette->fill($request->all());
+        $silhouette->fill($dataArr);
         $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($silhouette);
         $silhouette->save();
 
@@ -225,7 +257,8 @@ class SilhouetteController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $silhouette_list = Silhouette::select('*')
+      $silhouette_list = Silhouette::select('product_silhouette.*','product_component.product_component_description')
+      ->join('product_component','product_silhouette.product_component','=','product_component.product_component_id')
       ->where('product_silhouette_description'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();

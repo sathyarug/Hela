@@ -69,8 +69,9 @@ class ColorOptionController extends Controller
         }
         else
         {
-            $errors = $colorOption->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $colorOption->errors();// failure, get errors
+          $errors_str = $colorOption->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

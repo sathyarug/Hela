@@ -17,11 +17,28 @@ class SubCategory extends BaseValidator
 
   //  protected $casts = [ 'is_inspectiion_allowed' => 'int' ,  'is_display' => 'int'];
 
-    protected $rules = array(
-        'subcategory_code' => 'required',
-        'subcategory_name'  => 'required'/*,
-        'category_id'  => 'required'*/
-    );
+    // protected $rules = array(
+    //     'subcategory_code' => 'required',
+    //     'subcategory_name'  => 'required'/*,
+    //     'category_id'  => 'required'*/
+    // );
+
+
+    //Validation Functions
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    **/
+    protected function getValidationRules($data) {
+      return [
+          'subcategory_code' => [
+            'required',
+            'unique:item_subcategory,subcategory_code,'.$data['subcategory_id'].',subcategory_id',
+          ],
+          'subcategory_name' => 'required'
+      ];
+    }
+    
 
     public function __construct()
     {
