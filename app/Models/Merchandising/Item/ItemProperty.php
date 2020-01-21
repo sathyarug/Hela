@@ -23,6 +23,10 @@ class itemproperty extends BaseValidator
         ->orderBy('sequence_no')->get();
     }
 
+    protected $rules = array(
+        'property_name'  => 'required'
+    );
+
     public function LoadUnAssignPropertiesBySubCat($result){
 
        $subcatCode = $result->subcategory_code;

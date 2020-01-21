@@ -14,9 +14,22 @@ class GarmentOptions extends BaseValidator
 
     protected $fillable=['garment_options_description','garment_options_id'];
 
-    protected $rules=array(
-        'garment_options_description'=>'required'
-    );
+    // protected $rules=array(
+    //     'garment_options_description'=>'required'
+    // );
+
+    //Validation Functions
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    **/
+    protected function getValidationRules($data) {
+      return [
+          'garment_options_description' => [
+            'required',
+            'unique:org_garment_options,garment_options_description,'.$data['garment_options_id'].',garment_options_id'],
+      ];
+    }
 
     public function __construct() {
         parent::__construct();

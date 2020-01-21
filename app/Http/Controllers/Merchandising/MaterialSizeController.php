@@ -69,8 +69,9 @@ class MaterialSizeController extends Controller
       }
       else
       {
-          $errors = $matsize->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $productSpecification->errors();// failure, get errors
+        $errors_str = $productSpecification->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 

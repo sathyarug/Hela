@@ -72,8 +72,9 @@ class GarmentOptionsController extends Controller
         }
         else
         {
-            $errors = $garmentoptions->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $garmentoptions->errors();// failure, get errors
+          $errors_str = $garmentoptions->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

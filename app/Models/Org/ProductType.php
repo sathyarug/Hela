@@ -18,7 +18,7 @@ class ProductType extends BaseValidator
         'product_code' => 'required',
         'product_description' => 'required'
     );
-
+    
     public function __construct() {
         parent::__construct();
         $this->attributes = array(

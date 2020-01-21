@@ -330,7 +330,7 @@ class Approval
           $response = $this->approve($approval_id, $status, $approval_remark, $user_profile->user_id);
           if($response == true){
             $message->delete();
-            echo 'success';
+            echo 'Document approved successfully';
           }
         }
       }
@@ -369,15 +369,17 @@ class Approval
         'costing' => Costing::find($document_id)
       ];
 
-      $costingService = new CostingService();      
+      $costingService = new CostingService();
       $costingService->genarate_bom($document_id);
       //$this->generate_bom_for_costing($document_id);
 
       $mail_subject = 'COSTING ' . $status . ' - '.$document_id;
       $created_user = UsrProfile::find($data['costing']->created_by);
-      $to = [['email' => $created_user->email]];
-      $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
-      dispatch($job);
+      if($created_user != null){//send response to costing created user
+        $to = [['email' => $created_user->email]];
+        $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
+        dispatch($job);
+      }
     }
 
     if($process_name == 'PO') {

@@ -27,15 +27,19 @@ class StyleCreation extends BaseValidator {
     *unique:table,column,except,idColumn
     *The field under validation must not exist within the given database table
     */
-    protected function getValidationRules($data /*model data with attributes*/) {
+    protected function getValidationRules($data) {
       return [
           'style_no' => [
             'required',
             'unique:style_creation,style_no,'.$data['style_id'].',style_id',
-          ]
+          ],
+          'customer_id' => 'required',
+          'division_id' => 'required',
+          'product_feature_id' => 'required',
+          'style_description' => 'required',
+          'product_silhouette_id' => 'required',
       ];
     }
-
 
 
     public function __construct() {
