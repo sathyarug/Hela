@@ -121,8 +121,8 @@ class ShopOrderController extends Controller
     //search customer for autocomplete
     private function style_search($search)
   	{
-  		$shopOrder_lists = BOMHeader::select('item_master.master_id', 'item_master.master_code','item_master.master_description')
-      ->join('item_master', 'bom_header.fng_id', '=', 'item_master.master_id')
+  		$shopOrder_lists = CustomerOrderDetails::select('item_master.master_id', 'item_master.master_code','item_master.master_description')
+      ->join('item_master', 'merc_customer_order_details.fng_id', '=', 'item_master.master_id')
   		->where([['master_code', 'like', '%' . $search . '%'],])
       ->get();
 
@@ -187,6 +187,7 @@ class ShopOrderController extends Controller
       $arr['history_count'] = sizeof($load_history);
 
       $load_sales_order = CustomerOrderDetails::select('*')
+                   ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
                    ->where('shop_order_id', '=', $shop_order_id)
                    ->where('active_status', '=','ACTIVE')
                    ->where('delivery_status', '=','RELEASED')
