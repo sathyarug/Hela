@@ -12,7 +12,7 @@ class SubStore extends BaseValidator
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';
 
-    protected $fillable=['substore_name'];
+    protected $fillable=['substore_name','store_id'];
 
     /*protected $rules=array(
         'substore_name'=>'required'
