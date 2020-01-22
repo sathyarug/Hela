@@ -131,7 +131,7 @@ class InvAgeingReportController extends Controller
         'org_store.store_name',
         DB::raw('FORMAT(SUM(st.qty),4) AS total_qty'),
         DB::raw('FORMAT(SUM(st.qty*st.standard_price),4) AS total_std_price'),
-        DB::raw('FORMAT(SUM(st.qty*st.purchase_price),4) AS total_pur_price'),
+        DB::raw('FORMAT(SUM(st.qty*st.purchase_price),4) AS total_pur_price')
       );
       $query->where('st.location', $location);
       $query->where('st.qty','>', 0);    
@@ -165,7 +165,7 @@ class InvAgeingReportController extends Controller
       $query->select(
         DB::raw('FORMAT(SUM(sst.qty),4) AS total_qty'),
         DB::raw('FORMAT(SUM(sst.qty*sst.standard_price),4) AS total_value'),
-        DB::raw('FORMAT(SUM(sst.qty*sst.purchase_price),4) AS total_pur_value'),
+        DB::raw('FORMAT(SUM(sst.qty*sst.purchase_price),4) AS total_pur_value')
       );
       $query->whereIn('sst.direction', ['+','-']);
       $query->where('sst.location', $location);
