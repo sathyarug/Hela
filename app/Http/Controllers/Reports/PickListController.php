@@ -40,6 +40,11 @@ class PickListController extends Controller
       $date_from = $data['date_from'];
       $date_to = $data['date_to'];
 
+      // $catArr = array();
+      // foreach($data['data']['category'] as $row){
+      //   array_push($catArr,$row['category_id']);
+      // }
+
       $query = DB::table('store_issue_header')
       ->join('store_mrn_header','store_issue_header.mrn_id','=','store_mrn_header.mrn_id')
       ->join('style_creation','store_mrn_header.style_id','=','style_creation.style_id')
@@ -157,7 +162,7 @@ class PickListController extends Controller
         store_mrn_detail.mrn_id = store_mrn_header.mrn_id
         ) AS po_nos"),
         'store_issue_header.issue_no AS issue_id',
-        DB::raw("(DATE_FORMAT(store_issue_header.created_date,'%d-%b-%Y')) AS created_date"),
+        DB::raw("(DATE_FORMAT(store_issue_header.created_date,'%d-%b-%Y')) AS created_date")
       )
       ->where('store_issue_header.mrn_id','=',$mrn)
       ->where('store_issue_header.issue_no','=',$issue_no)
