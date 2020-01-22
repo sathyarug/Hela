@@ -328,7 +328,7 @@ class MrnController extends Controller
       inner Join org_uom ON  merc_shop_order_detail.purchase_uom=org_uom.uom_id
       WHERE store_mrn_detail.mrn_id=$id
       AND store_mrn_detail.status=1
-      GROUP By(item_master.master_id)
+      #GROUP By(item_master.master_id)
       ");
 
     //dd($mrndetails);
@@ -716,7 +716,7 @@ class MrnController extends Controller
         from store_stock as STK_BALANCE
         where STK_BALANCE.item_id=item_master.master_id
         AND STK_BALANCE.location=$locId
-        #GROUP By(item_master.master_id)
+        GROUP By(item_master.master_id)
       ) as total_qty
 
     FROM
@@ -740,7 +740,7 @@ class MrnController extends Controller
     AND merc_shop_order_header.shop_order_id like '%".$shop_order_filter."%'
     AND merc_customer_order_header.order_id like '%".$customer_po_filter."%'
     AND item_master.master_code like '%".$item_code_filter."%'
-    GROUP By(item_master.master_id)");
+    #GROUP By(item_master.master_id)");
 
     return response([
         'data' => $data
@@ -773,9 +773,13 @@ class MrnController extends Controller
   from store_stock as STK_BALANCE
   where STK_BALANCE.item_id=item_master.master_id
   AND STK_BALANCE.location=$locId
-  #GROUP By(item_master.master_id)
+  GROUP By(item_master.master_id)
 ) as total_qty
-
+/*(select
+from merc_shop_order_header
+INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id=merc_shop_order_detail.shop_order_id
+where(merc_shop_order_detail.shop_order_detail_id)
+)*/
 FROM
 
 merc_po_order_header
@@ -794,7 +798,7 @@ LEFT JOIN org_size on merc_po_order_details.size=org_size.size_id
 INNER JOIN store_stock on item_master.master_id=store_stock.item_id
 where style_creation.style_id=$styleNo
 AND  store_stock.location=$locId
-GROUP By(item_master.master_id)
+#GROUP By(item_master.master_id)
 ");
 
 

@@ -169,7 +169,7 @@ INNER JOIN item_master ON store_grn_detail.item_code=item_master.master_id
 INNER JOIN store_grn_header ON store_grn_header.grn_id = store_grn_detail.grn_id
 WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
             //save stock transaction table line
-            //dd($rollplanDetail[0]);
+dd($rollplanDetail);            //dd($rollplanDetail[0]);
           $st = new StockTransaction;
           $st->status = 'PASS';
           $st->doc_type = $transaction->trans_code;
