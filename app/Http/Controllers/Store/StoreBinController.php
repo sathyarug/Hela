@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store\StoreBin;
 use App\Models\Finance\Item\Category;
 use Illuminate\Support\Facades\DB;
-
+use App\Libraries\CapitalizeAllFields;
 use App\Libraries\AppAuthorize;
 
 class StoreBinController extends Controller {
@@ -74,6 +74,7 @@ class StoreBinController extends Controller {
         if ($storeBin->validate($request->all())) {
             $storeBin->fill($request->all());
             $storeBin->status = 1;
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($storeBin);
             $storeBin->save();
 
             return response(['data' => [
@@ -127,8 +128,8 @@ class StoreBinController extends Controller {
       {
         $storeBin = StoreBin::find($id);
         if ($storeBin->validate($request->all())) {
-          $is_exsits_in_bin_alocation=DB::table('org_store_bin_allocation')->where('store_bin_id','=',$id);
-          $is_exists_in_roll_plan=DB::table('store_roll_plan')->where('bin','=',$id);
+          $is_exsits_in_bin_alocation=DB::table('org_store_bin_allocation')->where('store_bin_id','=',$id)->exists();
+          $is_exists_in_roll_plan=DB::table('store_roll_plan')->where('bin','=',$id)->exists();
           if($is_exsits_in_bin_alocation==true||$is_exists_in_roll_plan==true){
             return response(['data' => [
                     'message' => 'Store Bin Alreday in Use',
@@ -136,6 +137,7 @@ class StoreBinController extends Controller {
                       ]]);
           }
             $storeBin->fill($request->except('store_bin_name'));
+            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($storeBin);
             $storeBin->save();
 
             return response(['data' => [

@@ -30,7 +30,7 @@ class StoreBin extends BaseValidator
     *The field under validation must not exist within the given database table
     */
     protected function getValidationRules($data /*model data with attributes*/) {
-      return [         
+      return [
           'store_bin_name' => 'required',
           'store_id' => 'required',
           'substore_id' => 'required',

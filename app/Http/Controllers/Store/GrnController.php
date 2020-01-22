@@ -187,6 +187,7 @@ class GrnController extends Controller
                                     $storeUpdate->store = $header->main_store;
                                     $storeUpdate->sub_store =$header->sub_store;
                                     $storeUpdate->bin = $bin->store_bin_id;
+                                    $storeUpdate->uom=$poDetails->uom;
                                     $storeUpdate->standard_price = $rec['standard_price'];
                                     $storeUpdate->purchase_price = $rec['purchase_price'];
 
@@ -847,6 +848,7 @@ class GrnController extends Controller
                              $storeUpdate->store =$store->store_id;
                              $storeUpdate->sub_store =$header['sub_store']['substore_id'];
                              $storeUpdate->bin = $bin->store_bin_id;
+                             $storeUpdate->uom=$poDetails->uom;
                              $storeUpdate->standard_price = $dataset[$i]['standard_price'];
                              $storeUpdate->purchase_price = $dataset[$i]['purchase_price'];
                               //if dataline statned price and purchase price is varied
@@ -1015,6 +1017,7 @@ class GrnController extends Controller
       WHERE store_grn_header.grn_id=$id
       AND store_grn_detail.status= $status
       GROUP BY(merc_po_order_details.id)
+      order By(merc_customer_order_details.rm_in_date)DESC
       ");
 
     return response([
