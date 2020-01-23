@@ -441,7 +441,7 @@ class CustomerOrderDetailsController extends Controller
         $shoporder = new ShopOrderHeader();
         $shoporder->order_qty = $request->details[$x]['order_qty'];
         $shoporder->fg_id = $request->details[$x]['fng_id'];
-        $shoporder->order_status = 'PLANNED';
+        $shoporder->order_status = 'RELEASED';
         $shoporder->status = '1';
         $shoporder->save();
 
