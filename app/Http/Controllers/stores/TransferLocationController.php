@@ -76,7 +76,8 @@ use App\Libraries\Approval;
 
     private function styleFromSearch($searchFrom, $searchTo){
 
-   $stylefrom=ShopOrderHeader::join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
+   $stylefrom=ShopOrderHeader::select('style_creation.*')
+                            ->join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
                             ->join('bom_header','merc_shop_order_detail.bom_id','=','bom_header.bom_id')
                            ->join('costing','merc_shop_order_detail.costing_id','=','costing.id')
                           ->join('style_creation','costing.style_id','=','style_creation.style_id')
@@ -84,7 +85,8 @@ use App\Libraries\Approval;
                           ->where('merc_shop_order_detail.shop_order_id','=',$searchFrom)
                           ->where('style_creation.status','=',1)
                           ->first();
-  $styleTo=ShopOrderHeader::join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
+  $styleTo=ShopOrderHeader::select('style_creation.*')
+                           ->join('merc_shop_order_detail','merc_shop_order_header.shop_order_id','=','merc_shop_order_detail.shop_order_id')
                           ->join('bom_header','merc_shop_order_detail.bom_id','=','bom_header.bom_id')
                           ->join('costing','merc_shop_order_detail.costing_id','=','costing.id')
                           ->join('style_creation','costing.style_id','=','style_creation.style_id')
@@ -92,14 +94,26 @@ use App\Libraries\Approval;
                          ->where('merc_shop_order_detail.shop_order_id','=',$searchTo)
                          ->where('style_creation.status','=',1)
                          ->first();
+                //dd($stylefrom);
+            if($stylefrom!=$styleTo){
+              return [
+                "styleFrom"=>$stylefrom,
+                'message'=>"Diffrent Styles",
+                'status'=>0
+
+                ];
+              }
+              if($stylefrom==$styleTo){
+                return [
+                  "styleFrom"=>$stylefrom,
+                  'message'=>"Same Style",
+                  'status'=>1
+
+                  ];
+                }
 
 
 
-                          return [
-                            "styleFrom"=>$stylefrom,
-                            "styleTo"=>$styleTo
-
-                            ];
 
 
                             }
@@ -266,7 +280,7 @@ use App\Libraries\Approval;
                             //dd($gatePassHeader->gate_pass_no);
                             $gatePassHeader->transfer_location=$transer_location;
                             $gatePassHeader->receiver_location=$receiver_location;
-                            $gatePassHeader->status="plan";
+                            $gatePassHeader->status="CONFIRMED";
                             $gatePassHeader->save();
                             //dd($gatePassHeader);
                             $gate_pass_id=$gatePassHeader->gate_pass_id;

@@ -300,7 +300,7 @@ class MrnController extends Controller
         store_mrn_detail.color_id,
         store_mrn_detail.size_id,
         store_mrn_detail.uom,
-        store_mrn_detail.gross_consumption,merc_shop_order_detail.wastage,store_mrn_detail.order_qty,store_mrn_detail.requested_qty,style_creation.style_no,usr_login.user_name,item_master.master_code,item_master.master_id,item_master.master_description,org_color.color_code,org_color.color_name,org_size.size_name,org_uom.uom_code,org_uom.uom_id,store_mrn_detail.*,merc_shop_order_detail.asign_qty,merc_shop_order_detail.gross_consumption,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_detail.required_qty,merc_shop_order_detail.balance_to_issue_qty,inv_uom.uom_code as inventory_uom,inv_uom.uom_id as inventory_uom_id,store_mrn_detail.requested_qty as pre_qty,merc_customer_order_details.details_id,
+        store_mrn_detail.gross_consumption,merc_shop_order_detail.wastage,store_mrn_detail.order_qty,store_mrn_detail.requested_qty,style_creation.style_no,usr_login.user_name,item_master.master_code,item_master.master_id,item_master.master_description,org_color.color_code,org_color.color_name,org_size.size_name,org_uom.uom_code,org_uom.uom_id,store_mrn_detail.*,merc_shop_order_detail.asign_qty,merc_shop_order_detail.gross_consumption,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_detail.balance_to_issue_qty,inv_uom.uom_code as inventory_uom,inv_uom.uom_id as inventory_uom_id,store_mrn_detail.requested_qty as pre_qty,merc_customer_order_details.details_id,
 
         (select
           IFNULL(SUM(STK_BALANCE.qty),0)
@@ -308,7 +308,12 @@ class MrnController extends Controller
           where STK_BALANCE.item_id=item_master.master_id
           AND STK_BALANCE.location=$locId
           GROUP By(item_master.master_id)
-        ) as total_qty
+        ) as total_qty,
+        (select (merc_shop_order_header.order_qty*merc_shop_order_detail.gross_consumption) as required_qty
+        from merc_shop_order_detail as SOD2
+        INNER JOIN merc_shop_order_header ON SOD2.shop_order_id=merc_shop_order_header.shop_order_id
+        where SOD2.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+        )as required_qty
 
       FROM
       store_mrn_header
@@ -328,7 +333,13 @@ class MrnController extends Controller
       inner Join org_uom ON  merc_shop_order_detail.purchase_uom=org_uom.uom_id
       WHERE store_mrn_detail.mrn_id=$id
       AND store_mrn_detail.status=1
-      #GROUP By(item_master.master_id)
+      AND merc_shop_order_detail.asign_qty>0/*(
+        SELECT
+          IFNULL(SUM(merc_shop_order_detail.asign_qty),0)
+        from merc_shop_order_detail as SOD
+        where SOD.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+      )*/
+     GROUP By(merc_shop_order_detail.shop_order_detail_id)
       ");
 
     //dd($mrndetails);
@@ -701,7 +712,7 @@ class MrnController extends Controller
             item_master.master_description,
             item_master.master_code,
             item_master.master_id,for_inv_uom.uom_code as inventory_uom,for_inv_uom.uom_id as inventory_uom_id,for_po_uom.uom_code,for_po_uom.uom_id,merc_shop_order_detail.gross_consumption,merc_shop_order_detail.wastage,
-            merc_customer_order_details.order_qty,merc_shop_order_detail.required_qty,merc_shop_order_detail.shop_order_detail_id,merc_shop_order_detail.asign_qty,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_header.shop_order_id,merc_customer_order_details.details_id,org_color.color_id,org_size.size_id,
+            merc_customer_order_details.order_qty,merc_shop_order_detail.shop_order_detail_id,merc_shop_order_detail.asign_qty,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_header.shop_order_id,merc_customer_order_details.details_id,org_color.color_id,org_color.color_name,org_size.size_id,
 
       ( select
         IFNULL(SUM(SOD.balance_to_issue_qty),0)
@@ -711,6 +722,11 @@ class MrnController extends Controller
         GROUP BY(SOD.shop_order_detail_id)
       ) as balance_to_issue_qty,
 
+      (select (merc_shop_order_header.order_qty*merc_shop_order_detail.gross_consumption) as required_qty
+      from merc_shop_order_detail as SOD2
+      INNER JOIN merc_shop_order_header ON SOD2.shop_order_id=merc_shop_order_header.shop_order_id
+      where SOD2.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+      )as required_qty,
       (select
         IFNULL(SUM(STK_BALANCE.qty),0)
         from store_stock as STK_BALANCE
@@ -737,10 +753,11 @@ class MrnController extends Controller
     INNER JOIN store_stock on item_master.master_id=store_stock.item_id
     where style_creation.style_id=$styleNo
     AND  store_stock.location=$locId
+    AND merc_shop_order_detail.asign_qty>0
     AND merc_shop_order_header.shop_order_id like '%".$shop_order_filter."%'
     AND merc_customer_order_header.order_id like '%".$customer_po_filter."%'
     AND item_master.master_code like '%".$item_code_filter."%'
-    #GROUP By(item_master.master_id)");
+    GROUP By(merc_shop_order_detail.shop_order_detail_id)");
 
     return response([
         'data' => $data
@@ -759,7 +776,7 @@ class MrnController extends Controller
       //dd($locId);
 
       $data=DB::SELECT("SELECT merc_po_order_details.*,merc_shop_order_detail.asign_qty,item_master.master_description,item_master.master_code,item_master.master_id,for_inv_uom.uom_code as inventory_uom,for_inv_uom.uom_id as inventory_uom_id,for_po_uom.uom_code,for_po_uom.uom_id,merc_shop_order_detail.gross_consumption,merc_shop_order_detail.wastage,
-        merc_customer_order_details.order_qty,merc_shop_order_detail.required_qty,merc_shop_order_detail.shop_order_detail_id,merc_shop_order_detail.asign_qty,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_header.shop_order_id,merc_customer_order_details.details_id,org_color.color_id,org_color.color_name,org_size.size_id,org_size.size_name,
+        merc_customer_order_details.order_qty,merc_shop_order_detail.shop_order_detail_id,merc_shop_order_detail.asign_qty,merc_shop_order_detail.balance_to_issue_qty,merc_shop_order_header.shop_order_id,merc_customer_order_details.details_id,org_color.color_id,org_color.color_name,org_size.size_id,org_size.size_name,
      ( select
   IFNULL(SUM(SOD.balance_to_issue_qty),0)
  FROM merc_shop_order_detail as SOD
@@ -774,12 +791,13 @@ class MrnController extends Controller
   where STK_BALANCE.item_id=item_master.master_id
   AND STK_BALANCE.location=$locId
   GROUP By(item_master.master_id)
-) as total_qty
-/*(select
-from merc_shop_order_header
-INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id=merc_shop_order_detail.shop_order_id
-where(merc_shop_order_detail.shop_order_detail_id)
-)*/
+) as total_qty,
+
+(select (merc_shop_order_header.order_qty*merc_shop_order_detail.gross_consumption) as required_qty
+from merc_shop_order_detail as SOD2
+INNER JOIN merc_shop_order_header ON SOD2.shop_order_id=merc_shop_order_header.shop_order_id
+where SOD2.shop_order_detail_id=merc_shop_order_detail.shop_order_detail_id
+)as required_qty
 FROM
 
 merc_po_order_header
@@ -798,7 +816,8 @@ LEFT JOIN org_size on merc_po_order_details.size=org_size.size_id
 INNER JOIN store_stock on item_master.master_id=store_stock.item_id
 where style_creation.style_id=$styleNo
 AND  store_stock.location=$locId
-#GROUP By(item_master.master_id)
+AND merc_shop_order_detail.asign_qty>0
+GROUP By(merc_shop_order_detail.shop_order_detail_id)
 ");
 
 
