@@ -45,8 +45,15 @@ class FabricInspectionController extends Controller
     }
     else if($type == 'autoBatchNoFilter'){
       $inv_no = $request->inv_no;
-      $bacth_no=$request->batch_no;
-      return ($this->autocomplete_search_bacth_filter($inv_no,$bacth_no));
+      $batch_no=$request->batch_no;
+      return ($this->autocomplete_search_bacth_filter($inv_no,$batch_no));
+    }
+    else if($type == 'autoItemCodeFilter'){
+      $inv_no = $request->inv_no;
+      $batch_no=$request->batch_no;
+      $item_code = $request->search;
+      //dd($item_code);
+      return ($this->autocomplete_search_item_code_filter($item_code,$inv_no,$batch_no));
     }
     else if($type=='autoStatusTypes'){
       $search = $request->search;
@@ -384,16 +391,25 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
   }
 
-  public function autocomplete_search_bacth_filter($inv_no,$bacth_no){
+  public function autocomplete_search_bacth_filter($inv_no,$batch_no){
     //dd("dadad");
     $batch_list = GrnHeader::select('batch_no')->distinct('batch_no')
-    ->where([['batch_no', 'like', '%' . $bacth_no . '%'],])
+    ->where([['batch_no', 'like', '%' . $batch_no . '%'],])
     ->where('inv_number', '=', $inv_no) ->get();
+//dd($batch_list);
+   return $batch_list;
 
-   return response([ 'data' => [
-              'batch_list' => $batch_list,
-              ]
-            ],);
+  }
+
+public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_no){
+    $item_list = GrnHeader::join('store_grn_detail','store_grn_detail.grn_id','=','store_grn_header.grn_id')
+                            ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+    ->select('item_master.master_code','item_master.master_id')
+    ->where('store_grn_header.batch_no','=', $batch_no)
+    ->where('inv_number','=', $inv_no)
+    ->where([['item_master.master_code', 'like', '%' . $item_code . '%'],])
+    ->get();
+    return $item_list;
 
   }
 /*    public function store(Request $request)

@@ -143,6 +143,7 @@ item_master.standard_price,
 item_master.inventory_uom,
 item_category.category_code,
 
+
 (SELECT
                                       IFNULL(SUM(SGD.grn_qty),0)
                                       FROM
@@ -162,8 +163,7 @@ item_category.category_code,
                                 ) AS bal_qty,
 
 
-
-(
+                                (
 
 SELECT
 IFNULL(sum(for_uom.max),0)as maximum_tolarance
