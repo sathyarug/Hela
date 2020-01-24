@@ -593,6 +593,8 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('load_shop_order_list' , 'Merchandising\ShopOrderController@load_shop_order_list');
     Route::post('update_shop_order_details','Merchandising\ShopOrderController@update_shop_order_details');
 
+    Route::apiResource('shop_order','Merchandising\ShopOrderController');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -792,7 +794,7 @@ Route::prefix('reports/')->group(function(){
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
   //MRN
-  Route::apiResource('load_mrn','Reports\MRNNoteController');  
+  Route::apiResource('load_mrn','Reports\MRNNoteController');
   Route::get('load_mrn_note','Reports\MRNNoteController@getMrnNote');
   //Inventory scarp header report
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
