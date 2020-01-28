@@ -1008,7 +1008,7 @@ class CustomerOrderDetailsController extends Controller
        a.*,round((a.order_qty * a.fob),4) as total_value,
       org_country.country_description,org_location.loc_name,org_color.color_code,
       org_color.color_name,item_master.master_code,item_master.master_description,
-      a.planned_qty * product_feature.count as ord_qty_pcs
+      a.order_qty * product_feature.count as ord_qty_pcs
       from merc_customer_order_details a
       INNER join org_country on a.country = org_country.country_id
       INNER join org_location on a.projection_location = org_location.loc_id
