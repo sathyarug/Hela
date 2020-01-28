@@ -1438,7 +1438,8 @@ class CostingController extends Controller {
         INNER JOIN product_component ON product_component.product_component_id = costing_sfg_color.product_component_id
         INNER JOIN org_color AS org_color_fng ON org_color_fng.color_id = costing_fng_color.color_id
         INNER JOIN org_color AS org_color_sfg ON org_color_sfg.color_id = costing_sfg_color.color_id
-        WHERE costing.id = ?";
+        WHERE costing.id = ? ORDER BY costing_sfg_color.fng_color_id,costing_sfg_color.product_component_id,
+        costing_sfg_color.product_silhouette_id,costing_sfg_color.product_component_line_no";
 
         $list = DB::select($sql, [$costing_id]);
         return $list;
@@ -1570,11 +1571,12 @@ class CostingController extends Controller {
       for($x = 0 ; $x < sizeof($fng_colors); $x++){
         $fng_colors[$x]['revision_no'] = $revision_no;
         //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
-        $sfg_colors = DB::table('costing_sfg_color')->where('fng_color_id', '=', $id)->get();
+        $sfg_colors = DB::table('costing_sfg_color')->where('fng_color_id', '=', $fng_colors[$x]['fng_color_id'])->get();
         $sfg_colors = json_decode( json_encode($sfg_colors), true);//convert resullset to array
         for($y = 0 ; $y < sizeof($sfg_colors); $y++){
-          $sfg_colors[$x]['revision_no'] = $revision_no;
+          $sfg_colors[$y]['revision_no'] = $revision_no;
         }
+		//echo json_encode($sfg_colors[$x]);die();
         DB::table('costing_sfg_color_history')->insert($sfg_colors);
       }
       DB::table('costing_fng_color_history')->insert($fng_colors);

@@ -158,6 +158,8 @@ class CostingService
                     $description .= '_'.$component->product_component_description.'_'.
                       $silhouette->product_silhouette_description.'_'.$sfg_color->color->color_code;
 
+                    $description .= ($sfg_color->product_component_line_no == null) ? '' : ('_'.$sfg_color->product_component_line_no);
+
                     $sfg_item_count = Item::where('master_description', '=', $description)->count();
                     if($sfg_item_count > 0){
                       continue;
