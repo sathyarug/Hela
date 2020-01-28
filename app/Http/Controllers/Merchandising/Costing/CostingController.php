@@ -43,6 +43,7 @@ use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\BOMDetails;
 
 use App\Libraries\Approval;
+use App\Services\Merchandising\Costing\CostingService;
 
 class CostingController extends Controller {
 
@@ -501,8 +502,17 @@ class CostingController extends Controller {
               $costing->edit_user = null;
               $costing->save();
 
-              $approval = new Approval();
-              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
+              /*$approval = new Approval();
+              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process*/
+
+              $costing->status = 'APPROVED';
+              $costing->save();
+              //$costing = Costing::find($costing_id);
+              //if($costing != null && $costing->status == 'APPROVED'){
+                $costingService = new CostingService();
+                $res = $costingService->genarate_bom($costing_id);
+              //  echo json_encode($res);
+            //  }
 
               return response([
                 'data' => [
@@ -652,6 +662,8 @@ class CostingController extends Controller {
           ]);
         }
         else {
+          $date = gmdate('Y-m-d h:i:s');
+
           $costing_copy = $costing->replicate();
           $costing_copy->bom_stage_id = $bom_stage_id;
           $costing_copy->season_id = $season_id;
@@ -663,31 +675,57 @@ class CostingController extends Controller {
           $costing_copy->approval_sent_user = null;
           $costing_copy->total_smv = $new_total_smv;
           $costing_copy->status = 'CREATE';
+          $costing_copy->created_date = $date;
+          $costing_copy->updated_date = $date;
           $costing_copy->save();
 
           $costing_copy->sc_no = str_pad($costing_copy->id, 5, '0', STR_PAD_LEFT);
           $costing_copy->save();//generate sc no and update
 
-          $finish_goods = CostingFinishGood::where('costing_id', '=', $costing->id)->get();
-          for($x = 0 ; $x < sizeof($finish_goods); $x++){
-            $finish_good_copy = $finish_goods[$x]->replicate();
-            $finish_good_copy->costing_id = $costing_copy->id;
-            $finish_good_copy->save();
+          $countries = CostingCountry::where('costing_id', '=', $costing->id)->get();
+          foreach($countries as $country){
+            $country_copy = $country->replicate();
+            $country_copy->costing_id = $costing_copy->id;
+            $country_copy->created_by = null;
+            $country_copy->created_date = $date;
+            $country_copy->updated_by = null;
+            $country_copy->updated_date = $date;
+            $country_copy->save();
+          }
 
-            $components = CostingFinishGoodComponent::where('fg_id', '=', $finish_goods[$x]->fg_id)->get();
-            for($y = 0 ; $y < sizeof($components) ; $y++){
-              $component_copy = $components[$y]->replicate();
-              $component_copy->fg_id = $finish_good_copy->fg_id;
-              $component_copy->save();
+          $fng_colors = CostingFngColor::where('costing_id', '=', $costing->id)->get();
+          foreach($fng_colors as $fng_color){
+            $fng_color_copy = $fng_color->replicate();
+            $fng_color_copy->costing_id = $costing_copy->id;
+            $fng_color_copy->created_by = null;
+            $fng_color_copy->created_date = $date;
+            $fng_color_copy->updated_by = null;
+            $fng_color_copy->updated_date = $date;
+            $fng_color_copy->save();
 
-              $component_items = CostingFinishGoodComponentItem::where('fg_component_id', '=', $components[$y]['id'])->get();
-              for($z = 0 ; $z < sizeof($component_items) ; $z++){
-                $component_item_copy = $component_items[$z]->replicate();
-                $component_item_copy->fg_component_id = $component_copy->id;
-                $component_item_copy->save();
-              }
+            $sfg_colors = CostingSfgColor::where('fng_color_id', '=', $fng_color->fng_color_id)->get();
+            foreach($sfg_colors as $sfg_color){
+              $sfg_color_copy = $sfg_color->replicate();
+              $sfg_color_copy->fng_color_id = $fng_color_copy->fng_color_id;
+              $sfg_color_copy->created_by = null;
+              $sfg_color_copy->created_date = $date;
+              $sfg_color_copy->updated_by = null;
+              $sfg_color_copy->updated_date = $date;
+              $sfg_color_copy->save();
             }
           }
+
+          $costing_items = CostingItem::where('costing_id', '=', $costing->id)->get();
+          foreach($costing_items as $costing_item){
+            $costing_item_copy = $costing_item->replicate();
+            $costing_item_copy->costing_id = $costing_copy->id;
+            $costing_item_copy->created_by = null;
+            $costing_item_copy->created_date = $date;
+            $costing_item_copy->updated_by = null;
+            $costing_item_copy->updated_date = $date;
+            $costing_item_copy->save();
+          }
+
           return response([
             'data' => [
               'status' => 'success',

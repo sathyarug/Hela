@@ -76,7 +76,7 @@ class CostingService
                   .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
 
               $description .= ($costing->buy == null) ? '' : ('_'.$costing->buy->buy_name);
-              throw new \Exception("Some error message");
+            //  throw new \Exception("Some error message");
 
               $item_count = Item::where('master_description', '=', $description)->count();
               if($item_count > 0){
@@ -102,7 +102,7 @@ class CostingService
               //generate item codes
               $item->master_code = $category->category_code . str_pad($item->master_id, 7, '0', STR_PAD_LEFT);
               $item->save();
-              throw new \Exception("Some error message");
+              //throw new \Exception("Some error message");
 
               //echo json_encode($item);die();
               $fng_item = new CostingFngItem();

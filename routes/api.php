@@ -697,7 +697,8 @@ Route::prefix('approval-process/')->group(function(){
 
     Route::get('start','App\ApprovalController@start');
     Route::get('read','App\ApprovalController@approve');
-
+    Route::get('generate_costing_bom','App\ApprovalController@generate_costing_bom');
+    Route::get('remove_costing_data','App\ApprovalController@remove_costing_data');
 });
 
 Route::prefix('dashboard/')->group(function(){
