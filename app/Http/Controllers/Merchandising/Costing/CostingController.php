@@ -43,6 +43,7 @@ use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\BOMDetails;
 
 use App\Libraries\Approval;
+use App\Services\Merchandising\Costing\CostingService;
 
 class CostingController extends Controller {
 
@@ -501,8 +502,19 @@ class CostingController extends Controller {
               $costing->edit_user = null;
               $costing->save();
 
-              $approval = new Approval();
-              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process
+              /*$approval = new Approval();
+              $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process*/
+              if($costing->status == 'PENDING'){
+                $costing->status = 'APPROVED';
+                $costing->save();
+                //$costing = Costing::find($costing_id);
+                //if($costing != null && $costing->status == 'APPROVED'){
+                  $costingService = new CostingService();
+                  $res = $costingService->genarate_bom($costing->id);
+                //  echo json_encode($res);
+              //  }
+              }
+
 
               return response([
                 'data' => [

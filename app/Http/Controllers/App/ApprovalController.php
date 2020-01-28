@@ -32,7 +32,7 @@ class ApprovalController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index', 'approve']]);
+      $this->middleware('jwt.verify', ['except' => ['index', 'approve','generate_costing_bom','remove_costing_data']]);
     }
 
     //get Color list
@@ -65,6 +65,43 @@ class ApprovalController extends Controller
      }
    }
 
+   public function remove_costing_data(Request $request){
+     try {
+         DB::beginTransaction();
 
+         $costing_id = $request->costing_id;
+
+         DB::delete("delete from bom_details where costing_id = ?", [$costing_id]);
+         DB::delete("delete from bom_header where costing_id = ?", [$costing_id]);
+
+         $fng_items = DB::table('costing_fng_item')->where('costing_id', '=', $costing_id)->pluck('fng_id');
+         $sfg_items = DB::table('costing_sfg_item')->where('costing_id', '=', $costing_id)->pluck('sfg_id');
+
+         DB::table('item_master')->whereIn('master_id', $fng_items)->delete();
+         DB::table('item_master')->whereIn('master_id', $sfg_items)->delete();
+
+         DB::delete("delete from costing_sfg_item where costing_id = ?", [$costing_id]);
+         DB::delete("delete from costing_fng_item where costing_id = ?", [$costing_id]);
+
+         $process_ids = DB::table('app_process_approval')->where('document_id', '=', $costing_id)->pluck('id');
+         $stage_ids = DB::table('app_process_approval_stages')->whereIn('approval_id', $process_ids)->pluck('id');
+
+         DB::table('app_process_approval_stage_users')->whereIn('approval_stage_id', $stage_ids)->delete();
+         DB::table('app_process_approval_stages')->whereIn('id', $stage_ids)->delete();
+         DB::table('app_process_approval')->whereIn('id', $process_ids)->delete();
+
+         DB::update("update costing set status = 'CREATE' where id = ?", [$costing_id]);
+
+         DB::commit();// Commit Transaction
+         echo 'done';
+     }
+     catch(\Exception $e){
+       // Rollback Transaction
+       DB::rollback();
+       echo 'error';
+     }
+
+
+   }
 
 }
