@@ -504,15 +504,17 @@ class CostingController extends Controller {
 
               /*$approval = new Approval();
               $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process*/
+              if($costing->status == 'PENDING'){
+                $costing->status = 'APPROVED';
+                $costing->save();
+                //$costing = Costing::find($costing_id);
+                //if($costing != null && $costing->status == 'APPROVED'){
+                  $costingService = new CostingService();
+                  $res = $costingService->genarate_bom($costing->id);
+                //  echo json_encode($res);
+              //  }
+              }
 
-              $costing->status = 'APPROVED';
-              $costing->save();
-              //$costing = Costing::find($costing_id);
-              //if($costing != null && $costing->status == 'APPROVED'){
-                $costingService = new CostingService();
-                $res = $costingService->genarate_bom($costing_id);
-              //  echo json_encode($res);
-            //  }
 
               return response([
                 'data' => [
