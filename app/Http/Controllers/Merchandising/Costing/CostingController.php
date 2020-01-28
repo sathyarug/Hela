@@ -313,7 +313,7 @@ class CostingController extends Controller {
           $costing->approval_sent_user = null;
         }
 
-        $costing->total_order_qty = $request->total_order_qty;
+       $costing->total_order_qty = $request->total_order_qty;
         $costing->fob = $request->fob;
         $costing->planned_efficiency = $request->planned_efficiency;
         $costing->cost_per_std_min = $request->cost_per_std_min;
@@ -557,7 +557,7 @@ class CostingController extends Controller {
     public  function getColorForDivision($division_id,$query){
       //$color=\App\Models\Org\Color::where([['division_id','=',$division_id]])->pluck('color_name')->toArray();
         $color=\App\Models\Org\Color::where('status', '=', 1)->where('color_code', 'like', $query.'%')->pluck('color_code')->toArray();
-        return json_encode($color);
+       return json_encode($color);
     }
 
 
@@ -620,7 +620,7 @@ class CostingController extends Controller {
             $component_item_copy->fg_component_id = $component_copy->id;
             $component_item_copy->save();
           }
-        }
+       }
 
         $finish_goods = $this->get_saved_finish_good($finish_good->costing_id);
         return response([
@@ -920,10 +920,10 @@ class CostingController extends Controller {
           org_size.size_name,
           IF
           (
-          	(
-          		SELECT status FROM costing_size_chart WHERE costing_size_chart.costing_id = ? AND
-          		costing_size_chart.size_chart_id = org_size_chart_sizes.size_chart_id AND costing_size_chart.size_id = org_size_chart_sizes.size_id
-          	) = 1, 1, 0
+               (
+                               SELECT status FROM costing_size_chart WHERE costing_size_chart.costing_id = ? AND
+                               costing_size_chart.size_chart_id = org_size_chart_sizes.size_chart_id AND costing_size_chart.size_id = org_size_chart_sizes.size_id
+               ) = 1, 1, 0
           ) AS status
           FROM org_size_chart_sizes
           INNER JOIN org_size ON org_size.size_id = org_size_chart_sizes.size_id
@@ -1253,8 +1253,8 @@ class CostingController extends Controller {
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = ie_component_smv_details.product_silhouette_id
         INNER JOIN ie_garment_operation_master ON ie_garment_operation_master.garment_operation_id = ie_component_smv_details.garment_operation_id
         INNER JOIN costing ON costing.style_id = ie_component_smv_header.style_id
-        	AND costing.bom_stage_id = ie_component_smv_header.bom_stage_id
-        	AND costing.color_type_id = ie_component_smv_header.col_opt_id
+               AND costing.bom_stage_id = ie_component_smv_header.bom_stage_id
+               AND costing.color_type_id = ie_component_smv_header.col_opt_id
         WHERE costing.id = ?", [$costing_id]);
       return $list;
     }
@@ -1285,7 +1285,7 @@ class CostingController extends Controller {
     private function total_smv($style_id, $bom_stage_id, $color_type_id, $buy_id) {
       $total_smv = null;
       if($buy_id == 0){//get smv without buy
-        $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)->where('bom_stage_id', '=', $bom_stage_id)
+       $total_smv = DB::table('ie_component_smv_header')->where('style_id', '=', $style_id)->where('bom_stage_id', '=', $bom_stage_id)
         ->where('col_opt_id', '=', $color_type_id)->where('status', '=', 1)->first();
       }
       else {
@@ -1391,7 +1391,7 @@ class CostingController extends Controller {
         0 AS sfg_color_id,
         1 AS edited
         FROM product_feature_component
-				INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
+                                                                INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
         INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id
         INNER JOIN style_creation ON style_creation.product_feature_id = product_feature.product_feature_id
@@ -1557,7 +1557,7 @@ class CostingController extends Controller {
       $countries = json_decode( json_encode($countries), true);//convert resullset to array
       //$fg_id_arr = [];
       for($x = 0 ; $x < sizeof($countries); $x++){
-        $countries[$x]['revision_no'] = $revision_no;
+       $countries[$x]['revision_no'] = $revision_no;
         //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
       }
       DB::table('costing_country_history')->insert($countries);
@@ -1613,11 +1613,11 @@ class CostingController extends Controller {
     }
 
 
-    private function autocomplete_search($search)	{
-  		$ists = Costing::select('id','sc_no')
-  		->where([['sc_no', 'like', '%' . $search . '%'], ['status', '=', 'APPROVED']]) ->get();
-  		return $ists;
-  	}
+    private function autocomplete_search($search)            {
+                                $ists = Costing::select('id','sc_no')
+                                ->where([['sc_no', 'like', '%' . $search . '%'], ['status', '=', 'APPROVED']]) ->get();
+                                return $ists;
+                }
 
 
     private function get_item_from_article_no($article_no){
@@ -1642,7 +1642,7 @@ class CostingController extends Controller {
         product_feature_component.feature_component_id,
         product_feature_component.line_no
         FROM product_feature_component
-				INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
+                                                                INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
         INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id
         INNER JOIN style_creation ON style_creation.product_feature_id = product_feature.product_feature_id

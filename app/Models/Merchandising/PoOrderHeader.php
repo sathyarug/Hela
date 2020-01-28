@@ -143,6 +143,7 @@ item_master.standard_price,
 item_master.inventory_uom,
 item_category.category_code,
 
+
 (SELECT
                                       IFNULL(SUM(SGD.grn_qty),0)
                                       FROM
@@ -151,8 +152,8 @@ item_category.category_code,
                                      WHERE
                                     SGD.po_details_id = merc_po_order_details.id
                                    ) AS tot_grn_qty,
- (SELECT
-                   bal_qty
+(  SELECT
+                   ROUND(bal_qty,4)
                       FROM
                       store_grn_detail AS SGD2
 
@@ -161,7 +162,8 @@ item_category.category_code,
 																	GROUP BY merc_po_order_details.id
                                 ) AS bal_qty,
 
-(
+
+                                (
 
 SELECT
 IFNULL(sum(for_uom.max),0)as maximum_tolarance
@@ -201,6 +203,7 @@ WHERE
 merc_po_order_header.po_id =$request->id
 AND merc_po_order_header.po_sup_code=$request->sup_id
 GROUP BY(merc_po_order_details.id)
+order By(merc_customer_order_details.rm_in_date)DESC
 ");
 
   //$poData->toArray();

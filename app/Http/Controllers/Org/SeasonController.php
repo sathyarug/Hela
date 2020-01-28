@@ -71,8 +71,9 @@ class SeasonController extends Controller
         }
         else
         {
-            $errors = $season->errors();// failure, get errors
-            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $errors = $season->errors();// failure, get errors
+          $errors_str = $season->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
       }
       else{

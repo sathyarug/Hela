@@ -593,6 +593,8 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('load_shop_order_list' , 'Merchandising\ShopOrderController@load_shop_order_list');
     Route::post('update_shop_order_details','Merchandising\ShopOrderController@update_shop_order_details');
 
+    Route::apiResource('shop_order','Merchandising\ShopOrderController');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -777,6 +779,8 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('inv-ageing','Reports\InvAgeingReportController');
   //Pick List
   Route::apiResource('load_pick_list','Reports\PickListController');
+  Route::post('update-issue-status','Reports\PickListController@update_issue_status');
+
   //Costing variance Report
   Route::get('view-pick_list','Reports\PickListController@viewPickList');
   //Barcode printing
@@ -790,6 +794,9 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_shop_order','Reports\MSRReportController');
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
+  //MRN
+  Route::apiResource('load_mrn','Reports\MRNNoteController');
+  Route::get('load_mrn_note','Reports\MRNNoteController@getMrnNote');
   //Inventory scarp header report
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');

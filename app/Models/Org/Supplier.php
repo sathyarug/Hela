@@ -19,21 +19,43 @@ class Supplier extends BaseValidator {
         'business_posting_group', 'approved_by', 'system_updated_by', 'supplier_creation_form','supplier_country', 'status'];
 
     protected $dates = ['operation_start_date'];
-    protected $rules = array(
-        'supplier_code' => 'required',
-        'supplier_name' => 'required',
-        'supplier_short_name' => 'required',
-        'type_of_service' => 'required',
-        'supplier_city' => 'required',
-        'supplier_country' => 'required',
-        'currency' => 'required'
-        /*'supplier_contact1' => 'required'*/
-    );
+    
+    // protected $rules = array(
+    //     'supplier_code' => 'required',
+    //     'supplier_name' => 'required',
+    //     'supplier_short_name' => 'required',
+    //     'type_of_service' => 'required',
+    //     'supplier_city' => 'required',
+    //     'supplier_country' => 'required',
+    //     'currency' => 'required'
+    //     /*'supplier_contact1' => 'required'*/
+    // );
 
-   public function __construct() {
-        parent::__construct();
+    //Validation Functions
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    **/
+    protected function getValidationRules($data) {
+      return [
+          'supplier_code' => [
+            'required',
+            'unique:org_supplier,supplier_code,'.$data['supplier_id'].',supplier_id',
+          ],
+          'supplier_name' => 'required',
+          'supplier_short_name' => 'required',
+          'type_of_service' => 'required',
+          'supplier_city' => 'required',
+          'supplier_country' => 'required',
+          'currency' => 'required',
+          'supplier_country' => 'required',
+          'supplier_contact1' => 'required',
+      ];
     }
 
+    public function __construct() {
+        parent::__construct();
+    }
 
     public function setOperationStartDateAttribute($value) {
       $this->attributes['operation_start_date'] = date('Y-m-d', strtotime($value));

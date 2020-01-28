@@ -38,6 +38,9 @@ class IssueController extends Controller
         }elseif($type == 'issue_details'){
             $id = $request->id;
             return response(['data' => $this->getIssueDetails($id)]);
+        }else if($type == 'auto')    {
+            $search = $request->search;
+            return response($this->autocomplete_search($search));
         }else{
             $loc_id = $request->loc;
             return response(['data' => $this->list($active, $fields, $loc_id)]);
@@ -45,11 +48,20 @@ class IssueController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    * Store a newly created resource in storage.
+    *
+    *@param  \Illuminate\Http\Request  $request
+    *@return \Illuminate\Http\Response
+    */
+
+    //search Color for autocomplete
+    private function autocomplete_search($search)
+    {
+      $lists = IssueHeader::select('*')
+      ->where([['issue_no', 'like', '%' . $search . '%'],]) ->get();
+      return $lists;
+    }
+
     public function store(Request $request)
     {
       $header=$request->header;

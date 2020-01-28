@@ -185,6 +185,14 @@ class CustomerOrderDetailsController extends Controller
       $detail['item_des']  = $item_des;
       $detail['fob']  = $fng_fob;
 
+
+      $fng_country_lists =  DB::table('bom_header')
+                      ->select('org_country.country_id','org_country.country_description')
+                      ->join('org_country', 'bom_header.country_id', '=', 'org_country.country_id')
+                      ->where('bom_header.fng_id' , '=', $fng )
+                      ->get();
+      $detail['country'] = $fng_country_lists;
+
     /*  $st_colour = Item::select('org_color.color_id', 'org_color.color_code')
                    ->join('org_color', 'item_master.color_id', '=', 'org_color.color_id')
                    ->where('item_master.master_id', '=', $fng)
@@ -433,7 +441,7 @@ class CustomerOrderDetailsController extends Controller
         $shoporder = new ShopOrderHeader();
         $shoporder->order_qty = $request->details[$x]['order_qty'];
         $shoporder->fg_id = $request->details[$x]['fng_id'];
-        $shoporder->order_status = 'PLANNED';
+        $shoporder->order_status = 'RELEASED';
         $shoporder->status = '1';
         $shoporder->save();
 
@@ -519,7 +527,7 @@ class CustomerOrderDetailsController extends Controller
     $shoporder = new ShopOrderHeader();
     $shoporder->order_qty = $request->details['order_qty'];
     $shoporder->fg_id = $request->details['fng_id'];
-    $shoporder->order_status = 'PLANNED';
+    $shoporder->order_status = 'RELEASED';
     $shoporder->status = '1';
     $shoporder->save();
 
@@ -1070,10 +1078,13 @@ class CustomerOrderDetailsController extends Controller
       $deliveries = CustomerOrderDetails::join('org_country', 'org_country.country_id', '=', 'merc_customer_order_details.country')
       ->join('org_location', 'org_location.loc_id', '=', 'merc_customer_order_details.projection_location')
       ->join('org_color', 'org_color.color_id', '=', 'merc_customer_order_details.style_color')
-      ->select(DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date_01'"),'merc_customer_order_details.*','org_country.country_description','org_location.loc_name','org_color.color_code','org_color.color_name')
+      ->join('item_master', 'item_master.master_id', '=', 'merc_customer_order_details.fng_id')
+      ->select(DB::raw("DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') 'pcd_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ex_factory_date, '%d-%b-%Y') 'ex_factory_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'planned_delivery_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y') 'rm_in_date_01'"),DB::raw("DATE_FORMAT(merc_customer_order_details.ac_date, '%d-%b-%Y') 'ac_date_01'"),'merc_customer_order_details.*','org_country.country_description','org_location.loc_name','org_color.color_code','org_color.color_name','item_master.master_code','item_master.master_description')
       ->where('merc_customer_order_details.details_id', '=', $details_id)
       ->first();
       return $deliveries;
+
+      //,item_master.master_code,item_master.master_description
     }
 
 
@@ -1167,6 +1178,13 @@ class CustomerOrderDetailsController extends Controller
 
     $arr['fob'] = $fng_fob;
     $arr['descrip'] = $item_des;
+
+    $fng_country_lists =  DB::table('bom_header')
+                    ->select('org_country.country_id','org_country.country_description')
+                    ->join('org_country', 'bom_header.country_id', '=', 'org_country.country_id')
+                    ->where('bom_header.fng_id' , '=', $fng )
+                    ->get();
+    $arr['country'] = $fng_country_lists;
 
     if($arr == null)
       throw new ModelNotFoundException("Requested section not found", 1);

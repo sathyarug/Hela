@@ -50,15 +50,26 @@ class  SilhouetteClassificationController extends Controller
       if($this->authorize->hasPermission('SILHOUETTE_CLASSIFICATION_MANAGE'))//check permission
       {
         $silhouetteClassification= new  SilhouetteClassification ();
-        $silhouetteClassification->fill($request->all());
-        $silhouetteClassification->status = 1;
-        $silhouetteClassification->save();
+        if($silhouetteClassification->validate($request->all()))
+        {
+          $silhouetteClassification->fill($request->all());
+          $silhouetteClassification->status = 1;
+          $silhouetteClassification->save();
 
-        return response([ 'data' => [
-          'message' => ' Silhouette Classification saved successfully',
-          'silhouetteClassification' => $silhouetteClassification
-          ]
-        ], Response::HTTP_CREATED );
+          return response([ 'data' => [
+            'message' => ' Silhouette Classification saved successfully',
+            'silhouetteClassification' => $silhouetteClassification
+            ]
+          ], Response::HTTP_CREATED );
+
+        }else{
+
+          $errors = $silhouetteClassification->errors();// failure, get errors
+          $errors_str = $silhouetteClassification->errors_tostring();
+          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        }
+
       }
       else{
         return response($this->authorize->error_response(), 401);

@@ -34,15 +34,15 @@
 				<table class="table table-borderless"> 
 				  
 				  <tr>
-				    <th width="6%">CO #</th>
+				    <th width="10%">CO #</th>
 				    <th width="1%">:</th>
-				    <td width="26%">{{ $header->cust_order }}</td>
-				    <th width="6%">Line</th>
+				    <td width="22%">{{ $header->cust_order }}</td>
+				    <th width="1%">Line</th>
 				    <th width="1%">:</th>
-				    <td width="26%">{{ $header->line_no }}</td>
-				    <th width="6%">Style</th>
+				    <td width="22%">{{ $header->line_no }}</td>
+				    <th width="10%">Style</th>
 				    <th width="1%">:</th>
-				    <td width="27%">{{ $header->style_no }}</td>
+				    <td width="23%">{{ $header->style_no }}</td>
 				  </tr>
 
 				  <tr>
@@ -51,19 +51,19 @@
 				    <td>{{ $header->po_nos }}</td>
 				    <th>Cut Qty</th>
 				    <th>:</th>
-				    <td>{{ $header->cut_qty }}</td>
-				    <th>Date</th>
-				    <th>:</th>
-				    <td>{{ date('d-M-Y H:i:s') }}</td>
-				  </tr>
-
-				  <tr>
+				    <td>{{ $header->cut_qty }}</td>				   
 				    <th>FNG #</th>
 				    <th>:</th>
 				    <td>{{ $header->fg_code }}</td>
-				    <th></th>
-				    <th></th>
-				    <td></td>
+				  </tr>
+
+				  <tr>
+				    <th>Issue Date</th>
+				    <th>:</th>
+				    <td>{{ $header->created_date }}</td>
+				    <th>Printed Date</th>
+				    <th>:</th>
+				    <td>{{ date('d-M-Y H:i:s') }}</td>
 				    <th></th>
 				    <th></th>
 				    <td></td>

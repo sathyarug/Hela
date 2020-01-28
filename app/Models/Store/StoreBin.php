@@ -31,11 +31,9 @@ class StoreBin extends BaseValidator
     */
     protected function getValidationRules($data /*model data with attributes*/) {
       return [
-          'payment_code' => [
-            'required',
-            'unique:fin_payment_term,payment_code,'.$data['payment_term_id'].',payment_term_id',
-          ],
-          'payment_description' => 'required'
+          'store_bin_name' => 'required',
+          'store_id' => 'required',
+          'substore_id' => 'required',
       ];
     }
 

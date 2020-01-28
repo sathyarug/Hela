@@ -66,8 +66,22 @@ class ItemController extends Controller
           $search_type = $request->search_type;
           $category = $request->category;
           $sub_category = $request->sub_category;
+          $supplier_id = $request->supplier_id;
+
           return response([
-            'data' => $this->item_selector_list($search_type, $category, $sub_category, $search)
+            'data' => $this->item_selector_list($search_type, $category, $sub_category, $search,$supplier_id)
+          ]);
+        }
+
+        else if($type == 'item_selector_2'){
+          $search = $request->search_text;
+          $search_type = 'INVENTORY_ITEMS';
+          $category = $request->category;
+          $sub_category = $request->sub_category;
+          $supplier_id = $request->supplier_id;
+
+          return response([
+            'data' => $this->item_selector_list_2($search_type, $category, $sub_category, $search,$supplier_id)
           ]);
         }
         else if($type == 'get_items_from_group_id'){
@@ -596,7 +610,7 @@ class ItemController extends Controller
     }
 
 
-    private function item_selector_list($search_type, $category, $sub_category, $search){
+    private function item_selector_list($search_type, $category, $sub_category, $search,$supplier_id){
       //dd($search);
       if($search=="null"){$search='';}
       $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name',
@@ -619,6 +633,44 @@ class ItemController extends Controller
       }
       if($sub_category != null && $sub_category != ''){
         $list = $list->where('item_master.subcategory_id', '=', $sub_category);
+      }
+      if($supplier_id != null && $supplier_id != ''){
+        $list = $list->where('org_supplier.supplier_id', '=', $supplier_id);
+      }
+
+
+      $result = $list->get();
+      return $result;
+    }
+
+
+
+    private function item_selector_list_2($search_type, $category, $sub_category, $search,$supplier_id){
+      //dd($search);
+      if($search=="null"){$search='';}
+      $list = Item::select('item_master.*', 'item_category.category_name','item_category.category_code', 'item_subcategory.subcategory_name',
+        'item_subcategory.subcategory_code', 'org_color.color_code', 'org_color.color_name', 'org_supplier.supplier_name')
+      ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
+      ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
+      ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
+      ->where('item_master.master_description', 'like', '%' . $search . '%');
+
+      if($search_type == 'MATERIAL_ITEMS'){
+        $list = $list->whereNull('master_code');
+      }
+      else if($search_type == 'INVENTORY_ITEMS'){
+        $list = $list->whereNotNull('master_code');
+      }
+
+      if($category != null && $category != ''){
+        $list = $list->where('item_master.category_id', '=', $category);
+      }
+      if($sub_category != null && $sub_category != ''){
+        $list = $list->where('item_master.subcategory_id', '=', $sub_category);
+      }
+      if($supplier_id != null && $supplier_id != ''){
+        $list = $list->where('org_supplier.supplier_id', '=', $supplier_id);
       }
 
       $result = $list->get();
