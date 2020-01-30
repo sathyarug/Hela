@@ -811,11 +811,12 @@ INNER JOIN style_creation on merc_customer_order_header.order_style=style_creati
 INNER JOIN item_master on merc_shop_order_detail.inventory_part_id=item_master.master_id
 INNER JOIN org_uom as for_inv_uom on item_master.inventory_uom=for_inv_uom.uom_id
 INNER JOIN org_uom as for_po_uom on merc_shop_order_detail.purchase_uom=for_po_uom.uom_id
+INNER JOIN store_stock on item_master.master_id=store_stock.item_id
 LEFT JOIN org_color on merc_po_order_details.colour=org_color.color_id
 LEFT JOIN org_size on merc_po_order_details.size=org_size.size_id
-INNER JOIN store_stock on item_master.master_id=store_stock.item_id
-where style_creation.style_id=$styleNo
-AND  store_stock.location=$locId
+
+where store_stock.location=$locId
+AND style_creation.style_id=$styleNo
 AND merc_shop_order_detail.asign_qty>0
 GROUP By(merc_shop_order_detail.shop_order_detail_id)
 ");
