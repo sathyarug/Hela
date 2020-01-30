@@ -317,6 +317,8 @@ class IssueController extends Controller
          AND store_mrn_detail.item_id=$request->item_id
 
        ");
+       $locId=auth()->payload()['loc_id'];
+
         //dd((double)$pendingIssueQty[0]->pendindg_qty);
       /*if($request->requested_qty<=(double)$pendingIssueQty[0]->pendindg_qty){
         $grnDetails=[];
@@ -339,10 +341,13 @@ class IssueController extends Controller
               if($itemType->category_code=="FAB"){
                   //dd($request->shop_order_detail_id);
                   $grnDetails=GrnDetail::join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+                                        ->join('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
                                         ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
                                         ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
                                         ->select('store_roll_plan.*','org_store_bin.store_bin_name','store_grn_detail.shop_order_detail_id','store_grn_detail.shop_order_id','store_grn_detail.item_code','store_grn_header.*','store_grn_detail.style_id')
                                        ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
+                                       ->where('store_grn_header.location','=',$locId)
+                                       ->where('store_fabric_inspection.inspection_status','=',"PASS")
                                        ->get();
 
                                       //dd($grnDetails);
@@ -355,6 +360,7 @@ class IssueController extends Controller
                                       ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
                                       ->select('store_trim_packing_detail.*','org_store_bin.store_bin_name','store_grn_detail.shop_order_detail_id','store_grn_detail.shop_order_id','store_grn_detail.item_code','store_grn_header.*','store_grn_detail.style_id')
                                       ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
+                                      ->where('store_grn_header.location','=',$locId)
                                       ->get();
               }
 

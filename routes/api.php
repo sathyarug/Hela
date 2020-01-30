@@ -346,9 +346,10 @@ Route::prefix('stores/')->group(function(){
 
     //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
     //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
+  //Route::get('material-transfer','Stores\MaterialTransferController@getStores');  
   Route::apiResource('material-transfer','Stores\MaterialTransferController');
   Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
-    //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
+
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
