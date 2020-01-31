@@ -106,8 +106,9 @@ class GrnController extends Controller
                      $grnDetails->color = $poDetails->colour;
                      $grnDetails->size = $poDetails->size;
                      $grnDetails->uom = $poDetails->uom;
-                     $grnDetails->po_qty = (double)$poDetails->tot_qty;
+                     $grnDetails->po_qty = (double)$poDetails->req_qty;
                      $grnDetails->grn_qty = $rec['qty'];
+                    // $grnDetails->pre_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
                      $grnDetails->original_bal_qty=(double)$rec['original_bal_qty'];
                      $grnDetails->maximum_tolarance =$rec['maximum_tolarance'];
@@ -134,7 +135,9 @@ class GrnController extends Controller
                      //Update Stock Transaction
                      $transaction = Transaction::where('trans_description', 'ARRIVAL')->first();
 
-
+                     if($rec['category_code']=="FAB"){
+                       $rec['inspection_allowed']=1;
+                     }
 
                      if(empty($rec['inspection_allowed'])==true|| $rec['inspection_allowed']==0){
                        $grnDetails->inspection_allowed=0;
@@ -184,6 +187,7 @@ class GrnController extends Controller
                                     $storeUpdate->store = $header->main_store;
                                     $storeUpdate->sub_store =$header->sub_store;
                                     $storeUpdate->bin = $bin->store_bin_id;
+                                    $storeUpdate->uom=$poDetails->uom;
                                     $storeUpdate->standard_price = $rec['standard_price'];
                                     $storeUpdate->purchase_price = $rec['purchase_price'];
 
@@ -468,16 +472,19 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number','store_grn_header.status', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number','store_grn_header.status', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name','store_grn_header.inv_number','usr_login.user_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         //->leftjoin('store_grn_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('org_substore', 'store_grn_header.sub_store', '=', 'org_substore.substore_id')
                         ->leftjoin('org_store', 'org_substore.store_id', '=', 'org_store.store_id')
                         ->leftjoin('org_supplier', 'store_grn_header.sup_id', '=', 'org_supplier.supplier_id')
+                        ->leftjoin('usr_login','store_grn_detail.created_by','=','usr_login.user_id')
                         ->orWhere('supplier_name', 'like', $search.'%')
                         ->orWhere('substore_name', 'like', $search.'%')
                         ->orWhere('grn_number', 'like', $search.'%')
+                        ->orWhere('inv_number', 'like', $search.'%')
+                        ->orWhere('user_name', 'like', $search.'%')
                         ->orWhere('merc_po_order_header.po_number', 'like', $search.'%')
                         ->orderBy($order_column, $order_type)
                         ->orderBy('store_grn_header.updated_date',$order_column.' DESC', $order_type)
@@ -505,7 +512,7 @@ class GrnController extends Controller
         $qty = 0;
         foreach ($dataArr as $data){
             $qty += $data['qty'];
-            $poQty += $data['tot_qty'];
+            $poQty += $data['req_qty'];
 
         }
 
@@ -563,8 +570,9 @@ class GrnController extends Controller
                     $grnDetails->color = $poData->colour;
                     $grnDetails->size = $poData->size;
                     $grnDetails->uom = $poData->uom;
-                    $grnDetails->po_qty = $poData->tot_qty;
+                    $grnDetails->po_qty = $poData->req_qty;
                     $grnDetails->grn_qty = (float)$rec['qty'];
+                    //$grnDetails->pre_qty = (float)$rec['qty'];
                     $grnDetails->bal_qty = $poData->bal_qty - (float)$rec['qty'];
                     $grnDetails->status = 0;
                     $grnDetails->item_code = $poData->item_code;
@@ -607,6 +615,7 @@ class GrnController extends Controller
     {
       //save grn header
       $y=0;
+      $responseData=[];
       $header=$request->header;
       $dataset=$request->dataset;
       $grnHeader=GrnHeader::find($id);
@@ -623,7 +632,7 @@ class GrnController extends Controller
             //loop through data set
         for($i=0;$i<sizeof($dataset);$i++){
 
-          $grnDetails=new GrnDetail;
+          //$grnDetails=new GrnDetail;
           //if data set have grn id (updaated line with several new lines)
           if(isset($dataset[$i]['grn_detail_id'])==true){
             //find related grn line in detail table
@@ -631,6 +640,7 @@ class GrnController extends Controller
             $grnDetails=GrnDetail::find($dataset[$i]['grn_detail_id']);
             //update grn qtys
             $grnDetails['grn_qty']=(float)$dataset[$i]['qty'];
+            //$grnDetails['pre_qty']=(float)$dataset[$i]['qty'];
             $grnDetails['bal_qty']=(float)$dataset[$i]['bal_qty'];
             $grnDetails->save();
 
@@ -664,6 +674,10 @@ class GrnController extends Controller
             $st->created_by = auth()->payload()['user_id'];
             //save stock transaction record
             $st->save();
+
+            if($dataset[$i]['category_code']=="FAB"){
+              $dataset[$i]['inspection_allowed']=1;
+            }
             //check current line is alowed for inspection or not
                if(empty($dataset[$i]['inspection_allowed'])==true|| $dataset[$i]['inspection_allowed']==0){
 
@@ -756,8 +770,9 @@ class GrnController extends Controller
               $grnDetails->color = $poDetails->colour;
               $grnDetails->size = $poDetails->size;
               $grnDetails->uom = $poDetails->uom;
-              $grnDetails->po_qty = (double)$poDetails->tot_qty;
+              $grnDetails->po_qty = (double)$poDetails->req_qty;
               $grnDetails->grn_qty = $dataset[$i]['qty'];
+              //$grnDetails->pre_qty = $dataset[$i]['qty'];
               $grnDetails->bal_qty =(double)$dataset[$i]['bal_qty'];
               $grnDetails->maximum_tolarance =$dataset[$i]['maximum_tolarance'];
               $grnDetails->original_bal_qty=(double)$dataset[$i]['original_bal_qty'];
@@ -807,7 +822,7 @@ class GrnController extends Controller
                   $grnDetails->inspection_allowed=0;
                   //$grnDetails->save();
                 //find related stock line
-                $findStoreStockLine==DB::SELECT ("SELECT * FROM store_stock
+                $findStoreStockLine=DB::SELECT ("SELECT * FROM store_stock
                                                  where item_id= $poDetails->item_code
                                                  AND shop_order_id=$st->shop_order_id
                                                  AND style_id=$poDetails->style
@@ -822,6 +837,10 @@ class GrnController extends Controller
 
                              //$storeUpdate=new Stock();
                              $storeUpdate=new Stock();
+                             $store = SubStore::find($request->header['substore_id']);
+                             $bin = StoreBin::where('substore_id', $store->substore_id)
+                                 ->where('quarantine','=',1)
+                                 ->first();
                              $storeUpdate->shop_order_id=$dataset[$i]['shop_order_id'];
                              $storeUpdate->shop_order_detail_id=$dataset[$i]['shop_order_detail_id'];
                              $storeUpdate->style_id = $poDetails->style;
@@ -829,9 +848,10 @@ class GrnController extends Controller
                              $storeUpdate->size = $poDetails->size;
                              $storeUpdate->color =  $poDetails->colour;
                              $storeUpdate->location = auth()->payload()['loc_id'];
-                             $storeUpdate->store =$header['sub_store']['store_id'];
+                             $storeUpdate->store =$store->store_id;
                              $storeUpdate->sub_store =$header['sub_store']['substore_id'];
                              $storeUpdate->bin = $bin->store_bin_id;
+                             $storeUpdate->uom=$poDetails->uom;
                              $storeUpdate->standard_price = $dataset[$i]['standard_price'];
                              $storeUpdate->purchase_price = $dataset[$i]['purchase_price'];
                               //if dataline statned price and purchase price is varied
@@ -871,7 +891,7 @@ class GrnController extends Controller
                           //$storeUpdate->tolerance_qty = (double)($dataset[$i]['maximum_tolarance']);
                          }
 
-                         $storeUpdate->transfer_status="STOCKUPDATE";
+                        // $storeUpdate->transfer_status="STOCKUPDATE";
                          $storeUpdate->status=1;
                          $shopOrder=ShopOrderDetail::find($dataset[$i]['shop_order_detail_id']);
                          $shopOrder->asign_qty=$storeUpdate->qty+$shopOrder->asign_qty;
@@ -980,8 +1000,8 @@ class GrnController extends Controller
     //dd();
     $sub_store=SubStore::find($headerData[0]->sub_store);
 
-    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as tot_qty,store_grn_detail.grn_qty as qty,store_grn_detail.grn_qty as pre_qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
-      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.master_code,item_master.category_id,store_grn_detail.uom as inventory_uom
+    $detailsData=DB::SELECT("SELECT DISTINCT  store_grn_detail.*,style_creation.style_no,merc_customer_order_header.order_id,cust_customer.customer_name,org_color.color_name,store_grn_detail.po_qty as req_qty,store_grn_detail.grn_qty as qty,store_grn_detail.grn_qty as pre_qty,store_grn_detail.po_number as po_id,merc_po_order_details.id,merc_customer_order_details.details_id as cus_order_details_id,
+      org_size.size_name,org_uom.uom_code,item_master.master_description,item_master.master_code,item_master.category_id,store_grn_detail.uom as inventory_uom,item_category.category_code
 
       from
       store_grn_header
@@ -994,11 +1014,13 @@ class GrnController extends Controller
        LEFT JOIN org_size ON  store_grn_detail.size= org_size.size_id
        LEFT JOIN org_uom ON store_grn_detail.uom=org_uom.uom_id
        JOIN  item_master ON store_grn_detail.item_code= item_master.master_id
+       INNER JOIN item_category ON item_master.category_id=item_category.category_id
        JOIN merc_po_order_header ON store_grn_detail.po_number=merc_po_order_header.po_id
        JOIN  merc_po_order_details ON store_grn_detail.po_details_id=merc_po_order_details.id
       WHERE store_grn_header.grn_id=$id
       AND store_grn_detail.status= $status
       GROUP BY(merc_po_order_details.id)
+      order By(merc_customer_order_details.rm_in_date)DESC
       ");
 
     return response([
@@ -1058,7 +1080,7 @@ class GrnController extends Controller
                                        org_color.color_name,
                                       org_size.size_name,
                                       org_uom.uom_code,
-                                      merc_po_order_details.tot_qty,
+                                      merc_po_order_details.req_qty,
                                     DATE_FORMAT(merc_customer_order_details.rm_in_date, '%d-%b-%Y')as rm_in_date,
                                         #merc_customer_order_details.rm_in_date,
                                     DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y')as pcd,
@@ -1136,7 +1158,7 @@ class GrnController extends Controller
                     AND item_master.master_id like '%".$itemDesacription."%'
                     AND merc_customer_order_details.pcd like '%".$pcd."%'
                     AND merc_customer_order_details.rm_in_date like '%".$rm_in_date."%'
-                    AND merc_po_order_details.tot_qty>(SELECT
+                    AND merc_po_order_details.req_qty>(SELECT
                                                           IFNULL(SUM(SGD.grn_qty),0)
                                                           FROM
                                                          store_grn_detail AS SGD

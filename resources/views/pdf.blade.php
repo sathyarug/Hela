@@ -64,14 +64,14 @@
 
 <body>
 
-  <div id="background">
+  <!--<div id="background">
   <p id="bg-text">NOT APPROVED</p>
-	</div>
+	</div>-->
 
 
 <div class="container" >
 <div style="width:100%;">
-<div style="float:left; width:20%;"><img src="http://localhost/surfacedev/resources/images/hela.jpg"/></div>
+<div style="float:left; width:20%;"><img src="http://test-surface.helaclothing.com/test/surfacedev/resources/images/hela.jpg"/></div>
 <div style="float:left;width:80%;">
 <div id="example2">
 <div style="font-weight:bold;font-size:16px;">Foundation Garments (Pvt) Ltd</div>

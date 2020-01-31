@@ -39,15 +39,27 @@ class FabricInspectionController extends Controller
       return response($this->autocomplete_search_invoice($search));
     }
 
-    else if($type == 'autoBatchNO')    {
+    else if($type == 'autoBatchNO'){
       $search = $request->search;
       return response($this->autocomplete_search_batchNo($search));
+    }
+    else if($type == 'autoBatchNoFilter'){
+      $inv_no = $request->inv_no;
+      $batch_no=$request->batch_no;
+      return ($this->autocomplete_search_bacth_filter($inv_no,$batch_no));
+    }
+    else if($type == 'autoItemCodeFilter'){
+      $inv_no = $request->inv_no;
+      $batch_no=$request->batch_no;
+      $item_code = $request->search;
+      //dd($item_code);
+      return ($this->autocomplete_search_item_code_filter($item_code,$inv_no,$batch_no));
     }
     else if($type=='autoStatusTypes'){
       $search = $request->search;
       return response($this->autocomplete_search_inspection_status($search));
     }
-    else {
+      else {
       $active = $request->active;
       $fields = $request->fields;
       return response([
@@ -62,12 +74,13 @@ class FabricInspectionController extends Controller
   {
       $status=1;
       $grnDetails = GrnDetail::join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+      //->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
       ->join('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
       ->join('org_store_bin','store_fabric_inspection.bin','=','org_store_bin.store_bin_id')
       ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
       ->where('store_grn_detail.grn_detail_id','=',$id)
       ->where('store_grn_detail.status','=',$status)
-      ->select('store_fabric_inspection.*','store_fabric_inspection.inspection_status as status_name','org_store_bin.store_bin_name','store_fabric_inspection.qty as previous_received_qty','store_roll_plan.grn_detail_id','store_fabric_inspection.inspection_status as previous_status_name','store_grn_detail.grn_qty','store_grn_detail.item_code','item_master.master_description')
+      ->select('store_fabric_inspection.*','store_fabric_inspection.inspection_status as status_name','org_store_bin.store_bin_name','store_fabric_inspection.qty as previous_received_qty','store_roll_plan.grn_detail_id','store_fabric_inspection.inspection_status as previous_status_name','store_grn_detail.grn_qty','store_grn_detail.item_code','item_master.master_code')
       ->get();
       //$dp=json_encode($grnDetails[0]);
     //  dd($grnDetails[0]['item_code']);
@@ -152,7 +165,7 @@ store_grn_detail.maximum_tolarance,
 store_grn_detail.customer_po_id,
 item_master.standard_price,
 store_grn_detail.purchase_price,
-store_grn_detail.inventory_uom,
+item_master.inventory_uom,
 store_grn_detail.shop_order_id,
 store_grn_detail.shop_order_detail_id,
 store_roll_plan.bin
@@ -160,11 +173,12 @@ FROM
 store_fabric_inspection
 INNER JOIN store_roll_plan ON store_roll_plan.roll_plan_id = store_fabric_inspection.roll_plan_id
 INNER JOIN store_grn_detail ON store_grn_detail.grn_detail_id = store_roll_plan.grn_detail_id
+#INNER JOIN item_master on item_master.master_id=store_grn_detail.item_code
 INNER JOIN item_master ON store_grn_detail.item_code=item_master.master_id
 INNER JOIN store_grn_header ON store_grn_header.grn_id = store_grn_detail.grn_id
 WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
             //save stock transaction table line
-            //dd($rollplanDetail[0]);
+//dd($rollplanDetail);            //dd($rollplanDetail[0]);
           $st = new StockTransaction;
           $st->status = 'PASS';
           $st->doc_type = $transaction->trans_code;
@@ -270,7 +284,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           }
           //if inventory uom and purchase uom are the same
           if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
-
+            $storeUpdate->uom = $rollplanDetail[0]->inventory_uom;
             $storeUpdate->qty =(double)($fabricInspection->qty);
             //$storeUpdate->total_qty = (double)($fabricInspection->qty);
             //$storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;
@@ -378,6 +392,28 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
     return $inspectionStatus;
 
   }
+
+  public function autocomplete_search_bacth_filter($inv_no,$batch_no){
+    //dd("dadad");
+    $batch_list = GrnHeader::select('batch_no')->distinct('batch_no')
+    ->where([['batch_no', 'like', '%' . $batch_no . '%'],])
+    ->where('inv_number', '=', $inv_no) ->get();
+//dd($batch_list);
+   return $batch_list;
+
+  }
+
+public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_no){
+    $item_list = GrnHeader::join('store_grn_detail','store_grn_detail.grn_id','=','store_grn_header.grn_id')
+                            ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+    ->select('item_master.master_code','item_master.master_id')
+    ->where('store_grn_header.batch_no','=', $batch_no)
+    ->where('inv_number','=', $inv_no)
+    ->where([['item_master.master_code', 'like', '%' . $item_code . '%'],])
+    ->get();
+    return $item_list;
+
+  }
 /*    public function store(Request $request)
     {
 
@@ -401,10 +437,11 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
       $invoice_no=$request->invoiceNo;
       $item_code=$request->itemCode;
       $status=1;
-
+      $locId=auth()->payload()['loc_id'];
       $checkInspection=FabricInspection::select('store_grn_detail.grn_detail_id')
       ->join('store_roll_plan','store_fabric_inspection.roll_plan_id','=','store_roll_plan.roll_plan_id')
       ->join('store_grn_detail','store_roll_plan.grn_detail_id','=','store_grn_detail.grn_detail_id')
+      ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
       ->where('store_fabric_inspection.invoice_no','=',$invoice_no)
       ->where('store_fabric_inspection.batch_no','=',$batch_no)
       ->where('store_grn_detail.item_code','=',$item_code)->first();
@@ -420,6 +457,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           AND store_roll_plan.batch_no='".$batch_no."'
           AND store_grn_detail.item_code='".$item_code."'
           AND store_grn_detail.status='".$status."'
+          AND store_grn_header.location='".$locId."'
           "
           );
         $grn_detail_id=0;
@@ -450,10 +488,10 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
           ->join('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
           ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
-          ->select('store_fabric_inspection.*','store_grn_header.grn_number','merc_po_order_header.po_number','item_master.master_description','store_grn_detail.grn_qty','store_grn_detail.grn_detail_id')
+          ->select('store_fabric_inspection.*','store_grn_header.grn_number','merc_po_order_header.po_number','item_master.master_code','store_grn_detail.grn_qty','store_grn_detail.grn_detail_id')
           ->where('store_grn_header.grn_number'  , 'like', $search.'%' )
           ->orWhere('merc_po_order_header.po_number'  , 'like', $search.'%' )
-          ->orWhere('item_master.master_description','like',$search.'%')
+          ->orWhere('item_master.master_code','like',$search.'%')
           ->orWhere('store_fabric_inspection.invoice_no','like',$search.'%')
           ->groupBy('store_roll_plan.grn_detail_id')
           ->orderBy($order_column, $order_type)
@@ -464,7 +502,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
           ->join('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
           ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
-          ->select('store_fabric_inspection.*','store_grn_header.grn_number','merc_po_order_header.po_number','item_master.master_description','store_grn_detail.grn_qty','store_grn_detail.grn_detail_id')
+          ->select('store_fabric_inspection.*','store_grn_header.grn_number','merc_po_order_header.po_number','item_master.master_code','store_grn_detail.grn_qty','store_grn_detail.grn_detail_id')
           ->where('store_grn_header.grn_number'  , 'like', $search.'%' )
           ->orWhere('merc_po_order_header.po_number'  , 'like', $search.'%' )
           ->orWhere('item_master.master_description','like',$search.'%')

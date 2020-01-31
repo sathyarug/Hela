@@ -77,8 +77,9 @@ class SupplierController extends Controller
       }
       else
       {
-          $errors = $supplier->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $errors = $supplier->errors();// failure, get errors
+        $errors_str = $supplier->errors_tostring();
+        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 

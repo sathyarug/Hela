@@ -119,6 +119,8 @@ class CustomerOrderController extends Controller
     {
       $customerOrder = CustomerOrder::with(['style','customer','division','buyname'])->find($id);
 
+      //dd($customerOrder->order_style);
+
       $season = CustomerOrder::select('org_season.season_id', 'org_season.season_name')
                    //->join('costing', 'merc_customer_order_header.order_style', '=', 'costing.style_id')
                    ->join('org_season', 'merc_customer_order_header.order_season', '=', 'org_season.season_id')
@@ -142,6 +144,14 @@ class CustomerOrderController extends Controller
                   ->where('merc_customer_order_header.order_id', '=', $id)
                   ->get();
       $customerOrder['buy_name']  = $buy_name;
+
+      $style_pack_count   = StyleCreation::select('product_feature.count')
+                          ->join('product_feature', 'product_feature.product_feature_id', '=','style_creation.product_feature_id')
+                          ->where('style_id', '=', $customerOrder->order_style)
+                          ->get();
+
+      $customerOrder['pack_count']  = $style_pack_count;
+
 
       if($customerOrder == null)
         throw new ModelNotFoundException("Requested customer order not found", 1);
@@ -484,6 +494,13 @@ class CustomerOrderController extends Controller
                  ->get();
 
     $arr['buy_name']  = $buy_name;
+
+    $style_pack_count   = StyleCreation::select('product_feature.count')
+                        ->join('product_feature', 'product_feature.product_feature_id', '=','style_creation.product_feature_id')
+                        ->where('style_id', '=', $style_id)
+                        ->get();
+
+    $arr['pack_count']  = $style_pack_count;
 
     if($arr == null)
       throw new ModelNotFoundException("Requested section not found", 1);

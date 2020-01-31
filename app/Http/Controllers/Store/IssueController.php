@@ -38,6 +38,9 @@ class IssueController extends Controller
         }elseif($type == 'issue_details'){
             $id = $request->id;
             return response(['data' => $this->getIssueDetails($id)]);
+        }else if($type == 'auto')    {
+            $search = $request->search;
+            return response($this->autocomplete_search($search));
         }else{
             $loc_id = $request->loc;
             return response(['data' => $this->list($active, $fields, $loc_id)]);
@@ -45,11 +48,20 @@ class IssueController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    * Store a newly created resource in storage.
+    *
+    *@param  \Illuminate\Http\Request  $request
+    *@return \Illuminate\Http\Response
+    */
+
+    //search Color for autocomplete
+    private function autocomplete_search($search)
+    {
+      $lists = IssueHeader::select('*')
+      ->where([['issue_no', 'like', '%' . $search . '%'],]) ->get();
+      return $lists;
+    }
+
     public function store(Request $request)
     {
       $header=$request->header;
@@ -305,8 +317,10 @@ class IssueController extends Controller
          AND store_mrn_detail.item_id=$request->item_id
 
        ");
+       $locId=auth()->payload()['loc_id'];
+
         //dd((double)$pendingIssueQty[0]->pendindg_qty);
-      if($request->requested_qty<=(double)$pendingIssueQty[0]->pendindg_qty){
+      /*if($request->requested_qty<=(double)$pendingIssueQty[0]->pendindg_qty){
         $grnDetails=[];
 
         return response([ 'data' => [
@@ -317,7 +331,7 @@ class IssueController extends Controller
           ]
         ], Response::HTTP_CREATED );
 
-      }
+      }*/
 
        $itemType=Item::join('item_category','item_master.category_id','=','item_category.category_id')
                       ->select('item_category.category_code')
@@ -327,10 +341,13 @@ class IssueController extends Controller
               if($itemType->category_code=="FAB"){
                   //dd($request->shop_order_detail_id);
                   $grnDetails=GrnDetail::join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+                                        ->join('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
                                         ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
                                         ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
                                         ->select('store_roll_plan.*','org_store_bin.store_bin_name','store_grn_detail.shop_order_detail_id','store_grn_detail.shop_order_id','store_grn_detail.item_code','store_grn_header.*','store_grn_detail.style_id')
                                        ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
+                                       ->where('store_grn_header.location','=',$locId)
+                                       ->where('store_fabric_inspection.inspection_status','=',"PASS")
                                        ->get();
 
                                       //dd($grnDetails);
@@ -343,6 +360,7 @@ class IssueController extends Controller
                                       ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
                                       ->select('store_trim_packing_detail.*','org_store_bin.store_bin_name','store_grn_detail.shop_order_detail_id','store_grn_detail.shop_order_id','store_grn_detail.item_code','store_grn_header.*','store_grn_detail.style_id')
                                       ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
+                                      ->where('store_grn_header.location','=',$locId)
                                       ->get();
               }
 
@@ -378,10 +396,13 @@ class IssueController extends Controller
                           $issueDetails=IssueDetails::find($issueHeader[$i]['issue_detail_id']);
                           $issueDetails->issue_status="CONFIRM";
                           $issueDetails->save();
+                          //dd()
                           $shopOrderDetail=ShopOrderDetail::find($issueHeader[$i]['shop_order_detail_id']);
+                          //dd($issueDetails[$i]['qty']);
+                          $shopOrderDetail->balance_to_issue_qty=(double)$shopOrderDetail->balance_to_issue_qty-(double)$issueDetails->qty;
+                          $shopOrderDetail->issue_qty=(double)$shopOrderDetail->issue_qty+(double)$issueDetails->qty;
                           //dd($shopOrderDetail);
-                          $shopOrderDetail->balance_to_issue_qty=$shopOrderDetail->balance_to_issue_qty-$issueDetails[$i]['qty'];
-                          $shopOrderDetail->issue_qty=$shopOrderDetail->issue_qty+$issueDetails[$i]['qty'];
+                          $shopOrderDetail->save();
                           $transaction = Transaction::where('trans_description', 'ISSUE')->first();
                           //$mrnDetail=MRNDetail::find($issueDetails->mrn_detail_id);
                           $st = new StockTransaction;

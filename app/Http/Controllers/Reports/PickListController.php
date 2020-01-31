@@ -9,6 +9,7 @@ use App\Libraries\CapitalizeAllFields;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\Core\Status;
+use App\Models\Store\IssueHeader;
 use PDF;
 
 class PickListController extends Controller
@@ -32,11 +33,17 @@ class PickListController extends Controller
     public function datatable_search($data)
     {
       $mrn = $data['data']['mrn_no']['mrn_id'];
+      $issue = $data['data']['issue_no']['issue_no'];
       $customer = $data['data']['customer_name']['customer_id'];
       $style = $data['data']['style_name']['style_id'];
       $location = $data['data']['loc_name']['loc_id'];
       $date_from = $data['date_from'];
       $date_to = $data['date_to'];
+
+      // $catArr = array();
+      // foreach($data['data']['category'] as $row){
+      //   array_push($catArr,$row['category_id']);
+      // }
 
       $query = DB::table('store_issue_header')
       ->join('store_mrn_header','store_issue_header.mrn_id','=','store_mrn_header.mrn_id')
@@ -63,6 +70,9 @@ class PickListController extends Controller
       if($style!=null || $style!=""){
         $query->where('style_creation.style_id', $style);
       }
+      if($issue!=null || $issue!=""){
+        $query->where('store_issue_header.issue_no', $issue);
+      }
       if($location!=null || $location!=""){
         $query->where('store_mrn_header.user_loc_id', $location);
       }
@@ -80,11 +90,36 @@ class PickListController extends Controller
 
     }
 
-    public function viewPickList(Request $request)
-    {
+    public function update_issue_status(Request $request){
 
       $mrn=$request->mrn;
       $issue_no=$request->issue;
+
+      $is_exists=IssueHeader::where('mrn_id', $mrn)
+      ->where('issue_no', $issue_no)
+      ->where('print_status', 'PRINTED')
+      ->exists();
+
+      if($is_exists==false){
+        $update = IssueHeader::where('mrn_id', $mrn)
+        ->where('issue_no', $issue_no)
+        ->update(['print_status' => 'PRINTED','print_by' => auth()->payload()['user_id'],'print_date' => date("Y-m-d H:i:s")]);
+      }
+
+      echo json_encode([
+        "print_status" => $is_exists
+      ]);
+    }
+
+    public function viewPickList(Request $request)
+    {
+      $mrn=$request->mrn;
+      $issue_no=$request->issue;
+      if($request->print_status==1){
+        $is_exists=true;
+      }else{
+        $is_exists=false;
+      }
 
       $data['company'] = $query = DB::table('store_mrn_header')
       ->join('org_location','store_mrn_header.user_loc_id','=','org_location.loc_id')
@@ -126,17 +161,18 @@ class PickListController extends Controller
         WHERE
         store_mrn_detail.mrn_id = store_mrn_header.mrn_id
         ) AS po_nos"),
-        'store_issue_header.issue_id'
+        'store_issue_header.issue_no AS issue_id',
+        DB::raw("(DATE_FORMAT(store_issue_header.created_date,'%d-%b-%Y')) AS created_date")
       )
       ->where('store_issue_header.mrn_id','=',$mrn)
-      ->where('store_issue_header.issue_id','=',$issue_no)
+      ->where('store_issue_header.issue_no','=',$issue_no)
       ->get();
 
       $data['details'] = $query = DB::table('store_issue_header')
       ->join('store_issue_detail','store_issue_header.issue_id','=','store_issue_detail.issue_id')
       ->join('item_master','store_issue_detail.item_id','=','item_master.master_id')
       ->join('org_location','store_issue_detail.location_id','=','org_location.loc_id')
-      ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
+      ->leftJoin('org_store','store_issue_detail.store_id','=','org_store.store_id')
       ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
       ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
       ->join('store_mrn_detail','store_issue_detail.mrn_detail_id','=','store_mrn_detail.mrn_detail_id')
@@ -156,14 +192,14 @@ class PickListController extends Controller
         'store_issue_detail.qty AS issue_qty'
       )
       ->where('store_issue_header.mrn_id','=',$mrn)
-      ->where('store_issue_header.issue_id','=',$issue_no)
+      ->where('store_issue_header.issue_no','=',$issue_no)
       ->get();
    
       $config = [
         'format' => 'A4',
         'orientation' => 'L', //L-landscape
-        //'watermark' => '',
-        //'show_watermark' => true,
+        'watermark' => 'Duplicate',
+        'show_watermark' => $is_exists,
       ];
 
       $pdf = PDF::loadView('reports/pick-list', $data, [], $config)

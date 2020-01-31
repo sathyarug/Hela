@@ -63,7 +63,7 @@ class CostingReportController extends Controller
     {
 
       $customer = $data['data']['customer_name']['customer_id'];
-      $style = $data['data']['style_name']['style_no'];
+      $style = $data['data']['style_name']['style_id'];
       $status = $data['data']['costing_status']['status'];
       $date_from = $data['date_from'];
       $date_to = $data['date_to'];

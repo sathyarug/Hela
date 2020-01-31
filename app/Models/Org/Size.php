@@ -15,9 +15,9 @@ class Size extends BaseValidator
 
 
     protected $fillable = ['size_id','size_name', 'status'];
-    protected $rules=array(
-        'size_name'=>'required'
-    );
+    // protected $rules=array(
+    //     'size_name'=>'required'
+    // );
 
     public function __construct() {
         parent::__construct();
@@ -34,7 +34,9 @@ class Size extends BaseValidator
           'size_name' => [
             'required',
             'unique:org_size,size_name,'.$data['size_id'].',size_id',
-          ]
+          ],
+          'category_id' => 'required',
+          'subcategory_id' => 'required'
       ];
     }
 

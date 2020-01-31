@@ -65,7 +65,7 @@ class MSRReportController extends Controller
                 'product_component.product_component_description',
                 'product_silhouette.product_silhouette_description',
                 'merc_shop_order_header.shop_order_id',
-                DB::raw('(SELECT DATE(bom_header.created_date) AS bom_create_date FROM bom_header AS BOH 
+                DB::raw('(SELECT DATE(bom_header.created_date) AS bom_create_date FROM bom_header AS BOH
                 WHERE BOH.bom_id = merc_shop_order_detail.bom_id) AS bom_create_date'),
                 'org_size.size_name',
                 'org_location.loc_name',
@@ -79,8 +79,8 @@ class MSRReportController extends Controller
                 'merc_po_order_header.po_date',
                 'merc_shop_order_detail.po_qty AS sup_po_order_qty',
                 'merc_shop_order_detail.asign_qty',
-                DB::raw('(SELECT DATE(store_grn_detail.created_date) AS grn_date FROM store_grn_detail 
-                WHERE store_grn_detail.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id) AS grn_date'),                
+                DB::raw('(SELECT DATE(store_grn_detail.created_date) AS grn_date FROM store_grn_detail
+                WHERE store_grn_detail.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id) AS grn_date'),
                 'merc_shop_order_detail.issue_qty',
                 'store_stock.qty AS stock'
             );

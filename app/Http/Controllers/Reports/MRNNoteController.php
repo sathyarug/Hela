@@ -46,7 +46,7 @@ class MRNNoteController extends Controller
             ->join('org_company', 'org_company.company_id', '=', 'org_location.company_id')
             ->join('org_country', 'org_country.country_id', '=', 'org_location.country_code')
             ->join('store_grn_detail', 'store_grn_detail.style_id', '=', 'store_mrn_header.style_id')
-            ->join('store_roll_plan', 'store_roll_plan.grn_detail_id', '=', 'store_grn_detail.grn_detail_id')            
+            ->join('store_roll_plan', 'store_roll_plan.grn_detail_id', '=', 'store_grn_detail.grn_detail_id')
             ->select(
                 'store_mrn_header.mrn_id',
                 'org_location.loc_name',

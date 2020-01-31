@@ -23,11 +23,24 @@ class ColorOption extends BaseValidator {
 
     protected $fillable = ['color_option'];
 
-    protected $rules = array(
-        'color_option' => 'required'
+    // protected $rules = array(
+    //     'color_option' => 'required'
+    // );
 
-    );
 
+    //Validation Functions
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    **/
+    protected function getValidationRules($data) {
+      return [
+          'color_option' => [
+            'required',
+            'unique:merc_color_options,color_option,'.$data['col_opt_id'].',col_opt_id',
+          ],
+      ];
+    }
 
 
     public function __construct() {

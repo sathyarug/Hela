@@ -55,7 +55,7 @@ class ItemSubCategoryController extends Controller
                 $sub_category = SubCategory::find($request->subcategory_id);
                 $is_exsits_in_item_property_assign=DB::table('item_property_assign')->where('subcategory_id','=',$request->subcategory_id)->exists();
                 if($is_exsits_in_item_property_assign==true){
-                return json_encode(array('status' => 'Fail' , 'message' => 'Sub category Already in Use'));
+                return json_encode(array('status' => 'error' , 'message' => 'Sub category Already in Use'));
                 }
                 $sub_category->category_id = $request->category_code;
                 $sub_category->subcategory_code = strtoupper($request->subcategory_code);
@@ -67,18 +67,27 @@ class ItemSubCategoryController extends Controller
                 echo json_encode(array('status' => 'success' , 'message' => 'Sub category details updated successfully.'));
             }
             else{
-              $sub_category->fill($request->all());
-              $sub_category->subcategory_code = strtoupper($request->subcategory_code);
-              $sub_category->subcategory_name = strtoupper($request->subcategory_name);
-              $sub_category->category_id = $request->category_code;
-              $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
-              $sub_category->is_display = $IsDisplay;
-              $sub_category->status = 1;
-              $sub_category->created_by = 1;
-              $result = $sub_category->saveOrFail();
 
-              echo json_encode(array('status' => 'success' , 'message' => 'Sub category details saved successfully.'));
+              if($sub_category->validate($request->all()))
+              {
+                $sub_category->fill($request->all());
+                $sub_category->subcategory_code = strtoupper($request->subcategory_code);
+                $sub_category->subcategory_name = strtoupper($request->subcategory_name);
+                $sub_category->category_id = $request->category_code;
+                $sub_category->is_inspectiion_allowed = $IsInspectionAllowed;
+                $sub_category->is_display = $IsDisplay;
+                $sub_category->status = 1;
+                $sub_category->created_by = 1;
+                $result = $sub_category->saveOrFail();
 
+                echo json_encode(array('status' => 'success' , 'message' => 'Sub category details saved successfully.'));
+              }
+              else
+              {
+                $errors = $sub_category->errors();// failure, get errors
+                $errors_str = $sub_category->errors_tostring();                
+                echo json_encode(array('status' => 'error' , 'message' => $errors));
+              }
             }
 
         }

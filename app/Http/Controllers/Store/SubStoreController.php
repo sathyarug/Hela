@@ -58,6 +58,15 @@ class SubStoreController extends Controller
             $subStore->status = 1;
             $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
+            //create new quarantine bin  when create a new sub store
+            $quarantine_bin=new StoreBin();
+            $quarantine_bin->store_id=$subStore->store_id;
+            $quarantine_bin->substore_id=$subStore->substore_id;
+            $quarantine_bin->store_bin_name="QUARANTINE";
+            $quarantine_bin->store_bin_description="QUARANTINE BIN";
+            $quarantine_bin->status=1;
+            $quarantine_bin->quarantine=1;
+            $quarantine_bin->save();
 
             return response(['data' => [
                     'message' => 'Sub Store saved successfully',
@@ -86,7 +95,9 @@ class SubStoreController extends Controller
     {
       if($this->authorize->hasPermission('SUB_STORE_MANAGE'))//check permission
       {
-        $subStore = SubStore::find($id);
+        $subStore = SubStore::join('org_store','org_substore.store_id','=','org_store.store_id')
+        ->select('org_substore.*','org_store.store_name')
+        ->find($id);
         if ($subStore == null)
             throw new ModelNotFoundException("Requested sub store not found", 1);
         else
@@ -110,7 +121,7 @@ class SubStoreController extends Controller
       {
         $subStore = SubStore::find($id);
         if ($subStore->validate($request->all())) {
-            $subStore->fill($request->except('substore_name'));
+            $subStore->fill($request->except('store_name'));
             $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($subStore);
             $subStore->save();
 
@@ -184,6 +195,7 @@ class SubStoreController extends Controller
 
     //search goods types for autocomplete
     private function autocomplete_search($search,$storeId) {
+      //dd($storeId);
         $bin_list = SubStore::select('substore_id', 'substore_name')
                         ->where([['substore_name', 'like', '%' . $search . '%'],])
                         ->where('store_id','=',$storeId)
@@ -205,12 +217,17 @@ class SubStoreController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $bin_list = SubStore::select('*')
+        $bin_list = SubStore::join('org_store','org_substore.store_id','=','org_store.store_id')
+                        ->select('org_substore.*','org_store.store_name')
                         ->where('substore_name', 'like', $search . '%')
+                        ->orWhere('store_name', 'like', $search . '%')
                         ->orderBy($order_column, $order_type)
                         ->offset($start)->limit($length)->get();
 
-        $bin_count = SubStore::where('substore_name', 'like', $search . '%')
+        $bin_count =SubStore:: join('org_store','org_substore.store_id','=','org_store.store_id')
+                        ->select('org_substore.*','org_store.store_name')
+                        ->where('substore_name', 'like', $search . '%')
+                        ->orWhere('store_name', 'like', $search . '%')
                 ->count();
 
         return [
@@ -230,20 +247,23 @@ class SubStoreController extends Controller
       //echo "im here";
         $for = $request->for;
         if ($for == 'duplicate') {
-            return response($this->validate_duplicate_substore($request->substore_id, $request->substore_name));
+            return response($this->validate_duplicate_substore($request->substore_id,$request->store_name, $request->substore_name));
         }
     }
 
     //check shipment cterm code code already exists
-    private function validate_duplicate_substore($id, $name) {
-
-        $bin = SubStore::where('substore_name', '=', $name)->first();
-        if ($bin == null) {
+    private function validate_duplicate_substore($id,$store_name,$substore_name) {
+        $substore_name=strtoupper($substore_name);
+        $subStore = SubStore::where('substore_name', '=', $substore_name)
+                             ->where('store_id','=',$store_name)
+                          ->first();
+        //  dd($store_name);
+        if ($subStore == null) {
             return ['status' => 'success'];
-        } else if ($bin->substore_id == $id) {
+        } else if ($subStore->substore_id == $id) {
             return ['status' => 'success'];
         } else {
-            return ['status' => 'error', 'message' => 'Sub store already exists'];
+            return ['status' => 'error', 'message' => 'Record already exists'];
         }
 
     }
