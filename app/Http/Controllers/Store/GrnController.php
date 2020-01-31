@@ -482,16 +482,19 @@ class GrnController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number','store_grn_header.status', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name')
+        $section_list = GrnHeader::select(DB::raw("DATE_FORMAT(store_grn_header.updated_date, '%d-%b-%Y') 'updated_date_'"),'store_grn_header.grn_number','store_grn_header.status', 'store_grn_detail.grn_id','merc_po_order_header.po_number', 'org_supplier.supplier_name', 'org_store.store_name', 'org_substore.substore_name','store_grn_header.inv_number','usr_login.user_name')
                         ->join('store_grn_detail', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
                         //->leftjoin('store_grn_header', 'store_grn_detail.grn_id', '=', 'store_grn_header.grn_id')
                         ->leftjoin('org_substore', 'store_grn_header.sub_store', '=', 'org_substore.substore_id')
                         ->leftjoin('org_store', 'org_substore.store_id', '=', 'org_store.store_id')
                         ->leftjoin('org_supplier', 'store_grn_header.sup_id', '=', 'org_supplier.supplier_id')
+                        ->leftjoin('usr_login','store_grn_detail.created_by','=','usr_login.user_id')
                         ->orWhere('supplier_name', 'like', $search.'%')
                         ->orWhere('substore_name', 'like', $search.'%')
                         ->orWhere('grn_number', 'like', $search.'%')
+                        ->orWhere('inv_number', 'like', $search.'%')
+                        ->orWhere('user_name', 'like', $search.'%')
                         ->orWhere('merc_po_order_header.po_number', 'like', $search.'%')
                         ->orderBy($order_column, $order_type)
                         ->orderBy('store_grn_header.updated_date',$order_column.' DESC', $order_type)

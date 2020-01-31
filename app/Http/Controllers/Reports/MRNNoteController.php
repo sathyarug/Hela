@@ -45,6 +45,8 @@ class MRNNoteController extends Controller
             ->join('usr_profile', 'usr_profile.user_id', '=', 'store_mrn_header.created_by')
             ->join('org_company', 'org_company.company_id', '=', 'org_location.company_id')
             ->join('org_country', 'org_country.country_id', '=', 'org_location.country_code')
+            ->join('store_grn_detail', 'store_grn_detail.style_id', '=', 'store_mrn_header.style_id')
+            ->join('store_roll_plan', 'store_roll_plan.grn_detail_id', '=', 'store_grn_detail.grn_detail_id')
             ->select(
                 'store_mrn_header.mrn_id',
                 'org_location.loc_name',
@@ -65,7 +67,8 @@ class MRNNoteController extends Controller
                 'org_location.loc_phone',
                 'org_location.loc_fax',
                 'org_location.loc_email',
-                'org_location.loc_web'
+                'org_location.loc_web',
+                'store_roll_plan.lot_no'
             );
 
         if ($mrn_no != null || $mrn_no != "") {
@@ -76,10 +79,12 @@ class MRNNoteController extends Controller
 
         $query2 = DB::table('store_mrn_detail')
             ->join('item_master', 'item_master.master_id', '=', 'store_mrn_detail.item_id')
+            ->join('org_uom', 'org_uom.uom_id', '=', 'store_mrn_detail.uom')
             ->select(
                 'store_mrn_detail.mrn_id',
                 'item_master.master_code',
                 'item_master.master_description',
+                'org_uom.uom_description',
                 'store_mrn_detail.total_qty'
             );
 

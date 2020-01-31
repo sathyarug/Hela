@@ -37,6 +37,13 @@ class ProductSilhouetteController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'auto_2') {
+        $search = $request->search;
+        $comp_id = $request->comp_id;
+        return response([
+          'data' => $this->handsontable_list($comp_id, $search)
+        ]);
+      }
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -44,6 +51,15 @@ class ProductSilhouetteController extends Controller
           'data' => $this->list($active , $fields)
         ]);
       }
+    }
+
+    private function handsontable_list($comp_id, $search){
+      $list = ProductSilhouette::where('status','1')
+      ->where('product_component', '=', $comp_id)
+      ->where('product_silhouette_description', 'like', '%' . $search . '%')
+      ->get()
+      ->pluck('product_silhouette_description');
+      return $list;
     }
 
     private function autocomplete_search($search)

@@ -25,13 +25,13 @@ class UOM extends BaseValidator
 
     //Accessors & Mutators......................................................
 
-    public function setUomCodeAttribute($value) {
-        $this->attributes['uom_code'] = strtoupper($value);
-    }
+    // public function setUomCodeAttribute($value) {
+    //     $this->attributes['uom_code'] = strtoupper($value);
+    // }
 
-    public function setUomDescriptionAttribute($value) {
-        $this->attributes['uom_description'] = strtoupper($value);
-    }
+    // public function setUomDescriptionAttribute($value) {
+    //     $this->attributes['uom_description'] = strtoupper($value);
+    // }
 
     //Validation functions......................................................
 

@@ -346,9 +346,10 @@ Route::prefix('stores/')->group(function(){
 
     //Route::get('transfer-location/validate' , 'Stores\TransferLocationController@validate_data');
     //Route::post('material-transfer','Stores\MaterialTransferController@datatable_search');
+  //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
   Route::apiResource('material-transfer','Stores\MaterialTransferController');
   Route::post('material-transfer-store','Stores\MaterialTransferController@storedetails');
-    //Route::get('material-transfer','Stores\MaterialTransferController@getStores');
+
     //Route::apiResource('substore','Store\SubStoreController');
   Route::get('stock-bal-for-return-to-sup','Store\StockController@getStockForReturnToSup');
   Route::get('isreadyForRollPlan','Store\GrnController@isreadyForRollPlan');
@@ -593,6 +594,8 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('load_shop_order_list' , 'Merchandising\ShopOrderController@load_shop_order_list');
     Route::post('update_shop_order_details','Merchandising\ShopOrderController@update_shop_order_details');
 
+    Route::apiResource('shop_order','Merchandising\ShopOrderController');
+
 });
 
 Route::prefix('admin/')->group(function(){
@@ -690,6 +693,8 @@ Route::prefix('app/')->group(function(){
 
 
     Route::GET('menus','App\MenuController@index');
+    //search menu
+    Route::POST('search_menu','App\MenuController@getSearchMenu');
     Route::POST('search','App\SearchController@index');
     Route::apiResource('permissions','App\PermissionController');
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
@@ -701,7 +706,8 @@ Route::prefix('approval-process/')->group(function(){
 
     Route::get('start','App\ApprovalController@start');
     Route::get('read','App\ApprovalController@approve');
-
+    Route::get('generate_costing_bom','App\ApprovalController@generate_costing_bom');
+    Route::get('remove_costing_data','App\ApprovalController@remove_costing_data');
 });
 
 Route::prefix('dashboard/')->group(function(){
@@ -795,9 +801,14 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_shop_order','Reports\MSRReportController');
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
-  //MRN
-  Route::apiResource('load_mrn','Reports\MRNNoteController');  
+
+  //MRN note
+  Route::apiResource('load_mrn','Reports\MRNNoteController');
   Route::get('load_mrn_note','Reports\MRNNoteController@getMrnNote');
+
+  //Daily Receiving Reports
+  Route::apiResource('load_inward','Reports\DailyRecReportController');
+
   //Inventory scarp header report
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');

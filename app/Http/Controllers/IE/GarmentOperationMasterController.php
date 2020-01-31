@@ -75,7 +75,7 @@ class GarmentOperationMasterController extends Controller
 
       $garmentOperation = GarmentOperationMaster::find($id);
       if($garmentOperation == null)
-        throw new ModelNotFoundException("Requested Garment Operation not found", 1);
+        throw new ModelNotFoundException("Requested Garment Operation Not Found", 1);
       else
         return response([ 'data' => $garmentOperation ]);
     }
@@ -100,7 +100,7 @@ class GarmentOperationMasterController extends Controller
       $garmentOperation = GarmentOperationMaster::where('garment_operation_id', $id)->update(['status' => 0]);
       return response([
         'data' => [
-          'message' => 'Garment Operation was deactivated successfully.',
+          'message' => 'Garment Operation Was Deactivated Successfully.',
           'garmentOperation' => $garmentOperation,
           'status'=>'1'
         ]
@@ -129,7 +129,7 @@ class GarmentOperationMasterController extends Controller
         return ['status' => 'success'];
       }
       else {
-        return ['status' => 'error','message' => 'Garment Operation already exists'];
+        return ['status' => 'error','message' => 'Garment Operation Already Exists'];
       }
     }
 

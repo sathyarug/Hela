@@ -441,7 +441,7 @@ class CustomerOrderDetailsController extends Controller
         $shoporder = new ShopOrderHeader();
         $shoporder->order_qty = $request->details[$x]['order_qty'];
         $shoporder->fg_id = $request->details[$x]['fng_id'];
-        $shoporder->order_status = 'PLANNED';
+        $shoporder->order_status = 'RELEASED';
         $shoporder->status = '1';
         $shoporder->save();
 
@@ -527,7 +527,7 @@ class CustomerOrderDetailsController extends Controller
     $shoporder = new ShopOrderHeader();
     $shoporder->order_qty = $request->details['order_qty'];
     $shoporder->fg_id = $request->details['fng_id'];
-    $shoporder->order_status = 'PLANNED';
+    $shoporder->order_status = 'RELEASED';
     $shoporder->status = '1';
     $shoporder->save();
 
@@ -1006,12 +1006,17 @@ class CustomerOrderDetailsController extends Controller
       DATE_FORMAT(a.ex_factory_date, '%d-%b-%Y') as ex_factory_date_01,
       DATE_FORMAT(a.pcd, '%d-%b-%Y') as pcd_01,
        a.*,round((a.order_qty * a.fob),4) as total_value,
-      org_country.country_description,org_location.loc_name,org_color.color_code,org_color.color_name,item_master.master_code,item_master.master_description
+      org_country.country_description,org_location.loc_name,org_color.color_code,
+      org_color.color_name,item_master.master_code,item_master.master_description,
+      a.order_qty * product_feature.count as ord_qty_pcs
       from merc_customer_order_details a
-      inner join org_country on a.country = org_country.country_id
-      inner join org_location on a.projection_location = org_location.loc_id
-      inner join org_color on a.style_color = org_color.color_id
-      inner join item_master on a.fng_id = item_master.master_id
+      INNER join org_country on a.country = org_country.country_id
+      INNER join org_location on a.projection_location = org_location.loc_id
+      INNER join org_color on a.style_color = org_color.color_id
+      INNER join item_master on a.fng_id = item_master.master_id
+      INNER JOIN merc_customer_order_header ON a.order_id = merc_customer_order_header.order_id
+      INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
+      INNER JOIN product_feature ON style_creation.product_feature_id = product_feature.product_feature_id
       where
       a.order_id = ? and
       #a.delivery_status != ? and

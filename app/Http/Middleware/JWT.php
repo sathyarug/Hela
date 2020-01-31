@@ -23,9 +23,9 @@ class JWT extends BaseMiddleware
       try {
               $user = JWTAuth::parseToken()->authenticate();
               $db_user = User::find($user->user_id);//check passed token with saved token. used to limit single concurrent user
-              //echo json_encode(auth()->payload()->get('jti'));
+              //echo json_encode($db_user);die();
               if(auth()->payload()->get('jti') != $db_user->token){
-                return response()->json(['status' => 'Token is Expired'],401);
+                return response()->json(['status' => 'There are currently multiple sessions logged in with this username and password'],401);
               }
           } catch (Exception $e) {
               if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){

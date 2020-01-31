@@ -131,13 +131,11 @@ class ShopOrderController extends Controller
 
     public function load_shop_order_header(Request $request){
 
-      $formData       = $request->formData;
-      $fng_id         = $formData['fg_id']['master_id'];
-      $shop_order_id  = $formData['shop_order_id'];
+      $shop_order_id  = $request->so_id;
+      $so_details     = ShopOrderHeader::find($shop_order_id);
+      $fng_id         = $so_details['fg_id'];
 
-      //echo $fng_id ;die();
-
-      $load_header = ShopOrderHeader::select('item_master.master_description', 'org_country.country_description', 'merc_bom_stage.bom_stage_description', 'merc_customer_order_details.order_qty', 'merc_customer_order_details.planned_qty', 'merc_shop_order_header.order_status',
+      $load_header = ShopOrderHeader::select('item_master.master_description', 'org_country.country_description', 'merc_bom_stage.bom_stage_description', 'merc_customer_order_details.order_qty', 'merc_customer_order_details.planned_qty', 'merc_shop_order_header.order_status','item_master.master_id','merc_shop_order_header.shop_order_id','item_master.master_code',
                      DB::raw("DATE_FORMAT(merc_customer_order_details.planned_delivery_date, '%d-%b-%Y') 'delivery_date'"))
                    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
                    ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
@@ -225,10 +223,15 @@ class ShopOrderController extends Controller
 
     public function update_shop_order_details(Request $request){
       $lines          = $request->lines;
-      $formData       = $request->formData;
-      $fng_id         = $formData['fg_id']['master_id'];
-      $shop_order_id  = $formData['shop_order_id'];
-      $fng_code       = $formData['fg_id']['master_code'];
+      $shop_order_id  = $request->so_id;
+      //$so_details     = ShopOrderHeader::find($shop_order_id);
+      $so_details = ShopOrderHeader::select('item_master.master_id','item_master.master_code')
+                   ->join('item_master', 'merc_shop_order_header.fg_id', '=', 'item_master.master_id')
+                   ->where('shop_order_id', '=', $shop_order_id)
+                   ->get();
+      //dd($so_details[0]['master_id']);
+      $fng_id         = $so_details[0]['master_id'];
+      $fng_code       = $so_details[0]['master_code'];
 
       $max_no = ShopOrderDetailsHistory::where('shop_order_id','=',$shop_order_id)->max('version');
 	    if($max_no == NULL){ $max_no= 0;}
@@ -272,7 +275,60 @@ class ShopOrderController extends Controller
     //get searched customers for datatable plugin format
     private function datatable_search($data)
     {
+      $start = $data['start'];
+      $length = $data['length'];
+      $draw = $data['draw'];
+      $search = $data['search']['value'];
+      $order = $data['order'][0];
+      $order_column = $data['columns'][$order['column']]['data'];
+      $order_type = $order['dir'];
+      //$user = auth()->user();
 
+
+
+      $customer_list = ShopOrderHeader::join('item_master', 'merc_shop_order_header.fg_id', '=', 'item_master.master_id')
+	    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_del_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+      ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
+      ->join('org_country', 'merc_customer_order_details.country', '=', 'org_country.country_id')
+	    ->select('merc_shop_order_header.order_status','merc_shop_order_header.shop_order_id','item_master.master_code','item_master.master_id',
+          'merc_bom_stage.bom_stage_description','org_country.country_description')
+      //->Where('merc_po_order_header.created_by','=', $user->user_id)
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('merc_shop_order_header.shop_order_id', 'like', $search.'%')
+  				    ->orWhere('item_master.master_code', 'like', $search.'%')
+  				    ->orWhere('merc_bom_stage.bom_stage_description', 'like', $search.'%')
+              ->orWhere('org_country.country_description', 'like', $search.'%');
+  		        })
+      ->orderBy($order_column, $order_type)
+      ->offset($start)->limit($length)->get();
+
+      $customer_count = ShopOrderHeader::join('item_master', 'merc_shop_order_header.fg_id', '=', 'item_master.master_id')
+	    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_del_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+      ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
+      ->join('org_country', 'merc_customer_order_details.country', '=', 'org_country.country_id')
+	    ->select('merc_shop_order_header.order_status','merc_shop_order_header.shop_order_id','item_master.master_code',
+          'merc_bom_stage.bom_stage_description','org_country.country_description')
+      //->Where('merc_po_order_header.created_by','=', $user->user_id)
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('merc_shop_order_header.shop_order_id', 'like', $search.'%')
+  				    ->orWhere('item_master.master_code', 'like', $search.'%')
+  				    ->orWhere('merc_bom_stage.bom_stage_description', 'like', $search.'%')
+              ->orWhere('org_country.country_description', 'like', $search.'%');
+  		        })
+      ->count();
+
+
+
+      return [
+          "draw" => $draw,
+          "recordsTotal" => $customer_count,
+          "recordsFiltered" => $customer_count,
+          "data" => $customer_list
+      ];
     }
 
 

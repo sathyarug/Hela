@@ -13,48 +13,60 @@ use Exception;
 
 class BuyMasterController extends Controller
 {
-    public function __construct()
-    {
-      //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index']]);
-    }
+  public function __construct()
+  {
+    //add functions names to 'except' paramert to skip authentication
+    $this->middleware('jwt.verify', ['except' => ['index']]);
+  }
 
-    //get marker types list
-    public function index(Request $request)
-    {
-      $type = $request->type;
-      if($type == 'datatable')   {
-        $data = $request->all();
-        return response($this->datatable_search($data));
-      }else {
-        $active = $request->active;
-        $fields = $request->fields;
+  //get marker types list
+  public function index(Request $request)
+  {
+    $type = $request->type;
+    if ($type == 'datatable') {
+      $data = $request->all();
+      return response($this->datatable_search($data));
+    } else {
+      $active = $request->active;
+      $fields = $request->fields;
+      return response([
+        'data' => $this->list($active, $fields)
+      ]);
+    }
+  }
+
+  //deactivate a gmarker types
+  public function destroy($id)
+  {
+    $is_exists_comp_smv = DB::table('ie_component_smv_header')->where('buy_id', $id)->exists();
+
+    if ($is_exists_comp_smv == true) {
+      return response(['data' => [
+        'status' => '0',
+        'message' => 'Buy master Already in Use',
+        'buy_name' => ''
+        ]]);
+      } else {
+        $deactive = BuyMaster::where('buy_id', $id)->update(['status' => 0]);
         return response([
-          'data' => $this->list($active , $fields)
+          'data' => [
+            'status' => '1',
+            'message' => 'Buy master was deactivated successfully.',
+            'deactive' => $deactive
+          ]
         ]);
       }
     }
 
-    //deactivate a gmarker types
-    public function destroy($id)
-    {
-      $deactive = BuyMaster::where('buy_id', $id)->update(['status' => 0]);
-      return response([
-        'data' => [
-          'message' => 'Buy was deactivated successfully.',
-          'deactive' => $deactive
-        ]
-      ] , Response::HTTP_NO_CONTENT);
-    }
-
     //validate anything based on requirements
-    public function validate_data(Request $request){
+    public function validate_data(Request $request)
+    {
       $for = $request->for;
-      if($for == 'duplicate')
-      {
+      if ($for == 'duplicate') {
         return response($this->validate_duplicate_code($request->buy_id, $request->buy_name));
       }
     }
+
 
     private function validate_duplicate_code($id , $code)
     {
@@ -73,118 +85,129 @@ class BuyMasterController extends Controller
     public function store(Request $request)
     {
       $save = new BuyMaster();
-      if($save->validate($request->all()))
-      {
+      if ($save->validate($request->all())) {
         $save->fill($request->all());
         $save->status = 1;
-        $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($save);
+        $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($save);
         $save->save();
 
-        return response([ 'data' => [
-          'message' => 'Buy saved successfully',
-          'save' => $save
+        return response([
+          'data' => [
+            'status' => '1',
+            'message' => 'Buy mater saved successfully',
+            'save' => $save
           ]
-        ], Response::HTTP_CREATED );
+        ], Response::HTTP_CREATED);
+      } else {
+        $errors = $save->errors(); // failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
-      else
-      {
-        $errors = $save->errors();// failure, get errors
-        $errors_str = $save->errors_tostring();
-        return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function store(Request $request)
+    {
+      $save = new BuyMaster();
+      if ($save->validate($request->all())) {
+        $save->fill($request->all());
+        $save->status = 1;
+        $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($save);
+        $save->save();
+
+        return response([
+          'data' => [
+            'status' => '1',
+            'message' => 'Buy mater saved successfully',
+            'save' => $save
+          ]
+        ], Response::HTTP_CREATED);
+      } else {
+        $errors = $save->errors(); // failure, get errors
+        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
       }
     }
 
     //Find values of to be edited row
     public function show($id)
     {
-        $buy_name = BuyMaster::find($id);
-        if($buy_name == null)
-          throw new ModelNotFoundException("Buy not found", 1);
-        else
-          return response([ 'data' => $buy_name ]);
+      $buy_name = BuyMaster::find($id);
+      if ($buy_name == null)
+      throw new ModelNotFoundException("Buy not found", 1);
+      else
+      return response(['data' => $buy_name]);
     }
 
     //update a buy
     public function update(Request $request, $id)
     {
-        $buy_name = BuyMaster::find($id);
-        if ($buy_name->validate($request->all()))
-        {
+      $buy_name = BuyMaster::find($id);
+      if ($buy_name->validate($request->all())) {
 
-          $is_exists_comp_smv = DB::table('ie_component_smv_header')->where('buy_id', $id)->exists();
-  
-          if($is_exists_comp_smv==true)
-          {
-            return response([ 'data' => [
-              'status' => 'fail',
-              'message' => 'Buy Already in Use',
-              'buy_name' => ''
+        $is_exists_comp_smv = DB::table('ie_component_smv_header')->where('buy_id', $id)->exists();
+
+        if ($is_exists_comp_smv == true) {
+          return response(['data' => [
+            'status' => '0',
+            'message' => 'Buy master Already in Use',
+            'buy_name' => ''
             ]]);
-          }
-          else
-          {
+          } else {
             $buy_name->fill($request->except('created_date,created_by'));
-            $capitalizeAllFields=CapitalizeAllFields::setCapitalAll($buy_name);
+            $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($buy_name);
             $buy_name->save();
 
-            return response([ 'data' => [
-              'status' => 'success',
-              'message' => 'Buy updated successfully',
+            return response(['data' => [
+              'status' => '1',
+              'message' => 'Buy master updated successfully',
               'buy_name' => $buy_name
-            ]]);
+              ]]);
+            }
+          } else {
+            $errors = $buy_name->errors(); // failure, get errors
+            return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
           }
-
         }
-        else
+
+        private function list($active = 0, $fields = null)
         {
-          $errors = $buy_name->errors();// failure, get errors
-          return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+          $query = null;
+          if ($fields == null || $fields == '') {
+            $query = BuyMaster::select('*');
+          } else {
+            $fields = explode(',', $fields);
+            $query = BuyMaster::select($fields);
+            if ($active != null && $active != '') {
+              $query->where([['status', '=', $active]]);
+            }
+          }
+          return $query->get();
         }
-    }
 
-    private function list($active = 0 , $fields = null)
-    {
-      $query = null;
-      if($fields == null || $fields == '') {
-        $query = BuyMaster::select('*');
-      }
-      else{
-        $fields = explode(',', $fields);
-        $query =BuyMaster::select($fields);
-        if($active != null && $active != ''){
-          $query->where([['status', '=', $active]]);
+        //get searched buy for datatable plugin format
+        private function datatable_search($data)
+        {
+          $start = $data['start'];
+          $length = $data['length'];
+          $draw = $data['draw'];
+          $search = $data['search']['value'];
+          $order = $data['order'][0];
+          $order_column = $data['columns'][$order['column']]['data'];
+          $order_type = $order['dir'];
+
+          $list = BuyMaster::select('*')
+          ->where('buy_name', 'like', $search . '%')
+          ->orderBy($order_column, $order_type)
+          ->offset($start)->limit($length)->get();
+
+          $count = BuyMaster::select('*')
+          ->where('buy_name', 'like', $search . '%')
+          ->orderBy($order_column, $order_type)
+          ->count();
+
+          return [
+            "draw" => $draw,
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $list
+          ];
         }
       }
-      return $query->get();
-    }
-
-    //get searched buy for datatable plugin format
-    private function datatable_search($data)
-    {
-      $start = $data['start'];
-      $length = $data['length'];
-      $draw = $data['draw'];
-      $search = $data['search']['value'];
-      $order = $data['order'][0];
-      $order_column = $data['columns'][$order['column']]['data'];
-      $order_type = $order['dir'];
-
-      $list = BuyMaster::select('*')
-      ->where('buy_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->offset($start)->limit($length)->get();
-
-      $count = BuyMaster::select('*')
-      ->where('buy_name'  , 'like', $search.'%' )
-      ->orderBy($order_column, $order_type)
-      ->count();
-
-      return [
-          "draw" => $draw,
-          "recordsTotal" => $count,
-          "recordsFiltered" => $count,
-          "data" => $list
-      ];
-    }
-
-}

@@ -38,15 +38,15 @@ class FinanceCost extends BaseValidator
     	$this->attributes['effective_to'] = date('Y-m-d', strtotime($value));
     }
 
-    public function getEffectiveFromAttribute($value){
-    $this->attributes['effective_from'] = date('m-d-Y', strtotime($value));
-    return $this->attributes['effective_from'];
-    }
+    // public function getEffectiveFromAttribute($value){
+    // $this->attributes['effective_from'] = date('m-d-Y', strtotime($value));
+    // return $this->attributes['effective_from'];
+    // }
 
-    public function getEffectiveToAttribute($value){
-    $this->attributes['effective_to'] = date('m-d-Y', strtotime($value));
-    return $this->attributes['effective_to'];
-    }
+    // public function getEffectiveToAttribute($value){
+    // $this->attributes['effective_to'] = date('m-d-Y', strtotime($value));
+    // return $this->attributes['effective_to'];
+    // }
 
     //Validation functions......................................................
     /**
