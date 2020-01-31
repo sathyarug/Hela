@@ -684,6 +684,8 @@ Route::prefix('app/')->group(function(){
 
 
     Route::GET('menus','App\MenuController@index');
+    //search menu
+    Route::POST('search_menu','App\MenuController@getSearchMenu');
     Route::POST('search','App\SearchController@index');
     Route::apiResource('permissions','App\PermissionController');
     Route::apiResource('bookmarks', 'App\BookmarkController')->only(['index', 'store']);
@@ -787,6 +789,14 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_shop_order','Reports\MSRReportController');
   //Issue Report
   Route::apiResource('load_issue','Reports\IssueReportController');
+
+  //MRN note
+  Route::apiResource('load_mrn','Reports\MRNNoteController');  
+  Route::get('load_mrn_note','Reports\MRNNoteController@getMrnNote');
+
+  //Daily Receiving Reports
+  Route::apiResource('load_inward','Reports\DailyRecReportController'); 
+  
   //Inventory scarp header report
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController'); 
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');

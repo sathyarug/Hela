@@ -157,7 +157,7 @@ class PositionController extends Controller
           return ['status' => 'success'];
         }
         else {
-          return ['status' => 'error','message' => 'Position alrady exists'];
+          return ['status' => 'error','message' => 'Position already exists'];
         }
       }
 

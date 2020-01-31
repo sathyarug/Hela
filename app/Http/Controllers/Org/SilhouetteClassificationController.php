@@ -51,6 +51,7 @@ class  SilhouetteClassificationController extends Controller
       {
         $silhouetteClassification= new  SilhouetteClassification ();
         $silhouetteClassification->fill($request->all());
+        $silhouetteClassification->sil_class_description=strtoupper($silhouetteClassification->sil_class_description);
         $silhouetteClassification->status = 1;
         $silhouetteClassification->save();
 
@@ -189,7 +190,7 @@ class  SilhouetteClassificationController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $silhouetteClassification_lists =SilhouetteClassification::select('*')
+        $silhouetteClassification_lists = SilhouetteClassification::select('*')
         ->where('sil_class_description'  , 'like', $search.'%' )
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
