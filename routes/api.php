@@ -651,13 +651,17 @@ Route::prefix('store/')->group(function(){
     Route::post('mrn/filterData','Store\MrnController@filterData');
     Route::post('issue/confirm-issue-data','Store\IssueController@confirmIssueData');
     Route::apiResource('issue','Store\IssueController');
-    Route::apiResource('return-to-stores','Store\ReturnToStoresController');
     Route::apiResource('roll','Store\RollPlanController');
     Route::apiResource('trimPacking','Store\TrimPackingController');
     Route::get('loadMrnData','Store\IssueController@loadMrnData');
     Route::get('loadBinDetails','Store\IssueController@loadBinDetails');
 
+    Route::apiResource('return-to-stores','Store\ReturnToStoresController');
+    Route::post('load_issue_details','Store\ReturnToStoresController@load_issue_details');
 
+    Route::apiResource('return-to-supplier','Store\ReturnToSupplierController');
+    Route::post('load_grn_details','Store\ReturnToSupplierController@load_grn_details');
+    Route::post('load_grn_header','Store\ReturnToSupplierController@load_grn_header');
 });
 
 
@@ -798,6 +802,8 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
+  //Daily Receiving Reports
+  Route::apiResource('load_inward','Reports\DailyRecReportController');
 
 });
 

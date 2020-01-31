@@ -34,7 +34,7 @@ class PaymentTerm extends BaseValidator
       return [
           'payment_code' => [
             'required',
-            'unique:fin_payment_term,payment_code,'.$data['payment_term_id'].',payment_term_id',
+            'unique:fin_payment_term,payment_code,'.$data['payment_id'].',payment_term_id',
           ],
           'payment_description' => 'required'
       ];

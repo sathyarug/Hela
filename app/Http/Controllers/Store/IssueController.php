@@ -41,6 +41,12 @@ class IssueController extends Controller
         }else if($type == 'auto')    {
             $search = $request->search;
             return response($this->autocomplete_search($search));
+        }else if($type == 'auto_batch')    {
+            $search = $request->search;
+            return response($this->autocomplete_batch_search($search));
+        }else if($type == 'auto_ins_status')    {
+            $search = $request->search;
+            return response($this->autocomplete_ins_status_search($search));
         }else{
             $loc_id = $request->loc;
             return response(['data' => $this->list($active, $fields, $loc_id)]);
@@ -53,6 +59,30 @@ class IssueController extends Controller
     *@param  \Illuminate\Http\Request  $request
     *@return \Illuminate\Http\Response
     */
+
+    private function autocomplete_ins_status_search($search)
+    {
+      $query = DB::table('store_inspec_status')
+      ->select('*')
+      ->where([['store_inspec_status.status_name', 'like', '%' . $search . '%'],])
+      ->get();
+      return $query;
+    }
+
+    private function autocomplete_batch_search($search)
+    {
+      $trim_pack = TrimPacking::select('batch_no')
+      ->where([['batch_no', 'like', '%' . $search . '%'],]) 
+      ->groupBy('batch_no');
+
+      $roll_plan = RollPlan::select('batch_no')
+      ->where([['batch_no', 'like', '%' . $search . '%'],]) 
+      ->groupBy('batch_no')
+      ->union($trim_pack)
+      ->get();
+
+      return $roll_plan;
+    }
 
     //search Color for autocomplete
     private function autocomplete_search($search)
