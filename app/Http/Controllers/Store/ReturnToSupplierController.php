@@ -15,12 +15,14 @@ use App\Models\stores\RollPlan;
 use App\Models\Store\TrimPacking;
 
 use App\Models\Store\StockTransaction;
-use App\Models\Store\ReturnToStoreHeader;
-use App\Models\Store\ReturnToStoreDetails;
 use App\Models\Org\ConversionFactor;
 use App\Models\Store\Stock;
 
-class ReturnToStoresController extends Controller
+use App\Models\Store\ReturnToSupplierHeader;
+use App\Models\Store\ReturnToSupplierDetails;
+use App\Models\Store\GrnHeader;
+
+class ReturnToSupplierController extends Controller
 { 
 
     public function index(Request $request)
@@ -46,21 +48,21 @@ class ReturnToStoresController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $list = ReturnToStoreHeader::join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
-        ->join('store_issue_header','store_return_to_store_header.issue_id','=','store_issue_header.issue_id')
-        ->select('store_return_to_store_header.*','usr_login.user_name','store_issue_header.issue_no')
+        $list = ReturnToSupplierHeader::join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        ->join('usr_login','store_return_to_supplier_header.created_by','=','usr_login.user_id')
+        ->select('store_return_to_supplier_header.*','store_grn_header.grn_number','usr_login.user_name')
         ->where('usr_login.user_name' , 'like', $search.'%' )
-        ->orWhere('store_issue_header.issue_no' , 'like', $search.'%' )
-        ->orWhere('store_return_to_store_header.return_id','like',$search.'%')
+        ->orWhere('store_grn_header.grn_number' , 'like', $search.'%' )
+        ->orWhere('store_return_to_supplier_header.return_id','like',$search.'%')
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
 
-        $count = ReturnToStoreHeader::join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
-        ->join('store_issue_header','store_return_to_store_header.issue_id','=','store_issue_header.issue_id')
-        ->select('store_return_to_store_header.*','usr_login.user_name','store_issue_header.issue_no')
+        $count = ReturnToSupplierHeader::join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        ->join('usr_login','store_return_to_supplier_header.created_by','=','usr_login.user_id')
+        ->select('store_return_to_supplier_header.*','store_grn_header.grn_number','usr_login.user_name')
         ->where('usr_login.user_name' , 'like', $search.'%' )
-        ->orWhere('store_issue_header.issue_no' , 'like', $search.'%' )
-        ->orWhere('store_return_to_store_header.return_id','like',$search.'%')
+        ->orWhere('store_grn_header.grn_number' , 'like', $search.'%' )
+        ->orWhere('store_return_to_supplier_header.return_id','like',$search.'%')
         ->count();
 
         echo json_encode([
@@ -72,9 +74,9 @@ class ReturnToStoresController extends Controller
       
     }
 
-    public function load_issue_details(Request $request)
+    public function load_grn_details(Request $request)
     {
-        $issue_no = $request['search']['issue_no']['issue_id'];
+        $grn_id = $request['search']['grn_no']['grn_id'];
         $roll_from = $request['details']['roll_from'];
         $roll_to = $request['details']['roll_to'];
         $lab_comments = $request['details']['lab_comments'];
@@ -83,68 +85,66 @@ class ReturnToStoresController extends Controller
         $batch = $request['details']['batch']['batch_no'];
         $ins_status_code = $request['details']['ins_status']['status_name'];
 
-        //Fabric
-        $fabric = DB::table('store_issue_header')
-        ->join('store_issue_detail','store_issue_header.issue_id','=','store_issue_detail.issue_id')
-        ->join('org_location','store_issue_detail.location_id','=','org_location.loc_id')
-        ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
-        ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
-        ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
-        ->join('item_master','store_issue_detail.item_id','=','item_master.master_id')
-        ->join('item_category','item_master.category_id','=','item_category.category_id')
-        ->join('store_roll_plan','store_issue_detail.item_detail_id','=','store_roll_plan.roll_plan_id')
-        ->join('store_mrn_detail','store_issue_detail.mrn_detail_id','=','store_mrn_detail.mrn_detail_id')
-        ->join('store_mrn_header','store_mrn_detail.mrn_id','=','store_mrn_header.mrn_id')
+        $fabric = DB::table('store_roll_plan')
+        ->join('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
         ->join('store_grn_detail','store_roll_plan.grn_detail_id','=','store_grn_detail.grn_detail_id')
-        ->join('org_uom','store_mrn_detail.uom','=','org_uom.uom_id')
-        ->leftJoin('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
-        ->select('store_issue_header.*',
-        'store_issue_detail.issue_detail_id',
-        'store_issue_detail.mrn_detail_id',
-        'store_issue_detail.item_id',
-        'store_issue_detail.qty',
-        'store_issue_detail.location_id',
-        'store_issue_detail.store_id',
-        'store_issue_detail.sub_store_id',
-        'store_issue_detail.bin',
-        'store_issue_detail.user_loc_id',
-        'store_issue_detail.item_detail_id',
-        'org_location.loc_name',
-        'org_store.store_name',
-        'org_substore.substore_name',
-        'org_store_bin.store_bin_name',
-        'item_master.master_code',
-        'item_master.master_description',
-        'item_master.standard_price',
-        'item_master.category_id',
-        'item_category.category_code',
-        'store_issue_detail.mrn_detail_id',
-        'store_mrn_detail.shop_order_id',
-        'store_mrn_detail.shop_order_detail_id',
-        'store_mrn_detail.cust_order_detail_id',
-        'store_mrn_detail.color_id',
-        'store_mrn_detail.size_id',
-        'item_master.inventory_uom',
-        'org_uom.uom_description',
-        'store_mrn_detail.uom AS request_uom',
-        'store_mrn_header.style_id',
-        'store_grn_detail.grn_detail_id',
-        'store_grn_detail.standard_price',
-        'store_grn_detail.purchase_price',
+        ->join('org_uom','store_grn_detail.uom','=','org_uom.uom_id')
+        ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+        ->join('item_category','item_master.category_id','=','item_category.category_id')
+        ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
+        ->join('org_location','store_grn_header.location','=','org_location.loc_id')
+        ->join('org_store','store_grn_header.main_store','=','org_store.store_id')
+        ->join('org_substore','store_grn_header.sub_store','=','org_substore.substore_id')
+        ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
+        ->select('store_roll_plan.roll_plan_id AS item_detail_id',
+        'store_roll_plan.invoice_no',
         'store_roll_plan.grn_detail_id',
         'store_roll_plan.lot_no',
         'store_roll_plan.batch_no',
         'store_roll_plan.roll_no AS roll_box',
+        'store_roll_plan.qty',
+        'store_roll_plan.received_qty',
         'store_roll_plan.bin',
+        'store_roll_plan.width',
         'store_roll_plan.shade',
+        'store_roll_plan.barcode',
+        'store_grn_detail.grn_line_no',
+        'store_grn_detail.uom AS request_uom',
+        'org_uom.uom_description',
+        'store_grn_detail.item_code',
+        'item_master.master_code',
+        'item_master.master_description',
+        'item_master.category_id',
+        'item_category.category_code',
+        'item_category.category_name',
+        'store_grn_header.grn_number',
+        'store_grn_header.grn_id',
+        'store_grn_header.inv_number',
+        'org_location.loc_name',
+        'org_store.store_name',
+        'org_substore.substore_name',
+        'store_grn_header.location',
+        'store_grn_header.main_store',
+        'store_grn_header.sub_store',
+        'store_grn_detail.shop_order_id',
+        'store_grn_detail.shop_order_detail_id',
+        'store_grn_detail.po_details_id',
+        'store_grn_detail.po_number',
+        'store_grn_detail.grn_qty',
+        'store_grn_detail.customer_po_id',
+        'store_grn_detail.inventory_uom',
+        'store_grn_detail.style_id',    
+        'store_grn_detail.standard_price',
+        'store_grn_detail.purchase_price',
+        'item_master.color_id',
+        'item_master.size_id',
+        'org_store_bin.store_bin_name',
         'store_fabric_inspection.inspection_status',
-        'store_fabric_inspection.shade AS ins_shade',
-        'store_fabric_inspection.lab_comment'
-        );
-        $fabric->where('store_issue_header.issue_id', $issue_no);
+        'store_fabric_inspection.lab_comment');
+
+        $fabric->where('store_grn_header.grn_id', $grn_id);
         $fabric->where('item_category.category_code', 'FAB');
-        $fabric->where('store_issue_detail.qty', '>', 0);
-        //Filters
+        
         if(($roll_from!=null || $roll_from!="") && ($roll_to!=null || $roll_to!="")){
             $fabric->whereBetween('store_roll_plan.roll_no', [$roll_from,$roll_to]);
         }
@@ -166,72 +166,71 @@ class ReturnToStoresController extends Controller
         if($lab_comments!=null || $lab_comments!=""){
             $fabric->where('store_fabric_inspection.lab_comment', 'like', '%' . $lab_comments . '%');
         }
-        //Trims
-        $trim = DB::table('store_issue_header')
-        ->join('store_issue_detail','store_issue_header.issue_id','=','store_issue_detail.issue_id')
-        ->join('org_location','store_issue_detail.location_id','=','org_location.loc_id')
-        ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
-        ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
-        ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
-        ->join('item_master','store_issue_detail.item_id','=','item_master.master_id')
-        ->join('item_category','item_master.category_id','=','item_category.category_id')
-        ->join('store_trim_packing_detail','store_issue_detail.item_detail_id','=','store_trim_packing_detail.trim_packing_id')
-        ->join('store_mrn_detail','store_issue_detail.mrn_detail_id','=','store_mrn_detail.mrn_detail_id')
-        ->join('store_mrn_header','store_mrn_detail.mrn_id','=','store_mrn_header.mrn_id')
+
+        $trim = DB::table('store_trim_packing_detail')
         ->join('store_grn_detail','store_trim_packing_detail.grn_detail_id','=','store_grn_detail.grn_detail_id')
-        ->join('org_uom','store_mrn_detail.uom','=','org_uom.uom_id')
-        ->select('store_issue_header.*',
-        'store_issue_detail.issue_detail_id',
-        'store_issue_detail.mrn_detail_id',
-        'store_issue_detail.item_id',
-        'store_issue_detail.qty',
-        'store_issue_detail.location_id',
-        'store_issue_detail.store_id',
-        'store_issue_detail.sub_store_id',
-        'store_issue_detail.bin',
-        'store_issue_detail.user_loc_id',
-        'store_issue_detail.item_detail_id',
-        'org_location.loc_name',
-        'org_store.store_name',
-        'org_substore.substore_name',
-        'org_store_bin.store_bin_name',
-        'item_master.master_code',
-        'item_master.master_description',
-        'item_master.standard_price',
-        'item_master.category_id',
-        'item_category.category_code',
-        'store_issue_detail.mrn_detail_id',
-        'store_mrn_detail.shop_order_id',
-        'store_mrn_detail.shop_order_detail_id',
-        'store_mrn_detail.cust_order_detail_id',
-        'store_mrn_detail.color_id',
-        'store_mrn_detail.size_id',
-        'item_master.inventory_uom',
-        'org_uom.uom_description',
-        'store_mrn_detail.uom AS request_uom',
-        'store_mrn_header.style_id',
-        'store_grn_detail.grn_detail_id',
-        'store_grn_detail.standard_price',
-        'store_grn_detail.purchase_price',
+        ->join('org_uom','store_grn_detail.uom','=','org_uom.uom_id')
+        ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
+        ->join('item_category','item_master.category_id','=','item_category.category_id')
+        ->join('store_grn_header','store_grn_detail.grn_id','=','store_grn_header.grn_id')
+        ->join('org_location','store_grn_header.location','=','org_location.loc_id')
+        ->join('org_store','store_grn_header.main_store','=','org_store.store_id')
+        ->join('org_substore','store_grn_header.sub_store','=','org_substore.substore_id')
+        ->join('org_store_bin','store_trim_packing_detail.bin','=','org_store_bin.store_bin_id')
+        ->select('store_trim_packing_detail.trim_packing_id AS item_detail_id',
+        'store_trim_packing_detail.invoice_no',
         'store_trim_packing_detail.grn_detail_id',
         'store_trim_packing_detail.lot_no',
         'store_trim_packing_detail.batch_no',
         'store_trim_packing_detail.box_no AS roll_box',
+        'store_trim_packing_detail.qty',
+        'store_trim_packing_detail.received_qty',
         'store_trim_packing_detail.bin',
+        'store_trim_packing_detail.width',
         'store_trim_packing_detail.shade',
+        'store_trim_packing_detail.barcode',
+        'store_grn_detail.grn_line_no',
+        'store_grn_detail.uom AS request_uom',
+        'org_uom.uom_description',
+        'store_grn_detail.item_code',
+        'item_master.master_code',
+        'item_master.master_description',
+        'item_master.category_id',
+        'item_category.category_code',
+        'item_category.category_name',
+        'store_grn_header.grn_number',
+        'store_grn_header.grn_id',
+        'store_grn_header.inv_number',
+        'org_location.loc_name',
+        'org_store.store_name',
+        'org_substore.substore_name',
+        'store_grn_header.location',
+        'store_grn_header.main_store',
+        'store_grn_header.sub_store',
+        'store_grn_detail.shop_order_id',
+        'store_grn_detail.shop_order_detail_id',
+        'store_grn_detail.po_details_id',
+        'store_grn_detail.po_number',
+        'store_grn_detail.grn_qty',
+        'store_grn_detail.customer_po_id',
+        'store_grn_detail.inventory_uom',
+        'store_grn_detail.style_id',
+        'store_grn_detail.standard_price',
+        'store_grn_detail.purchase_price',
+        'item_master.color_id',
+        'item_master.size_id',
+        'org_store_bin.store_bin_name',
         DB::raw("(NULL) AS inspection_status"),
-        DB::raw("(NULL) AS ins_shade"),
         DB::raw("(NULL) AS lab_comment")
         );
-        $trim->where('store_issue_header.issue_id', $issue_no);
-        $trim->where('item_category.category_code' ,'<>', 'FAB');
-        $trim->where('store_issue_detail.qty', '>', 0);
+        $trim->where('store_grn_header.grn_id', $grn_id);
+        $trim->where('item_category.category_code', '<>', 'FAB');
 
         if(($roll_from!=null || $roll_from!="") && ($roll_to!=null || $roll_to!="")){
-            $trim->whereBetween('store_trim_packing_detail.box_no', [$roll_from,$roll_to]);
+            $trim->whereBetween('store_trim_packing_detail.trim_packing_id', [$roll_from,$roll_to]);
         }
         else if(($roll_from!=null || $roll_from!="")){
-            $trim->where('store_trim_packing_detail.box_no', $roll_from);
+            $trim->where('store_trim_packing_detail.trim_packing_id', $roll_from);
         }
         if($item_code!=null || $item_code!=""){
             $trim->where('item_master.master_code', $item_code);
@@ -239,7 +238,10 @@ class ReturnToStoresController extends Controller
         if($batch!=null || $batch!=""){
             $trim->where('store_trim_packing_detail.batch_no', $batch);
         }
-        
+        if($shade!=null || $shade!=""){
+            $trim->where('store_trim_packing_detail.shade', 'like', '%' . $shade . '%');
+        }
+
         $trim->unionAll($fabric);
         $data = $trim->get();
 
@@ -251,15 +253,26 @@ class ReturnToStoresController extends Controller
 
     }
 
+    public function load_grn_header(Request $request)
+    {
+        $grn = GrnHeader::join('org_supplier','store_grn_header.sup_id','=','org_supplier.supplier_id')
+        ->join('merc_po_order_header','store_grn_header.po_number','=','merc_po_order_header.po_id')
+        ->select('sup_id','supplier_name','inv_number','batch_no','grn_number','merc_po_order_header.po_number')
+        ->where('store_grn_header.grn_id',$request->grn_id)
+        ->get();
+
+        return [ 'data'=> $grn ];
+    }
+
     public function store(Request $request)
     {
 
         $header_data = array(
-            "issue_id"=> $request->header['issue_no']['issue_id'], 
+            "grn_id"=> $request->header['grn_no']['grn_id'], 
             "status"=> 1, 
         );
 
-        $save_header = new ReturnToStoreHeader();
+        $save_header = new ReturnToSupplierHeader();
         if($save_header->validate($header_data))
         {
           $save_header->fill($header_data);
@@ -269,8 +282,8 @@ class ReturnToStoresController extends Controller
             
             $save_details = $this->save_return_details($save_header['return_id'],$request['details']);
             $save_stock_transaction = $this->save_stock_transaction($save_header['return_id'],$request['details']);
-            $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
-            $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
+            // $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
+            // $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
 
             return response([ 'data' => [
                 'message' => 'Data saved success',
@@ -311,15 +324,15 @@ class ReturnToStoresController extends Controller
 
             $detail_data = array(
             'return_id' => $return_id,
-            'item_id' => $row['item_id'],
+            'item_id' => $row['item_code'],
             'inv_uom' => $row['inventory_uom'],
             'request_uom' => $row['request_uom'],
-            'issue_qty' => $row['qty'],
+            'grn_qty' => $row['qty'],
             'return_qty' => $row['return_qty'],
             'status' => 1,
-            'location_id' => $row['location_id'],
-            'store_id' => $row['store_id'],
-            'sub_store_id' => $row['sub_store_id'],
+            'location_id' => $row['location'],
+            'store_id' => $row['main_store'],
+            'sub_store_id' => $row['sub_store'],
             'bin' => $row['bin'],
             'roll_box' => $row['roll_box'],
             'batch_no' => $row['batch_no'],
@@ -328,7 +341,7 @@ class ReturnToStoresController extends Controller
             'comments' => $comments
             );
 
-            $save_detail = new ReturnToStoreDetails();
+            $save_detail = new ReturnToSupplierDetails();
             if($save_detail->validate($detail_data))
             {
               $save_detail->fill($detail_data);
@@ -357,21 +370,21 @@ class ReturnToStoresController extends Controller
 
             $st = new StockTransaction;
             $st->doc_num = $return_id;
-            $st->doc_type = 'RETURN_TO_STORE';
+            $st->doc_type = 'RETURN_TO_SUPPLIER';
             $st->style_id = $row['style_id'];
-            $st->customer_po_id = $row['cust_order_detail_id'];
+            $st->customer_po_id = $row['customer_po_id'];
             $st->size = $row['size_id'];
             $st->color = $row['color_id'];
-            $st->main_store = $row['store_id'];
-            $st->sub_store = $row['sub_store_id'];
-            $st->location = $row['location_id'];
+            $st->main_store = $row['main_store'];
+            $st->sub_store = $row['sub_store'];
+            $st->location = $row['location'];
             $st->bin = $row['bin'];
-            $st->status = 'CONFIRM';
+            $st->status = 'CONFIRM';            
             $st->shop_order_id = $row['shop_order_id'];
             $st->shop_order_detail_id = $row['shop_order_detail_id'];
-            $st->direction = '+';
-            $st->item_code = $row['item_id'];
-            $st->qty = $qty;
+            $st->direction = '-';
+            $st->item_code = $row['item_code'];
+            $st->qty = -$qty;
             $st->uom = $row['inventory_uom'];
             $st->standard_price = $row['standard_price'];
             $st->purchase_price = $row['purchase_price'];

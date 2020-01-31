@@ -45,8 +45,18 @@ class GrnController extends Controller
         if($type == 'datatable') {
             $data = $request->all();
             return response($this->datatable_search($data));
+        }else if($type == 'auto')    {
+            $search = $request->search;
+            return response($this->autocomplete_search($search));
         }
 
+    }
+
+    private function autocomplete_search($search)
+    {
+      $lists = GrnHeader::select('*')
+      ->where([['grn_number', 'like', '%' . $search . '%'],]) ->get();
+      return $lists;
     }
 
     public function store(Request $request){

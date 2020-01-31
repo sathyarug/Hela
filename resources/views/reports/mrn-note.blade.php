@@ -62,6 +62,9 @@ MRN Note
                             <th>Cut Quantity</th>
                             <th>:</th>
                             <td>{{ $row->cut_qty }}</td>
+                            <th>Lot No</th>
+                            <th>:</th>
+                            <td>{{ $row->lot_no }}</td>
                         </tr>
 
                     </table>
@@ -78,15 +81,17 @@ MRN Note
             <div class="col-md-12">
                 <table class="table table-bordered details">
                     <tr class="green-row">
-                        <th width="20%">Item Code</th>
-                        <th width="20%">Item Description</th>
-                        <th width="20%">Quantity</th>
+                        <th width="15%">Item Code</th>
+                        <th width="45%">Item Description</th>
+                        <th width="10%">UOM</th>
+                        <th width="15%">Quantity</th>
                     </tr>
                     @foreach ($details as $detail)
                     <!-- @if($row->mrn_id == $detail->mrn_id) -->
                     <tr>
                         <td>{{ $detail->master_code }}</td>
                         <td>{{ $detail->master_description }}</td>
+                        <td>{{ $detail->uom_description }}</td>
                         <td>{{ $detail->total_qty }}</td>
                     </tr>
                     <!-- @endif -->

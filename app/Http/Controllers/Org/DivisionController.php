@@ -141,9 +141,10 @@ class DivisionController extends Controller
     {
       if($this->authorize->hasPermission('DIVISION_DELETE'))//check permission
       {
-        $smv=DB::table('smv_update')->where('division_id','=',$id)->exists();
-        $style=DB::table('style_creation')->where('division_id','=',$id)->exists();
-        if($smv==true||$style==true){
+        $smv = DB::table('smv_update')->where('division_id','=',$id)->exists();
+        $style = DB::table('style_creation')->where('division_id','=',$id)->exists();
+        $salesOrder = DB::table('merc_customer_order_header')->where('order_division','=',$id)->exists();
+        if($smv==true||$style==true||$salesOrder==true){
           return response([
             'data' => [
               'message' => 'Division Already In use.',
