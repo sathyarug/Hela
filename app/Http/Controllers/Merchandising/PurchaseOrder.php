@@ -29,7 +29,14 @@ class PurchaseOrder extends Controller
             return response([
                 'data' => $this->getPoColorList($request->id)
             ]);
-        }else{
+        }
+        else if($type=='auto'){
+          $search=$request->search;
+          //dd($search);
+          return response($this->autocomplete_po_no($search));
+        }
+
+        else{
             return response([
                 'data' => $this->list($active , $fields)
             ]);
@@ -128,6 +135,17 @@ class PurchaseOrder extends Controller
             'data' => $podata
         ]);
     }
+
+    private function autocomplete_po_no($search)
+    {
+      $active=1;
+      $po_list = PoOrderHeader::select('po_id','po_number')
+      ->where([['po_number', 'like', '%' . $search . '%']])
+      ->where('status','=',$active)
+      ->get();
+      return $po_list;
+    }
+
 
     //get filtered fields only
     private function list($active = 0 , $fields = null)
