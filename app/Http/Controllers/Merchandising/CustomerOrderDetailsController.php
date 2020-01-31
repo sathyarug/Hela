@@ -551,7 +551,7 @@ class CustomerOrderDetailsController extends Controller
     $shoporder_detail= new ShopOrderDetail();
     $shoporder_detail->shop_order_id = $shop_order_id;
     $shoporder_detail->bom_id = $load_Bom_details[$x]['bom_id'];
-    $shoporder_detail->bom_detail_id = $load_Bom_details[$y]['bom_detail_id'];
+    $shoporder_detail->bom_detail_id = $load_Bom_details[$x]['bom_detail_id'];
     $shoporder_detail->costing_item_id = $load_Bom_details[$x]['costing_item_id'];
     $shoporder_detail->costing_id = $load_Bom_details[$x]['costing_id'];
     $shoporder_detail->component_id = $load_Bom_details[$x]['product_component_id'];
