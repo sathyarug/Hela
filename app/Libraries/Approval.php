@@ -26,6 +26,7 @@ use App\Models\Admin\UsrProfile;
 use App\Jobs\ApprovalMailSendJob;
 
 use App\Services\Merchandising\Costing\CostingService;
+use App\Services\Merchandising\Bom\BomService;
 
 //will be remove in later developments
 use App\Models\Merchandising\Costing\Costing;
@@ -347,6 +348,11 @@ class Approval
         'po' => PoOrderApproval::find($document_id)
       ];
     }
+    else if($process == 'BOM'){
+      $response_data = [
+        'bom' => BomHeader::find($document_id)
+      ];
+    }
     return $response_data;
   }
 
@@ -366,6 +372,27 @@ class Approval
       //echo json_encode('6666');die();
       $mail_subject = 'COSTING ' . $status . ' - '.$document_id;
       $created_user = UsrProfile::find($data['costing']->created_by);
+      if($created_user != null){//send response to costing created user
+        $to = [['email' => $created_user->email]];
+        $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
+        dispatch($job);
+      }
+    }
+    if($process_name == 'BOM') {
+
+      if($status == 'APPROVED'){ //change status to released
+        $status = 'RELEASED';
+      }
+
+      DB::table('bom_header')->where('bom_id', $document_id)->update(['status' => $status]);
+      $bom_service = new BomService();
+      $bom_service->create_shop_order_items($document_id);//create new shop order items
+
+      //send status to document created user
+      $data = [ 'bom' => BomHeader::find($document_id) ];
+
+      $mail_subject = 'BOM ' . $status . ' - '.$document_id;
+      $created_user = UsrProfile::find($data['bom']->created_by);
       if($created_user != null){//send response to costing created user
         $to = [['email' => $created_user->email]];
         $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
@@ -413,8 +440,8 @@ class Approval
         $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
         dispatch($job);
 
-      }else{
-
+      }
+      else {
         $poApp = PoOrderApproval::find($document_id);
         $data = [ 'po' => $poApp ];
 
@@ -427,8 +454,6 @@ class Approval
         $to = [['email' => $created_user->email]];
         $job = new ApprovalMailSendJob($process_name.'_CONFIRM', $mail_subject, $data, $to);
         dispatch($job);
-
-
       }
 
 

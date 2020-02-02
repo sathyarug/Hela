@@ -30,6 +30,12 @@ class ApprovalMailable extends Mailable /*implements ShouldQueue*/
       else if($this->process == 'COSTING_CONFIRM'){
         return $this->subject($this->email_subject)->view('email.email_confirm_costing')->with($this->data);
       }
+      else if($this->process == 'BOM'){
+        return $this->subject($this->email_subject)->view('email.email_bom_approval')->with($this->data);
+      }
+      else if($this->process == 'BOM_CONFIRM'){
+        return $this->subject($this->email_subject)->view('email.email_bom_confirm')->with($this->data);
+      }
       else if($this->process == 'ITEM'){
         return $this->subject($this->email_subject)->view('email.email')->with($this->data);
       }

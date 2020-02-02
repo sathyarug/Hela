@@ -548,6 +548,8 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('bom/remove-item','Merchandising\BomController@remove_item');
     Route::post('bom/copy-item','Merchandising\BomController@copy_item');
     Route::post('bom/edit-mode', 'Merchandising\BomController@edit_mode');
+    Route::post('bom/confirm-bom', 'Merchandising\BomController@confirm_bom');
+    Route::post('bom/send-for-approval', 'Merchandising\BomController@send_for_approval');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');

@@ -18,6 +18,7 @@ use App\Models\App\ProcessApprovalStageUser;
 use App\Models\Admin\ApprovalStage;
 use App\Models\App\ApprovalStageUser;
 use App\Models\Admin\UsrProfile;
+use App\Models\Merchandising\ShopOrderDetail;
 
 use App\Jobs\ApprovalMailSendJob;
 
@@ -32,7 +33,7 @@ class ApprovalController extends Controller
     public function __construct()
     {
       //add functions names to 'except' paramert to skip authentication
-      $this->middleware('jwt.verify', ['except' => ['index', 'approve','generate_costing_bom','remove_costing_data']]);
+      $this->middleware('jwt.verify', ['except' => ['index', 'approve','generate_costing_bom','remove_costing_data','start']]);
     }
 
     //get Color list
@@ -43,7 +44,7 @@ class ApprovalController extends Controller
 
 
    public function start(Request $request){
-
+     
    }
 
 
