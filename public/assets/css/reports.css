@@ -123,13 +123,11 @@ body {
     background-color: #f2f2f2 !important;
 }
 
-
-/*@php 
-$bg_color = '';
-@endphp
-
-@if($detail->revision_no==$pre_version)
-
-
-@endif
-*/
+.pick-list-footer{
+    margin-top: 30px;
+}
+/*Set header and footer for pdf document*/
+@page {
+    header: page-header;
+    footer: page-footer;
+}

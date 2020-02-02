@@ -36,11 +36,16 @@ class FabticRollBarcode extends Controller
                 ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
                 ->join('item_master', 'item_master.master_id', '=', 'store_grn_detail.item_code')
                 ->join('org_supplier', 'org_supplier.supplier_id', '=', 'store_grn_header.sup_id')
+                ->leftJoin('org_color', 'org_color.color_id', '=', 'store_grn_detail.color')
+                ->join('style_creation', 'style_creation.style_id', '=', 'store_grn_detail.style_id')
+                ->leftJoin('org_season', 'org_season.season_id', '=', 'merc_customer_order_header.order_season')
+                ->leftJoin('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
                 ->select(
                     'store_roll_plan.roll_plan_id',
                     'store_roll_plan.barcode',
                     'store_roll_plan.batch_no',
                     'store_roll_plan.roll_no',
+                    'store_roll_plan.lot_no',
                     'store_roll_plan.received_qty',
                     'store_roll_plan.invoice_no',
                     'store_roll_plan.created_date',
@@ -50,7 +55,12 @@ class FabticRollBarcode extends Controller
                     'org_supplier.supplier_name',
                     'merc_po_order_header.po_number',
                     'merc_customer_order_header.order_code',
-                    'merc_customer_order_details.line_no'
+                    'merc_customer_order_details.line_no',
+                    'org_color.color_name',                    
+                    'item_master.supplier_reference',
+                    'style_creation.style_no',
+                    'org_season.season_name',
+                    'cust_division.division_description'
                 );
 
             if ($po_number != null || $po_number != "") {
@@ -97,6 +107,10 @@ class FabticRollBarcode extends Controller
                 ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
                 ->join('item_master', 'item_master.master_id', '=', 'store_grn_detail.item_code')
                 ->join('org_supplier', 'org_supplier.supplier_id', '=', 'store_grn_header.sup_id')
+                ->leftJoin('org_color', 'org_color.color_id', '=', 'store_grn_detail.color')
+                ->join('style_creation', 'style_creation.style_id', '=', 'store_grn_detail.style_id')
+                ->leftJoin('org_season', 'org_season.season_id', '=', 'merc_customer_order_header.order_season')
+                ->leftJoin('cust_division', 'cust_division.division_id', '=', 'merc_customer_order_header.order_division')
                 ->select(
                     'store_trim_packing_detail.trim_packing_id',
                     'store_trim_packing_detail.barcode',
@@ -111,7 +125,12 @@ class FabticRollBarcode extends Controller
                     'org_supplier.supplier_name',
                     'merc_po_order_header.po_number',
                     'merc_customer_order_header.order_code',
-                    'merc_customer_order_details.line_no'
+                    'merc_customer_order_details.line_no',
+                    'org_color.color_name',
+                    'item_master.supplier_reference',
+                    'style_creation.style_no',
+                    'org_season.season_name',
+                    'cust_division.division_description'
                 );
 
             if ($po_number != null || $po_number != "") {

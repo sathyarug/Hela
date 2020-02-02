@@ -167,7 +167,7 @@ class ItemController extends Controller
     //search itemmaster for autocomplete
     private function autocomplete_search($search)
   	{
-  		$master_lists = Item::select('master_id','master_description')
+  		$master_lists = Item::select('master_id','master_description','master_code')
   		->where([['master_description', 'like', '%' . $search . '%'],]) ->get();
   		return $master_lists;
   	}
@@ -619,7 +619,11 @@ class ItemController extends Controller
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
       ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
-      ->where('item_master.master_description', 'like', '%' . $search . '%');
+      //->where('item_master.master_description', 'like', '%' . $search . '%')
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('item_master.master_description', 'like', $search.'%')
+  				    ->orWhere('item_master.master_code', 'like', $search.'%');
+  		        });
 
       if($search_type == 'MATERIAL_ITEMS'){
         $list = $list->whereNull('master_code');
@@ -638,7 +642,7 @@ class ItemController extends Controller
         $list = $list->where('org_supplier.supplier_id', '=', $supplier_id);
       }
 
-
+      $list = $list->orderBy('item_master.master_code', 'desc');
       $result = $list->get();
       return $result;
     }
@@ -654,7 +658,11 @@ class ItemController extends Controller
       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
       ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
-      ->where('item_master.master_description', 'like', '%' . $search . '%');
+      //->where('item_master.master_description', 'like', '%' . $search . '%')
+      ->Where(function ($query) use ($search) {
+  			$query->orWhere('item_master.master_description', 'like', $search.'%')
+  				    ->orWhere('item_master.master_code', 'like', $search.'%');
+  		        });
 
       if($search_type == 'MATERIAL_ITEMS'){
         $list = $list->whereNull('master_code');
@@ -673,6 +681,7 @@ class ItemController extends Controller
         $list = $list->where('org_supplier.supplier_id', '=', $supplier_id);
       }
 
+      $list = $list->orderBy('item_master.master_code', 'desc');
       $result = $list->get();
       return $result;
     }

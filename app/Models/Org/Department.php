@@ -45,7 +45,8 @@ class Department extends BaseValidator
             'required',
             'unique:org_departments,dep_code,'.$data['dep_id'].',dep_id',
           ],
-          'dep_name' => 'required'
+          'dep_name' => 'required',
+          'unique:org_departments,dep_name,'.$data['dep_id'].',dep_id',
       ];
     }
 }

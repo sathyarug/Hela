@@ -248,11 +248,16 @@ class CostingReportController extends Controller
       ->groupBy('item_master.category_id')
       ->get();
 
-      $pdf = PDF::loadView('reports/costing',$data)
-      //->download('Cost Sheet - CI'.$request->costing_id.'.pdf');
-      ->stream('Cost Sheet CI-'.$request->costing_id.'.pdf');
-      return $pdf;
 
+      if(sizeof($data['headers'])>0 && sizeof($data['details'])>0){
+        $pdf = PDF::loadView('reports/costing',$data)
+        ->stream('Cost Sheet CI-'.$request->costing_id.'.pdf');
+        return $pdf;
+      }else{
+        return View('reports/error');
+      }
+
+      //->download('Cost Sheet - CI'.$request->costing_id.'.pdf');
       //return View('reports/costing',$data);
       
   }
@@ -487,11 +492,14 @@ class CostingReportController extends Controller
       ->groupBy('item_master.category_id')
       ->get();
 
-      $pdf = PDF::loadView('reports/costing-variance',$data)
-      ->stream('Cost Variance Sheet CI-'.$request->costing_id.'.pdf');
-      return $pdf;
+      if(sizeof($data['headers'])>0 && sizeof($data['pre_headers'])>0 && sizeof($data['details'])>0 && sizeof($data['pre_details'])>0){
+        $pdf = PDF::loadView('reports/costing-variance',$data)
+        ->stream('Cost Variance Sheet CI-'.$request->costing_id.'.pdf');
+        return $pdf;
+      }else{
+        return View('reports/error');
+      }
 
-      //return View('reports/costing-variance',$data);
      
   }
 

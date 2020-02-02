@@ -88,6 +88,7 @@ class SupplierController extends Controller
     public function show($id)
     {
       $supplier = Supplier::with(['country','currency'])->find($id);
+      // dd($supplier->status);
       if($supplier == null)
         throw new ModelNotFoundException("Requested supplier not found", 1);
       else

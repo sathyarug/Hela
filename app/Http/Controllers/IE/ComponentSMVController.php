@@ -135,7 +135,7 @@ class ComponentSMVController extends Controller
 
 
     return response(['data'=>[
-      'message'=>"Component SMV Saved sucessfully",
+      'message'=>"Component SMV Saved Sucessfully",
       'status'=>1
       ]
     ]);
@@ -504,7 +504,7 @@ else
         ->first();
 
         if($checkRange==null){
-          $data=array('','','please set SMV Range to All Silhouettes','1');
+          $data=array('','','Please Set SMV Range To All Silhouettes','1');
           return $data;
         }
 
