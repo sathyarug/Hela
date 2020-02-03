@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Libraries\AppAuthorize;
 use App\Libraries\CapitalizeAllFields;
+use App\Libraries\UniqueIdGenerator;
 use Exception;
 
 use App\Models\stores\RollPlan;
@@ -46,21 +47,46 @@ class ReturnToStoresController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $list = ReturnToStoreHeader::join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
+        $list = ReturnToStoreHeader::join('store_return_to_store_detail','store_return_to_store_header.return_id','=','store_return_to_store_detail.return_id')
+        ->join('item_master','store_return_to_store_detail.item_id','=','item_master.master_id')
+        ->join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
+        ->join('org_location','store_return_to_store_header.user_loc_id','=','org_location.loc_id')
         ->join('store_issue_header','store_return_to_store_header.issue_id','=','store_issue_header.issue_id')
-        ->select('store_return_to_store_header.*','usr_login.user_name','store_issue_header.issue_no')
-        ->where('usr_login.user_name' , 'like', $search.'%' )
-        ->orWhere('store_issue_header.issue_no' , 'like', $search.'%' )
-        ->orWhere('store_return_to_store_header.return_id','like',$search.'%')
+        ->select('store_return_to_store_header.return_no',
+        'store_issue_header.issue_no',
+        'store_return_to_store_detail.*',
+        'item_master.master_code',
+        'item_master.master_description',
+        'usr_login.user_name',
+        'org_location.loc_name')
+        ->where('store_return_to_store_header.return_no' , 'like', $search.'%' )
+        ->orWhere('item_master.master_code' , 'like', $search.'%' )
+        ->orWhere('item_master.master_description' , 'like', $search.'%' )
+        ->orWhere('org_location.loc_name','like',$search.'%')
+        ->orWhere('usr_login.user_name','like',$search.'%')
+        ->orWhere('store_issue_header.issue_no','like',$search.'%')
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
 
-        $count = ReturnToStoreHeader::join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
+
+        $count = ReturnToStoreHeader::join('store_return_to_store_detail','store_return_to_store_header.return_id','=','store_return_to_store_detail.return_id')
+        ->join('item_master','store_return_to_store_detail.item_id','=','item_master.master_id')
+        ->join('usr_login','store_return_to_store_header.created_by','=','usr_login.user_id')
+        ->join('org_location','store_return_to_store_header.user_loc_id','=','org_location.loc_id')
         ->join('store_issue_header','store_return_to_store_header.issue_id','=','store_issue_header.issue_id')
-        ->select('store_return_to_store_header.*','usr_login.user_name','store_issue_header.issue_no')
-        ->where('usr_login.user_name' , 'like', $search.'%' )
-        ->orWhere('store_issue_header.issue_no' , 'like', $search.'%' )
-        ->orWhere('store_return_to_store_header.return_id','like',$search.'%')
+        ->select('store_return_to_store_header.return_no',
+        'store_issue_header.issue_no',
+        'store_return_to_store_detail.*',
+        'item_master.master_code',
+        'item_master.master_description',
+        'usr_login.user_name',
+        'org_location.loc_name')
+        ->where('store_return_to_store_header.return_no' , 'like', $search.'%' )
+        ->orWhere('item_master.master_code' , 'like', $search.'%' )
+        ->orWhere('item_master.master_description' , 'like', $search.'%' )
+        ->orWhere('org_location.loc_name','like',$search.'%')
+        ->orWhere('usr_login.user_name','like',$search.'%')
+        ->orWhere('store_issue_header.issue_no','like',$search.'%')
         ->count();
 
         echo json_encode([
@@ -254,9 +280,11 @@ class ReturnToStoresController extends Controller
     public function store(Request $request)
     {
 
+        $return_no = UniqueIdGenerator::generateUniqueId('RE_STORE', auth()->payload()['loc_id']);
         $header_data = array(
-            "issue_id"=> $request->header['issue_no']['issue_id'], 
-            "status"=> 1, 
+            "issue_id" => $request->header['issue_no']['issue_id'], 
+            "status" => 1,
+            "return_no" => $return_no
         );
 
         $save_header = new ReturnToStoreHeader();

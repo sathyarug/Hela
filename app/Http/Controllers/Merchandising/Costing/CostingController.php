@@ -506,7 +506,7 @@ class CostingController extends Controller {
               $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process*/
               if($costing->status == 'PENDING'){
                 $costing->status = 'APPROVED';
-                $costing->save();
+                $costing->save();                
                 //$costing = Costing::find($costing_id);
                 //if($costing != null && $costing->status == 'APPROVED'){
                   $costingService = new CostingService();

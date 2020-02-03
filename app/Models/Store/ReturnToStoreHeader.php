@@ -12,7 +12,7 @@ class ReturnToStoreHeader extends BaseValidator
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
     
-    protected $fillable=['issue_id','status'];
+    protected $fillable=['return_no','issue_id','status'];
 
     //Validation functions......................................................
     /**
@@ -21,6 +21,7 @@ class ReturnToStoreHeader extends BaseValidator
     */
     protected function getValidationRules($data) {
       return [
+          'return_no' => 'required',
           'issue_id' => 'required',
           'status' => 'required'
       ];

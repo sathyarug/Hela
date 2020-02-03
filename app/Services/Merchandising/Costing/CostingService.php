@@ -29,6 +29,7 @@ use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\BOMDetails;
 use App\Services\Merchandising\Bom;
 use App\Models\Org\SilhouetteClassification;
+use App\Services\Merchandising\Bom\BomService;
 
 class CostingService
 {
@@ -71,7 +72,7 @@ class CostingService
               $item = new Item();
               /*$description = $costing->style->style_no.'_'.$product_silhouette->product_silhouette_description.'_'
                 .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;*/
-
+                //echo json_encode($fng_color);die();
               $description = $costing->style->style_no.'_'.$product_silhouette->sil_class_description.'_'
                   .$division->division_code.'_'.$fng_color->color->color_code.'_'.$season->season_code.'_'.$country->country_code;
 
@@ -205,18 +206,20 @@ class CostingService
                     ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)
                     ->where('product_component_line_no', '=', $sfg_item->product_component_line_no)->get();
                     //create bom items
-                    $this->create_bom_items($bom_header, $costing_items, $bom_header->created_by, $bom_header->user_loc_id);
+                    $this->create_bom_items($bom_header, $costing_items, $bom_header->created_by, $bom_header->user_loc_id, $sfg_item->sfg_id, $item2->master_code);
                 }
               }
               else {//no sfg items
                 $costing_items = CostingItem::where('costing_id', '=', $costing_id)->get();
                 //create bom items
-                $this->create_bom_items($bom_header, $costing_items, $bom_header->created_by, $bom_header->user_loc_id);
+                $this->create_bom_items($bom_header, $costing_items, $bom_header->created_by, $bom_header->user_loc_id, null, null);
               }
             }
             else { //has genarated finish good
 
               $bom = BOMHeader::where('fng_id', '=', $exists_fng_item->fng_id)->first();
+              $bom_service = new BomService();
+              $bom_service->save_bom_revision($bom->bom_id);//save bom revision
 
               if($product_feature->count > 1){//has semi finish goods
 
@@ -229,7 +232,7 @@ class CostingService
                     SELECT
                     ? AS bom_id, costing_items.costing_item_id, costing_items.costing_id, costing_items.feature_component_id, costing_items.product_component_id,
                     costing_items.product_silhouette_id, costing_items.inventory_part_id, costing_items.position_id, costing_items.purchase_uom_id, null AS supplier_id,
-                    costing_items.origin_type_id, costing_items.garment_options_id, costing_items.unit_price AS purchase_price, costing_items.unit_price AS bom_unit_price,
+                    costing_items.origin_type_id, costing_items.garment_options_id, costing_items.purchase_price, costing_items.unit_price AS bom_unit_price,
                     costing_items.net_consumption, costing_items.wastage, costing_items.gross_consumption, costing_items.meterial_type, costing_items.freight_charges,
                     costing_items.mcq, costing_items.surcharge, costing_items.total_cost, costing_items.ship_mode, costing_items.ship_term_id,
                     costing_items.lead_time, costing_items.country_id, costing_items.comments, 1 AS status
@@ -276,6 +279,7 @@ class CostingService
     }
     catch(\Exception $e){
       // Rollback Transaction
+      echo json_encode($e);
       DB::rollback();
       return [
           'status' => 'error',
@@ -285,22 +289,25 @@ class CostingService
   }
 
   //create bom items
-  private function create_bom_items($bom, $costing_items, $user_id, $user_loc_id){
+  private function create_bom_items($bom, $costing_items, $user_id, $user_loc_id, $sfg_id, $sfg_code){
     foreach($costing_items as $costing_item) {
       $bom_detail = new BOMDetails();
       $bom_detail->bom_id = $bom->bom_id;
       $bom_detail->costing_item_id = $costing_item->costing_item_id;
       $bom_detail->costing_id = $bom->costing_id;
+      $bom_detail->sfg_id = $sfg_id;
+      $bom_detail->sfg_code = $sfg_code;
       $bom_detail->feature_component_id = $costing_item->feature_component_id;
       $bom_detail->product_component_id = $costing_item->product_component_id;
       $bom_detail->product_silhouette_id = $costing_item->product_silhouette_id;
+      $bom_detail->product_component_line_no = $costing_item->product_component_line_no;
       $bom_detail->inventory_part_id = $costing_item->inventory_part_id;
       $bom_detail->position_id = $costing_item->position_id;
       $bom_detail->purchase_uom_id = $costing_item->purchase_uom_id;
       $bom_detail->supplier_id = $costing_item->supplier_id;
       $bom_detail->origin_type_id = $costing_item->origin_type_id;
       $bom_detail->garment_options_id = $costing_item->garment_options_id;
-      $bom_detail->purchase_price = $costing_item->unit_price;
+      $bom_detail->purchase_price = $costing_item->purchase_price;
       $bom_detail->bom_unit_price = $costing_item->unit_price;
       $bom_detail->net_consumption = $costing_item->net_consumption;
       $bom_detail->wastage = $costing_item->wastage;

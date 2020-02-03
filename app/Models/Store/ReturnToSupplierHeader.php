@@ -12,7 +12,7 @@ class ReturnToSupplierHeader extends BaseValidator
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
     
-    protected $fillable=['grn_id','status'];
+    protected $fillable=['grn_id','return_no','status'];
 
     //Validation functions......................................................
     /**
@@ -22,6 +22,7 @@ class ReturnToSupplierHeader extends BaseValidator
     protected function getValidationRules($data) {
       return [
           'grn_id' => 'required',
+          'return_no' => 'required',
           'status' => 'required'
       ];
     }

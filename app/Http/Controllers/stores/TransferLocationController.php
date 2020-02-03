@@ -17,7 +17,7 @@ use App\Models\Store\Stock;
 use App\Models\stores\TransferLocationUpdate;
 use App\models\stores\GatePassHeader;
 use App\models\stores\GatePassDetails;
-use App\models\store\StockTransaction;
+use App\models\Store\StockTransaction;
 use App\Models\Store\GrnHeader;
 use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
@@ -133,16 +133,20 @@ use App\Libraries\Approval;
                                                       ->join('org_store_bin','store_trim_packing_detail.bin','=','org_store_bin.store_bin_id')
                                                       ->select('store_trim_packing_detail.*','item_master.master_code','org_store_bin.store_bin_name','store_grn_header.main_store','store_grn_header.sub_store','store_grn_detail.style_id','store_grn_detail.size','store_grn_detail.uom','store_grn_detail.color','store_grn_detail.shop_order_id','store_grn_detail.shop_order_detail_id','store_grn_detail.item_code','store_grn_detail.customer_po_id','item_master.inventory_uom')
                                                       ->where('style_creation.style_no','=',$style)
+                                                      ->where('store_trim_packing_detail.qty','>',0)
                                                       ->where('store_trim_packing_detail.user_loc_id','=',$user_location);
 
                                                   $detailsRollPlan=GrnHeader::join('store_grn_detail','store_grn_header.grn_id','=','store_grn_detail.grn_id')
                                                                 ->join('style_creation','store_grn_detail.style_id','=','style_creation.style_id')
                                                                 ->join('store_roll_plan','store_grn_detail.grn_detail_id','=','store_roll_plan.grn_detail_id')
+                                                                ->join('store_fabric_inspection','store_roll_plan.roll_plan_id','=','store_fabric_inspection.roll_plan_id')
                                                                 ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
                                                                 ->join('org_store_bin','store_roll_plan.bin','=','org_store_bin.store_bin_id')
                                                                 ->select('store_roll_plan.*','item_master.master_code','org_store_bin.store_bin_name','store_grn_header.main_store','store_grn_header.sub_store','store_grn_detail.style_id','store_grn_detail.size','store_grn_detail.uom','store_grn_detail.color','store_grn_detail.shop_order_id','store_grn_detail.shop_order_detail_id','store_grn_detail.item_code','store_grn_detail.customer_po_id','item_master.inventory_uom')
                                                                 ->where('style_creation.style_no','=',$style)
+                                                                ->where('store_roll_plan.qty','>',0)
                                                                 ->where('store_roll_plan.user_loc_id','=',$user_location)
+                                                                ->where('store_fabric_inspection.inspection_status','=','PASS')
                                                                 ->union($detailsTrimPacking)
                                                                ->get();
 
@@ -280,7 +284,7 @@ use App\Libraries\Approval;
                             //dd($gatePassHeader->gate_pass_no);
                             $gatePassHeader->transfer_location=$transer_location;
                             $gatePassHeader->receiver_location=$receiver_location;
-                            $gatePassHeader->status="CONFIRMED";
+                            $gatePassHeader->status="PLANED";
                             $gatePassHeader->save();
                             //dd($gatePassHeader);
                             $gate_pass_id=$gatePassHeader->gate_pass_id;
