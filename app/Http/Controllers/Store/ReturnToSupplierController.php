@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Libraries\AppAuthorize;
 use App\Libraries\CapitalizeAllFields;
+use App\Libraries\UniqueIdGenerator;
 use Exception;
 
 use App\Models\stores\RollPlan;
@@ -48,21 +49,39 @@ class ReturnToSupplierController extends Controller
         $order_column = $data['columns'][$order['column']]['data'];
         $order_type = $order['dir'];
 
-        $list = ReturnToSupplierHeader::join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        $list = ReturnToSupplierHeader::join('store_return_to_supplier_detail','store_return_to_supplier_header.return_id','=','store_return_to_supplier_detail.return_id')
+        ->join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        ->join('item_master','store_return_to_supplier_detail.item_id','=','item_master.master_id')
         ->join('usr_login','store_return_to_supplier_header.created_by','=','usr_login.user_id')
-        ->select('store_return_to_supplier_header.*','store_grn_header.grn_number','usr_login.user_name')
+        ->select('store_return_to_supplier_header.return_no',
+        'store_grn_header.grn_number',
+        'store_return_to_supplier_detail.*',
+        'item_master.master_code',
+        'item_master.master_description',
+        'usr_login.user_name')
         ->where('usr_login.user_name' , 'like', $search.'%' )
         ->orWhere('store_grn_header.grn_number' , 'like', $search.'%' )
-        ->orWhere('store_return_to_supplier_header.return_id','like',$search.'%')
+        ->orWhere('store_return_to_supplier_header.return_no','like',$search.'%')
+        ->orWhere('item_master.master_code','like',$search.'%')
+        ->orWhere('item_master.master_description','like',$search.'%')
         ->orderBy($order_column, $order_type)
         ->offset($start)->limit($length)->get();
 
-        $count = ReturnToSupplierHeader::join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        $count = ReturnToSupplierHeader::join('store_return_to_supplier_detail','store_return_to_supplier_header.return_id','=','store_return_to_supplier_detail.return_id')
+        ->join('store_grn_header','store_return_to_supplier_header.grn_id','=','store_grn_header.grn_id')
+        ->join('item_master','store_return_to_supplier_detail.item_id','=','item_master.master_id')
         ->join('usr_login','store_return_to_supplier_header.created_by','=','usr_login.user_id')
-        ->select('store_return_to_supplier_header.*','store_grn_header.grn_number','usr_login.user_name')
+        ->select('store_return_to_supplier_header.return_no',
+        'store_grn_header.grn_number',
+        'store_return_to_supplier_detail.*',
+        'item_master.master_code',
+        'item_master.master_description',
+        'usr_login.user_name')
         ->where('usr_login.user_name' , 'like', $search.'%' )
         ->orWhere('store_grn_header.grn_number' , 'like', $search.'%' )
-        ->orWhere('store_return_to_supplier_header.return_id','like',$search.'%')
+        ->orWhere('store_return_to_supplier_header.return_no','like',$search.'%')
+        ->orWhere('item_master.master_code','like',$search.'%')
+        ->orWhere('item_master.master_description','like',$search.'%')
         ->count();
 
         echo json_encode([
@@ -266,10 +285,11 @@ class ReturnToSupplierController extends Controller
 
     public function store(Request $request)
     {
-
+        $return_no = UniqueIdGenerator::generateUniqueId('RE_SUP', auth()->payload()['loc_id']);
         $header_data = array(
             "grn_id"=> $request->header['grn_no']['grn_id'], 
-            "status"=> 1, 
+            "status"=> 1,
+            "return_no" => $return_no
         );
 
         $save_header = new ReturnToSupplierHeader();
@@ -282,8 +302,8 @@ class ReturnToSupplierController extends Controller
             
             $save_details = $this->save_return_details($save_header['return_id'],$request['details']);
             $save_stock_transaction = $this->save_stock_transaction($save_header['return_id'],$request['details']);
-            // $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
-            // $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
+            $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
+            $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
 
             return response([ 'data' => [
                 'message' => 'Data saved success',
@@ -406,10 +426,10 @@ class ReturnToSupplierController extends Controller
 
             if($row['category_code']=='FAB'){
                 $available_qty=RollPlan::where('roll_plan_id','=',$row['item_detail_id'])->pluck('qty'); 
-                $update = RollPlan::where('roll_plan_id', $row['item_detail_id'])->update(['qty' => ($available_qty[0]+$return_qty) ]);
+                $update = RollPlan::where('roll_plan_id', $row['item_detail_id'])->update(['qty' => ($available_qty[0]-$return_qty) ]);
             } else {
                $available_qty=TrimPacking::where('trim_packing_id','=',$row['item_detail_id'])->pluck('qty'); 
-               $update = TrimPacking::where('trim_packing_id', $row['item_detail_id'])->update(['qty' => ($available_qty[0]+$return_qty) ]);
+               $update = TrimPacking::where('trim_packing_id', $row['item_detail_id'])->update(['qty' => ($available_qty[0]-$return_qty) ]);
             }
 
         }
@@ -426,18 +446,18 @@ class ReturnToSupplierController extends Controller
                $return_qty = $this->convert_into_inventory_uom($row['request_uom'],$row['inventory_uom'],$row['return_qty']);
             }
 
-            $stock_line=Stock::where('store_stock.item_id',$row['item_id'])
+            $stock_line=Stock::where('store_stock.item_id',$row['item_code'])
             ->where('store_stock.shop_order_id',$row['shop_order_id'])
             ->Where('store_stock.shop_order_detail_id',$row['shop_order_detail_id'])
             ->where('store_stock.style_id',$row['style_id'])
             ->Where('store_stock.bin',$row['bin'])
-            ->where('store_stock.store',$row['store_id'])
-            ->Where('store_stock.sub_store',$row['sub_store_id'])
-            ->where('store_stock.location',$row['location_id'])
+            ->where('store_stock.store',$row['main_store'])
+            ->Where('store_stock.sub_store',$row['sub_store'])
+            ->where('store_stock.location',$row['location'])
             ->first();
 
             if($stock_line){
-               $update = Stock::where('id', $stock_line->id)->update(['qty' => ($stock_line->qty+$return_qty) ]);
+               $update = Stock::where('id', $stock_line->id)->update(['qty' => ($stock_line->qty-$return_qty) ]);
             }
 
         }
