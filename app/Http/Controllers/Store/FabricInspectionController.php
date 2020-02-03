@@ -406,7 +406,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_no){
     $item_list = GrnHeader::join('store_grn_detail','store_grn_detail.grn_id','=','store_grn_header.grn_id')
                             ->join('item_master','store_grn_detail.item_code','=','item_master.master_id')
-    ->select('item_master.master_code','item_master.master_id')
+    ->select('item_master.master_code','item_master.master_id','item_master.master_description')
     ->where('store_grn_header.batch_no','=', $batch_no)
     ->where('inv_number','=', $inv_no)
     ->where([['item_master.master_code', 'like', '%' . $item_code . '%'],])
@@ -688,7 +688,7 @@ public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_n
             }
             //if inventory uom and purchase varid
             if($rollplanDetail[0]->uom==$rollplanDetail[0]->inventory_uom){
-
+              $storeUpdate->uom = $rollplanDetail[0]->inventory_uom;
               $storeUpdate->qty =(double)($fabricInspection->qty);
               //$storeUpdate->total_qty = (double)($fabricInspection->qty);
               //$storeUpdate->tolerance_qty = $rollplanDetail[0]->maximum_tolarance;

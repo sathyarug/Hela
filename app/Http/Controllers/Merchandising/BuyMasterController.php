@@ -104,27 +104,7 @@ class BuyMasterController extends Controller
       }
     }
 
-    public function store(Request $request)
-    {
-      $save = new BuyMaster();
-      if ($save->validate($request->all())) {
-        $save->fill($request->all());
-        $save->status = 1;
-        $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($save);
-        $save->save();
-
-        return response([
-          'data' => [
-            'status' => '1',
-            'message' => 'Buy mater saved successfully',
-            'save' => $save
-          ]
-        ], Response::HTTP_CREATED);
-      } else {
-        $errors = $save->errors(); // failure, get errors
-        return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
-      }
-    }
+    
 
     //Find values of to be edited row
     public function show($id)

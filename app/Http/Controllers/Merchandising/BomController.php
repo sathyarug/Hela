@@ -28,6 +28,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Services\Merchandising\Bom\BomService;
+use App\Libraries\Approval;
+use App\Models\Merchandising\ShopOrderDetail;
+use App\Models\Merchandising\Costing\CostingSfgItem;
+use App\Models\Merchandising\Item\Item;
 
 class BomController extends Controller
 {
@@ -65,6 +70,18 @@ class BomController extends Controller
         $component = $request->component;
         return response([
           'data' => $this->get_style_component_silhouettes($bom_id, $component)
+        ]);
+      }
+      else if($type == 'semi_finish_goods'){
+        $bom_id = $request->bom_id;
+        return response([
+          'data' => $this->get_semi_finish_goods($bom_id)
+        ]);
+      }
+      else if($type == 'semi_finish_good_details'){
+        $sfg_code = $request->sfg_code;
+        return response([
+          'data' => $this->get_semi_finish_good_details($sfg_code)
         ]);
       }
     }
@@ -113,14 +130,19 @@ class BomController extends Controller
     public function show($id)
     {
       $bom = BomHeader::with(['finish_good', 'country'])->find($id);
-
+      $costing = Costing::with(['style'])->find($bom->costing_id);
+      //$feature_component_count = ProductFeature::find($costing->style->product_feature_id)->count;
+      $feature_components = $this->get_product_feature_components($costing->style->style_id);
+      $feature_component_count = sizeof($feature_components);
       //$header_data = $this->get_header_data($bom->costing_id);
       $items = $this->get_items($bom->bom_id);
       return [
         'data' => [
           'bom' => $bom,
           //'header_data' => $header_data,
-          'items' => $items
+          'items' => $items,
+          'feature_component_count' => $feature_component_count,
+          'feature_components' => $feature_components
         ]
       ];
     }
@@ -167,6 +189,7 @@ class BomController extends Controller
           if($item_data['bom_detail_id'] <= 0){
             $bom_detail->status = 1;
           }
+          $bom_detail->costing_id = $bom->costing_id;//set costing id
           $bom_detail->save();
 
           $this->update_bom_summary_after_modify_item($bom_detail->bom_id);
@@ -251,18 +274,29 @@ class BomController extends Controller
     public function remove_item(Request $request)
     {
         $bom_detail_id = $request->bom_detail_id;
-        $item = BOMDetails::find($bom_detail_id);
-        $item->delete();
+        $shop_order_item = ShopOrderDetail::where('bom_detail_id', '=', $bom_detail_id)->first();
 
-        $this->update_bom_summary_after_modify_item($item->bom_id);
+        if($shop_order_item != null && $shop_order_item['po_con'] == 'CREATE'){
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => 'Cannot remove item. Purchase order already created.'
+            ] ]);
+        }
+        else {
+          $item = BOMDetails::find($bom_detail_id);
+          $item->delete();
+          $this->update_bom_summary_after_modify_item($item->bom_id);
 
-        return response([
-          'data' => [
-            'message' => 'Item was deleted successfully.',
-            'item' => $item,
-            'items' => $this->get_items($item->bom_id)
-          ]
-        ] , Response::HTTP_OK);
+          return response([
+            'data' => [
+              'status' => 'success',
+              'message' => 'Item was deleted successfully.',
+              'item' => $item,
+              'items' => $this->get_items($item->bom_id)
+            ]
+          ] , Response::HTTP_OK);
+        }
     }
 
 
@@ -389,11 +423,79 @@ class BomController extends Controller
 
 
 
+    public function confirm_bom(Request $request){
+        $bom_id = $request->bom_id;
+        $bom = BOMHeader::find($bom_id);
+        $bomService = new BomService();
+
+        if($bom->edit_status == 1){
+          //check epm and np margin
+          $need_approval = $bomService->is_bom_need_approval($bom_id);
+
+          $bomService->save_bom_revision($bom_id);
+          $bom->edit_status = 0;
+          $bom->edit_user = null;
+
+          if($need_approval == true){ //need to send for approval
+            $bom->status = 'CONFIRM';
+            $bom->save();
+          }
+          else {
+            $bom->status = 'RELEASED';
+            $bom->save();
+            //create new shop order items
+            $bom_service = new BomService();
+            $bom_service->create_shop_order_items($bom_id);//create new shop order items
+          }
+
+          $bom = BOMHeader::find($bom_id);//get updated bom header
+
+          return response([
+            'status' => 'success',
+            'message' => "Bom confirmed successfully.",
+            'bom' => $bom
+          ]);
+        }
+        else {
+          return response([
+            'status' => 'error',
+            'message' => "Bom not in edit mode."
+          ]);
+        }
+    }
 
 
 
+    public function send_for_approval(Request $request){
+        $bom_id = $request->bom_id;
+        $bom = BOMHeader::find($bom_id);
 
+        if($bom->status == 'CONFIRM') {
+          //live code
+          /*$bom->status = 'PENDING';
+          $bom->save();
+          $approval = new Approval();
+          $approval->start('BOM', $bom->bom_id, $bom->created_by);//start costing approval process*/
 
+          //test code without approval, need to remove in live mode
+          $bom->status = 'RELEASED';
+          $bom->save();
+          $bom_service = new BomService();
+          $bom_service->create_shop_order_items($bom_id);//create new shop order items
+
+          return response([
+            'status' => 'success',
+            'message' => "Bom send for approval successfully.",
+            'bom' => $bom
+          ]);
+        }
+        else {
+          return response([
+            'status' => 'error',
+            'message' => "Bom not in confirm status."
+          ]);
+        }
+    }
 
 
 
@@ -445,20 +547,28 @@ class BomController extends Controller
       else{
         $item_data['country_id'] = null;
       }
+      //semi finish good
+      if($item_data['sfg_code'] != null && $item_data['sfg_code'] != ''){
+        $item_data['sfg_id'] = Item::where('master_code', '=', $item_data['sfg_code'])->first()->master_id;
+      }
+      else {
+        $item_data['sfg_id'] = null;
+        $item_data['sfg_code'] = null;
+      }
       //product component
-      if($item_data['product_component_description'] != null && $item_data['product_component_description'] != ''){
+      /*if($item_data['product_component_description'] != null && $item_data['product_component_description'] != ''){
         $item_data['product_component_id'] = ProductComponent::where('product_component_description', '=', $item_data['product_component_description'])->first()->product_component_id;
       }
       else{
         $item_data['product_component_id'] = null;
-      }
+      }*/
       //product silhuatte
-      if($item_data['product_silhouette_description'] != null && $item_data['product_silhouette_description'] != ''){
+      /*if($item_data['product_silhouette_description'] != null && $item_data['product_silhouette_description'] != ''){
         $item_data['product_silhouette_id'] = ProductSilhouette::where('product_silhouette_description', '=', $item_data['product_silhouette_description'])->first()->product_silhouette_id;
       }
       else{
         $item_data['product_silhouette_id'] = null;
-      }
+      }*/
 
       return $item_data;
     }
@@ -560,12 +670,14 @@ class BomController extends Controller
       ->leftjoin('org_country', 'org_country.country_id', '=', 'bom_details.country_id')
       ->leftJoin('product_component', 'product_component.product_component_id', '=', 'bom_details.product_component_id')
       ->leftJoin('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
-      ->select('bom_details.bom_detail_id','bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id','bom_details.bom_id',
-        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
+      ->select('bom_details.*',
+        /*'bom_details.inventory_part_id','bom_details.feature_component_id','bom_details.costing_id','bom_details.bom_id',
         'bom_details.bom_unit_price', 'bom_details.net_consumption', 'bom_details.wastage',
-        'bom_details.gross_consumption', /*'bom_details.meterial_type',*/ 'bom_details.freight_charges',
+        'bom_details.gross_consumption', 'bom_details.freight_charges',
         'bom_details.mcq', 'bom_details.surcharge', 'bom_details.total_cost',
         'bom_details.ship_mode', 'bom_details.lead_time', 'bom_details.comments',
+        */
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
         'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description','product_component.product_component_description','product_silhouette.product_silhouette_description')
@@ -579,11 +691,47 @@ class BomController extends Controller
 
 
 
+    private function get_product_feature_components($style_id){
+      $product_feature_components = DB::select("SELECT
+        product_feature.product_feature_id,
+        product_feature.product_feature_description,
+        product_component.product_component_id,
+        product_component.product_component_description,
+        product_silhouette.product_silhouette_id,
+        product_silhouette.product_silhouette_description,
+        product_feature_component.feature_component_id,
+        product_feature_component.line_no
+        FROM product_feature_component
+        INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
+        INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
+        INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id
+        INNER JOIN style_creation ON style_creation.product_feature_id = product_feature.product_feature_id
+        WHERE style_creation.style_id = ?", [$style_id]);
+
+        return $product_feature_components;
+    }
 
 
 
+    private function get_semi_finish_goods($bom_id){
+      $sfg_list = CostingSfgItem::select('item_master.master_code')
+      ->join('costing_fng_item', 'costing_fng_item.costing_fng_id', '=', 'costing_sfg_item.costing_fng_id')
+      ->join('bom_header', 'bom_header.fng_id', '=', 'costing_fng_item.fng_id')
+      ->join('item_master', 'item_master.master_id', '=', 'costing_sfg_item.sfg_id')
+      ->where('bom_header.bom_id', '=', $bom_id)->get()->pluck('master_code');
+      return $sfg_list;
+    }
 
 
+    private function get_semi_finish_good_details($sfg_code){
+      $details = CostingSfgItem::select('product_component.product_component_id', 'product_component.product_component_description',
+        'product_silhouette.product_silhouette_id', 'product_silhouette.product_silhouette_description')
+      ->join('item_master', 'item_master.master_id', '=', 'costing_sfg_item.sfg_id')
+      ->join('product_component', 'product_component.product_component_id', '=', 'costing_sfg_item.product_component_id')
+      ->join('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'costing_sfg_item.product_silhouette_id')
+      ->where('item_master.master_code', '=', $sfg_code)->first();
+      return $details;
+    }
 
 
     private function get_style_components($bom_id){

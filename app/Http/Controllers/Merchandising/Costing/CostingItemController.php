@@ -76,10 +76,14 @@ class CostingItemController extends Controller
 
           $saved_item = $this->get_item($costing_item->costing_item_id);
           $saved_item['edited'] = false;
+
+          $costing = Costing::find($costing_item->costing_id);
+
           return response([
             'data' => [
               'message' => 'Costing item saved successfully',
-              'item' => $saved_item
+              'item' => $saved_item,
+              'costing' => $costing
             ]
           ] , Response::HTTP_CREATED );
         }
@@ -123,10 +127,13 @@ class CostingItemController extends Controller
 
         $saved_item = $this->get_item($item->costing_item_id);
         $saved_item['edited'] = false;
+
+        $costing = Costing::find($item->costing_id);
         return response([
           'data' => [
             'message' => 'Item saved successfully',
-            'item' => $saved_item
+            'item' => $saved_item,
+            'costing' => $costing
           ]
         ]);
       }
@@ -139,6 +146,7 @@ class CostingItemController extends Controller
 
     public function save_items(Request $request){
       $items = $request->items;
+      $costing_id = 0;
       if(sizeof($items)){
         for($x = 0 ; $x < sizeof($items) ; $x++){
           $item = null;
@@ -155,12 +163,17 @@ class CostingItemController extends Controller
           $item->save();
         }
 
-        $this->update_costing_summary_after_modify_item($items[0]['costing_id']);
+        $costing_id = $items[0]['costing_id'];
+        $this->update_costing_summary_after_modify_item($costing_id);
       }
+
+      $costing = Costing::find($costing_id);
+
       return response([
         'data' => [
           'message' => 'Items saved successfully',
-          'items' => $this->get_items($item->costing_id, $items[0]['feature_component_id'])
+          'items' => $this->get_items($costing_id, $items[0]['feature_component_id']),
+          'costing' => $costing
         ]
       ]);
     }
@@ -172,12 +185,14 @@ class CostingItemController extends Controller
         $item->delete();
 
         $this->update_costing_summary_after_modify_item($item->costing_id);
+        $costing = Costing::find($item->costing_id);
 
         return response([
           'data' => [
             'message' => 'Item was deleted successfully.',
             'item' => $item,
-            'items' => $this->get_items($item->costing_id, $item->feature_component_id)
+            'items' => $this->get_items($item->costing_id, $item->feature_component_id),
+            'costing' => $costing
           ]
         ] , Response::HTTP_OK);
     }
@@ -292,7 +307,7 @@ class CostingItemController extends Controller
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
         'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
-        'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
+        'costing_items.unit_price','costing_items.purchase_price', 'costing_items.net_consumption', 'costing_items.wastage',
         'costing_items.gross_consumption', 'costing_items.meterial_type', 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
         'costing_items.ship_mode', 'costing_items.lead_time', 'costing_items.comments',
@@ -338,7 +353,7 @@ class CostingItemController extends Controller
       ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
       ->select('costing_items.costing_item_id','costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
         'item_master.supplier_reference', 'item_master.master_code','item_master.master_description','costing_items.feature_component_id',
-        'costing_items.unit_price', 'costing_items.net_consumption', 'costing_items.wastage',
+        'costing_items.unit_price','costing_items.purchase_price', 'costing_items.net_consumption', 'costing_items.wastage',
         'costing_items.gross_consumption', /*'costing_items.meterial_type',*/ 'costing_items.freight_charges',
         'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
         'costing_items.ship_mode', 'costing_items.lead_time', 'costing_items.comments',
