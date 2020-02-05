@@ -72,11 +72,11 @@ class IssueController extends Controller
     private function autocomplete_batch_search($search)
     {
       $trim_pack = TrimPacking::select('batch_no')
-      ->where([['batch_no', 'like', '%' . $search . '%'],]) 
+      ->where([['batch_no', 'like', '%' . $search . '%'],])
       ->groupBy('batch_no');
 
       $roll_plan = RollPlan::select('batch_no')
-      ->where([['batch_no', 'like', '%' . $search . '%'],]) 
+      ->where([['batch_no', 'like', '%' . $search . '%'],])
       ->groupBy('batch_no')
       ->union($trim_pack)
       ->get();
@@ -199,9 +199,10 @@ class IssueController extends Controller
 
       }
       return response([ 'data' => [
-        'message' => 'Issue Details Saved Successfully',
+        'message1'=>'Issue No ',
+        'message2' => ' Saved Successfully',
         'status'=>1,
-        'issue_no'=>  $issueHeader->issue_no
+        'issueNo'=>$issueHeader->issue_no
         ]
       ], Response::HTTP_CREATED );
     }
@@ -258,6 +259,7 @@ class IssueController extends Controller
                                     ->join('org_store','store_issue_detail.store_id','=','org_store.store_id')
                                     ->join('org_substore','store_issue_detail.sub_store_id','=','org_substore.substore_id')
                                     ->join('org_store_bin','store_issue_detail.bin','=','org_store_bin.store_bin_id')
+                                    
 
 
           ->select('store_issue_detail.*','store_issue_header.*','org_store.store_name','org_substore.substore_name','org_substore.substore_name','item_master.master_description')
@@ -378,6 +380,7 @@ class IssueController extends Controller
                                        ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
                                        ->where('store_grn_header.location','=',$locId)
                                        ->where('store_fabric_inspection.inspection_status','=',"PASS")
+                                       ->where('store_roll_plan.qty','>',0)
                                        ->get();
 
                                       //dd($grnDetails);
@@ -391,6 +394,7 @@ class IssueController extends Controller
                                       ->select('store_trim_packing_detail.*','org_store_bin.store_bin_name','store_grn_detail.shop_order_detail_id','store_grn_detail.shop_order_id','store_grn_detail.item_code','store_grn_header.*','store_grn_detail.style_id')
                                       ->where('store_grn_detail.shop_order_detail_id','=',$request->shop_order_detail_id)
                                       ->where('store_grn_header.location','=',$locId)
+                                      ->where('store_trim_packing_detail.qty','>',0)
                                       ->get();
               }
 
