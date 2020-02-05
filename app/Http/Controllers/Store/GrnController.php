@@ -999,11 +999,12 @@ class GrnController extends Controller
     public function show($id)
     {
       $status=1;
-      $headerData=DB::SELECT("SELECT store_grn_header.*, merc_po_order_header.po_number,merc_po_order_header.po_id,org_supplier.supplier_name,org_substore.substore_name
+      $headerData=DB::SELECT("SELECT store_grn_header.*, merc_po_order_header.po_number,merc_po_order_header.po_id,org_supplier.supplier_name,org_substore.substore_name,org_location.loc_name
         FROM
         store_grn_header
         INNER JOIN merc_po_order_header ON store_grn_header.po_number=merc_po_order_header.po_id
         INNER JOIN org_supplier ON store_grn_header.sup_id=org_supplier.supplier_id
+        INNER JOIN org_location on merc_po_order_header.po_deli_loc=org_location.loc_id
         INNER JOIN org_substore ON store_grn_header.sub_store=org_substore.substore_id
         WHERE store_grn_header.grn_id=$id"
     );

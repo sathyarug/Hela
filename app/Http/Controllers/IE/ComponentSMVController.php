@@ -67,6 +67,13 @@ class ComponentSMVController extends Controller
     //create a Service Type
     public function storeDataset(Request $request)
     {
+    if($this->validateGarmentOperations($request->data)==false){
+      return response(['data'=>[
+        'message'=>"Invalid Garment Operation",
+        'status'=>0
+        ]
+      ]);
+      }
       $styleId=$request->styleId;
       $prodcutFeatureId=$request->productFeatureID;
       //$stylefeature=StyleCreation::find('style_id');
@@ -629,5 +636,21 @@ else
           "data" => $component_smv_list
       ];
     }
+
+public function validateGarmentOperations($dataSet){
+//dd($value);
+  foreach ($dataSet as $key => $value) {
+  //  dd($value);
+    $garmentOperation=GarmentOperationMaster::select('*')
+    ->where('garment_operation_name','=',$value['garment_operation_name'])
+    ->first();
+    //dd($garmentOperation);
+    if($garmentOperation==null){
+      //dd($garmentOperation);
+      return false;
+    }
+  }
+  return true;
+}
 
 }
