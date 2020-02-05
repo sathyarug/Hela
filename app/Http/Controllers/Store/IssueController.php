@@ -64,7 +64,7 @@ class IssueController extends Controller
     {
       $query = DB::table('store_inspec_status')
       ->select('*')
-      ->where([['store_inspec_status.status_name', 'like', '%' . $search . '%'],])
+      //->where([['store_inspec_status.status_name', 'like', '%' . $search . '%'],])
       ->get();
       return $query;
     }
