@@ -97,7 +97,8 @@ class MaterialTransferController extends Controller
 
     $gatePassDetails_list= GatePassHeader::join('org_company as t', 't.company_id', '=', 'store_gate_pass_header.transfer_location')
     ->join('org_company as r', 'r.company_id', '=', 'store_gate_pass_header.receiver_location')
-    ->select('store_gate_pass_header.*','t.company_name as loc_transfer','r.company_name as loc_receiver')
+    ->join('usr_login','store_gate_pass_header.updated_by','=','usr_login.user_id')
+    ->select('store_gate_pass_header.*','t.company_name as loc_transfer','r.company_name as loc_receiver','usr_login.user_name')
     ->where('gate_pass_no','like',$search.'%')
     ->orWhere('r.company_name', 'like', $search.'%')
     ->orWhere('t.company_name', 'like', $search.'%')
@@ -107,7 +108,8 @@ class MaterialTransferController extends Controller
 
      $gatePassDetails_list_count= GatePassHeader::join('org_company as t', 't.company_id', '=', 'store_gate_pass_header.transfer_location')
      ->join('org_company as r', 'r.company_id', '=', 'store_gate_pass_header.receiver_location')
-     ->select('store_gate_pass_header.*','t.company_name as loc_transfer','r.company_name as loc_receiver')
+     ->join('usr_login','store_gate_pass_header.updated_by','=','usr_login.user_id')
+     ->select('store_gate_pass_header.*','t.company_name as loc_transfer','r.company_name as loc_receiver','usr_login.user_name')
      ->where('gate_pass_no','like',$search.'%')
      ->orWhere('r.company_name', 'like', $search.'%')
      ->orWhere('t.company_name', 'like', $search.'%')
