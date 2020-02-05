@@ -886,7 +886,7 @@ class PurchaseOrderManualDetailsController extends Controller
         ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
         ->join('org_uom', 'org_uom.uom_id', '=', 'merc_po_order_details.uom')
         ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_po_order_details.size')
-        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
+        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.mat_colour')
         ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
         ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
         ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')

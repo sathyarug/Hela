@@ -520,8 +520,13 @@ class PurchaseOrderManualController extends Controller
                     item_category.category_id,
                     item_category.category_name,
                     IFNULL(merc_shop_order_detail.po_qty,0) as req_qty,
-                    IFNULL(merc_shop_order_detail.po_balance_qty,0) AS po_balance_qty,
-                    merc_shop_order_detail.inventory_part_id
+                    round(IFNULL(merc_shop_order_detail.po_balance_qty,0),4) AS po_balance_qty,
+                    merc_shop_order_detail.inventory_part_id,
+                    ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
+                      FROM merc_po_order_details AS MPOD WHERE
+	                    MPOD.shop_order_id = merc_shop_order_header.shop_order_id
+                      AND MPOD.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id
+                    )AS po_nos
                     FROM
                     merc_shop_order_header
                     INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id = merc_shop_order_detail.shop_order_id
@@ -674,7 +679,7 @@ class PurchaseOrderManualController extends Controller
         ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
         ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
         ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
-        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
+        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.mat_colour')
         ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
         ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
         ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')

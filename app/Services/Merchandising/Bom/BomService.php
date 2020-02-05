@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Merchandising\BOMHeader;
 use App\Models\Merchandising\BOMDetails;
 
+use App\Models\Merchandising\Costing\Costing;
+
+use App\Models\Merchandising\ShopOrderHeader;
+use App\Models\Merchandising\ShopOrderDetail;
+
 class BomService
 {
 
@@ -102,5 +107,94 @@ class BomService
     $bom->np_margine = $np;
     $bom->save();
   }
+
+
+  public function save_bom_revision($bom_id){
+    $bom = BOMHeader::find($bom_id);
+    $bom->revision_no = $bom->revision_no + 1;
+    $bom->save();
+    //save bom header revision
+    DB::insert("INSERT INTO bom_header_history SELECT 0 AS history_id, bom_header.* FROM bom_header WHERE bom_header.bom_id = ?", [$bom_id]);
+    //save bom details history_id
+    DB::insert("INSERT INTO bom_details_history SELECT 0 AS history_id, bom_details.* FROM bom_details WHERE bom_details.bom_id = ?", [$bom_id]);
+  }
+
+
+  public function is_bom_need_approval($bom_id){
+    $bom = BOMHeader::find($bom_id);
+    $costing = Costing::find($bom->costing_id);
+
+    $data = DB::select("SELECT cust_division.epm_level_1,cust_division.np_level_1 FROM style_creation
+      INNER JOIN cust_division ON cust_division.division_id = style_creation.division_id
+      WHERE style_id = ?", [$costing->style_id]);
+    $need_approval = false;
+
+    if($data != null && sizeof($data) > 0){
+      if($bom->epm > $data[0]->epm_level_1 && $bom->np_margin > $data[0]->np_level_1){
+        $need_approval = false;
+      }
+      else {
+        $need_approval = true;
+      }
+    }
+    return $need_approval;
+  }
+
+
+  public function create_shop_order_items($bom_id){
+    try {
+      $bom = BOMHeader::find($bom_id);
+      $shop_order = ShopOrderHeader::where('fg_id', '=', $bom->fng_id)->first();
+
+      if($shop_order == null){//no shop order for this bom
+        return false;
+      }
+
+      $items = DB::select("SELECT bom_details.* FROM bom_details
+        LEFT JOIN merc_shop_order_detail ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
+        WHERE bom_details.bom_id = ? AND merc_shop_order_detail.shop_order_detail_id IS NULL", [$bom_id]);
+
+      if(sizeof($items) > 0){
+        for($x = 0 ; $x < sizeof($items) ; $x++)
+        {
+            $shoporder_detail= new ShopOrderDetail();
+            $shoporder_detail->shop_order_id = $shop_order->shop_order_id;
+            $shoporder_detail->bom_id = $items[$x]->bom_id;
+            $shoporder_detail->bom_detail_id = $items[$x]->bom_detail_id;
+            $shoporder_detail->costing_item_id = $items[$x]->costing_item_id;
+            $shoporder_detail->costing_id = $items[$x]->costing_id;
+            $shoporder_detail->component_id = $items[$x]->product_component_id;
+            $shoporder_detail->inventory_part_id = $items[$x]->inventory_part_id;
+            $shoporder_detail->supplier = $items[$x]->supplier_id;
+            $shoporder_detail->purchase_price = $items[$x]->purchase_price;
+            $shoporder_detail->postion_id = $items[$x]->position_id;
+            $shoporder_detail->purchase_uom = $items[$x]->purchase_uom_id;
+            $shoporder_detail->orign_type_id = $items[$x]->origin_type_id;
+            $shoporder_detail->garment_option_id = $items[$x]->garment_options_id;
+            $shoporder_detail->unit_price = $items[$x]->bom_unit_price;
+            $shoporder_detail->net_consumption = $items[$x]->net_consumption;
+            $shoporder_detail->wastage = $items[$x]->wastage;
+            $shoporder_detail->gross_consumption = $items[$x]->gross_consumption;
+            $shoporder_detail->material_type = $items[$x]->meterial_type;
+            $shoporder_detail->freight_charges = $items[$x]->freight_charges;
+            $shoporder_detail->surcharge = $items[$x]->surcharge;
+            $shoporder_detail->total_cost = $items[$x]->total_cost;
+            $shoporder_detail->ship_mode = $items[$x]->ship_mode;
+            $shoporder_detail->ship_term = $items[$x]->ship_term_id;
+            $shoporder_detail->lead_time = $items[$x]->lead_time;
+            $shoporder_detail->country_id = $items[$x]->country_id;
+            $shoporder_detail->comments = $items[$x]->comments;
+            $shoporder_detail->status = '1';
+            $shoporder_detail->save();
+        }
+      }
+      echo true;
+    }
+    catch(Exception $e){
+      echo $e;
+      return false;
+    }
+  }
+
 
 }
