@@ -62,9 +62,6 @@ MRN Note
                             <th>Cut Quantity</th>
                             <th>:</th>
                             <td>{{ $row->cut_qty }}</td>
-                            <th>Lot No</th>
-                            <th>:</th>
-                            <td>{{ $row->lot_no }}</td>
                         </tr>
 
                     </table>
@@ -92,7 +89,7 @@ MRN Note
                         <td>{{ $detail->master_code }}</td>
                         <td>{{ $detail->master_description }}</td>
                         <td>{{ $detail->uom_description }}</td>
-                        <td>{{ $detail->total_qty }}</td>
+                        <td>{{ $detail->required_qty }}</td>
                     </tr>
                     <!-- @endif -->
                     @endforeach
