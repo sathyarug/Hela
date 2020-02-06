@@ -118,7 +118,7 @@ class GrnController extends Controller
                      $grnDetails->uom = $poDetails->uom;
                      $grnDetails->po_qty = (double)$poDetails->req_qty;
                      $grnDetails->grn_qty = $rec['qty'];
-                    // $grnDetails->pre_qty = $rec['qty'];
+                     $grnDetails->i_rec_qty = $rec['qty'];
                      $grnDetails->bal_qty =(double)$rec['bal_qty'];
                      $grnDetails->original_bal_qty=(double)$rec['original_bal_qty'];
                      $grnDetails->maximum_tolarance =$rec['maximum_tolarance'];
