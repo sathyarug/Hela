@@ -217,8 +217,10 @@ class MrnController extends Controller
 
             return response(['data' => [
                     'status' => 1,
-                    'message' => 'MRN Saved Successfully.',
-                    'grnId' => $mrnHeader->mrn_id,
+                    'message2' => ' Saved Successfully',
+                    'message1'=>'MRN No ',
+                    'mrnId' => $mrnHeader->mrn_id,
+                    'mrnNo'=>$mrnHeader->mrn_no,
                     'detailData'=>$mrndetails
                 ]
             ], Response::HTTP_CREATED);

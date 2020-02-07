@@ -312,12 +312,14 @@ class UserController extends Controller
           'org_location.loc_id',
           'org_location.loc_name'
         )
-        ->where('user_locations.user_id', $logUserId)
+        //->where('user_locations.user_id', $logUserId)
+        ->where('org_location.status','=',1)
         ->whereNotIn('user_locations.loc_id', function ($notSelected) use ($user_id) {
           $notSelected->select('user_locations.loc_id')
             ->from('user_locations')
             ->where('user_locations.user_id', $user_id);
         })
+     ->groupBy('org_location.loc_id')
         ->get();
       return response(['data' => $notAssigned]);
     }
