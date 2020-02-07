@@ -383,101 +383,24 @@ class PurchaseOrderManualController extends Controller
     public function load_bom_Details(Request $request)
   	{
 
-    $customer_name = $request->customer['customer_name'];
-    $style_no = $request->style['style_no'];
-    $order_code = $request->salesorder['order_code'];
-    $stage = $request->bom_stage_id['bom_stage_id'];
-    $cus_po = $request->cuspo['po_no'];
-    $pcd_date = $request->pcd_date;
-    $date_new = explode("T", $pcd_date);
-    $item_code = $request->item['master_id'];
-    $supplier= $request->supplier['supplier_id'];
+    $stage              = $request->bom_stage_id['bom_stage_id'];
+    $customer_name      = $request->customer['customer_name'];
+    $customer_division  = $request->division;
+    $style_no           = $request->style['style_no'];
+    $category           = $request->category['category_id'];
+    $sub_category       = $request->sub_category['subcategory_id'];
+    $supplier           = $request->supplier['supplier_id'];
+    $lot                = $request->lot_number['lot_number'];
+    $location           = $request->projection_location;
 
-    /*$load_list = DB::select(" SELECT
-                                    bom_details.bom_id,
-                                    merc_customer_order_details.po_no,
-                                    bom_details.master_id,
-                                    item_master.master_description,
-                                    org_color.color_name AS color_name,
-                                    mat_ratio.color_id AS material_color_id,
-                                    OC.color_name AS material_color,
-                                    org_size.size_name AS size_name,
-                                    org_uom.uom_code,
-                                    org_supplier.supplier_name,
-                                    bom_details.bom_unit_price AS unit_price,
-                                    #bom_details.required_qty AS total_qty,
-                                    (CASE
-                                        WHEN mat_ratio.required_qty IS NULL THEN bom_details.required_qty
-                                        ELSE mat_ratio.required_qty
-                                    END) AS total_qty,
-                                    bom_details.moq,
-                                    bom_details.mcq,
-                                    merc_customer_order_details.pcd,
-                                    DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') as pcd_01,
-                                    org_location.loc_id,
-                                    org_location.loc_name,
-                                    bom_details.id AS bom_detail_id,
-                                    mat_ratio.id as mat_id,
-                                    bom_details.color_id,
-                                    mat_ratio.size_id,
-                                    org_uom.uom_id,
-                                    org_supplier.supplier_id,
-                                    (SELECT Sum(MPD.req_qty)AS req_qty
-                                        FROM merc_po_order_details AS MPD
-                                        WHERE
-                                        MPD.bom_id = bom_details.bom_id AND
-                                        MPD.bom_detail_id = bom_details.id AND
-                                        (MPD.mat_id IS NULL OR MPD.mat_id = mat_ratio.id OR
-                                        MPD.size = mat_ratio.size_id OR MPD.mat_colour = mat_ratio.color_id)
-                                    ) AS req_qty,
-                                    ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
-                                      FROM merc_po_order_details AS MPOD WHERE
-                                      MPOD.bom_id = bom_details.bom_id AND
-                                      MPOD.bom_detail_id = bom_details.id AND
-                                      (MPOD.mat_id IS NULL OR MPOD.mat_id = mat_ratio.id OR
-                                      MPOD.size = mat_ratio.size_id OR MPOD.mat_colour = mat_ratio.color_id)
-                                    )AS po_nos,
-                                    (SELECT
-                                      Count(EX.currency) AS ex_rate
-                                      FROM
-                                      org_exchange_rate AS EX
-                                      WHERE
-                                      EX.currency = org_supplier.currency ) AS ex_rate,
-                                      merc_customer_order_header.order_stage,
-                                      merc_customer_order_details.ship_mode,
-                                      item_category.category_name,
-                                      org_origin_type.origin_type,
-                                      org_origin_type.origin_type_id
-                                    FROM
-                                    bom_details
-                                    INNER JOIN bom_header ON bom_header.bom_id = bom_details.bom_id
-                                    INNER JOIN merc_customer_order_details ON bom_header.delivery_id = merc_customer_order_details.details_id
-                                    INNER JOIN item_master ON bom_details.master_id = item_master.master_id
-                                    LEFT JOIN org_color ON bom_details.color_id = org_color.color_id
-                                    LEFT JOIN mat_ratio ON bom_details.id = mat_ratio.bom_detail_id
-                                    LEFT JOIN org_size ON mat_ratio.size_id = org_size.size_id
-                                    INNER JOIN org_uom ON bom_details.uom_id = org_uom.uom_id
-                                    LEFT JOIN org_supplier ON bom_details.supplier_id = org_supplier.supplier_id
-                                    INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
-                                    INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
-                                    INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
-                                    INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
-                                    LEFT JOIN org_color AS OC ON mat_ratio.color_id = OC.color_id
-                                    INNER JOIN item_category ON bom_details.category_id = item_category.category_id
-                                    INNER JOIN org_origin_type ON bom_details.origin_type_id = org_origin_type.origin_type_id
-                                    WHERE
-                                    merc_customer_order_header.order_stage LIKE '%$stage%' AND
-                                    cust_customer.customer_name LIKE '%$customer_name%' AND
-                                    style_creation.style_no LIKE '%".$style_no."%' AND
-                                    merc_customer_order_header.order_code LIKE '%".$order_code."%' AND
-                                    merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
-                                    merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
-                                    bom_details.master_id LIKE '%".$item_code."' AND
-                                    (bom_details.supplier_id IS NULL OR bom_details.supplier_id LIKE '%".$supplier."' ) AND
-                                    bom_details.po_status is null
-                                    ");*/
+    //$order_code = $request->salesorder['order_code'];
+    //$cus_po = $request->cuspo['po_no'];
+    //$pcd_date = $request->pcd_date;
+    //$date_new = explode("T", $pcd_date);
+    //$item_code = $request->item['master_id'];
 
-      $load_list = DB::select("SELECT
+
+    $load_list = DB::select("SELECT
                     merc_shop_order_header.shop_order_id,
                     merc_shop_order_detail.shop_order_detail_id,
                     merc_shop_order_detail.bom_id,
@@ -545,16 +468,20 @@ class PurchaseOrderManualController extends Controller
                     INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
                     INNER JOIN org_origin_type ON merc_shop_order_detail.orign_type_id = org_origin_type.origin_type_id
                     INNER JOIN item_category ON MAT.category_id = item_category.category_id
+                    INNER JOIN org_customer_divisions ON merc_customer_order_header.order_customer = org_customer_divisions.customer_id
+                    AND merc_customer_order_header.order_division = org_customer_divisions.division_id
+                    INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
                     WHERE
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
+                    org_customer_divisions.division_id  LIKE '%".$customer_division."%' AND
                     style_creation.style_no LIKE '%".$style_no."%' AND
-                    merc_customer_order_header.order_code LIKE '%".$order_code."%' AND
-                    merc_customer_order_details.po_no LIKE '%".$cus_po."%' AND
-                    merc_customer_order_details.pcd LIKE '%".$date_new[0]."%' AND
-                    MAT.master_description LIKE '%".$item_code."' AND
-                    org_supplier.supplier_id LIKE '%".$supplier."'
-                    AND merc_shop_order_detail.po_status is null
+                    item_category.category_id  LIKE '%".$category."%' AND
+										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
+                    org_supplier.supplier_id LIKE '%".$supplier."' AND
+                    merc_customer_order_header.lot_number LIKE '%".$lot."' AND
+                    merc_customer_order_details.projection_location LIKE '%".$location."' AND
+                    merc_shop_order_detail.po_status is null
                     ");
 
        //return $customer_list;
