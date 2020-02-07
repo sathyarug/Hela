@@ -18,9 +18,11 @@ class MailSenderMailable extends Mailable /*implements ShouldQueue*/
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($type, $data, $subject)
     {
         $this->data = $data;
+        $this->type = $type;
+        $this->subject = $subject;
     }
 
     /**
@@ -30,6 +32,11 @@ class MailSenderMailable extends Mailable /*implements ShouldQueue*/
      */
     public function build()
     {
-        return $this->view('email.email')->with($this->data);
+        if($this->type == 'RESET_ACCOUNT'){
+            return $this->subject($this->subject)->view('email.reset_account')->with($this->data);
+        }
+        else{
+            return $this->view('email.email')->with($this->data);
+        }
     }
 }

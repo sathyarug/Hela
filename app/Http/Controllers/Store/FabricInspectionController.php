@@ -114,6 +114,7 @@ class FabricInspectionController extends Controller
 
       $data=$request->data;
       //loop through the data set
+        $this->setGrnQtytemparlyZero($data);
         for($i=0;$i<sizeof($data);$i++){
           //save data on fabric inspection table
         $fabricInspection = new FabricInspection();
@@ -204,7 +205,10 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
           $po_detail_id=$rollplanDetail[0]->po_details_id;
           $loc= auth()->payload()['loc_id'];
 
-            //*balance qty suould be get from shop order detail level*
+          $grnDetails=GrnDetail::find($data[$i]['grn_detail_id']);
+          $grnDetails->grn_qty=$grnDetails->grn_qty+$fabricInspection->qty;
+          $grnDetails->save();
+          //*balance qty suould be get from shop order detail level*
           $balanceQty=DB::SELECT("SELECT min(bal_qty)
                         from store_grn_detail
                         where po_details_id=$po_detail_id");
@@ -362,6 +366,7 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
 
 
       }
+
         return response([ 'data' => [
           'message' => 'Fabric Inspection Saved Saved',
           'status' => 1
@@ -369,6 +374,15 @@ WHERE store_fabric_inspection.roll_plan_id=$fabricInspection->roll_plan_id");
         ], Response::HTTP_CREATED );
 
 
+  }
+
+  private function setGrnQtytemparlyZero($data){
+    for($i=0;$i<sizeof($data);$i++){
+      $grnDetails=GrnDetail::find($data[$i]['grn_detail_id']);
+    $grnDetails->grn_qty=0;
+    $grnDetails->save();
+    }
+    //return true;
   }
 
   private function autocomplete_search_invoice($search){
@@ -524,6 +538,7 @@ public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_n
     public function update(Request $request, $id)
     {        //
           $data=$request->data;
+          $this->setGrnQtytemparlyZero($data);
           //loop through data set
         for($i=0;$i<sizeof($data);$i++){
           //get related line
@@ -614,6 +629,10 @@ public function autocomplete_search_item_code_filter($item_code,$inv_no,$batch_n
             $st->save();
             $po_detail_id=$rollplanDetail[0]->po_details_id;
             $loc= auth()->payload()['loc_id'];
+            $grnDetails=GrnDetail::find($data[$i]['grn_detail_id']);
+            $grnDetails->grn_qty=$grnDetails->grn_qty+$fabricInspection->qty;
+            $grnDetails->save();
+
             //*balance qty suould be get from shop order detail level*
             $balanceQty=DB::SELECT("SELECT min(bal_qty)
                           from store_grn_detail

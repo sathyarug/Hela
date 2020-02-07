@@ -210,6 +210,7 @@ class CostingReportController extends Controller
       ->join('org_uom', 'costing_items.purchase_uom_id', '=' ,'org_uom.uom_id')
       ->join('org_origin_type', 'costing_items.origin_type_id', '=' ,'org_origin_type.origin_type_id')
       ->join('item_master', 'costing_items.inventory_part_id', '=' ,'item_master.master_id')
+      ->join('product_component', 'costing_items.product_component_id', '=' ,'product_component.product_component_id')
       ->select('costing.id',
         'costing_items.inventory_part_id AS item_id',
         'item_master.category_id',
@@ -224,7 +225,8 @@ class CostingReportController extends Controller
         'costing_items.total_cost',
         'costing_items.lead_time',
         'org_uom.uom_description',
-        'org_origin_type.origin_type'
+        'org_origin_type.origin_type',
+        'product_component.product_component_description'
         )
       ->where('costing.id','=',$costing_id)
       ->orderBy('item_master.category_id','ASC')
@@ -323,6 +325,7 @@ class CostingReportController extends Controller
       ->join('org_uom', 'costing_items.purchase_uom_id', '=' ,'org_uom.uom_id')
       ->join('org_origin_type', 'costing_items.origin_type_id', '=' ,'org_origin_type.origin_type_id')
       ->join('item_master', 'costing_items.inventory_part_id', '=' ,'item_master.master_id')
+      ->join('product_component', 'costing_items.product_component_id', '=' ,'product_component.product_component_id')
       ->select('costing.id',
         'costing.revision_no',
         'costing_items.inventory_part_id AS item_id',
@@ -338,7 +341,8 @@ class CostingReportController extends Controller
         'costing_items.total_cost',
         'costing_items.lead_time',
         'org_uom.uom_description',
-        'org_origin_type.origin_type'
+        'org_origin_type.origin_type',
+        'product_component.product_component_description'
         )
       ->where('costing.id','=',$costing_id)
       ->orderBy('item_master.category_id','ASC')
@@ -420,6 +424,7 @@ class CostingReportController extends Controller
       ->join('org_uom', 'costing_items_history.purchase_uom_id', '=' ,'org_uom.uom_id')
       ->join('org_origin_type', 'costing_items_history.origin_type_id', '=' ,'org_origin_type.origin_type_id')
       ->join('item_master', 'costing_items_history.inventory_part_id', '=' ,'item_master.master_id')
+      ->join('product_component', 'costing_items_history.product_component_id', '=' ,'product_component.product_component_id')
       ->select('costing_history.id',
         'costing_history.revision_no',
         'costing_items_history.inventory_part_id AS item_id',
@@ -435,7 +440,8 @@ class CostingReportController extends Controller
         'costing_items_history.total_cost',
         'costing_items_history.lead_time',
         'org_uom.uom_description',
-        'org_origin_type.origin_type'
+        'org_origin_type.origin_type',
+        'product_component.product_component_description'
       )
       ->where('costing_history.id','=',$costing_id)
       ->where('costing_history.revision_no','=',$version)
@@ -504,5 +510,8 @@ class CostingReportController extends Controller
   }
 
 
-
 }
+
+
+
+

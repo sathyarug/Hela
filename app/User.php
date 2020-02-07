@@ -25,7 +25,7 @@ Class User extends Authenticatable implements JWTSubject
     const CREATED_AT='created_date';
     
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','password_reset_date','reset_status'
     ];
 
     /**

@@ -651,6 +651,7 @@ class GrnController extends Controller
             //update grn qtys
             $grnDetails['grn_qty']=(float)$dataset[$i]['qty'];
             //$grnDetails['pre_qty']=(float)$dataset[$i]['qty'];
+            $grnDetails['i_rec_qty'] = (float)$dataset[$i]['qty'];
             $grnDetails['bal_qty']=(float)$dataset[$i]['bal_qty'];
             $grnDetails->save();
 
