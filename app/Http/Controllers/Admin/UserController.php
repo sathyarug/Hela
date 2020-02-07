@@ -101,7 +101,7 @@ class UserController extends Controller
 
       if($profile->user_id > 0 && $request->user_name != null && $request->password != null) {
         $login->user_id = $profile->user_id;
-        $login->user_name = $request->user_name;
+        $login->user_name = strtoupper($request->user_name);
         $login->reset_status = "PENDING";
         $login->password_reset_date = date('Y-m-d H:i:s');
         $login->password = Hash::make($request->password);
@@ -174,8 +174,8 @@ class UserController extends Controller
 
   public function loadReportLevels(Request $request)
   {
-    dd($request);
-    exit;
+    //dd($request);
+    //exit;
     //echo response()->json($posts);
     $query = $request->get('q', '');
 

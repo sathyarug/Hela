@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: shanilad
- * Date: 9/10/2018
- * Time: 4:55 PM
- */
-
 namespace App\Models\Merchandising;
 
 use Illuminate\Database\Eloquent\Model;
@@ -23,9 +16,10 @@ class StyleCreation extends BaseValidator {
 
     //Validation functions......................................................
 
-    /**
-    *unique:table,column,except,idColumn
-    *The field under validation must not exist within the given database table
+    /*
+      *
+      * unique:table,column,except,idColumn
+      * The field under validation must not exist within the given database table
     */
     protected function getValidationRules($data) {
       return [
@@ -42,7 +36,7 @@ class StyleCreation extends BaseValidator {
     public function __construct() {
         parent::__construct();
         $this->attributes = array(
-            'updated_by' => 2//Session::get("user_id")
+            'updated_by' => 2 //Session::get("user_id")
         );
     }
 

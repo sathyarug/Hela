@@ -42,6 +42,10 @@ class CustomerOrderController extends Controller
         $search = $request->search;
         return response($this->style_search($search));
       }
+      else if($type == 'lot')    {
+        $search = $request->search;
+        return response($this->lot_search($search));
+      }
       else if($type == 'buyname')    {
         $search = $request->search;
         return response($this->buyname_search($search));
@@ -94,6 +98,7 @@ class CustomerOrderController extends Controller
         {
           $order->fill($request->except(['order_status']));
           $order->order_status = 'PLANNED';
+          $order->lot_number =strtoupper($request->lot_number);
 
           $order->save();
 
@@ -294,6 +299,15 @@ class CustomerOrderController extends Controller
       ->join('cust_division', 'style_creation.division_id', '=', 'cust_division.division_id')
   		->where([['style_no', 'like', '%' . $search . '%'],]) ->get();
   		return $style_lists;
+  	}
+
+    private function lot_search($search)
+  	{
+  		$lot_lists = CustomerOrder::select('merc_customer_order_header.lot_number')
+  		->where([['lot_number', 'like', '%' . $search . '%'],])
+      ->groupBy('merc_customer_order_header.lot_number')
+      ->get();
+  		return $lot_lists;
   	}
 
     private function buyname_search($search)
