@@ -230,11 +230,12 @@
 				    <tr>
 				      <th width="20px">#</th>
 				      <th>Item Description</th>
+				      <th>Comp</th>
 				      <th>Origin</th>
 				      <th>Unit</th>
 				      <th>Net&nbsp;Con</th>
 				      <th>Gross&nbsp;Con</th>
-				      <th>Wastage&nbsp;%</th>
+				      <th>Wastage</th>
 				      <th>Freight</th>
 				      <th>Surcharge</th>
 				      <th>UP</th>
@@ -244,8 +245,7 @@
 				  <tbody>
 				  	@foreach($categories as $category)
 					  	<tr>
-					       <td colspan="2" class="main-category">{{ $category->category_name }}</td>
-					       <td colspan="10"></td>
+					       <td colspan="12" class="main-category">{{ $category->category_name }}</td>
 					    </tr>
 					    @php 
 					    	$c=1;
@@ -257,11 +257,12 @@
 							    <tr>
 							      <td class="text-center">{{ $new_version }}</td>
 							      <td>{{ $detail->master_description }}</td>
+							      <td>{{ $detail->product_component_description }}</td>
 							      <td>{{ $detail->origin_type }}</td>
 							      <td>{{ $detail->uom_description }}</td>
 							      <td class="text-right">{{ $detail->net_consumption }}</td>
 							      <td class="text-right">{{ $detail->gross_consumption }}</td>
-							      <td class="text-right">{{ $detail->wastage }}</td>
+							      <td class="text-right">{{ $detail->wastage }}%</td>
 							      <td class="text-right">{{ $detail->freight_charges }}</td>
 							      <td class="text-right">{{ $detail->surcharge }}</td>
 							      <td class="text-right">{{ $detail->unit_price }}</td>
@@ -312,7 +313,7 @@
 								      <td style="background-color: #f2f2f2;">{{ $pre_detail->uom_description }}</td>
 								      <td style="background-color: #f2f2f2;{{ $bg_net }}" class="text-right">{{ $pre_detail->net_consumption }}</td>
 								      <td style="background-color: #f2f2f2;{{ $bg_gross }}" class="text-right">{{ $pre_detail->gross_consumption }}</td>
-								      <td style="background-color: #f2f2f2;{{ $bg_wast }}" class="text-right">{{ $pre_detail->wastage }}</td>
+								      <td style="background-color: #f2f2f2;{{ $bg_wast }}" class="text-right">{{ $pre_detail->wastage }}%</td>
 								      <td style="background-color: #f2f2f2;{{ $bg_fer }}" class="text-right">{{ $pre_detail->freight_charges }}</td>
 								      <td style="background-color: #f2f2f2;{{ $bg_sur }}" class="text-right">{{ $pre_detail->surcharge }}</td>
 								      <td style="background-color: #f2f2f2;{{ $bg_up }}" class="text-right">{{ $pre_detail->unit_price }}</td>
@@ -337,7 +338,7 @@
 					      <td><strike>{{ $removed_row->uom_description }}</strike></td>
 					      <td class="text-right"><strike>{{ $removed_row->net_consumption }}</strike></td>
 					      <td class="text-right"><strike>{{ $removed_row->gross_consumption }}</strike></td>
-					      <td class="text-right"><strike>{{ $removed_row->wastage }}</strike></td>
+					      <td class="text-right"><strike>{{ $removed_row->wastage }}%</strike></td>
 					      <td class="text-right"><strike>{{ $removed_row->freight_charges }}</strike></td>
 					      <td class="text-right"><strike>{{ $removed_row->surcharge }}</strike></td>
 					      <td class="text-right"><strike>{{ $removed_row->unit_price }}</strike></td>
@@ -347,7 +348,7 @@
 					    @endforeach
 
 						<tr>
-					      <td colspan="10" class="cat-total">TOTAL {{ $category->category_name }} COST</td>
+					      <td colspan="11" class="cat-total">TOTAL {{ $category->category_name }} COST</td>
 					      <td class="text-bold cat-total text-right bottom-border">{{ number_format($cat_sum, 4, '.', '') }}</td>					   
 					    </tr>	
 					@endforeach

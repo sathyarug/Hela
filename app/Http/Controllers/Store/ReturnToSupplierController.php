@@ -22,6 +22,8 @@ use App\Models\Store\Stock;
 use App\Models\Store\ReturnToSupplierHeader;
 use App\Models\Store\ReturnToSupplierDetails;
 use App\Models\Store\GrnHeader;
+use App\Models\Store\GrnDetail;
+use App\Models\Merchandising\ShopOrderDetail;
 
 class ReturnToSupplierController extends Controller
 { 
@@ -129,7 +131,7 @@ class ReturnToSupplierController extends Controller
         'store_roll_plan.barcode',
         'store_grn_detail.grn_line_no',
         'store_grn_detail.uom AS request_uom',
-        'org_uom.uom_description',
+        'org_uom.uom_code AS uom_description',
         'store_grn_detail.item_code',
         'item_master.master_code',
         'item_master.master_description',
@@ -163,6 +165,7 @@ class ReturnToSupplierController extends Controller
 
         $fabric->where('store_grn_header.grn_id', $grn_id);
         $fabric->where('item_category.category_code', 'FAB');
+        $fabric->where('store_roll_plan.qty','>',0);
         
         if(($roll_from!=null || $roll_from!="") && ($roll_to!=null || $roll_to!="")){
             $fabric->whereBetween('store_roll_plan.roll_no', [$roll_from,$roll_to]);
@@ -210,7 +213,7 @@ class ReturnToSupplierController extends Controller
         'store_trim_packing_detail.barcode',
         'store_grn_detail.grn_line_no',
         'store_grn_detail.uom AS request_uom',
-        'org_uom.uom_description',
+        'org_uom.uom_code AS uom_description',
         'store_grn_detail.item_code',
         'item_master.master_code',
         'item_master.master_description',
@@ -244,6 +247,7 @@ class ReturnToSupplierController extends Controller
         );
         $trim->where('store_grn_header.grn_id', $grn_id);
         $trim->where('item_category.category_code', '<>', 'FAB');
+        $trim->where('store_trim_packing_detail.qty','>',0);
 
         if(($roll_from!=null || $roll_from!="") && ($roll_to!=null || $roll_to!="")){
             $trim->whereBetween('store_trim_packing_detail.trim_packing_id', [$roll_from,$roll_to]);
@@ -304,6 +308,8 @@ class ReturnToSupplierController extends Controller
             $save_stock_transaction = $this->save_stock_transaction($save_header['return_id'],$request['details']);
             $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
             $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
+            $update_grn_qty = $this->update_grn_qty($save_header['return_id'],$request['details']);
+            $update_shop_order_qty = $this->update_shop_order_qty($save_header['return_id'],$request['details']);
 
             return response([ 'data' => [
                 'message' => 'Data saved success',
@@ -474,6 +480,20 @@ class ReturnToSupplierController extends Controller
         ->first();
 
         return ($qty*$con->present_factor);     
+    }
+
+    public function update_grn_qty($return_id,$data){
+        foreach($data as $row){
+            $available_qty=GrnDetail::where('grn_detail_id','=',$row['grn_detail_id'])->pluck('grn_qty'); 
+            $update = GrnDetail::where('grn_detail_id', $row['grn_detail_id'])->update(['grn_qty' => ($available_qty[0]-$row['return_qty']) ]);            
+        }
+    }
+
+    public function update_shop_order_qty($return_id,$data){
+        foreach($data as $row){
+            $available_qty=ShopOrderDetail::where('shop_order_detail_id','=',$row['shop_order_detail_id'])->pluck('asign_qty'); 
+            $update = ShopOrderDetail::where('shop_order_detail_id', $row['shop_order_detail_id'])->update(['asign_qty' => ($available_qty[0]-$row['return_qty']) ]);            
+        }
     }
 
 }

@@ -20,6 +20,7 @@ use App\Models\Store\ReturnToStoreHeader;
 use App\Models\Store\ReturnToStoreDetails;
 use App\Models\Org\ConversionFactor;
 use App\Models\Store\Stock;
+use App\Models\Merchandising\ShopOrderDetail;
 
 class ReturnToStoresController extends Controller
 { 
@@ -151,7 +152,7 @@ class ReturnToStoresController extends Controller
         'store_mrn_detail.color_id',
         'store_mrn_detail.size_id',
         'item_master.inventory_uom',
-        'org_uom.uom_description',
+        'org_uom.uom_code AS uom_description',
         'store_mrn_detail.uom AS request_uom',
         'store_mrn_header.style_id',
         'store_grn_detail.grn_detail_id',
@@ -233,7 +234,7 @@ class ReturnToStoresController extends Controller
         'store_mrn_detail.color_id',
         'store_mrn_detail.size_id',
         'item_master.inventory_uom',
-        'org_uom.uom_description',
+        'org_uom.uom_code AS uom_description',
         'store_mrn_detail.uom AS request_uom',
         'store_mrn_header.style_id',
         'store_grn_detail.grn_detail_id',
@@ -299,7 +300,8 @@ class ReturnToStoresController extends Controller
             $save_stock_transaction = $this->save_stock_transaction($save_header['return_id'],$request['details']);
             $update_roll_plan = $this->update_roll_plan($save_header['return_id'],$request['details']);
             $update_store_stock = $this->update_store_stock($save_header['return_id'],$request['details']);
-
+            $update_shop_order_qty = $this->update_shop_order_qty($save_header['return_id'],$request['details']);
+            
             return response([ 'data' => [
                 'message' => 'Data saved success',
                 'id' => $save_header['return_id'],
@@ -469,6 +471,13 @@ class ReturnToStoresController extends Controller
         ->first();
 
         return ($qty*$con->present_factor);     
+    }
+
+    public function update_shop_order_qty($return_id,$data){
+        foreach($data as $row){
+            $available_qty=ShopOrderDetail::where('shop_order_detail_id','=',$row['shop_order_detail_id'])->pluck('asign_qty'); 
+            $update = ShopOrderDetail::where('shop_order_detail_id', $row['shop_order_detail_id'])->update(['asign_qty' => ($available_qty[0]-$row['return_qty']) ]);            
+        }
     }
 
 }

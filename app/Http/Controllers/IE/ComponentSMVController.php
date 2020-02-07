@@ -67,6 +67,13 @@ class ComponentSMVController extends Controller
     //create a Service Type
     public function storeDataset(Request $request)
     {
+    if($this->validateGarmentOperations($request->data)==false){
+      return response(['data'=>[
+        'message'=>"Invalid Garment Operation",
+        'status'=>0
+        ]
+      ]);
+      }
       $styleId=$request->styleId;
       $prodcutFeatureId=$request->productFeatureID;
       //$stylefeature=StyleCreation::find('style_id');
@@ -367,8 +374,10 @@ $componet_smv_details_list=ComponentSMVDetails::join('product_component','ie_com
 ->join('product_silhouette','ie_component_smv_details.product_silhouette_id','=','product_silhouette.product_silhouette_id')
 ->select('product_component.product_component_description','ie_garment_operation_master.garment_operation_name','product_silhouette.product_silhouette_description','ie_component_smv_details.*')
 ->where('ie_component_smv_details.smv_component_header_id','=',$id)
-->orderBy('product_component.product_component_id')
-->orderBy('product_silhouette.product_silhouette_id')
+->orderBy('ie_component_smv_details.line_no')
+//->orderBy('product_component.product_component_id')
+//->orderBy('product_silhouette.product_silhouette_id')
+
 ->get();
 $component_smv_summary=ComponentSMVSummary::join('product_component','ie_component_smv_summary.product_component_id','=','product_component.product_component_id')
 ->join('product_silhouette','ie_component_smv_summary.product_silhouette_id','=','product_silhouette.product_silhouette_id')
@@ -424,6 +433,9 @@ else
     public function destroy($id)
     {
       $componetSmv = ComponentSMVHeader::where('smv_component_header_id', $id)->update(['status' => 0]);
+      $componentSmvDetails=ComponentSMVDetails::where('smv_component_header_id',$id)->update(['status' => 0]);
+      $componentSmvSummary=ComponentSMVSummary::where('smv_component_header_id',$id)->update(['status' => 0]);
+
       return response([
         'data' => [
           'message' => 'Component SMV deactivated successfully.',
@@ -510,18 +522,20 @@ else
 
       }
       $component_smv=null;
-
-      if($buyId==null){
+    //  dd($buyId);
+      if($buyId=="null"){
+        //dd("in  null");
         $component_smv = ComponentSMVHeader::where('style_id','=',$styleId)
         ->where('bom_stage_id','=',$bomStageID)
         ->where('col_opt_id','=',$colorOptionId)
         ->where('status','=',1)
         ->select('*')
-        //->toSql();
+      //  ->toSql();
         ->first();
       }
 
-      else if($buyId!=null){
+      else if($buyId!="null"){
+          //dd("in not null");
         $component_smv = ComponentSMVHeader::where('style_id','=',$styleId)
         ->where('bom_stage_id','=',$bomStageID)
         ->where('col_opt_id','=',$colorOptionId)
@@ -533,7 +547,7 @@ else
       }
         //echo("dfffffff");
         //echo($component_smv->smv_component_header_id);
-        //print_r($component_smv);
+      //  dd($component_smv);
 
         if($component_smv!=null){
           $id=$component_smv->smv_component_header_id;
@@ -551,9 +565,13 @@ else
           ->join('product_silhouette','ie_component_smv_details.product_silhouette_id','=','product_silhouette.product_silhouette_id')
           ->select('product_component.product_component_description','ie_garment_operation_master.garment_operation_name','product_silhouette.product_silhouette_description','ie_component_smv_details.*')
           ->where('ie_component_smv_details.smv_component_header_id','=',$id)
-          ->orderBy('product_component.product_component_id')
-          ->orderBy('product_silhouette.product_silhouette_id')
+          //->orderBy('product_component.product_component_id')
+          //->orderBy('product_silhouette.product_silhouette_id')
+          ->orderBy('ie_component_smv_details.line_no')
           ->get();
+          //->toSql();
+          //echo($componet_smv_details_list);
+          //dd();
           $component_smv_summary=ComponentSMVSummary::join('product_component','ie_component_smv_summary.product_component_id','=','product_component.product_component_id')
           ->join('product_silhouette','ie_component_smv_summary.product_silhouette_id','=','product_silhouette.product_silhouette_id')
           ->join('ie_component_smv_header','ie_component_smv_summary.smv_component_header_id','=','ie_component_smv_header.smv_component_header_id')
@@ -629,5 +647,21 @@ else
           "data" => $component_smv_list
       ];
     }
+
+public function validateGarmentOperations($dataSet){
+//dd($value);
+  foreach ($dataSet as $key => $value) {
+  //  dd($value);
+    $garmentOperation=GarmentOperationMaster::select('*')
+    ->where('garment_operation_name','=',$value['garment_operation_name'])
+    ->first();
+    //dd($garmentOperation);
+    if($garmentOperation==null){
+      //dd($garmentOperation);
+      return false;
+    }
+  }
+  return true;
+}
 
 }

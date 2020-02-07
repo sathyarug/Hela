@@ -20,7 +20,7 @@ class User extends BaseValidator
     protected $table = 'usr_login';
     protected $primaryKey = 'user_id';
     protected $fillable = [
-        'user_name', 'email', 'password',
+        'user_name', 'email', 'password', 'reset_status',
     ];
     const UPDATED_AT='updated_date';
     const CREATED_AT='created_date';

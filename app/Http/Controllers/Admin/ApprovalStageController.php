@@ -6,7 +6,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 //use Spatie\Permission\Models\Role;
-use App\Models\Admin\ApprovalStage;
+use App\Models\App\ApprovalStage;
 use App\Models\Admin\UsrProfile;
 
 use Illuminate\Http\Request;

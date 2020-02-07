@@ -30,7 +30,20 @@ class CommonController extends Controller
         return response($this->code_autocomplete_search($request));
       }else if($type == 'codeTo')    {
         return response($this->code_to_autocomplete_search($request));
+      }else if($type == 'fng-code'){
+        return response($this->fng_code_autocomplete_search($request));
       }
+    }
+
+    private function fng_code_autocomplete_search($request)
+    {
+      $query = DB::table('bom_header')
+      ->join('item_master','bom_header.fng_id','=','item_master.master_id')
+      ->select('item_master.master_code','bom_header.fng_id')
+      ->where([['item_master.master_code', 'like', '%' . $request->search . '%'],])
+      ->orderBy('master_code', 'ASC')
+      ->get();
+      return $query;
     }
 
     private function costing_autocomplete_search($search)
