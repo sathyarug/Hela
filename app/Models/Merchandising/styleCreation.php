@@ -29,10 +29,7 @@ class StyleCreation extends BaseValidator {
     */
     protected function getValidationRules($data) {
       return [
-          'style_no' => [
-            'required',
-            'unique:style_creation,style_no,'.$data['style_id'].',style_id',
-          ],
+          'style_no' => 'required',
           'customer_id' => 'required',
           'division_id' => 'required',
           'product_feature_id' => 'required',

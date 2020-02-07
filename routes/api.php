@@ -41,6 +41,10 @@ Route::group([
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
+    Route::get('validate_mail', 'AuthController@validate_mail');
+    Route::post('send_confirmation', 'AuthController@send_confirmation');
+    Route::post('save_new_password', 'AuthController@save_new_password');
+    Route::post('confirm_link', 'AuthController@confirm_link');
 
 });
 
@@ -818,6 +822,10 @@ Route::prefix('reports/')->group(function(){
   //Daily Receiving Reports
   Route::apiResource('load_inward','Reports\DailyRecReportController');
 
+  //BOM report
+  Route::apiResource('load_bom_report','Reports\BOMReportController');
+  Route::get('view-bom','Reports\BOMReportController@view_bom');
+
 });
 
 Route::prefix('common/')->group(function(){
@@ -825,5 +833,6 @@ Route::prefix('common/')->group(function(){
   Route::apiResource('user_locations','Reports\CommonController');
   Route::apiResource('load_item_code','Reports\CommonController');
   Route::apiResource('load_item_code','Reports\CommonController');
+  Route::apiResource('load_fng_code','Reports\CommonController');
   Route::post('load_advance_parameters','Reports\CommonController@load_advance_parameters');
 });

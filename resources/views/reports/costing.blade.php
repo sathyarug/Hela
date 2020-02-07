@@ -176,11 +176,12 @@
 				    <tr>
 				      <th width="20px">#</th>
 				      <th>Item Description</th>
+				      <th>Comp</th>
 				      <th>Origin</th>
 				      <th>Unit</th>
 				      <th>Net&nbsp;Con</th>
 				      <th>Gross&nbsp;Con</th>
-				      <th>Wastage&nbsp;%</th>
+				      <th>Wastage</th>
 				      <th>Freight</th>
 				      <th>Surcharge</th>
 				      <th>UP</th>
@@ -190,8 +191,7 @@
 				  <tbody>
 				  	@foreach($categories as $category)
 					  	<tr>
-					       <td colspan="2" class="main-category">{{ $category->category_name }}</td>
-					       <td colspan="10"></td>
+					       <td colspan="12" class="main-category">{{ $category->category_name }}</td>
 					    </tr>
 					    @php 
 					    	$c=1;
@@ -202,11 +202,12 @@
 							    <tr>
 							      <td class="text-center">{{ $c }}</td>
 							      <td>{{ $detail->master_description }}</td>
+							      <td>{{ $detail->product_component_description }}</td>
 							      <td>{{ $detail->origin_type }}</td>
 							      <td>{{ $detail->uom_description }}</td>
 							      <td class="text-right">{{ $detail->net_consumption }}</td>
 							      <td class="text-right">{{ $detail->gross_consumption }}</td>
-							      <td class="text-right">{{ $detail->wastage }}</td>
+							      <td class="text-right">{{ $detail->wastage }}%</td>
 							      <td class="text-right">{{ $detail->freight_charges }}</td>
 							      <td class="text-right">{{ $detail->surcharge }}</td>
 							      <td class="text-right">{{ $detail->unit_price }}</td>
@@ -223,65 +224,65 @@
 						@endphp
 						@endforeach
 						<tr>
-					      <td colspan="10" class="cat-total">TOTAL {{ $category->category_name }} COST</td>
+					      <td colspan="11" class="cat-total">TOTAL {{ $category->category_name }} COST</td>
 					      <td class="text-bold cat-total text-right bottom-border">{{ number_format($cat_sum, 4, '.', '') }}</td>					   
 					    </tr>	
 					@endforeach
 
 					@foreach ($headers as $header)
 						<tr>
-							<td colspan="11">&nbsp;</td>
+							<td colspan="12">&nbsp;</td>
 						</tr>
 					    <tr >
-					      <td colspan="10" class="cat-total" style="background-color: #e6e6e6;">Total RM Cost</td>
+					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total RM Cost</td>
 					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_rm_cost }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">Labour / Sub Contracting Cost</td>
+					      <td colspan="11">Labour / Sub Contracting Cost</td>
 					      <td class="text-right">{{ $header->labour_cost }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10" class="cat-total" style="background-color: #e6e6e6;">Total Manufacturing Cost</td>
+					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total Manufacturing Cost</td>
 					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_rm_cost+$header->labour_cost }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">Finance Cost</td>
+					      <td colspan="11">Finance Cost</td>
 					      <td class="text-right">{{ $header->finance_cost }}</td>					   
 					    </tr>			    
 					    <tr>
-					      <td colspan="10">Corporate Cost</td>
+					      <td colspan="11">Corporate Cost</td>
 					      <td class="text-right">{{ $header->coperate_cost }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">Upcharge (Reason for Upcharge : {{ $header->upcharge_reason }})</td>
+					      <td colspan="11">Upcharge (Reason for Upcharge : {{ $header->upcharge_reason }})</td>
 					      <td class="text-right">{{ $header->upcharge }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10" class="cat-total" style="background-color: #e6e6e6;">Total Cost</td>
+					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total Cost</td>
 					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_cost }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">Total FOB</td>
+					      <td colspan="11">Total FOB</td>
 					      <td class="text-right">{{ $header->fob }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">SMV</td>
+					      <td colspan="11">SMV</td>
 					      <td class="text-right">{{ $header->total_smv }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">EPM</td>
+					      <td colspan="11">EPM</td>
 					      <td class="text-right">{{ $header->epm }}</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">NP</td>
+					      <td colspan="11">NP</td>
 					      <td class="text-right">{{ $header->np_margine }}%</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">Planned Efficiency</td>
+					      <td colspan="11">Planned Efficiency</td>
 					      <td class="text-right">{{ $header->planned_efficiency }}%</td>					   
 					    </tr>
 					    <tr>
-					      <td colspan="10">CPM Factory</td>
+					      <td colspan="11">CPM Factory</td>
 					      <td class="text-right">{{ $header->cpm_factory }}</td>					   
 					    </tr>		    	 
 					@endforeach

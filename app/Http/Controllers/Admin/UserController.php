@@ -102,6 +102,7 @@ class UserController extends Controller
       if ($profile->user_id > 0 && $request->user_name != null && $request->password != null) {
         $login->user_id = $profile->user_id;
         $login->user_name = $request->user_name;
+        $login->reset_status = "PENDING";
         $login->password = Hash::make($request->password);
         $login->save();
       }
