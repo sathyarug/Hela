@@ -99,10 +99,11 @@ class UserController extends Controller
       $profile->email = $request->email;
       $profile->save();
 
-      if ($profile->user_id > 0 && $request->user_name != null && $request->password != null) {
+      if($profile->user_id > 0 && $request->user_name != null && $request->password != null) {
         $login->user_id = $profile->user_id;
         $login->user_name = $request->user_name;
         $login->reset_status = "PENDING";
+        $login->password_reset_date = date('Y-m-d H:i:s');
         $login->password = Hash::make($request->password);
         $login->save();
       }
