@@ -506,7 +506,7 @@ class CostingController extends Controller {
               $approval->start('COSTING', $costing->id, $costing->created_by);//start costing approval process*/
               if($costing->status == 'PENDING'){
                 $costing->status = 'APPROVED';
-                $costing->save();                
+                $costing->save();
                 //$costing = Costing::find($costing_id);
                 //if($costing != null && $costing->status == 'APPROVED'){
                   $costingService = new CostingService();
@@ -1392,12 +1392,12 @@ class CostingController extends Controller {
         0 AS fng_color_id,
         0 AS sfg_color_id,
         1 AS edited
-        FROM product_feature_component
-                                                                INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
+        FROM product_feature_component 
+        INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
         INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id
         INNER JOIN style_creation ON style_creation.product_feature_id = product_feature.product_feature_id
-        WHERE style_creation.style_id = ?", [$style_id]);
+        WHERE style_creation.style_id = ? AND product_feature_component.status = 1", [$style_id]);
 
         return $product_feature_components;
     }
