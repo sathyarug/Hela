@@ -97,8 +97,11 @@ class BOMReportController extends Controller
     ->join('org_season', 'costing.season_id','=','org_season.season_id')
     ->join('merc_color_options', 'costing.color_type_id','=','merc_color_options.col_opt_id')
     ->join('usr_login', 'bom_header.created_by','=','usr_login.user_id')
+    ->leftJoin('buy_master', 'costing.buy_id','=','buy_master.buy_id')
+    ->leftJoin('org_color', 'item_master.color_id','=','org_color.color_id')
     ->select('bom_header.*',
       'costing.sc_no',
+      'costing.style_type',
       'item_master.master_code',
       'org_country.country_description',
       'costing.style_id',
@@ -109,7 +112,9 @@ class BOMReportController extends Controller
       'org_season.season_name',
       'costing.color_type_id',
       'merc_color_options.color_option',
-      'usr_login.user_name')
+      'usr_login.user_name',
+      'buy_master.buy_name',
+      'org_color.color_name')
     ->where('bom_header.bom_id','=',$bom)
     ->get();
 
@@ -144,22 +149,39 @@ class BOMReportController extends Controller
     ->where('bom_header.bom_id','=',$bom)
     ->get();
 
+    $data['sfgs'] = BOMHeader::join('bom_details', 'bom_header.bom_id', '=' ,'bom_details.bom_id')
+    ->join('item_master', 'bom_details.sfg_id', '=' ,'item_master.master_id')
+    ->join('costing_items', 'bom_details.costing_item_id', '=' ,'costing_items.costing_item_id')
+    ->join('product_component', 'costing_items.product_component_id', '=' ,'product_component.product_component_id')
+    ->select('bom_header.bom_id','bom_details.sfg_id','item_master.category_id','bom_details.sfg_code','product_component.product_component_description')
+    ->where('bom_header.bom_id','=',$bom)
+    ->groupBy('bom_details.sfg_id')
+    ->get();
+
     $data['categories'] = BOMHeader::join('bom_details', 'bom_header.bom_id', '=' ,'bom_details.bom_id')
     ->join('item_master', 'bom_details.inventory_part_id', '=' ,'item_master.master_id')
     ->join('item_category', 'item_master.category_id', '=' ,'item_category.category_id')
-    ->select('item_master.category_id','item_category.category_name')
+    ->select('bom_header.bom_id','bom_details.bom_detail_id','bom_details.inventory_part_id','item_master.category_id','item_category.category_name','bom_details.sfg_id')
     ->where('bom_header.bom_id','=',$bom)
-    ->groupBy('item_master.category_id')
+    ->orderBy('item_category.category_id')
+    ->groupBy('item_master.category_id','bom_details.sfg_id')
     ->get();
 
-    if(sizeof($data['headers'])>0 && sizeof($data['details'])>0){
-      $pdf = PDF::loadView('reports/bom',$data)
+    $config = [
+        // 'format' => 'A4',
+        'orientation' => 'L', //L-landscape
+        'watermark' => 'Duplicate',
+        'show_watermark' => false,
+      ];
+
+    if(sizeof($data['headers'])>0 && sizeof($data['details'])>0 && sizeof($data['categories'])>0){
+      $pdf = PDF::loadView('reports/bom', $data, [], $config)
       ->stream('BOM report-'.$bom.'.pdf');
       return $pdf;
     }else{
       return View('reports/error');
     }
-
+    //return View('reports/bom',$data);
 
   }
 
