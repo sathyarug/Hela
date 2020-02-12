@@ -400,8 +400,8 @@ $silhouetteList=ProductFeatureComponent::select('*')
 ->get();
 for($i=0;$i<sizeof($silhouetteList);$i++){
   $checkRange=SMVUpdate::select('*')
-  ->where('customer_id','=',$cus)
-  ->where('division_id','=',$devision)
+  //->where('customer_id','=',$cus)
+  //->where('division_id','=',$devision)
   ->where('product_silhouette_id','=',$silhouetteList[$i]['product_silhouette_id'])
   ->where('status','=',1)
   ->first();
