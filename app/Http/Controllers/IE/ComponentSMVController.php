@@ -257,14 +257,12 @@ class ComponentSMVController extends Controller
         ->where('style_creation.style_id','=',$styleId)
         ->select('*')
         ->first();
-      $SMVUpdate=SMVUpdate::join('style_creation','smv_update.customer_id','=','style_creation.customer_id')
-        ->where('style_creation.style_id','=',$styleId)
-       ->where('smv_update.product_silhouette_id','=',$productSilhouetteId)
+      $SMVUpdate=SMVUpdate::where('smv_update.product_silhouette_id','=',$productSilhouetteId)
        ->where('smv_update.status','=',1)
-       ->where('style_creation.division_id','=',$smv_devision->division_id)
+       //->where('style_creation.division_id','=',$smv_devision->division_id)
        ->where('smv_update.min_smv','<=',$smv)
        ->where('smv_update.max_smv','>=',$smv)
-      ->orderBy('version', 'DESC')
+       ->orderBy('version', 'DESC')
        ->select('*')
        ->first();
 
@@ -495,6 +493,7 @@ else
   		->where([['garment_operation_name', 'like', '%' . $search . '%'],]) ->get();
   		return $garment_operation_lists;
   	}
+
     private function details_search($styleId,$bomStageID,$colorOptionId,$buyId){
 
       $style=StyleCreation::select('*')
@@ -509,8 +508,8 @@ else
       ->get();
       for($i=0;$i<sizeof($silhouetteList);$i++){
         $checkRange=SMVUpdate::select('*')
-        ->where('customer_id','=',$cus)
-        ->where('division_id','=',$devision)
+        //->where('customer_id','=',$cus)
+        //->where('division_id','=',$devision)
         ->where('status','=',1)
         ->where('product_silhouette_id','=',$silhouetteList[$i]['product_silhouette_id'])
         ->first();

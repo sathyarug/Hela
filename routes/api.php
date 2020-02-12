@@ -818,6 +818,15 @@ Route::prefix('reports/')->group(function(){
   //Inventory scarp header report
   Route::apiResource('load_scarp_header','Reports\InventoryScarpController');
   Route::post('load_scarp_details','Reports\InventoryScarpController@load_inventory');
+
+  //Inventory Part In Stock Report
+  Route::apiResource('load_inv_part','Reports\InventoryPartInStockController');
+
+  //po details report
+  Route::apiResource('load_po_details','Reports\PODetailsController');
+  Route::get('view-po-details','Reports\PODetailsController@viewPODetails');
+
+  
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
   //Daily Receiving Reports
   Route::apiResource('load_inward','Reports\DailyRecReportController');
