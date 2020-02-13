@@ -58,7 +58,8 @@ class CostCenterController extends Controller
         return response([
           'data' => [
             'message' => 'Cost center saved successfully',
-            'CostCenter' => $costCenter
+            'CostCenter' => $costCenter,
+            'status' => '1'
           ]
         ], Response::HTTP_CREATED);
       } else {

@@ -27,8 +27,8 @@ class SMVUpdate extends BaseValidator
     **/
     protected function getValidationRules($data) {
       return [
-          'customer_id' => 'required',
-          'division_id' => 'required',
+          //'customer_id' => 'required',
+          //'division_id' => 'required',
           'product_silhouette_id' => 'required'
       ];
     }
@@ -44,7 +44,7 @@ class SMVUpdate extends BaseValidator
 
     public function customer()
 		{
-			 return $this->belongsTo('App\Models\Org\Customer' , 'customer_id')->select(['customer_id','customer_name']);
+			 //return $this->belongsTo('App\Models\Org\Customer' , 'customer_id')->select(['customer_id','customer_name']);
 		}
 
     public function silhouette()
@@ -53,7 +53,7 @@ class SMVUpdate extends BaseValidator
 		}
     public function division()
     {
-       return $this->belongsTo('App\Models\Org\Division' , 'division_id')->select(['division_id','division_description']);
+       //return $this->belongsTo('App\Models\Org\Division' , 'division_id')->select(['division_id','division_description']);
     }
 
 }

@@ -131,3 +131,9 @@ body {
     header: page-header;
     footer: page-footer;
 }
+
+.sub-category{
+    background-color: #cccccc;
+    font-weight: bold;
+    font-size: 9px;
+}

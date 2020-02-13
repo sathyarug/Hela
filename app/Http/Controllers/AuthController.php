@@ -47,8 +47,13 @@ class AuthController extends Controller
         else
         {
 
+          $days = date_diff(date_create(date('Y-m-d H:i:s')), date_create($customData['password_reset_date'])); 
+          
           if($customData['reset_status']!="RESET"){
             return response()->json(['error' => 'PENDING' , 'message' => 'Please reset your password'], 401);
+          }
+          else if($days->format('%a')>90){
+            return response()->json(['error' => 'PENDING' , 'message' => 'Your password has expired'], 401);
           }
           else
           {
@@ -179,7 +184,7 @@ class AuthController extends Controller
 
 
    private function get_user_from_username($username){
-     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.dept_id', 'usr_profile.d2d_epf','usr_login.reset_status')
+     $customData = UsrProfile::select('usr_profile.user_id', 'usr_profile.dept_id', 'usr_profile.d2d_epf','usr_login.reset_status','usr_login.password_reset_date')
      ->join('usr_login','usr_login.user_id','=','usr_profile.user_id')
      ->where('usr_login.user_name','=',$username)
      ->first();

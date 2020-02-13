@@ -15,8 +15,8 @@ class SMVUpdateHistory extends BaseValidator
     protected $fillable=['smv_his_id','customer_id','division_id','product_silhouette_id','version','min_smv','max_smv'];
 
     protected $rules=array(
-        'customer_id'=>'required',
-        'division_id'=>'required',
+        //'customer_id'=>'required',
+        //'division_id'=>'required',
         'product_silhouette_id'=>'required'
     );
 
@@ -26,7 +26,7 @@ class SMVUpdateHistory extends BaseValidator
 
     public function customer()
 		{
-			 return $this->belongsTo('App\Models\Org\Customer' , 'customer_id')->select(['customer_id','customer_name']);
+			// return $this->belongsTo('App\Models\Org\Customer' , 'customer_id')->select(['customer_id','customer_name']);
 		}
 
     public function silhouette()

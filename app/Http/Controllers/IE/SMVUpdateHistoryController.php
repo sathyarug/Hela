@@ -68,7 +68,7 @@ class SMVUpdateHistoryController extends Controller
     public function show($id)
     {
 
-      $smvupdatehis = SMVUpdateHistory::with(['customer','silhouette'])->find($id);
+      $smvupdatehis = SMVUpdateHistory::with(['silhouette'])->find($id);
 
       if($smvupdatehis == null)
         throw new ModelNotFoundException("Requested SMV not found", 1);
@@ -135,22 +135,16 @@ class SMVUpdateHistoryController extends Controller
       $order_column = $data['columns'][$order['column']]['data'];
       $order_type = $order['dir'];
 
-      $smvupdate_history_list = SMVUpdateHistory::join('cust_customer', 'ie_smv_his.customer_id', '=' , 'cust_customer.customer_id')
-      ->join('product_silhouette', 'ie_smv_his.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
-      ->join('cust_division', 'ie_smv_his.division_id', '=' , 'cust_division.division_id')
-      ->select('ie_smv_his.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description','cust_division.division_description')
-      ->where('cust_customer.customer_name'  , 'like', $search.'%' )
-      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      $smvupdate_history_list = SMVUpdateHistory::join('product_silhouette', 'ie_smv_his.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
+      ->select('ie_smv_his.*', 'product_silhouette.product_silhouette_description')
+      ->where('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
       ->orwhere('ie_smv_his.version'  , 'like', $search.'%' )
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
-      $smvupdate_history_count = SMVUpdateHistory::join('cust_customer', 'ie_smv_his.customer_id', '=' , 'cust_customer.customer_id')
-      ->join('product_silhouette', 'ie_smv_his.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
-      ->join('cust_division', 'ie_smv_his.division_id', '=' , 'cust_division.division_id')
-      ->select('ie_smv_his.*', 'cust_customer.customer_name', 'product_silhouette.product_silhouette_description','cust_division.division_description')
-      ->where('cust_customer.customer_name'  , 'like', $search.'%' )
-      ->orwhere('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
+      $smvupdate_history_count = SMVUpdateHistory::join('product_silhouette', 'ie_smv_his.product_silhouette_id', '=' , 'product_silhouette.product_silhouette_id')
+      ->select('ie_smv_his.*', 'product_silhouette.product_silhouette_description')
+      ->where('product_silhouette.product_silhouette_description'  , 'like', $search.'%' )
       ->orwhere('ie_smv_his.version'  , 'like', $search.'%' )
       ->count();
 

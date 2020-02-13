@@ -64,10 +64,23 @@
 				    <th>Color Type</th>
 				    <th>:</th>
 				    <td>{{ $header->color_option }}</td>				   
+				    <th>Color</th>
+				    <th>:</th>
+				    <td>{{ $header->color_name }}</td>
+				  </tr>
+
+				  <tr>
+				    <th>Buy</th>
+				    <th>:</th>
+				    <td>{{ $header->buy_name }}</td>
 				    <th>Created By</th>
 				    <th>:</th>
-				    <td>{{ $header->user_name }}</td>
+				    <td>{{ $header->user_name }}</td>				   
+				    <th>Created Date</th>
+				    <th>:</th>
+				    <td>{{ $header->created_date }}</td>
 				  </tr>
+
 				</table>
 			</div>
 
@@ -131,111 +144,111 @@
 				  <thead>
 				    <tr>
 				      <th width="20px">#</th>
+				      <th>Item</th>
 				      <th>Item Description</th>
-				      <th>Comp</th>
 				      <th>Origin</th>
 				      <th>Unit</th>
-				      <th>Net Con</th>
+				      <th>Net&nbsp;Con</th>
 				      <th>Gross&nbsp;Con</th>
 				      <th>Wastage</th>
 				      <th>Freight</th>
 				      <th>Surcharge</th>
-				      <th>UP</th>
-				      <th>TC PC</th>
+				      <th>Unit Price</th>
+				      <th>Total Cost</th>
 				    </tr>
 				  </thead>
 				  <tbody>
 
-				  	@foreach($categories as $category)
-					  <tr>
-					    <td colspan="12" class="main-category">{{ $category->category_name }}</td>
-					  </tr>
+				  	@if($header->style_type=='N')
+						<!-- Single Style  -->
+					  	@foreach($categories as $category)
+						  <tr>
+						    <td colspan="12" style="background-color:#cccccc;" class="main-category">{{ $category->category_name }}</td>
+						  </tr>
 
-					  @php 
-						$c=1;
-						$cat_sum=0;
-					  @endphp
+						  @php 
+							$c=1;
+						  @endphp
 
-					  @foreach($details as $detail)
-					  	
-					  	@if($category->category_id==$detail->category_id)
-					  	<tr>
-					      <td class="text-center">{{ $c }}</td>
-					      <td>{{ $detail->master_description }}</td>
-					      <td>{{ $detail->product_component_description }}</td>
-					      <td>{{ $detail->origin_type }}</td>
-					      <td>{{ $detail->uom_code }}</td>
-					      <td class="text-right">{{ $detail->net_consumption }}</td>
-					      <td class="text-right">{{ $detail->gross_consumption }}</td>
-					      <td class="text-right">{{ $detail->wastage }}%</td>
-					      <td class="text-right">{{ $detail->freight_charges }}</td>
-					      <td class="text-right">{{ $detail->surcharge }}</td>
-					      <td class="text-right">{{ $detail->bom_unit_price }}</td>
-					      <td class="text-right">{{ $detail->total_cost }}</td>
-					    </tr>
-					    @php
-							$cat_sum += $detail->total_cost;
-						@endphp
-					    @endif
+						  @foreach($details as $detail)
+						  	
+						  	@if($category->category_id==$detail->category_id)
+						  	<tr>
+						      <td class="text-center">{{ $c }}</td>
+						      <td>{{ $detail->master_code }}</td>
+						      <td>{{ $detail->master_description }}</td>
+						      <td>{{ $detail->origin_type }}</td>
+						      <td>{{ $detail->uom_code }}</td>
+						      <td class="text-right">{{ $detail->net_consumption }}</td>
+						      <td class="text-right">{{ $detail->gross_consumption }}</td>
+						      <td class="text-right">{{ $detail->wastage }}%</td>
+						      <td class="text-right">{{ $detail->freight_charges }}</td>
+						      <td class="text-right">{{ $detail->surcharge }}</td>
+						      <td class="text-right">{{ $detail->bom_unit_price }}</td>
+						      <td class="text-right">{{ $detail->total_cost }}</td>
+						    </tr>
+						    @endif
 
-					  @endforeach
+						  @endforeach
 
-					  @php 
-						$c++;
-					  @endphp
+						  @php 
+							$c++;
+						  @endphp
 
-					  	<tr>
-					      <td colspan="11" class="cat-total">TOTAL {{ $category->category_name }} COST</td>
-					      <td class="text-bold cat-total text-right bottom-border">{{ number_format($cat_sum, 4, '.', '') }}</td>					   
-					    </tr>
+						@endforeach
+						<!-- Single style end -->
+					@else
 
-					@endforeach
+						<!-- Pack style -->
+						@foreach($sfgs as $sfg)
 
-					@foreach ($headers as $header)
+							<tr>
+								<td colspan="12" style="background-color:#cccccc;" class="main-category">{{ $sfg->sfg_code }} - {{ $sfg->product_component_description }}</td>
+							</tr>
 
-						<tr>
-							<td colspan="12">&nbsp;</td>
-						</tr>
-					    <tr >
-					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total RM Cost</td>
-					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_rm_cost }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11">Labour / Sub Contracting Cost</td>
-					      <td class="text-right">{{ $header->labour_cost }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total Manufacturing Cost</td>
-					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_rm_cost+$header->labour_cost }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11">Finance Cost</td>
-					      <td class="text-right">{{ $header->finance_cost }}</td>					   
-					    </tr>			    
-					    <tr>
-					      <td colspan="11">Corporate Cost</td>
-					      <td class="text-right">{{ $header->coperate_cost }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11" class="cat-total" style="background-color: #e6e6e6;">Total Cost</td>
-					      <td class="text-right cat-total bottom-border" style="background-color: #e6e6e6;">{{ $header->total_cost }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11">Total FOB</td>
-					      <td class="text-right">{{ $header->fob }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11">SMV</td>
-					      <td class="text-right">{{ $header->total_smv }}</td>					   
-					    </tr>
-					    <tr>
-					      <td colspan="11">EPM</td>
-					      <td class="text-right">{{ $header->epm }}</td>					   
-					    </tr>	    	 
-					@endforeach
+							@foreach($categories as $category)
+								
+								@if($category->sfg_id==$sfg->sfg_id)
+									<tr>
+										<td colspan="12" class="sub-category">{{ $category->category_name }}</td>
+									</tr>
+									@php 
+										$c=1;
+									@endphp
+									@foreach($details as $detail)
+										
+									  	@if($category->category_id==$detail->category_id && $sfg->sfg_id==$detail->sfg_id)
+									  	<tr>
+									      <td class="text-center">{{ $c }}</td>
+									      <td>{{ $detail->master_code }}</td>
+									      <td>{{ $detail->master_description }}</td>
+									      <td>{{ $detail->origin_type }}</td>
+									      <td>{{ $detail->uom_code }}</td>
+									      <td class="text-right">{{ $detail->net_consumption }}</td>
+									      <td class="text-right">{{ $detail->gross_consumption }}</td>
+									      <td class="text-right">{{ $detail->wastage }}%</td>
+									      <td class="text-right">{{ $detail->freight_charges }}</td>
+									      <td class="text-right">{{ $detail->surcharge }}</td>
+									      <td class="text-right">{{ $detail->bom_unit_price }}</td>
+									      <td class="text-right">{{ $detail->total_cost }}</td>
+									    </tr>
+									    @php 
+											$c++;
+									  	@endphp
+									    @endif
+										
+									@endforeach
 
+								@endif
 
+								
+							@endforeach
+							
 
+						@endforeach
+						<!-- Pack style end -->
+					@endif
+			
 				  </tbody>
 				</table>	
 			</div>
