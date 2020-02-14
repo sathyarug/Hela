@@ -33,6 +33,10 @@ class StoreController extends Controller
       else if($type == 'auto')    {
         $search = $request->search;
         return response($this->autocomplete_search($search));
+      }else if($type == 'loc-stores'){
+        $active = $request->active;
+        $fields = $request->fields;
+        return response([ 'data' => $this->loc_stores_list($active , $fields) ]);
       }
       else {
         $active = $request->active;
@@ -193,6 +197,14 @@ class StoreController extends Controller
         }
       }
       return $query->get();
+    }
+
+    private function loc_stores_list($active = 0 , $fields = null)
+    {
+      $query = Store::select('store_id','store_name')
+      ->where('org_store.loc_id' ,'=', auth()->payload()['loc_id'])
+      ->get();
+      return $query;
     }
 
     //search Store for autocomplete

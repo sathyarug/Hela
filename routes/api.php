@@ -671,6 +671,11 @@ Route::prefix('store/')->group(function(){
     Route::apiResource('return-to-supplier','Store\ReturnToSupplierController');
     Route::post('load_grn_details','Store\ReturnToSupplierController@load_grn_details');
     Route::post('load_grn_header','Store\ReturnToSupplierController@load_grn_header');
+
+    Route::apiResource('bin-to-bin-transfer','Store\BinToBinTransferController');
+    Route::post('load_bin_items','Store\BinToBinTransferController@load_bin_items');
+    Route::post('load_sub_store_bin','Store\BinToBinTransferController@load_sub_store_bin');
+
 });
 
 
