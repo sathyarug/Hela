@@ -692,6 +692,7 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->pcd = $delivery['pcd'];
         $delivery_new->rm_in_date = $delivery['rm_in_date'];
         $delivery_new->po_no = $delivery['po_no'];
+        $delivery_new->fng_id = $delivery['fng_id'];
         $delivery_new->planned_delivery_date = $delivery['planned_delivery_date'];
         $delivery_new->projection_location = $delivery['projection_location'];
         $delivery_new->fob = $delivery['fob'];

@@ -400,7 +400,7 @@ class PurchaseOrderManualController extends Controller
     //$item_code = $request->item['master_id'];
 
 
-    $load_list = DB::select("SELECT
+    $load_list['CREAT'] = DB::select("SELECT
                     merc_shop_order_header.shop_order_id,
                     merc_shop_order_detail.shop_order_detail_id,
                     merc_shop_order_detail.bom_id,
@@ -449,7 +449,8 @@ class PurchaseOrderManualController extends Controller
                       FROM merc_po_order_details AS MPOD WHERE
 	                    MPOD.shop_order_id = merc_shop_order_header.shop_order_id
                       AND MPOD.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id
-                    )AS po_nos
+                    )AS po_nos,
+										merc_customer_order_details.type_created
                     FROM
                     merc_shop_order_header
                     INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id = merc_shop_order_detail.shop_order_id
@@ -481,8 +482,97 @@ class PurchaseOrderManualController extends Controller
                     org_supplier.supplier_id LIKE '%".$supplier."' AND
                     merc_customer_order_header.lot_number LIKE '%".$lot."' AND
                     merc_customer_order_details.projection_location LIKE '%".$location."' AND
-                    merc_shop_order_detail.po_status is null
+                    merc_shop_order_detail.po_status is null AND
+                    merc_customer_order_details.type_modified is null
                     ");
+
+
+                    $load_list['GFS'] = DB::select("SELECT
+                    merc_shop_order_delivery.shop_order_id,
+                    merc_shop_order_detail.shop_order_detail_id,
+                    merc_shop_order_detail.bom_id,
+                    merc_customer_order_details.details_id AS delivery_id,
+                    merc_customer_order_header.order_stage,
+                    cust_customer.customer_name,
+                    style_creation.style_no,
+                    merc_customer_order_header.order_code,
+                    merc_customer_order_details.po_no,
+                    merc_customer_order_details.pcd,
+                    DATE_FORMAT(merc_customer_order_details.pcd, '%d-%b-%Y') AS pcd_01,
+                    merc_customer_order_details.fng_id,
+                    FNG.master_code AS fng_number,
+                    MAT.master_code AS mat_code,
+                    MAT.master_description,
+                    STY_COLOUR.color_id,
+                    STY_COLOUR.color_name,
+                    MAT_COL.color_id AS material_color_id,
+                    MAT_COL.color_name AS material_color,
+                    MAT_SIZE.size_id,
+                    MAT_SIZE.size_name,
+                    org_uom.uom_id,
+                    org_uom.uom_code,
+                    org_supplier.supplier_id,
+                    org_supplier.supplier_name,
+                    merc_shop_order_detail.unit_price,
+                    merc_shop_order_header.order_qty,
+                    merc_shop_order_detail.gross_consumption,
+                    ( ROUND((merc_shop_order_header.order_qty*merc_shop_order_detail.gross_consumption),4)) AS total_qty,
+                    MAT.moq,
+                    MAT.mcq,
+                    org_location.loc_id,
+                    org_location.loc_name,
+                    (SELECT Count(EX.currency) AS ex_rate
+                     FROM org_exchange_rate AS EX
+                     WHERE EX.currency = org_supplier.currency ) AS ex_rate,
+                    merc_customer_order_details.ship_mode,
+                    org_origin_type.origin_type_id,
+                    org_origin_type.origin_type,
+                    item_category.category_id,
+                    item_category.category_name,
+                    IFNULL(merc_shop_order_detail.po_qty,0) AS req_qty,
+                    round(IFNULL(merc_shop_order_detail.po_balance_qty,0),4) AS po_balance_qty,
+                    merc_shop_order_detail.inventory_part_id,
+                    ( SELECT GROUP_CONCAT( DISTINCT MPOD.po_no SEPARATOR ' | ' )AS po_nos
+                      FROM merc_po_order_details AS MPOD WHERE
+                      MPOD.shop_order_id = merc_shop_order_header.shop_order_id
+                      AND MPOD.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id
+                      ) AS po_nos,
+                    merc_customer_order_details.type_created
+                    FROM
+                    merc_customer_order_details
+                    INNER JOIN merc_shop_order_delivery ON merc_customer_order_details.parent_line_id = merc_shop_order_delivery.delivery_id
+                    INNER JOIN merc_shop_order_detail ON merc_shop_order_delivery.shop_order_id = merc_shop_order_detail.shop_order_id
+                    INNER JOIN merc_shop_order_header ON merc_shop_order_delivery.shop_order_id = merc_shop_order_header.shop_order_id AND merc_customer_order_details.fng_id = merc_shop_order_header.fg_id
+                    INNER JOIN merc_customer_order_header ON merc_customer_order_details.order_id = merc_customer_order_header.order_id
+                    INNER JOIN cust_customer ON merc_customer_order_header.order_customer = cust_customer.customer_id
+                    INNER JOIN style_creation ON merc_customer_order_header.order_style = style_creation.style_id
+                    INNER JOIN item_master AS MAT ON merc_shop_order_detail.inventory_part_id = MAT.master_id
+                    INNER JOIN item_master AS FNG ON merc_customer_order_details.fng_id = FNG.master_id
+                    LEFT JOIN org_color AS STY_COLOUR ON FNG.color_id = STY_COLOUR.color_id
+                    LEFT JOIN org_color AS MAT_COL ON MAT.color_id = MAT_COL.color_id
+                    LEFT JOIN org_size AS MAT_SIZE ON MAT.size_id = MAT_SIZE.size_id
+                    LEFT JOIN org_uom ON merc_shop_order_detail.purchase_uom = org_uom.uom_id
+                    LEFT JOIN org_supplier ON merc_shop_order_detail.supplier = org_supplier.supplier_id
+                    INNER JOIN org_location ON merc_customer_order_details.projection_location = org_location.loc_id
+                    INNER JOIN org_origin_type ON merc_shop_order_detail.orign_type_id = org_origin_type.origin_type_id
+                    INNER JOIN item_category ON MAT.category_id = item_category.category_id
+                    INNER JOIN org_customer_divisions ON merc_customer_order_header.order_customer = org_customer_divisions.customer_id AND merc_customer_order_header.order_division = org_customer_divisions.division_id
+                    INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
+                    WHERE
+                    merc_customer_order_header.order_stage LIKE '%$stage%' AND
+                    cust_customer.customer_name LIKE '%$customer_name%' AND
+                    org_customer_divisions.division_id  LIKE '%".$customer_division."%' AND
+                    style_creation.style_no LIKE '%".$style_no."%' AND
+                    item_category.category_id  LIKE '%".$category."%' AND
+										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
+                    org_supplier.supplier_id LIKE '%".$supplier."' AND
+                    merc_customer_order_header.lot_number LIKE '%".$lot."' AND
+                    merc_customer_order_details.projection_location LIKE '%".$location."' AND
+                    merc_shop_order_detail.po_status IS null AND
+                    merc_customer_order_details.type_created = 'GFS' AND
+                    merc_customer_order_details.active_status = 'ACTIVE'
+                    GROUP BY
+                    merc_shop_order_delivery.shop_order_id");
 
        //return $customer_list;
        return response([ 'data' => [

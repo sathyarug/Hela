@@ -9,6 +9,14 @@ body {
  font-size: 10px !important;
 }
 
+.right_tbl{
+	border: 0.5px solid black;	
+}
+
+.tr{
+	padding: 1px;
+}
+
 .form-holder{
     /*border: 1px solid #d9d9d9;
     margin-bottom: 10px;
@@ -123,17 +131,43 @@ body {
     background-color: #f2f2f2 !important;
 }
 
-.pick-list-footer{
-    margin-top: 30px;
-}
-/*Set header and footer for pdf document*/
-@page {
-    header: page-header;
-    footer: page-footer;
+#mainDiv{
+	margin: 0px;
+	padding: 0px;
 }
 
-.sub-category{
-    background-color: #cccccc;
-    font-weight: bold;
-    font-size: 9px;
+#tbl4,#tbl4 td {
+  border: 0px solid black;
+  font-size:9;
 }
+
+#listTbl tr td{
+	padding: 4px;
+}
+
+#sumTbl tr td{
+	padding: 4px;
+}
+
+.tbl1 {
+  border-collapse: collapse;
+}
+
+.tbl1,.tbl1 td {
+  border: 1px solid black;
+  font-size:12;
+}
+
+.tbl1,.tbl1 td {
+  border: 1px solid black;
+}
+
+/*@php 
+$bg_color = '';
+@endphp
+
+@if($detail->revision_no==$pre_version)
+
+
+@endif
+*/
