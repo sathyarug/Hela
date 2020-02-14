@@ -51,7 +51,9 @@ class StoreBinController extends Controller {
         } else if ($type == 'getItemCategory') {
             $data = $request->all();
             return response($this->getItemCategory($data['category_id']));
-        } else {
+        } else if($type == 'sub-store-bin'){
+            return response([ 'data' => $this->loc_stores_bin_list($request->fields) ]);
+        }else {
             $active = $request->active;
             $fields = $request->fields;
             return response([
@@ -204,10 +206,20 @@ class StoreBinController extends Controller {
         return $query->get();
     }
 
+    private function loc_stores_bin_list($fields)
+    { 
+      $fields = explode(',', $fields);
+      $query = StoreBin::select('store_bin_id','store_bin_name')
+      ->where('org_store_bin.store_id' ,'=', $fields[0])
+      ->where('org_store_bin.substore_id' ,'=', $fields[1])
+      ->get();
+      return $query;
+    }
+
     //search goods types for autocomplete
     private function autocomplete_search($search) {
         $bin_list = StoreBin::select('store_bin_id', 'store_bin_name')
-                        ->where([['store_bin_name', 'like', '%' . $search . '%'],])->get();
+        ->where([['store_bin_name', 'like', '%' . $search . '%'],])->get();
         return $bin_list;
     }
 

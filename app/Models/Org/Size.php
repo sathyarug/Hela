@@ -35,8 +35,8 @@ class Size extends BaseValidator
             'required',
             'unique:org_size,size_name,'.$data['size_id'].',size_id',
           ],
-          'category_id' => 'required',
-          'subcategory_id' => 'required'
+          //'category_id' => 'required',
+          //'subcategory_id' => 'required'
       ];
     }
 
