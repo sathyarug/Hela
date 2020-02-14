@@ -33,7 +33,9 @@ class SubStoreController extends Controller
             $search = $request->search;
             $storeId=$request->storeId;
             return response($this->autocomplete_search($search,$storeId));
-        } else {
+        } else if($type == 'loc-sub-stores'){
+            return response([ 'data' => $this->loc_sub_stores_list($request->fields) ]);
+        }else {
             $active = $request->active;
             $fields = $request->fields;
             return response([
@@ -191,6 +193,14 @@ class SubStoreController extends Controller
             }
         }
         return $query->get();
+    }
+
+    private function loc_sub_stores_list($store)
+    { 
+      $query = SubStore::select('substore_id','substore_name')
+      ->where('org_substore.store_id' ,'=', $store)
+      ->get();
+      return $query;
     }
 
     //search goods types for autocomplete
