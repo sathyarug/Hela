@@ -308,20 +308,18 @@ class UserController extends Controller
       //   })->get();
 
       $notAssigned = DB::table('org_location')
-        ->join('user_locations', 'user_locations.loc_id', '=', 'org_location.loc_id')
+      //  ->join('user_locations', 'user_locations.loc_id', '=', 'org_location.loc_id')
         ->select(
           'org_location.loc_id',
           'org_location.loc_name'
         )
         //->where('user_locations.user_id', $logUserId)
         ->where('org_location.status','=',1)
-        ->whereNotIn('user_locations.loc_id', function ($notSelected) use ($user_id) {
+        ->whereNotIn('org_location.loc_id', function ($notSelected) use ($user_id) {
           $notSelected->select('user_locations.loc_id')
             ->from('user_locations')
             ->where('user_locations.user_id', $user_id);
-        })
-     ->groupBy('org_location.loc_id')
-        ->get();
+        })->get();
       return response(['data' => $notAssigned]);
     }
   }
