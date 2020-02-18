@@ -460,6 +460,7 @@ Route::prefix('merchandising/')->group(function(){
     //Route::apiResource('costing-finish-good-items','Merchandising\Costing\CostingFinishGoodItemController');
     Route::post('costing-items-save','Merchandising\Costing\CostingItemController@save_items');
     Route::post('costing-items-copy','Merchandising\Costing\CostingItemController@copy');
+    Route::post('costing-items/copy-component-items','Merchandising\Costing\CostingItemController@copy_feature_component_items');
     Route::apiResource('costing-items','Merchandising\Costing\CostingItemController');
 
     Route::apiResource('costing-so-deliveries','Merchandising\Costing\CostingSalesOrderDeliveryController');
@@ -555,6 +556,7 @@ Route::post('po-manual-details/send_to_approval','Merchandising\PurchaseOrderMan
     Route::post('bom/edit-mode', 'Merchandising\BomController@edit_mode');
     Route::post('bom/confirm-bom', 'Merchandising\BomController@confirm_bom');
     Route::post('bom/send-for-approval', 'Merchandising\BomController@send_for_approval');
+    Route::post('bom/copy-all-items-from', 'Merchandising\BomController@copy_all_items_from');
     Route::apiResource('bom','Merchandising\BomController');
 
     Route::post('items/check_and_generate_item_description','Merchandising\Item\ItemController@check_and_generate_item_description');
@@ -831,7 +833,7 @@ Route::prefix('reports/')->group(function(){
   Route::apiResource('load_po_details','Reports\PODetailsController');
   Route::get('view-po-details','Reports\PODetailsController@viewPODetails');
 
-  
+
   Route::apiResource('eject_stock','Reports\InventoryScarpController');
   //Daily Receiving Reports
   Route::apiResource('load_inward','Reports\DailyRecReportController');
