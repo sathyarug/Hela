@@ -264,6 +264,9 @@ class CustomerOrderDetailsController extends Controller
           $order_details_new->merged_line_nos = $order_details->merged_line_nos;
           $order_details_new->merged_line_ids = $order_details->merged_line_ids;
           $order_details_new->merge_generated_line_id = $order_details->merge_generated_line_id;
+          $order_details_new->shop_order_id = $order_details->shop_order_id;
+          $order_details_new->shop_order_connected_by = $order_details->shop_order_connected_by;
+          $order_details_new->shop_order_connected_date = $order_details->shop_order_connected_date;
           $order_details_new->active_status = 'ACTIVE';
           $order_details_new->save();
 
@@ -692,6 +695,7 @@ class CustomerOrderDetailsController extends Controller
         $delivery_new->pcd = $delivery['pcd'];
         $delivery_new->rm_in_date = $delivery['rm_in_date'];
         $delivery_new->po_no = $delivery['po_no'];
+        $delivery_new->fng_id = $delivery['fng_id'];
         $delivery_new->planned_delivery_date = $delivery['planned_delivery_date'];
         $delivery_new->projection_location = $delivery['projection_location'];
         $delivery_new->fob = $delivery['fob'];

@@ -88,8 +88,8 @@ MRN Note
                     <tr>
                         <td>{{ $detail->master_code }}</td>
                         <td>{{ $detail->master_description }}</td>
-                        <td>{{ $detail->uom_description }}</td>
-                        <td>{{ $detail->required_qty }}</td>
+                        <td>{{ $detail->uom_code }}</td>
+                        <td>{{ $detail->requested_qty }}</td>
                     </tr>
                     <!-- @endif -->
                     @endforeach

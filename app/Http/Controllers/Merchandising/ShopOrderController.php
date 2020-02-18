@@ -189,10 +189,30 @@ class ShopOrderController extends Controller
                    ->where('shop_order_id', '=', $shop_order_id)
                    ->where('active_status', '=','ACTIVE')
                    ->where('delivery_status', '=','RELEASED')
+                   ->where('type_created', '=','CREATE')
                    ->get();
 
-      $arr['sales_order'] = $load_sales_order;
-      $arr['sales_order_count'] = sizeof($load_sales_order);
+      if(sizeof($load_sales_order)==0){
+
+        $load_split = CustomerOrderDetails::select('*')
+                     ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+                     ->where('fng_id', '=', $fng_id)
+                     ->where('active_status', '=','ACTIVE')
+                     ->where('delivery_status', '=','RELEASED')
+                     ->where('type_created', '=','GFS')
+                     ->get();
+
+        $arr['sales_order'] = $load_split;
+        $arr['sales_order_count'] = sizeof($load_split);          
+      }else{
+
+        $arr['sales_order'] = $load_sales_order;
+        $arr['sales_order_count'] = sizeof($load_sales_order);
+      }
+      //echo sizeof($load_sales_order);die();
+      //dd($load_sales_order) ;
+
+
 
       if($arr == null)
           throw new ModelNotFoundException("Requested section not found", 1);
@@ -288,36 +308,46 @@ class ShopOrderController extends Controller
 
       $customer_list = ShopOrderHeader::join('item_master', 'merc_shop_order_header.fg_id', '=', 'item_master.master_id')
 	    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_del_id')
+      ->join('bom_header', 'bom_header.fng_id', '=', 'merc_shop_order_header.fg_id')
       ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
       ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+      ->join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
       ->join('org_country', 'merc_customer_order_details.country', '=', 'org_country.country_id')
 	    ->select('merc_shop_order_header.order_status','merc_shop_order_header.shop_order_id','item_master.master_code','item_master.master_id',
-          'merc_bom_stage.bom_stage_description','org_country.country_description')
+          'merc_bom_stage.bom_stage_description','org_country.country_description', 'style_creation.style_no', 'bom_header.bom_id', 'bom_header.costing_id')
       //->Where('merc_po_order_header.created_by','=', $user->user_id)
       ->Where(function ($query) use ($search) {
   			$query->orWhere('merc_shop_order_header.shop_order_id', 'like', $search.'%')
   				    ->orWhere('item_master.master_code', 'like', $search.'%')
   				    ->orWhere('merc_bom_stage.bom_stage_description', 'like', $search.'%')
-              ->orWhere('org_country.country_description', 'like', $search.'%');
+              ->orWhere('org_country.country_description', 'like', $search.'%')
+              ->orWhere('style_creation.style_no', 'like', $search.'%')
+              ->orWhere('bom_header.bom_id', 'like', $search.'%')
+              ->orWhere('bom_header.costing_id', 'like', $search.'%');
   		        })
       ->orderBy($order_column, $order_type)
       ->offset($start)->limit($length)->get();
 
       $customer_count = ShopOrderHeader::join('item_master', 'merc_shop_order_header.fg_id', '=', 'item_master.master_id')
-	    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_del_id')
+      ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_del_id')
+      ->join('bom_header', 'bom_header.fng_id', '=', 'merc_shop_order_header.fg_id')
       ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
       ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
+      ->join('style_creation', 'style_creation.style_id', '=', 'merc_customer_order_header.order_style')
       ->join('merc_bom_stage', 'merc_customer_order_header.order_stage', '=', 'merc_bom_stage.bom_stage_id')
       ->join('org_country', 'merc_customer_order_details.country', '=', 'org_country.country_id')
-	    ->select('merc_shop_order_header.order_status','merc_shop_order_header.shop_order_id','item_master.master_code',
-          'merc_bom_stage.bom_stage_description','org_country.country_description')
+	    ->select('merc_shop_order_header.order_status','merc_shop_order_header.shop_order_id','item_master.master_code','item_master.master_id',
+          'merc_bom_stage.bom_stage_description','org_country.country_description', 'style_creation.style_no', 'bom_header.bom_id', 'bom_header.costing_id')
       //->Where('merc_po_order_header.created_by','=', $user->user_id)
       ->Where(function ($query) use ($search) {
   			$query->orWhere('merc_shop_order_header.shop_order_id', 'like', $search.'%')
   				    ->orWhere('item_master.master_code', 'like', $search.'%')
   				    ->orWhere('merc_bom_stage.bom_stage_description', 'like', $search.'%')
-              ->orWhere('org_country.country_description', 'like', $search.'%');
+              ->orWhere('org_country.country_description', 'like', $search.'%')
+              ->orWhere('style_creation.style_no', 'like', $search.'%')
+              ->orWhere('bom_header.bom_id', 'like', $search.'%')
+              ->orWhere('bom_header.costing_id', 'like', $search.'%');
   		        })
       ->count();
 
