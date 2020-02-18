@@ -162,6 +162,8 @@ class PurchaseOrder extends Controller
     //generate pdf
     public function generate_pdf(Request $request)
     {
+        $is_exists = false;
+        $text = '';
 
         // $result = PoOrderHeader::select('po_number','po_date','po_status','po_sup_code','po_deli_loc')->where('po_number', $request->po_no)->get();
 
@@ -206,8 +208,16 @@ class PurchaseOrder extends Controller
             ->distinct()
             ->get();
 
-        $total_qty = PoOrderDetails::select('tot_qty')->where('po_no', $request->po_no)->sum('tot_qty');
-        $words = $this->displaywords(ROUND($total_qty,2));
+        if ($result[0]->po_status == 'PLANNED' || $result[0]->po_status == 'REJECT') {
+            $is_exists = true;
+            $text = 'PENDING AUTHORIZATION';
+        } elseif ($result[0]->po_status == 'CANCEL') {
+            $is_exists = true;
+            $text = 'CANCELED';
+        }
+
+        $total_qty = round(PoOrderDetails::select('tot_qty')->where('po_no', $request->po_no)->sum('tot_qty'), 2);
+        $words = $this->displaywords($total_qty);
 
         // $list=PoOrderDetails::select('*')->where('po_no', $request->po_no)->get();
         $list = DB::table('merc_po_order_details')
@@ -302,7 +312,14 @@ class PurchaseOrder extends Controller
             ];
         }
 
-        $pdf = PDF::loadView('pdf', $data);
+        $config = [
+            'format' => 'A4',
+            'orientation' => 'P',
+            'watermark' => $text,
+            'show_watermark' => $is_exists,
+        ];
+
+        $pdf = PDF::loadView('pdf', $data, [], $config);
         return $pdf->stream('document.pdf');
     }
 

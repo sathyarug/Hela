@@ -34,7 +34,7 @@ PO Report
         <tr>
           <th width="33%">PO Number</th>
           <th width="2%">:</th>
-          <td width="65%">&nbsp;&nbsp;&nbsp;{{ $po_date }}</td>
+          <td width="65%">&nbsp;&nbsp;&nbsp;{{ $po }}</td>
         </tr>
         <tr>
           <th>PO Status</th>
@@ -46,7 +46,7 @@ PO Report
     <div style="float:left;width:420;">
       <table class="right_tbl">
         <tr>
-          <th class="tr" width="200">&nbsp;&nbsp;Deliver to</th>
+          <th class="tr" width="200">Deliver to</th>
           <td width="60%"><strong>{{ $loc_name }}</strong></td>
         </tr>
         <tr>
@@ -78,9 +78,9 @@ PO Report
       </table>
     </div>
     <div style="float:left;width:420;">
-      <table class="right_tbl" >
+      <table class="right_tbl">
         <tr>
-          <th class="tr" width="200">&nbsp;&nbsp;Invoice to</th>
+          <th class="tr" width="200">Invoice to</th>
           <td width="60%"><strong>{{ $company_name }}</strong></td>
         </tr>
         <tr>
@@ -257,14 +257,14 @@ PO Report
         <td width="7%" align="center"><strong>Qty</strong></td>
       </tr>
       @foreach ($summary as $item)
-      {{ $del_date = ''}}
-      @foreach ($count as $sp)
-      @if($item->id == $sp->po_details_id)
-      {{ $del_date = $sp->delivery_date }}
-      @else
-      {{ $del_date = $item->deli_date }}
-      @endif
-      @endforeach
+        {{ $del_date = $item->deli_date}}
+          @foreach ($count as $sp)
+             @if($item->id == $sp->po_details_id)
+                {{ $del_date = $sp->delivery_date }}
+             @else
+                {{ $del_date = $item->deli_date }}
+             @endif
+          @endforeach
       <tr>
         <td align="center">{{ $item->line_no }}</td>
         <td align="left">{{ $item->master_code }}</td>
