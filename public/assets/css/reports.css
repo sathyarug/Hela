@@ -115,6 +115,12 @@ body {
     width: 75%
 }
 
+.style-details-1{
+	float: left;
+    width: 100%;
+	margin-top: 10px;
+}
+
 .style-image{
     float: right;
     width: 25%;
@@ -143,10 +149,24 @@ body {
 
 #listTbl tr td{
 	padding: 4px;
+	font-size:12;
 }
 
 #sumTbl tr td{
 	padding: 4px;
+	font-size:12;
+}
+
+#desTbl1{
+	width: 40%;
+}
+
+#desTbl2{
+	width: 30%;
+}
+
+#desTbl3{
+	width: 30%;
 }
 
 .tbl1 {

@@ -30,7 +30,13 @@ class PurchaseOrder extends Controller
             return response([
                 'data' => $this->getPoColorList($request->id)
             ]);
-        } else {
+        }
+        else if($type=='auto'){
+          $search=$request->search;
+          //dd($search);
+          return response($this->autocomplete_po_no($search));
+        }
+         else {
             return response([
                 'data' => $this->list($active, $fields)
             ]);
@@ -153,6 +159,7 @@ class PurchaseOrder extends Controller
     }
 
     //generate pdf
+    //generate pdf
     public function generate_pdf(Request $request)
     {
 
@@ -200,7 +207,7 @@ class PurchaseOrder extends Controller
             ->get();
 
         $total_qty = PoOrderDetails::select('tot_qty')->where('po_no', $request->po_no)->sum('tot_qty');
-        $words = $this->displaywords($total_qty);
+        $words = $this->displaywords(ROUND($total_qty,2));
 
         // $list=PoOrderDetails::select('*')->where('po_no', $request->po_no)->get();
         $list = DB::table('merc_po_order_details')
@@ -234,7 +241,8 @@ class PurchaseOrder extends Controller
             ->join('merc_po_order_split', 'merc_po_order_split.po_details_id', '=', 'merc_po_order_details.id')
             ->select(
                 'merc_po_order_split.po_details_id',
-                DB::raw("COUNT(merc_po_order_split.po_details_id) AS cou")
+                'merc_po_order_split.delivery_date',
+                DB::raw("SUM(merc_po_order_split.split_qty) AS split")
             )
             ->where('merc_po_order_details.po_no', $request->po_no)
             ->groupBy('merc_po_order_split.po_details_id')
@@ -245,9 +253,11 @@ class PurchaseOrder extends Controller
             ->leftjoin('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
             ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
             ->select(
+                'merc_po_order_details.id',
                 'merc_po_order_details.line_no',
                 'merc_po_order_details.deli_date',
                 'merc_po_order_details.unit_price',
+                'merc_po_order_details.req_qty',
                 'item_master.master_code',
                 'item_master.master_description',
                 'org_color.color_name',
@@ -255,6 +265,7 @@ class PurchaseOrder extends Controller
             )
             ->where('merc_po_order_details.po_no', $request->po_no)
             ->groupBy('item_master.master_id', 'merc_po_order_details.deli_date', 'org_color.color_id')
+            ->orderBy('merc_po_order_details.line_no')
             ->get();
 
         if ($result) {
@@ -304,18 +315,18 @@ class PurchaseOrder extends Controller
         $i = 0;
         $str = array();
         $words = array(
-            '0' => '', '1' => 'one', '2' => 'two',
-            '3' => 'three', '4' => 'four', '5' => 'five', '6' => 'six',
-            '7' => 'seven', '8' => 'eight', '9' => 'nine',
-            '10' => 'ten', '11' => 'eleven', '12' => 'twelve',
-            '13' => 'thirteen', '14' => 'fourteen',
-            '15' => 'fifteen', '16' => 'sixteen', '17' => 'seventeen',
-            '18' => 'eighteen', '19' => 'nineteen', '20' => 'twenty',
-            '30' => 'thirty', '40' => 'forty', '50' => 'fifty',
-            '60' => 'sixty', '70' => 'seventy',
-            '80' => 'eighty', '90' => 'ninety'
+            '0' => '', '1' => 'ONE', '2' => 'TWO',
+            '3' => 'THREE', '4' => 'FORE', '5' => 'FIVE', '6' => 'SIX',
+            '7' => 'SEVEN', '8' => 'EIGHT', '9' => 'NINE',
+            '10' => 'TEN', '11' => 'ELEVEN', '12' => 'TWELVE',
+            '13' => 'THIRTEEN', '14' => 'FORETEEN',
+            '15' => 'FIFTEEN', '16' => 'SIXTEEN', '17' => 'SEVENTEEN',
+            '18' => 'EIGHTEEN', '19' => 'NINETEEN', '20' => 'TWENTY',
+            '30' => 'THIRTY', '40' => 'FORTY', '50' => 'FIFTY',
+            '60' => 'SIXTY', '70' => 'SEVENTY',
+            '80' => 'EIGHTY', '90' => 'NINETY'
         );
-        $digits = array('', 'hundred', 'thousand', 'lakh', 'crore');
+        $digits = array('', 'HUNDRED', 'THOUSAND', 'LAKH', 'CRORE');
         while ($i < $digits_1) {
             $divider = ($i == 2) ? 10 : 100;
             $number = floor($no % $divider);
@@ -324,8 +335,8 @@ class PurchaseOrder extends Controller
 
 
             if ($number) {
-                $plural = (($counter = count($str)) && $number > 9) ? 's' : null;
-                $hundred = ($counter == 1 && $str[0]) ? ' and ' : null;
+                $plural = (($counter = count($str)) && $number > 9) ? 'S' : null;
+                $hundred = ($counter == 1 && $str[0]) ? ' AND ' : null;
                 $str[] = ($number < 21) ? $words[$number] .
                     " " . $digits[$counter] . $plural . " " . $hundred
                     :
@@ -346,10 +357,10 @@ class PurchaseOrder extends Controller
             $points = $words[$point];
         }
         if ($points != '') {
-            return $result . " and " . $points . "Only";
+            return $result . " AND " . $points . " POINTS ONLY";
         } else {
 
-            return $result . "Only";
+            return $result . " ONLY";
         }
     }
 
@@ -365,4 +376,15 @@ class PurchaseOrder extends Controller
 
         return $poData->toArray();
     }
+
+
+    private function autocomplete_po_no($search)
+   {
+     $active=1;
+     $po_list = PoOrderHeader::select('po_id','po_number')
+     ->where([['po_number', 'like', '%' . $search . '%']])
+     ->where('status','=',$active)
+     ->get();
+     return $po_list;
+   }
 }
