@@ -393,12 +393,8 @@ class PurchaseOrderManualController extends Controller
     $lot                = $request->lot_number['lot_number'];
     $location           = $request->projection_location;
 
-    //$order_code = $request->salesorder['order_code'];
-    //$cus_po = $request->cuspo['po_no'];
-    //$pcd_date = $request->pcd_date;
-    //$date_new = explode("T", $pcd_date);
-    //$item_code = $request->item['master_id'];
-
+    if(isset($lot) == ''){ $lot_des = ""; }else{$lot_des = "merc_customer_order_header.lot_number LIKE '%".$lot."%' AND";}
+    //dd($lot);
 
     $load_list['CREAT'] = DB::select("SELECT
                     merc_shop_order_header.shop_order_id,
@@ -479,9 +475,9 @@ class PurchaseOrderManualController extends Controller
                     style_creation.style_no LIKE '%".$style_no."%' AND
                     item_category.category_id  LIKE '%".$category."%' AND
 										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
-                    org_supplier.supplier_id LIKE '%".$supplier."' AND
-                    merc_customer_order_header.lot_number LIKE '%".$lot."' AND
-                    merc_customer_order_details.projection_location LIKE '%".$location."' AND
+                    org_supplier.supplier_id LIKE '%".$supplier."%' AND
+                    $lot_des
+                    merc_customer_order_details.projection_location LIKE '%".$location."%' AND
                     merc_shop_order_detail.po_status is null AND
                     merc_customer_order_details.type_modified is null
                     ");
@@ -565,9 +561,9 @@ class PurchaseOrderManualController extends Controller
                     style_creation.style_no LIKE '%".$style_no."%' AND
                     item_category.category_id  LIKE '%".$category."%' AND
 										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
-                    org_supplier.supplier_id LIKE '%".$supplier."' AND
-                    merc_customer_order_header.lot_number LIKE '%".$lot."' AND
-                    merc_customer_order_details.projection_location LIKE '%".$location."' AND
+                    org_supplier.supplier_id LIKE '%".$supplier."%' AND
+                    $lot_des
+                    merc_customer_order_details.projection_location LIKE '%".$location."%' AND
                     merc_shop_order_detail.po_status IS null AND
                     merc_customer_order_details.type_created = 'GFS' AND
                     merc_customer_order_details.active_status = 'ACTIVE'

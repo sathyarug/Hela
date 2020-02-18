@@ -108,7 +108,7 @@ class PoOrderHeader extends BaseValidator
         return self::select('s.supplier_name', 's.supplier_id','l.loc_id','l.loc_name')
             ->join('org_supplier as s', 's.supplier_id', '=', 'merc_po_order_header.po_sup_code')
             ->join('org_location as l','l.loc_id','=','merc_po_order_header.po_deli_loc')
-            ->where('supplier_id','=',$id)
+            ->where('merc_po_order_header.po_id','=',$id)
             ->get();
 
 
