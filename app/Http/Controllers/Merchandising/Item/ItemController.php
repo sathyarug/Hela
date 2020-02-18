@@ -620,7 +620,7 @@ class ItemController extends Controller
       ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
       ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'item_master.supplier_id')
       //->where('item_master.master_description', 'like', '%' . $search . '%')
-      ->where('item_master.standard_price', '>', 0)
+
       ->Where(function ($query) use ($search) {
   			$query->orWhere('item_master.master_description', 'like', $search.'%')
   				    ->orWhere('item_master.master_code', 'like', $search.'%');
@@ -630,7 +630,8 @@ class ItemController extends Controller
         $list = $list->whereNull('master_code');
       }
       else if($search_type == 'INVENTORY_ITEMS'){
-        $list = $list->whereNotNull('master_code');
+        $list = $list->whereNotNull('master_code')->where('item_master.standard_price', '>', 0);
+
       }
 
       if($category != null && $category != ''){
