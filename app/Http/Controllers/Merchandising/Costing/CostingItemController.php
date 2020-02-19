@@ -25,6 +25,7 @@ use App\Models\Org\GarmentOptions;
 use App\Models\Finance\ShipmentTerm;
 use App\Models\Merchandising\Position;
 use App\Models\Org\OriginType;
+use App\Models\Merchandising\ProductFeatureComponent;
 
 
 class CostingItemController extends Controller
@@ -217,6 +218,34 @@ class CostingItemController extends Controller
     }
 
 
+    public function copy_feature_component_items(Request $request){
+      $costing_id = $request->costing_id;
+      $from_feature_component_id = $request->from_feature_component_id;
+      $to_feature_component_id = $request->to_feature_component_id;
+      $to_feature_component = ProductFeatureComponent::find($to_feature_component_id);
+
+      $items = CostingItem::where('costing_id', '=', $costing_id)->where('feature_component_id', '=', $from_feature_component_id)
+      ->whereNotIn('inventory_part_id', function ($query) use ($costing_id, $to_feature_component_id) {
+        $query->select('inventory_part_id')->from('costing_items')->where('costing_id', '=', $costing_id)->where('feature_component_id', '=', $to_feature_component_id);
+      })->get();
+
+      foreach ($items as $item) {
+        $new_item = $item->replicate();
+        $new_item->feature_component_id = $to_feature_component->feature_component_id;
+        $new_item->product_component_id = $to_feature_component->product_component_id;
+        $new_item->product_silhouette_id = $to_feature_component->product_silhouette_id;
+        $new_item->product_component_line_no = $to_feature_component->line_no;
+        $new_item->save();
+      }
+      $this->update_costing_summary_after_modify_item($costing_id);//update summery
+
+      return response([
+        'status' => 'success',
+        'message' => 'Items coppied successfully',
+        'items' => $this->get_items($costing_id, $to_feature_component_id),
+        'costing' => Costing::find($costing_id)
+      ]);
+    }
     //private function update_finish_good_
 
 
@@ -365,6 +394,9 @@ class CostingItemController extends Controller
         //echo json_encode($item);die();
         return $items;
     }
+
+
+
 
     //****************************************************************************************************************
 

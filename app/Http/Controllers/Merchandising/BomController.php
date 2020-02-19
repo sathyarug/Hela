@@ -319,6 +319,79 @@ class BomController extends Controller
     }
 
 
+
+    public function copy_all_items_from(Request $request){
+      $from_bom_id = $request->from_bom_id;
+      $to_bom_id = $request->to_bom_id;
+
+      $from_bom = BOMHeader::find($from_bom_id);
+      $to_bom = BOMHeader::find($to_bom_id);
+      $from_bom_costing = Costing::find($from_bom->costing_id);
+      $to_bom_costing = Costing::find($to_bom->costing_id);
+
+      if($from_bom_costing->style_id != $to_bom_costing->style_id ){
+        return response([
+          'status' => 'error',
+          'message' => 'Cannot copy items between different styles'
+        ]);
+      }
+      else {
+
+        $sfg_items = CostingSfgItem::select('costing_sfg_item.*', 'item_master.master_code')
+        ->join('costing_fng_item', 'costing_fng_item.costing_fng_id', '=', 'costing_sfg_item.costing_fng_id')
+        ->join('item_master', 'item_master.master_id', '=', 'costing_sfg_item.sfg_id')
+        ->where('costing_fng_item.costing_id', '=', $to_bom->costing_id)
+        ->where('costing_fng_item.fng_id', '=', $to_bom->fng_id)
+        ->get();//get costing sfg items
+        $x = 1;
+        foreach($sfg_items as $sfg_item){
+          /*$items = BOMDetails::where('bom_id', '=', $from_bom_id)
+          ->where('product_component_id', '=', $sfg_item->product_component_id)
+          ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)
+          ->where('product_component_line_no', '=', $sfg_item->product_component_line_no)->get();*/
+          $items = BOMDetails::select('bom_details.*')
+          ->leftjoin('bom_details AS bom_details_to', function($join) use($to_bom_id){
+            $join->on('bom_details_to.product_component_id', '=', 'bom_details.product_component_id')
+            ->on('bom_details_to.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
+            ->on('bom_details_to.product_component_line_no', '=', 'bom_details.product_component_line_no')
+            ->on('bom_details_to.inventory_part_id', '=', 'bom_details.inventory_part_id')
+            ->where('bom_details_to.bom_id', '=', $to_bom_id);
+          })
+          ->where('bom_details.bom_id', '=', $from_bom_id)
+          //->where('bom_details_to.bom_id', '=', $to_bom_id)
+          ->where('bom_details.product_component_id', '=', $sfg_item->product_component_id)
+          ->where('bom_details.product_silhouette_id', '=', $sfg_item->product_silhouette_id)
+          ->where('bom_details.product_component_line_no', '=', $sfg_item->product_component_line_no)
+          ->whereNull('bom_details_to.bom_detail_id')->get();
+        //  if($x == 2){
+            //echo json_encode($items);die();
+        //  }
+
+          foreach ($items as $item) {
+            $new_item = $item->replicate();
+            $new_item->bom_id = $to_bom_id;
+            $new_item->costing_item_id = null;
+            $new_item->costing_id = $to_bom->costing_id;
+            $new_item->sfg_id = $sfg_item->sfg_id;
+            $new_item->sfg_code = $sfg_item->master_code;
+            $new_item->save();
+          }
+          $x++;
+        }
+
+        $this->update_bom_summary_after_modify_item($to_bom_id);//update summery
+
+        return response([
+          'status' => 'success',
+          'message' => 'Items coppied successfully',
+          'items' => $this->get_items($to_bom_id),
+          'bom' => BomHeader::find($to_bom_id)
+        ]);
+      }
+    }
+
+
+
     public function edit_mode(Request $request){
       $bom_id = $request->bom_id;
       $edit_status = $request->edit_status;
@@ -725,7 +798,7 @@ class BomController extends Controller
 
     private function get_semi_finish_good_details($sfg_code){
       $details = CostingSfgItem::select('product_component.product_component_id', 'product_component.product_component_description',
-        'product_silhouette.product_silhouette_id', 'product_silhouette.product_silhouette_description')
+        'product_silhouette.product_silhouette_id', 'product_silhouette.product_silhouette_description', 'costing_sfg_item.product_component_line_no')
       ->join('item_master', 'item_master.master_id', '=', 'costing_sfg_item.sfg_id')
       ->join('product_component', 'product_component.product_component_id', '=', 'costing_sfg_item.product_component_id')
       ->join('product_silhouette', 'product_silhouette.product_silhouette_id', '=', 'costing_sfg_item.product_silhouette_id')
@@ -768,278 +841,6 @@ class BomController extends Controller
     }
 
 
-    /*public function getCustOrders(Request $request){
-        $customerOrder = new CustomerOrder();
-        //$rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId);
-        $rsCustOrderList = $customerOrder->getCustomerOrders($request->costingId, $request->colorComboID);
-
-        echo json_encode($rsCustOrderList);
-    }*/
-
-    /*public function getAssignCustOrders(Request $request){
-        $customerOrder = new CustomerOrder();
-        $rsCustOrderList = $customerOrder->getAssignCustomerOrders($request->costingId);
-
-        echo json_encode($rsCustOrderList);
-    }*/
-
-    /*public function getCustomerOrderQty(Request $request){
-
-        $customerOrderDetails = new CustomerOrderDetails();
-        $rsCustomerOrderQty = $customerOrderDetails->getCustomerOrderQty($request->orderId, $request->colorcomboid);
-
-        echo json_encode($rsCustomerOrderQty);
-    }*/
-
-    /*public function getCostingRMDetails(Request $request){
-        $bulkCostingDetails = new BulkCostingDetails();
-        $rsRMDetails = $bulkCostingDetails->getCostingItemDetails($request->costingId);
-
-        echo json_encode($rsRMDetails);
-    }*/
-
-    /*public function saveBOMHeader(Request $request){
-
-        try{
-
-            $bomHeader = new BOMHeader();
-            $bomHeader->costing_id = $request->costingid;
-            $bomHeader->color_combo = $request->colorComboId;
-
-            $bomHeader->saveOrFail();
-
-            //Get last inserted BOM ID
-            $bomID = $bomHeader->bom_id;
-
-        }catch ( \Exception $ex) {
-
-            $bomID = "fail";
-        }
-
-        echo json_encode(array('bomid'=>$bomID));
-    }*/
-
-    /*public function saveBOMDetails(Request $request){
-
-        $bomDeatils = new bom_details();
-        $bomDeatils->bom_id = $request->bomid;
-        $bomDeatils->master_id = $request->itemcode;
-        $bomDeatils->item_color =  $request->itemcolor;
-        $bomDeatils->uom_id = $request->uomid;
-        $bomDeatils->unit_price = $request->unitprice;
-        $bomDeatils->conpc = $request->conpc;
-        $bomDeatils->total_qty = $request->totreqqty;
-        $bomDeatils->total_value = $request->totvalue;
-        $bomDeatils->artical_no = $request->articalno;
-        $bomDeatils->status = 1;
-        $bomDeatils->bal_qty = $request->totreqqty;
-        $bomDeatils->item_size = $request->itemsize;
-        $bomDeatils->component_id = $request->componentid;
-        $bomDeatils->supplier_id = $request->supplierid;
-        $bomDeatils->item_wastage = $request->wastage;
-        $bomDeatils->combine_id = $request->combineid;
-
-        $bomDeatils->saveOrFail();
-    }*/
-
-    /*public function saveSOAllocation(Request $request){
-
-        try{
-
-            $bomSOAllocation = new BOMSOAllocation();
-
-            $bomSOAllocation->costing_id = $request->costing_id;
-            $bomSOAllocation->order_id = $request->order_id;
-            $bomSOAllocation->bom_id = $request->bom_id;
-
-            $bomSOAllocation->saveOrFail();
-
-            $status = "success";
-
-        }catch ( \Exception $ex) {
-
-            $status = "fail";
-        }
-        echo json_encode(array('status'=>$status));
-    }*/
-
-    /*public function validateBOMExist(Request $request){
-
-
-
-    }*/
-
-    /*public function ListBOMS(Request $request){
-        try{
-
-            $result = BOMHeader::select(DB::raw("*, CONCAT('B',LPAD(bom_id,6,'0')) AS BomNo"))->where("costing_id",$request->costing_id)->get();
-        }catch( \Exception $ex){
-            $result = "fail";
-        }
-
-        echo json_encode($result);
-    }*/
-
-    /*public function getBOMOrderQty(Request $request){
-
-        try{
-
-            $bomHeader = new BOMHeader();
-            $result = $bomHeader->getBOMOrderQty($request->bomId);
-
-
-        }catch( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-
-        echo json_encode($result);
-    }*/
-
-    /*public function getBOMDetails(Request $request){
-
-        try{
-
-            $bomDeatils = new bom_details();
-            $result = $bomDeatils->GetBOMDetails($request->bomId);
-
-        }catch ( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-
-        echo json_encode($result);
-    }*/
-
-    /*public function getSizeWiseDetails(Request $request){
-
-        try{
-
-            $customerOrderDetails = new CustomerOrderDetails();
-            $result = $customerOrderDetails->getCustomerOrderSizes($request->orderId);
-
-        }catch( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-
-        echo json_encode($result);
-    }*/
-
-    /*public function getColorWiseDetails(Request $request){
-        try{
-            $customerOrderDetails = new CustomerOrderDetails();
-            $result = $customerOrderDetails->getCustomerColors($request->orderId);
-
-        }catch( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-        echo json_encode($result);
-    }*/
-
-    /*public function getRatioDetails(Request $request){
-        try{
-            $customerOrderDetails = new CustomerOrderDetails();
-            $result = $customerOrderDetails->getCustomerColorsAndSizes($request->orderId);
-
-        }catch( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-        echo json_encode($result);
-    }*/
-
-    /*public function clearMatRatio(Request $request){
-
-        try{
-
-            $materialRatio = new MaterialRatio();
-            if(MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->exists()){
-                MaterialRatio::where('bom_id','=',$request->bom_id)
-                            ->where('component_id','=',$request->component_id)
-                            ->where('master_id','=',$request->master_id)
-                            ->update(['status'=>'0']);
-            }
-
-
-        } catch ( \Exception $ex) {
-
-        }
-    }*/
-
-  /*  public function saveMaterialRatio(Request $request){
-
-        try{
-
-            $materialRatio = new MaterialRatio();
-           // $res = MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->where('color_id','=',$request->color_id)->where('size_id','=',$request->size_id)->exists();
-
-
-            if(MaterialRatio::where('bom_id','=',$request->bom_id)->where('component_id','=',$request->component_id)->where('master_id','=',$request->master_id)->where('color_id','=',$request->color_id)->where('size_id','=',$request->size_id)->exists()){
-               // $materialRatio->required_qty    = $request->required_qty;
-                MaterialRatio::where('bom_id','=',$request->bom_id)
-                            ->where('component_id','=',$request->component_id)
-                            ->where('master_id','=',$request->master_id)
-                            ->where('color_id','=',$request->color_id)
-                            ->where('size_id','=',$request->size_id)
-                            ->update(['required_qty'=>$request->required_qty,'status'=>'1']);
-
-            }else{
-
-                $materialRatio->bom_id          = $request->bom_id;
-                $materialRatio->component_id    = $request->component_id;
-                $materialRatio->master_id       = $request->master_id;
-                $materialRatio->color_id        = $request->color_id;
-                $materialRatio->size_id         = $request->size_id;
-                $materialRatio->required_qty    = $request->required_qty;
-                $materialRatio->order_id        = $request->orderid;
-                $materialRatio->status          = '1';
-                $materialRatio->saveOrFail();
-
-            }
-
-
-
-            $result = "Ratio Saved";
-
-        } catch ( \Exception $ex) {
-            $result = $ex->getMessage();
-        }
-
-        echo json_encode($result);
-    }*/
-
-    /*public function getColorCombo(Request $request){
-        try{
-            $bomHeader = new BOMHeader();
-            $result = $bomHeader->getColorCombpoByCosting($request->costing_id);
-
-        }catch( \Exception $ex){
-            $result = $ex->getMessage();
-        }
-        echo json_encode($result);
-
-    }*/
-
-    /*public function getMatRatio(Request $request){
-
-        try{
-            $getMaterialRatio = new MaterialRatio();
-            $resultMaterialRatio = $getMaterialRatio->getMaterialRatio($request->bom_id,$request->component_id,$request->item_id);
-
-        }catch( \Exception $ex){
-            $resultMaterialRatio = $ex->getMessage();
-        }
-        echo json_encode($resultMaterialRatio);
-    }*/
-
-    /*public function getAssignSalesOrder(Request $request){
-        try{
-            $SOAllocation = BOMSOAllocation::select("order_id")->where("bom_id",$request->bomId)->get();
-
-        }catch( \Exception $ex){
-            $SOAllocation = $ex->getMessage();
-        }
-        echo json_encode($SOAllocation);
-
-    }*/
-
 
 //******************************************************
 
@@ -1068,11 +869,6 @@ class BomController extends Controller
      ]
    ]);
  }
-
-
-
-
-
 
 
 //*******************************************************
