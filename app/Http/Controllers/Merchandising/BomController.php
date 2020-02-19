@@ -957,7 +957,8 @@ private function get_items($bom_id){
     'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
     'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
     'org_country.country_description','product_component.product_component_description','product_silhouette.product_silhouette_description')
-    ->where('bom_details.bom_id', '=', $bom_id)->orderBy('bom_details.product_component_id', 'ASC')
+    ->where('bom_details.bom_id', '=', $bom_id)->orderBy('bom_details.sfg_code', 'ASC')
+    ->orderBy('bom_details.product_component_id', 'ASC')
     ->orderBy('bom_details.product_silhouette_id', 'ASC')
     ->orderBy('bom_details.inventory_part_id', 'ASC')->get();
     //echo json_encode($item);die();
