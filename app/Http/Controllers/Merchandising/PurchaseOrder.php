@@ -160,6 +160,7 @@ class PurchaseOrder extends Controller
 
     //generate pdf
     //generate pdf
+    //generate pdf
     public function generate_pdf(Request $request)
     {
         $is_exists = false;
@@ -258,25 +259,56 @@ class PurchaseOrder extends Controller
             ->groupBy('merc_po_order_split.po_details_id')
             ->get();
 
-        $groupList = DB::table('merc_po_order_details')
-            ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
-            ->leftjoin('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
-            ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
-            ->select(
-                'merc_po_order_details.id',
-                'merc_po_order_details.line_no',
-                'merc_po_order_details.deli_date',
-                'merc_po_order_details.unit_price',
-                'merc_po_order_details.req_qty',
-                'item_master.master_code',
-                'item_master.master_description',
-                'org_color.color_name',
-                'org_uom.uom_code'
-            )
-            ->where('merc_po_order_details.po_no', $request->po_no)
-            ->groupBy('item_master.master_id', 'merc_po_order_details.deli_date', 'org_color.color_id')
-            ->orderBy('merc_po_order_details.line_no')
-            ->get();
+        $groupList = [];
+        $groupListSplit = [];
+
+        if (count($count) == 0) {
+            $groupList = DB::table('merc_po_order_details')
+                ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+                ->leftjoin('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
+                ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
+                ->select(
+                    'merc_po_order_details.id',
+                    'merc_po_order_details.line_no',
+                    'merc_po_order_details.deli_date',
+                    'merc_po_order_details.unit_price',
+                    DB::raw("SUM(merc_po_order_details.req_qty) AS req_qty"),
+                    // 'merc_po_order_details.req_qty',
+                    'item_master.master_code',
+                    'item_master.master_description',
+                    'org_color.color_name',
+                    'org_uom.uom_code'
+                )
+                ->where('merc_po_order_details.po_no', $request->po_no)
+                ->groupBy('item_master.master_id', 'merc_po_order_details.deli_date', 'org_color.color_id')
+                ->orderBy('merc_po_order_details.line_no')
+                ->get();
+        } else {
+            $groupListSplit = DB::table('merc_po_order_details')
+                ->leftJoin('merc_po_order_split', 'merc_po_order_split.po_details_id', '=', 'merc_po_order_details.id')
+                ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+                ->leftjoin('org_color', 'merc_po_order_details.colour', '=', 'org_color.color_id')
+                ->join('org_uom', 'merc_po_order_details.uom', '=', 'org_uom.uom_id')
+                ->select(
+                    'merc_po_order_details.id',
+                    'merc_po_order_details.line_no',
+                    'merc_po_order_details.deli_date',
+                    'merc_po_order_details.unit_price',
+                    DB::raw("SUM(merc_po_order_details.req_qty) AS req_qty"),
+                    // 'merc_po_order_details.req_qty',
+                    // 'merc_po_order_split.split_qty',
+                    DB::raw("SUM(merc_po_order_split.split_qty) AS split_qty"),
+                    'merc_po_order_split.delivery_date',
+                    'item_master.master_code',
+                    'item_master.master_description',
+                    'org_color.color_name',
+                    'org_uom.uom_code'
+                )
+                ->where('merc_po_order_details.po_no', $request->po_no)
+                ->groupBy('item_master.master_id', 'merc_po_order_split.delivery_date', 'org_color.color_id')
+                ->orderBy('merc_po_order_details.line_no')
+                ->get();
+        }
 
         if ($result) {
             $data = [
@@ -308,7 +340,8 @@ class PurchaseOrder extends Controller
                 'split' => $splitList,
                 'count' => $count,
                 'words' => $words,
-                'summary' => $groupList
+                'summary' => $groupList,
+                'sum_split' => $groupListSplit
             ];
         }
 

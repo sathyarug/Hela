@@ -256,26 +256,41 @@ PO Report
         <td width="13%" align="center"><strong>Unit price {{ $currency }}</strong></td>
         <td width="7%" align="center"><strong>Qty</strong></td>
       </tr>
+      @if(count($summary) != 0)
       @foreach ($summary as $item)
-        {{ $del_date = $item->deli_date}}
-          @foreach ($count as $sp)
-             @if($item->id == $sp->po_details_id)
-                {{ $del_date = $sp->delivery_date }}
-             @else
-                {{ $del_date = $item->deli_date }}
-             @endif
-          @endforeach
       <tr>
         <td align="center">{{ $item->line_no }}</td>
         <td align="left">{{ $item->master_code }}</td>
         <td align="left">{{ $item->master_description }}</td>
         <td align="center">{{ $item->color_name }}</td>
-        <td align="center">{{ $del_date }}</td>
+        <td align="center">{{ $item->deli_date }}</td>
         <td align="center">{{ $item->uom_code }}</td>
         <td align="right">{{ number_format($item->unit_price,2) }}</td>
-        <td align="center">{{ $item->req_qty }}</td>
+        <td align="center">{{ number_format($item->req_qty,2) }}</td>
       </tr>
       @endforeach
+      @elseif(count($sum_split) != 0)
+      @foreach ($sum_split as $item)
+      <tr>
+        <td align="center">{{ $item->line_no }}</td>
+        <td align="left">{{ $item->master_code }}</td>
+        <td align="left">{{ $item->master_description }}</td>
+        <td align="center">{{ $item->color_name }}</td>
+        @if($item->delivery_date == null)
+        <td align="center">{{ $item->deli_date }}</td>
+        @else
+        <td align="center">{{ $item->delivery_date }}</td>
+        @endif
+        <td align="center">{{ $item->uom_code }}</td>
+        <td align="right">{{ number_format($item->unit_price,2) }}</td>
+        @if($item->split_qty == null)
+        <td align="center">{{ number_format($item->req_qty,2) }}</td>
+        @else
+        <td align="center">{{ number_format($item->split_qty,2) }}</td>
+        @endif
+      </tr>
+      @endforeach
+      @endif
     </table>
   </div>
 
