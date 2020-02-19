@@ -113,76 +113,79 @@ class StyleCreationController extends Controller
 
     public function saveStyleCreation(Request $request) {
 
-
         if($request->style_id != null){
 
           //$check_style = Costing::where([['status', '!=', 'CANCELED'],['style_id','=',$request->style_id]])->first();
           $check_style = ComponentSMVHeader::where([['status', '=', '1'],['style_id','=',$request->style_id]])->first();
+          
           if($check_style != null)
           {
             return response(['data'=>['status'=>'0',]]);
           }else{
             $styleCreation = StyleCreation::find($request->style_id);
           }
+          
         }else{
+
+            $dataArr = array(
+              'style_id' => null,
+              'style_no' => $request->style_no,
+              'customer_id' => $request->customer['customer_id'],
+              'division_id' => $request->division,
+              'product_feature_id' => $request->ProductFeature,
+              'style_description' => $request->style_description,
+              'product_silhouette_id' => $request->ProductSilhouette['product_silhouette_id'],
+            );
+
             $styleCreation = new StyleCreation();
+
+            if(!$styleCreation->validate($dataArr)) {
+              $errors = $styleCreation->errors();// failure, get errors
+              $errors_str = $styleCreation->errors_tostring();
+              return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
         }
 
-        $dataArr = array(
-          'style_id' => null,
-          'style_no' => $request->style_no,
-          'customer_id' => $request->customer['customer_id'],
-          'division_id' => $request->division,
-          'product_feature_id' => $request->ProductFeature,
-          'style_description' => $request->style_description,
-          'product_silhouette_id' => $request->ProductSilhouette['product_silhouette_id'],
-        );
+        $styleCreation->style_no =strtoupper($request->style_no);
+        $styleCreation->product_feature_id =$request->ProductFeature;
+        $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
+        $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
+        $styleCreation->customer_id =$request->customer['customer_id'];
+        //$styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
+        $styleCreation->division_id =$request->division;
+        $styleCreation->style_description =strtoupper($request->style_description);
+        $styleCreation->remark_style =strtoupper($request->Remarks);
+        $styleCreation->remarks_pack =strtoupper($request->Remarks_pack);
+        //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($styleCreation);
+        $styleCreation->saveOrFail();
 
-        if($styleCreation->validate($dataArr)) {
+        $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
+        $styleCreationUpdate->image =$styleCreation->style_id.'.png';
+        $styleCreationUpdate->save();
 
-          $styleCreation->style_no =strtoupper($request->style_no);
-          $styleCreation->product_feature_id =$request->ProductFeature;
-          $styleCreation->product_category_id =$request->ProductCategory['prod_cat_id'];
-          $styleCreation->product_silhouette_id =$request->ProductSilhouette['product_silhouette_id'];
-          $styleCreation->customer_id =$request->customer['customer_id'];
-          //$styleCreation->pack_type_id =$request->ProductType['pack_type_id'];
-          $styleCreation->division_id =$request->division;
-          $styleCreation->style_description =strtoupper($request->style_description);
-          $styleCreation->remark_style =strtoupper($request->Remarks);
-          $styleCreation->remarks_pack =strtoupper($request->Remarks_pack);
-          //$capitalizeAllFields=CapitalizeAllFields::setCapitalAll($styleCreation);
-          $styleCreation->saveOrFail();
-
-          $styleCreationUpdate = StyleCreation::find($styleCreation->style_id);
-          $styleCreationUpdate->image =$styleCreation->style_id.'.png';
-          $styleCreationUpdate->save();
-
-          if($request->avatarHidden !=null){
-              $this->saveImage($request->avatar['value'],$styleCreation->style_id);
-          }
-
-          if($request->style_id != null)
-          {
-            return response([ 'data' => [
-              'message' => 'Style details updated successfully.',
-              'image' =>$styleCreation->style_id.'.png'
-            ]]);
-
-          }else{
-
-            return response([ 'data' => [
-              'message' => 'Style details saved successfully.',
-              'image' =>$styleCreation->style_id.'.png'
-            ]]);
-
-          }
-
-        } else {
-          $errors = $styleCreation->errors();// failure, get errors
-          $errors_str = $styleCreation->errors_tostring();
-          return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        if($request->avatarHidden !=null){
+            $this->saveImage($request->avatar['value'],$styleCreation->style_id);
         }
+
+        if($request->style_id != null)
+        {
+          return response([ 'data' => [
+            'message' => 'Style details updated successfully.',
+            'image' =>$styleCreation->style_id.'.png'
+          ]]);
+
+        }else{
+
+          return response([ 'data' => [
+            'message' => 'Style details saved successfully.',
+            'image' =>$styleCreation->style_id.'.png'
+          ]]);
+
+        }
+
+       
     }
+
 
     private function saveImage($image,$id){
 

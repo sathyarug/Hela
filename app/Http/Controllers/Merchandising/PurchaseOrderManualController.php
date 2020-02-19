@@ -572,7 +572,8 @@ class PurchaseOrderManualController extends Controller
                     merc_customer_order_details.type_created = 'GFS' AND
                     merc_customer_order_details.active_status = 'ACTIVE'
                     GROUP BY
-                    merc_shop_order_delivery.shop_order_id");
+                    merc_shop_order_delivery.shop_order_id,
+										merc_shop_order_detail.shop_order_detail_id");
 
        //return $customer_list;
        return response([ 'data' => [
