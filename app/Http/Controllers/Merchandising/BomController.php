@@ -343,42 +343,53 @@ class BomController extends Controller
         ->where('costing_fng_item.costing_id', '=', $to_bom->costing_id)
         ->where('costing_fng_item.fng_id', '=', $to_bom->fng_id)
         ->get();//get costing sfg items
-        $x = 1;
-        foreach($sfg_items as $sfg_item){
-          /*$items = BOMDetails::where('bom_id', '=', $from_bom_id)
-          ->where('product_component_id', '=', $sfg_item->product_component_id)
-          ->where('product_silhouette_id', '=', $sfg_item->product_silhouette_id)
-          ->where('product_component_line_no', '=', $sfg_item->product_component_line_no)->get();*/
+
+        if(sizeof($sfg_items) > 1){ //mult pack
+
+          foreach($sfg_items as $sfg_item) {
+            $items = BOMDetails::select('bom_details.*')
+            ->leftjoin('bom_details AS bom_details_to', function($join) use($to_bom_id){
+              $join->on('bom_details_to.product_component_id', '=', 'bom_details.product_component_id')
+              ->on('bom_details_to.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
+              ->on('bom_details_to.product_component_line_no', '=', 'bom_details.product_component_line_no')
+              ->on('bom_details_to.inventory_part_id', '=', 'bom_details.inventory_part_id')
+              ->where('bom_details_to.bom_id', '=', $to_bom_id);
+            })
+            ->where('bom_details.bom_id', '=', $from_bom_id)
+            //->where('bom_details_to.bom_id', '=', $to_bom_id)
+            ->where('bom_details.product_component_id', '=', $sfg_item->product_component_id)
+            ->where('bom_details.product_silhouette_id', '=', $sfg_item->product_silhouette_id)
+            ->where('bom_details.product_component_line_no', '=', $sfg_item->product_component_line_no)
+            ->whereNull('bom_details_to.bom_detail_id')->get();
+
+            foreach ($items as $item) {
+              $new_item = $item->replicate();
+              $new_item->bom_id = $to_bom_id;
+              $new_item->costing_item_id = null;
+              $new_item->costing_id = $to_bom->costing_id;
+              $new_item->sfg_id = $sfg_item->sfg_id;
+              $new_item->sfg_code = $sfg_item->master_code;
+              $new_item->save();
+            }
+          }
+        }
+        else { //single pack
           $items = BOMDetails::select('bom_details.*')
           ->leftjoin('bom_details AS bom_details_to', function($join) use($to_bom_id){
-            $join->on('bom_details_to.product_component_id', '=', 'bom_details.product_component_id')
-            ->on('bom_details_to.product_silhouette_id', '=', 'bom_details.product_silhouette_id')
-            ->on('bom_details_to.product_component_line_no', '=', 'bom_details.product_component_line_no')
-            ->on('bom_details_to.inventory_part_id', '=', 'bom_details.inventory_part_id')
+            $join->on('bom_details_to.inventory_part_id', '=', 'bom_details.inventory_part_id')
             ->where('bom_details_to.bom_id', '=', $to_bom_id);
           })
           ->where('bom_details.bom_id', '=', $from_bom_id)
-          //->where('bom_details_to.bom_id', '=', $to_bom_id)
-          ->where('bom_details.product_component_id', '=', $sfg_item->product_component_id)
-          ->where('bom_details.product_silhouette_id', '=', $sfg_item->product_silhouette_id)
-          ->where('bom_details.product_component_line_no', '=', $sfg_item->product_component_line_no)
           ->whereNull('bom_details_to.bom_detail_id')->get();
-        //  if($x == 2){
-            //echo json_encode($items);die();
-        //  }
 
           foreach ($items as $item) {
             $new_item = $item->replicate();
             $new_item->bom_id = $to_bom_id;
             $new_item->costing_item_id = null;
             $new_item->costing_id = $to_bom->costing_id;
-            $new_item->sfg_id = $sfg_item->sfg_id;
-            $new_item->sfg_code = $sfg_item->master_code;
             $new_item->save();
           }
-          $x++;
         }
-
         $this->update_bom_summary_after_modify_item($to_bom_id);//update summery
 
         return response([
