@@ -394,7 +394,11 @@ class PurchaseOrderManualController extends Controller
     $location           = $request->projection_location;
 
     if(isset($lot) == ''){ $lot_des = ""; }else{$lot_des = "merc_customer_order_header.lot_number LIKE '%".$lot."%' AND";}
-    //dd($lot);
+    if(isset($style_no) == ''){ $style_no_des = ""; }else{$style_no_des = "style_creation.style_no LIKE '%".$style_no."%' AND";}
+    if(isset($category) == null){ $category_des = ""; }else{$category_des = "item_category.category_id  LIKE '%".$category."%' AND";}
+    if(isset($sub_category) == null){ $sub_category_des = ""; }else{$sub_category_des = "item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND";}
+    if(isset($supplier) == ''){ $supplier_des = ""; }else{$supplier_des = "org_supplier.supplier_id LIKE '%".$supplier."%' AND";}
+    //dd($request);
 
     $load_list['CREAT'] = DB::select("SELECT
                     merc_shop_order_header.shop_order_id,
@@ -472,10 +476,10 @@ class PurchaseOrderManualController extends Controller
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
                     org_customer_divisions.division_id  LIKE '%".$customer_division."%' AND
-                    style_creation.style_no LIKE '%".$style_no."%' AND
-                    item_category.category_id  LIKE '%".$category."%' AND
-										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
-                    org_supplier.supplier_id LIKE '%".$supplier."%' AND
+                    $style_no_des
+                    $category_des
+										$sub_category_des
+                    $supplier_des
                     $lot_des
                     merc_customer_order_details.projection_location LIKE '%".$location."%' AND
                     merc_shop_order_detail.po_status is null AND
@@ -558,10 +562,10 @@ class PurchaseOrderManualController extends Controller
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
                     org_customer_divisions.division_id  LIKE '%".$customer_division."%' AND
-                    style_creation.style_no LIKE '%".$style_no."%' AND
-                    item_category.category_id  LIKE '%".$category."%' AND
-										item_subcategory.subcategory_id  LIKE '%".$sub_category."%' AND
-                    org_supplier.supplier_id LIKE '%".$supplier."%' AND
+                    $style_no_des
+                    $category_des
+										$sub_category_des
+                    $supplier_des
                     $lot_des
                     merc_customer_order_details.projection_location LIKE '%".$location."%' AND
                     merc_shop_order_detail.po_status IS null AND
