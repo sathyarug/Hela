@@ -159,8 +159,6 @@ class PurchaseOrder extends Controller
     }
 
     //generate pdf
-    //generate pdf
-    //generate pdf
     public function generate_pdf(Request $request)
     {
         $is_exists = false;
@@ -273,7 +271,6 @@ class PurchaseOrder extends Controller
                     'merc_po_order_details.deli_date',
                     'merc_po_order_details.unit_price',
                     DB::raw("SUM(merc_po_order_details.req_qty) AS req_qty"),
-                    // 'merc_po_order_details.req_qty',
                     'item_master.master_code',
                     'item_master.master_description',
                     'org_color.color_name',
@@ -295,8 +292,6 @@ class PurchaseOrder extends Controller
                     'merc_po_order_details.deli_date',
                     'merc_po_order_details.unit_price',
                     DB::raw("SUM(merc_po_order_details.req_qty) AS req_qty"),
-                    // 'merc_po_order_details.req_qty',
-                    // 'merc_po_order_split.split_qty',
                     DB::raw("SUM(merc_po_order_split.split_qty) AS split_qty"),
                     'merc_po_order_split.delivery_date',
                     'item_master.master_code',
@@ -305,8 +300,8 @@ class PurchaseOrder extends Controller
                     'org_uom.uom_code'
                 )
                 ->where('merc_po_order_details.po_no', $request->po_no)
-                ->groupBy('item_master.master_id', 'merc_po_order_split.delivery_date', 'org_color.color_id')
-                ->orderBy('merc_po_order_details.line_no')
+                ->groupBy('item_master.master_id', 'org_color.color_id', 'merc_po_order_split.delivery_date')
+                ->orderBy('merc_po_order_details.id')
                 ->get();
         }
 
@@ -335,6 +330,7 @@ class PurchaseOrder extends Controller
                 'ship_mode' => $result[0]->ship_mode,
                 'ship_term_description' => $result[0]->ship_term_description,
                 'currency' => $result[0]->currency_code,
+                'instuction' => $result[0]->special_ins,
                 'total_qty' => $total_qty,
                 'data' => $list,
                 'split' => $splitList,
