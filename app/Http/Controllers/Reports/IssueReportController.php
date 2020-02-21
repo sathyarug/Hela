@@ -33,9 +33,7 @@ class IssueReportController extends Controller
             ->join('item_master', 'item_master.master_id', '=', 'store_issue_detail.item_id')
             ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
             ->join('merc_shop_order_detail', 'merc_shop_order_detail.shop_order_detail_id', '=', 'store_mrn_detail.shop_order_detail_id')
-            ->join('merc_shop_order_header', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
-            ->join('merc_shop_order_delivery', 'merc_shop_order_delivery.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
-            ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'merc_shop_order_delivery.delivery_id')
+            ->join('merc_customer_order_details', 'merc_customer_order_details.details_id', '=', 'store_mrn_detail.cust_order_detail_id')
             ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
             ->join('cust_customer', 'cust_customer.customer_id', '=', 'merc_customer_order_header.order_customer')
             ->join('merc_po_order_details', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
@@ -47,7 +45,7 @@ class IssueReportController extends Controller
                 'item_master.master_description',
                 'item_category.category_name',
                 'style_creation.style_no',
-                'merc_shop_order_header.shop_order_id',
+                'merc_shop_order_detail.shop_order_id',
                 'store_issue_detail.issue_detail_id',
                 'merc_po_order_header.po_number',
                 'merc_po_order_header.po_date',
@@ -55,13 +53,11 @@ class IssueReportController extends Controller
                 'merc_customer_order_details.po_no',
                 'store_grn_detail.grn_qty',
                 'store_grn_detail.bal_qty',
-                DB::raw('(SELECT DATE(store_grn_detail.created_date) AS grn_date FROM store_grn_detail 
-                WHERE store_issue_detail.mrn_detail_id = store_mrn_detail.mrn_detail_id 
-                AND store_grn_detail.shop_order_detail_id = store_mrn_detail.shop_order_detail_id) AS grn_date'),
+                DB::raw("(DATE_FORMAT(store_grn_detail.created_date,'%d-%b-%Y')) AS grn_date"),
                 'store_mrn_header.mrn_no',
                 'store_issue_header.issue_no',
                 'store_issue_detail.qty AS issue_qty',
-                DB::raw('(SELECT DATE(store_issue_detail.created_date)) AS issue_date'),
+                DB::raw("(DATE_FORMAT(store_issue_detail.created_date,'%d-%b-%Y')) AS issue_date"),
                 'store_grn_detail.original_bal_qty',
                 'usr_profile.first_name'
             );

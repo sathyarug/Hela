@@ -147,18 +147,19 @@ body {
   font-size:9;
 }
 
-#listTbl tr td{
+#listTbl, #listTbl tr td{
 	padding: 4px;
-	font-size:12;
+	font-size:20px;
 }
 
-#sumTbl tr td{
+#sumTbl, #sumTbl tr td{
 	padding: 4px;
-	font-size:12;
+	font-size:20px;
 }
+
 
 #desTbl1{
-	width: 40%;
+	width: 40%;	
 }
 
 #desTbl2{
@@ -168,6 +169,7 @@ body {
 #desTbl3{
 	width: 30%;
 }
+
 
 .tbl1 {
   border-collapse: collapse;

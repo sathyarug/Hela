@@ -10,7 +10,6 @@ PO Report
   <p id="bg-text">NOT APPROVED</p>
 	</div>-->
 
-
 <div class="container" id="mainDiv">
   <div class="row" style="width:100%;">
     <div style="float:left; width:40%;">
@@ -244,7 +243,7 @@ PO Report
 
   <div class="row">
     <p>The table below is the summary of the materials to be purchased. Kindly note that the detailed items are illustrated above.</p>
-    <table width="100%" align="center" border="1" id="sumTbl">
+    <table class="" width="100%" align="center" border="1" id="sumTbl">
       <tr>
         <td width="5%" align="center"><strong>Line No</strong></td>
         <td width="5%" align="center"><strong>Code</strong></td>
