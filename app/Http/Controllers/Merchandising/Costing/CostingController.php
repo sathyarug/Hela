@@ -192,8 +192,10 @@ class CostingController extends Controller {
              //fill data -> style_id, bom_stage_id, season_id, color_type_id, total_order_qty, fob, planned_efficiency, cost_per_std_min,
              //pcd, cost_per_std_min, upcharge, upcharge_reason
               $costing->fill($request->except(['upcharge_reason_description', 'division', 'style_description', 'style_remarks', 'customer', 'status']));
-              $pcd_date = date_create($costing->pcd);
-              $costing->pcd = date_format($pcd_date,"Y-m-d");//change pcd date format to save in database
+              if($costing->pcd != null && $costing->pcd != ''){
+                $pcd_date = date_create($costing->pcd);
+                $costing->pcd = date_format($pcd_date,"Y-m-d");//change pcd date format to save in database
+              }
 
               //chek finance details
               $current_timestamp = date("Y-m-d H:i:s");
