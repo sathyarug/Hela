@@ -10,7 +10,7 @@ MRN Note
     <div class="row">
         <div class="col-md-8 col-sm-offset-2 form-holder">
 
-            <div class="col-md-12">
+            <div class="col-md-12"> 
                 <div class="logo">
                     <img src="{{ URL::asset('assets\images\logo.jpg') }}" />
                 </div>

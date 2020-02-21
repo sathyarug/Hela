@@ -25,18 +25,37 @@ class UsrProfile extends BaseValidator
         'date_of_birth'
     ];
 
-    protected $rules = array(
-        /*'loc_id' => 'required',*/
+  /*  protected $rules = array(
         'dept_id' => 'required',
         'cost_center_id' => 'required',
         'desig_id' => 'required',
         'first_name' => 'required',
         'last_name' => 'required',
         'emp_number' => 'required',
-        /*'email' => 'required',*/
         'gender' => 'required'
+    );*/
 
-    );
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'emp_number' => [
+            'required',
+            'unique:emp_number,emp_number,'.$data['user_id'].',user_id',
+          ],
+          'dept_id' => 'required',
+          'cost_center_id' => 'required',
+          'desig_id' => 'required',
+          'first_name' => 'required',
+          'last_name' => 'required',
+          'emp_number' => 'required',
+      ];
+    }
+
+    //Accesrs and mutators .....................................................
 
     public function setDateOfBirthAttribute($value){
         $this->attributes['date_of_birth'] = date('Y-m-d', strtotime($value));
@@ -49,6 +68,8 @@ class UsrProfile extends BaseValidator
     public function setResignDateAttribute($value){
         $this->attributes['resign_date'] = date('Y-m-d', strtotime($value));
     }
+
+    //Relationships ............................................................
 
     public function roles()
     {

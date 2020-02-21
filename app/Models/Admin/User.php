@@ -36,11 +36,29 @@ class User extends BaseValidator
         'password'
     ];
 
-    protected $rules = array(
+    /*protected $rules = array(
         'user_name' => 'required',
         'password' => 'required',
         'email' => 'required'
-    );
+    );*/
+
+    //Validation functions......................................................
+    /**
+    *unique:table,column,except,idColumn
+    *The field under validation must not exist within the given database table
+    */
+    protected function getValidationRules($data /*model data with attributes*/) {
+      return [
+          'user_name' => [
+            'required',
+            'unique:user_name,user_name,'.$data['user_id'].',user_id',
+          ],
+          'password' => 'required',
+          'email' => 'required'
+      ];
+    }
+
+    //Relationships ............................................................
 
     public function roles()
     {
