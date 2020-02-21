@@ -1392,7 +1392,7 @@ class CostingController extends Controller {
         0 AS fng_color_id,
         0 AS sfg_color_id,
         1 AS edited
-        FROM product_feature_component 
+        FROM product_feature_component
         INNER JOIN product_feature ON product_feature.product_feature_id = product_feature_component.product_feature_id
         INNER JOIN product_silhouette ON product_silhouette.product_silhouette_id = product_feature_component.product_silhouette_id
         INNER JOIN product_component ON product_component.product_component_id = product_feature_component.product_component_id

@@ -16,6 +16,7 @@ class MRNNoteController extends Controller
             $search = $request->search;
             return response($this->load_mrn_no($search));
         }
+        
     }
 
     //search mrn no for autocomplete
