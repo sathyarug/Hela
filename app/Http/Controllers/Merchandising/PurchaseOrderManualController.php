@@ -452,7 +452,10 @@ class PurchaseOrderManualController extends Controller
 	                    MPOD.shop_order_id = merc_shop_order_header.shop_order_id
                       AND MPOD.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id
                     )AS po_nos,
-										merc_customer_order_details.type_created
+										merc_customer_order_details.type_created,
+                    bom_details.sfg_id,
+                    bom_details.sfg_code,
+                    SFG_COLOR.color_name as SFG_COL
                     FROM
                     merc_shop_order_header
                     INNER JOIN merc_shop_order_detail ON merc_shop_order_header.shop_order_id = merc_shop_order_detail.shop_order_id
@@ -474,6 +477,9 @@ class PurchaseOrderManualController extends Controller
                     INNER JOIN org_customer_divisions ON merc_customer_order_header.order_customer = org_customer_divisions.customer_id
                     AND merc_customer_order_header.order_division = org_customer_divisions.division_id
                     INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
+                    INNER JOIN bom_details ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
+                    INNER JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
+                    INNER JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
                     WHERE
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
@@ -539,7 +545,10 @@ class PurchaseOrderManualController extends Controller
                       MPOD.shop_order_id = merc_shop_order_header.shop_order_id
                       AND MPOD.shop_order_detail_id = merc_shop_order_detail.shop_order_detail_id
                       ) AS po_nos,
-                    merc_customer_order_details.type_created
+                    merc_customer_order_details.type_created,
+                    bom_details.sfg_id,
+                    bom_details.sfg_code,
+                    SFG_COLOR.color_name as SFG_COL
                     FROM
                     merc_customer_order_details
                     INNER JOIN merc_shop_order_delivery ON merc_customer_order_details.parent_line_id = merc_shop_order_delivery.delivery_id
@@ -560,6 +569,9 @@ class PurchaseOrderManualController extends Controller
                     INNER JOIN item_category ON MAT.category_id = item_category.category_id
                     INNER JOIN org_customer_divisions ON merc_customer_order_header.order_customer = org_customer_divisions.customer_id AND merc_customer_order_header.order_division = org_customer_divisions.division_id
                     INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
+                    INNER JOIN bom_details ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
+                    INNER JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
+                    INNER JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
                     WHERE
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
