@@ -65,6 +65,9 @@ class UserController extends Controller
     if ($for == 'validateEmpNo') {
       return response($this->validate_duplicate_code($request->emp_number, $request->user_id));
     }
+    else if($for == 'validateUsername'){
+      return response($this->validate_duplicate_username($request->user_name, $request->user_id));
+    }
   }
 
   public function validate_duplicate_code($emp_number, $user_id)
@@ -81,6 +84,20 @@ class UserController extends Controller
     }
   }
 
+  public function validate_duplicate_username($user_name, $user_id)
+  {
+    //$emp_number=strval( $emp_number ) ;
+    $user = User::where('user_name', '=', $user_name)->first();
+    //dd($user);
+    if ($user == null) {
+      return ['status' => 'success'];
+    } else if ($user->user_id == $user_id) {
+      return ['status' => 'success'];
+    } else {
+      return ['status' => 'error', 'message' => 'Username already exists'];
+    }
+  }
+
 
 
 
@@ -90,13 +107,14 @@ class UserController extends Controller
     $profile = new UsrProfile;
     $login = new User;
 
-    if ($profile->validate($request->all())) {
+    if($profile->validate($request->except(['username', 'password'])))
+    {
       $profile->fill($request->except(['username', 'password']));
       $profile->status = 1;
       $profile->reporting_level_1 = $request->reporting_level_1['user_id'];
       $profile->reporting_level_2 = $request->reporting_level_2['user_id'];
       $capitalizeAllFields = CapitalizeAllFields::setCapitalAll($profile);
-      $profile->email = $request->email;
+      //$profile->email = $request->email;
       $profile->save();
 
       if($profile->user_id > 0 && $request->user_name != null && $request->password != null) {
@@ -115,9 +133,11 @@ class UserController extends Controller
           'user' => $login
         ]
       ], Response::HTTP_CREATED);
-    } else {
-      $errors = $profile->errors(); // failure, get errors
-      return response(['errors' => ['validationErrors' => $errors]], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+    else{
+      $errors = $profile->errors();// failure, get errors
+      $errors_str = $profile->errors_tostring();
+      return response(['errors' => ['validationErrors' => $errors, 'validationErrorsText' => $errors_str]], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
   }
 
