@@ -1587,10 +1587,10 @@ class CostingController extends Controller {
       for($x = 0 ; $x < sizeof($fng_items); $x++){
         $fng_items[$x]['revision_no'] = $revision_no;
         //array_push($fg_id_arr, $finish_goods[$x]['fg_id']);
-        $sfg_items = DB::table('costing_sfg_item')->where('costing_fng_id', '=', $id)->get();
+        $sfg_items = DB::table('costing_sfg_item')->where('costing_fng_id', '=', $fng_items[$x]['costing_fng_id'])->get();
         $sfg_items = json_decode( json_encode($sfg_items), true);//convert resullset to array
         for($y = 0 ; $y < sizeof($sfg_items); $y++){
-          $sfg_items[$x]['revision_no'] = $revision_no;
+          $sfg_items[$y]['revision_no'] = $revision_no;
         }
         DB::table('costing_sfg_item_history')->insert($sfg_items);
       }
@@ -1602,7 +1602,7 @@ class CostingController extends Controller {
       for($x = 0 ; $x < sizeof($costing_items); $x++){
         $costing_items[$x]['revision_no'] = $revision_no;
       }
-    //  DB::table('costing_items_history')->insert($costing_items);
+      DB::table('costing_items_history')->insert($costing_items);
     }
 
 

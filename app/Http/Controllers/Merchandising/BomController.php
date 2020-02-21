@@ -173,6 +173,7 @@ class BomController extends Controller
       $costing = Costing::find($bom->costing_id);
 
       if($costing->status == 'APPROVED'){//can add item
+
         $item_data = $this->generate_item_data($request_data);
         //  echo json_encode($item_data);die();
         $bom_detail = null;
@@ -581,6 +582,13 @@ class BomController extends Controller
         }
     }
 
+    //..........................................................................
+
+  /*  private function validate_items_cost($items, $costing){
+      foreach($items as $item){
+
+      }
+    }*/
 
 
     private function generate_item_data($item_data){
