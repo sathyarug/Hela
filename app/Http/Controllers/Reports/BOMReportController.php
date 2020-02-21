@@ -114,7 +114,16 @@ class BOMReportController extends Controller
       'merc_color_options.color_option',
       'usr_login.user_name',
       'buy_master.buy_name',
-      'org_color.color_name')
+      'org_color.color_name',
+      DB::raw("(SELECT
+      COUNT(product_feature_component.product_feature_id)
+      FROM
+      style_creation
+      INNER JOIN product_feature ON style_creation.product_feature_id = product_feature.product_feature_id
+      INNER JOIN product_feature_component ON product_feature.product_feature_id = product_feature_component.product_feature_id
+      WHERE
+      style_creation.style_id = costing.style_id) AS comp_count")
+    )
     ->where('bom_header.bom_id','=',$bom)
     ->get();
 
