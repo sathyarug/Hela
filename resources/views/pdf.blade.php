@@ -102,7 +102,7 @@ PO Report
         <td width="20%">{{ $payment_method_description }}</td>
         <th width="13%">Instruction</th>
         <th width="2%">:</th>
-        <td width="10%"></td>
+        <td width="10%">{{ $instuction }}</td>
       </tr>
 
       <tr>
@@ -194,27 +194,26 @@ PO Report
       @foreach ($count as $sp)
       @if($d->id == $sp->po_details_id)
       {{ $split_tot = $sp->split }}
-      {{ $split_val = number_format(($split_tot * $d->unit_price), 2) }}
+      {{ $split_val = $split_tot * $d->unit_price }}
       @endif
       @endforeach
-
       <tr>
         <td align="center">{{ $d->line_no }}</td>
         <td align="center">{{ $d->style_no }}</td>
         <td align="left">{{ $d->master_code }}</td>
         <td align="left">{{ $d->master_description }}</td>
         <td></td>
-        @if($split_tot == 0)
         <td align="center">{{ $d->deli_date}}</td>
-        @else
-        <td align="center"><strike>{{ $d->deli_date}}</strike></td>
-        @endif
         <td align="center">{{ $d->size_name }}</td>
         <td align="center">{{ $d->color_name }}</td>
         <td align="center">{{ $d->uom_code }}</td>
         <td align="right">{{ number_format($d->unit_price,2) }}</td>
         <td align="right">{{ number_format(($d->req_qty - $split_tot),2) }}</td>
+        @if(($d->tot_qty - $split_val) > 0)
         <td align="right">{{ number_format(($d->tot_qty - $split_val),2) }}</td>
+        @else
+        <td align="right">0.00</td>
+        @endif
       </tr>
       @foreach ($split as $key => $s)
       @if($d->id == $s->po_details_id)
@@ -257,7 +256,7 @@ PO Report
         <td width="7%" align="center"><strong>Qty</strong></td>
       </tr>
       @if(count($summary) != 0)
-      @foreach ($summary as $item)
+      @foreach($summary as $item)
       <tr>
         <td align="center">{{ $item->line_no }}</td>
         <td align="left">{{ $item->master_code }}</td>
@@ -266,11 +265,33 @@ PO Report
         <td align="center">{{ $item->deli_date }}</td>
         <td align="center">{{ $item->uom_code }}</td>
         <td align="right">{{ number_format($item->unit_price,2) }}</td>
-        <td align="center">{{ number_format($item->req_qty,2) }}</td>
+        <td align="right">{{ number_format($item->req_qty,2) }}</td>
       </tr>
       @endforeach
       @elseif(count($sum_split) != 0)
+      {{ $uniq_id = 0}}
       @foreach ($sum_split as $item)
+      {{ $split_tot = 0}}
+      {{ $bal_qty = 0}}
+      @foreach ($count as $sp)
+      @if($sp->po_details_id == $item->id)
+      {{ $split_tot = $sp->split }}
+      {{ $bal_qty = ($item->req_qty - $split_tot) }}
+      @if($bal_qty > 0 && $item->id != $uniq_id)
+      <tr>
+        <td align="center">{{ $item->line_no }}</td>
+        <td align="left">{{ $item->master_code }}</td>
+        <td align="left">{{ $item->master_description }}</td>
+        <td align="center">{{ $item->color_name }}</td>
+        <td align="center">{{ $item->deli_date }}</td>
+        <td align="center">{{ $item->uom_code }}</td>
+        <td align="right">{{ number_format($item->unit_price,2) }}</td>
+        <td align="right">{{ number_format($bal_qty,2) }}</td>
+      </tr>
+      {{ $uniq_id = $item->id}}
+      @endif
+      @endif
+      @endforeach
       <tr>
         <td align="center">{{ $item->line_no }}</td>
         <td align="left">{{ $item->master_code }}</td>
@@ -284,13 +305,17 @@ PO Report
         <td align="center">{{ $item->uom_code }}</td>
         <td align="right">{{ number_format($item->unit_price,2) }}</td>
         @if($item->split_qty == null)
-        <td align="center">{{ number_format($item->req_qty,2) }}</td>
+        <td align="right">{{ number_format($item->req_qty,2) }}</td>
         @else
-        <td align="center">{{ number_format($item->split_qty,2) }}</td>
+        <td align="right">{{ number_format($item->split_qty,2) }}</td>
         @endif
       </tr>
       @endforeach
       @endif
+      <tr>
+        <td colspan="7" align="center"></td>
+        <td align="right"><strong>{{ number_format($req,2) }}</strong></td>
+      </tr>
     </table>
   </div>
 

@@ -151,11 +151,14 @@ class ShopOrderController extends Controller
       $arr['header_data'] = $load_header;
 
       $load_details = ShopOrderHeader::select('merc_shop_order_detail.actual_qty','merc_shop_order_detail.actual_consumption','merc_shop_order_detail.required_qty','merc_shop_order_detail.shop_order_detail_id','merc_shop_order_detail.shop_order_id','product_component.product_component_description','item_master.master_code','item_master.master_description','IUOM.uom_code AS inv_uom','PUOM.uom_code AS pur_uom','org_supplier.supplier_name','merc_shop_order_detail.unit_price','merc_shop_order_detail.purchase_price','item_master.supplier_reference as article_no'
-                      ,'merc_position.position','merc_shop_order_detail.net_consumption','merc_shop_order_detail.wastage','merc_shop_order_detail.gross_consumption','merc_shop_order_header.order_qty','merc_shop_order_detail.po_qty as po_qty','merc_shop_order_detail.asign_qty as grn_qty','merc_shop_order_detail.mrn_qty','merc_shop_order_detail.issue_qty as issued_qty')
+                      ,'merc_position.position','merc_shop_order_detail.net_consumption','merc_shop_order_detail.wastage','merc_shop_order_detail.gross_consumption','merc_shop_order_header.order_qty','merc_shop_order_detail.po_qty as po_qty','merc_shop_order_detail.asign_qty as grn_qty','merc_shop_order_detail.mrn_qty','merc_shop_order_detail.issue_qty as issued_qty','bom_details.sfg_code','sfg_colour.color_name')
                    ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
                    ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
                    ->join('merc_customer_order_header', 'merc_customer_order_details.order_id', '=', 'merc_customer_order_header.order_id')
                    ->join('merc_shop_order_detail', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
+                   ->join('bom_details', 'merc_shop_order_detail.bom_detail_id', '=', 'bom_details.bom_detail_id')
+                   ->join('item_master AS sfg', 'bom_details.sfg_id', '=', 'sfg.master_id')
+                   ->join('org_color AS sfg_colour', 'sfg.color_id', '=', 'sfg_colour.color_id')
                    ->join('product_component', 'merc_shop_order_detail.component_id', '=', 'product_component.product_component_id')
                    ->join('item_master', 'merc_shop_order_detail.inventory_part_id', '=', 'item_master.master_id')
                    ->join('org_uom AS IUOM', 'item_master.inventory_uom', '=', 'IUOM.uom_id')
@@ -203,7 +206,7 @@ class ShopOrderController extends Controller
                      ->get();
 
         $arr['sales_order'] = $load_split;
-        $arr['sales_order_count'] = sizeof($load_split);          
+        $arr['sales_order_count'] = sizeof($load_split);
       }else{
 
         $arr['sales_order'] = $load_sales_order;
