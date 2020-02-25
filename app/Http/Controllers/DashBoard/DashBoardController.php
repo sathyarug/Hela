@@ -208,7 +208,12 @@ elseif($request->type == 'load-rm-otd-ld-narammala'){
 
 return $this->PlantWiseRMNarammala();
 }
-
+elseif($request->type == 'load-rm-lastyear'){
+     return $this->loadRmDataLastYear();
+}
+elseif($request->type == 'load-rm-last-twoyear'){
+     return $this->loadRmDataLastTwoYear();
+}
 
 
        elseif($request->type == 'load-RM'){
@@ -875,12 +880,16 @@ return $this->PlantWiseRMNarammala();
             $current_year = DB::select("SELECT YEAR(CURDATE()) as cur_year");
             $current_year=$current_year["0"];
 
+            $from = date('Y-01-01');
+            $to = date('Y-m-d',strtotime("-1 days"));
+
             $query = DB::table('merc_po_order_header')
             ->select('item_master.master_code',DB::raw("COUNT(item_master.master_code) as OTD"))
             ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
-            ->where(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y"))'),'=',date("Y"))//YEAR(CURDATE())
+            ->whereBetween(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y-%m-%d"))'),[$from,$to])
+            //->where(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y"))'),'=',date("Y"))//YEAR(CURDATE())
             //->where('merc_po_order_header.delivery_date','2020-01-24')
             ->where('store_grn_detail.created_date','<=','merc_po_order_header.delivery_date ')
             ->first();
@@ -890,7 +899,8 @@ return $this->PlantWiseRMNarammala();
             ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
-            ->where(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y"))'), date("Y"))//YEAR(CURDATE())
+            ->whereBetween(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y-%m-%d"))'),[$from,$to])
+            //->where(DB::raw('(DATE_FORMAT(merc_po_order_header.delivery_date,"%Y"))'), date("Y"))//YEAR(CURDATE())
             //->where('merc_po_order_header.delivery_date','2020-01-24')
             ->where('store_grn_detail.created_date','>=','merc_po_order_header.delivery_date ')
             ->first();
@@ -1171,7 +1181,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
             ->where('merc_customer_order_details.rm_in_date','<=','merc_customer_order_details.planned_delivery_date ')
@@ -1187,7 +1197,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
             ->where('merc_customer_order_details.rm_in_date','>=','merc_customer_order_details.planned_delivery_date ')
@@ -1207,7 +1217,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             ->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
             //->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
@@ -1224,7 +1234,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             ->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
             //->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
@@ -1241,7 +1251,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             //->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
             ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y"))'), $lastyear)
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
@@ -1258,7 +1268,7 @@ return $this->PlantWiseRMNarammala();
             ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
             ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
             ->join('org_location', 'merc_po_order_header.po_deli_loc', '=', 'org_location.loc_id')
-            ->where('org_location.loc_id','26')
+            ->where('org_location.loc_id','24')
             //->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
             ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y"))'), $lastyear)
             //->where('merc_customer_order_details.rm_in_date','2020-01-24')
@@ -1853,6 +1863,78 @@ return $this->PlantWiseRMNarammala();
 
     }
 
+    public function loadRmDataLastYear(){
+
+      $from =  date('Y-01-01');
+      $to = date('Y-m-d',strtotime("-1 days"));
+
+      $query = DB::table('merc_po_order_header')
+      ->select('item_master.master_code',DB::raw("COUNT(item_master.master_code) as OTD"))
+      ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+      ->join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+      ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+      ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+      ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
+      //->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
+      ->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
+      ->where('merc_customer_order_details.rm_in_date','<=','merc_customer_order_details.planned_delivery_date ')
+      ->first();
+
+      $query2 = DB::table('merc_po_order_header')
+      ->select('item_master.master_code',DB::raw("COUNT(item_master.master_code) as OTD"))
+      ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+      ->join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+      ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+      ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+      ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
+      //->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'), date("Y-m-d"))
+      ->whereBetween(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y-%m-%d"))'),[$from,$to])
+      ->where('merc_customer_order_details.rm_in_date','>=','merc_customer_order_details.planned_delivery_date ')
+      ->first();
+
+      return array('pass'=>$query,'fail'=>$query2);
+
+    }
+
+
+    public function loadRmDataLastTwoYear(){
+
+      // $from =  date('Y-01-01');
+      //$to = date('Y-m-d',strtotime("-1 days"));
+
+      $query = DB::table('merc_po_order_header')
+      ->select('item_master.master_code',DB::raw("COUNT(item_master.master_code) as OTD"))
+      ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+      ->join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+      ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+      ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+      ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
+      ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y"))'), date("Y")-1)
+      ->where('merc_customer_order_details.rm_in_date','<=','merc_customer_order_details.planned_delivery_date ')
+      ->first();
+
+      $query2 = DB::table('merc_po_order_header')
+      ->select('item_master.master_code',DB::raw("COUNT(item_master.master_code) as OTD"))
+      ->join('merc_po_order_details', 'merc_po_order_header.po_number', '=', 'merc_po_order_details.po_no')
+      ->join('merc_shop_order_detail', 'merc_po_order_details.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+      ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
+      ->join('merc_shop_order_delivery', 'merc_shop_order_header.shop_order_id', '=', 'merc_shop_order_delivery.shop_order_id')
+      ->join('merc_customer_order_details', 'merc_shop_order_delivery.delivery_id', '=', 'merc_customer_order_details.details_id')
+      ->join('item_master', 'merc_po_order_details.item_code', '=', 'item_master.master_id')
+      ->join('store_grn_detail', 'item_master.master_id', '=', 'store_grn_detail.item_code')
+      ->where(DB::raw('(DATE_FORMAT(merc_customer_order_details.rm_in_date,"%Y"))'), date("Y")-1)
+      ->where('merc_customer_order_details.rm_in_date','>=','merc_customer_order_details.planned_delivery_date ')
+      ->first();
+
+      return array('pass'=>$query,'fail'=>$query2);
+
+    }
     public function loadInventoryval(){
 
      $query = DB::table('store_stock')

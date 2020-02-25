@@ -68,13 +68,27 @@ class ProductFeatureController extends Controller
 
               }
 
-            if(isset($lines[$r]['product_silhouette_description']) == '')
-              {
-                $line_id = $r+1;
-                $err = 'Silhouette Line '.$line_id.' cannot be empty.';
-                return response([ 'data' => ['status' => 'error','message' => $err]]);
+            $silhouette2 = ProductSilhouette::select('product_silhouette_id')
+              ->where('product_silhouette_description','=',$lines[$r]['product_silhouette_description'])
+              ->where('product_component','=',$lines[$r]['pro_com_id'])
+              ->first();
 
-              }
+
+             if(isset($silhouette2['product_silhouette_id']) == null)
+                  {
+                    $line_id = $r+1;
+                    $err = 'Incorrect Product Silhouette type. Line -'.$line_id.'.';
+                    return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                  }
+
+              if(isset($lines[$r]['product_silhouette_description']) == '')
+                {
+                  $line_id = $r+1;
+                  $err = 'Silhouette Line '.$line_id.' cannot be empty.';
+                  return response([ 'data' => ['status' => 'error','message' => $err]]);
+
+                }
 
               if(isset($lines[$r]['emb']) == '')
                 {
@@ -110,6 +124,7 @@ class ProductFeatureController extends Controller
 
         $silhouette = ProductSilhouette::select('*')
         ->where('product_silhouette_description','=',$lines[$x]['product_silhouette_description'])
+        ->where('product_component','=',$lines[$x]['pro_com_id'])
         ->first();
 
         $PFC = new ProductFeatureComponent();

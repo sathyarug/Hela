@@ -163,8 +163,8 @@ class ItemPropertyController extends Controller
         $propperty_assign = new ItemProperty();
         $arr = $propperty_assign->load_assign_properties($sub_category);
         for($x = 0 ; $x < sizeof($arr) ; $x++) {
-          $arr[$x]->property_values = $this->load_property_values($arr[$x]->property_id);
-          $arr[$x]->data1 = 0;
+            $arr[$x]->property_values = $this->load_property_values($arr[$x]->property_id);
+            $arr[$x]->data1 = 0;
         }
         return $arr;
     }
