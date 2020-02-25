@@ -94,8 +94,13 @@ class ProductFeatureController extends Controller
 
         }
 
-        $max_f = DB::table('product_feature')->max('product_feature_id');
-        $max_f_n = $max_f + 1;
+
+        $PF = new ProductFeature();
+        $PF ->status = 1;
+        $PF ->save();
+
+        $max_f_n = $PF['product_feature_id'];
+
         $a = 1;
         for($x = 0 ; $x < sizeof($lines) ; $x++) {
 
@@ -136,12 +141,10 @@ class ProductFeatureController extends Controller
 
         $separated = implode(" | ", $a);
 
-        $PF = new ProductFeature();
-        $PF ->product_feature_id = $max_f_n;
-        $PF ->product_feature_description = strtoupper($separated);
-        $PF ->status = 1;
-        $PF ->count = sizeof($lines);
-        $PF ->save();
+        $PFU = ProductFeature::find($max_f_n);
+        $PFU ->product_feature_description = strtoupper($separated);
+        $PFU ->count = sizeof($lines);
+        $PFU ->save();
 
         if(sizeof($lines) == 0){$pack_type = null;}else{$pack_type = sizeof($lines).'-PACK';}
 
