@@ -173,6 +173,16 @@ class BomController extends Controller
       $costing = Costing::find($bom->costing_id);
 
       if($costing->status == 'APPROVED'){//can add item
+        //check bom material cost wirh costing cost
+        $validate_cost = $this->validate_items_cost([$request_data], $costing, $bom);
+        if($validate_cost != ''){ //validation fail
+          return response([
+            'data' => [
+              'status' => 'error',
+              'message' => $validate_cost
+            ]
+          ]);
+        }
 
         $item_data = $this->generate_item_data($request_data);
         //  echo json_encode($item_data);die();
@@ -228,6 +238,18 @@ class BomController extends Controller
         $costing = Costing::find($bom->costing_id);
 
         if($costing->status == 'APPROVED') {
+
+          //check bom material cost wirh costing cost
+          $validate_cost = $this->validate_items_cost($items, $costing, $bom);
+          if($validate_cost != ''){ //validation fail
+            return response([
+              'data' => [
+                'status' => 'error',
+                'message' => $validate_cost
+              ]
+            ]);
+          }
+
           for($x = 0 ; $x < sizeof($items) ; $x++){
             $bom_detail = null;
             if($items[$x]['bom_detail_id'] <= 0){
@@ -584,11 +606,72 @@ class BomController extends Controller
 
     //..........................................................................
 
-  /*  private function validate_items_cost($items, $costing){
-      foreach($items as $item){
+    private function validate_items_cost($items, $costing, $bom){
+      $fabric_cost = $bom->fabric_cost;
+      $trim_cost = $bom->trim_cost;
+      $packing_cost = $bom->packing_cost;
+      $elastic_cost = $bom->elastic_cost;
+      $other_cost = $bom->other_cost;
 
+      foreach($items as $item){
+        //check is a new item or edited item_master
+        if($item['bom_detail_id'] == 0) {//new item
+
+          if($item['category_code'] == 'FAB'){
+            $fabric_cost += $item['total_cost'];
+          }
+          else if($item['category_code'] == 'TRM'){
+            $trim_cost += $item['total_cost'];
+          }
+          else if($item['category_code'] == 'PAC'){
+            $packing_cost += $item['total_cost'];
+          }
+          else if($item['category_code'] == 'ELA'){
+            $elastic_cost += $item['total_cost'];
+          }
+          else if($item['category_code'] == 'OT'){
+            $other_cost += $item['total_cost'];
+          }
+        }
+        else {//update item
+          $bom_detail = BOMDetails::find($item['bom_detail_id']);
+
+          if($item['category_code'] == 'FAB'){
+            $fabric_cost += ($item['total_cost'] - $bom_detail->total_cost);
+          }
+          else if($item['category_code'] == 'TRM'){
+            $trim_cost += ($item['total_cost'] - $bom_detail->total_cost);
+          }
+          else if($item['category_code'] == 'PAC'){
+            $packing_cost += ($item['total_cost'] - $bom_detail->total_cost);
+          }
+          else if($item['category_code'] == 'ELA'){
+            $elastic_cost += ($item['total_cost'] - $bom_detail->total_cost);
+          }
+          else if($item['category_code'] == 'OT'){
+            $other_cost += ($item['total_cost'] - $bom_detail->total_cost);
+          }
+        }
       }
-    }*/
+      //echo json_encode($fabric_cost);die();
+      $message = '';
+      if($fabric_cost > $costing->fabric_cost){
+        $message .= 'BOM fabric cost is grater than costing fabric cost. ';
+      }
+      if($trim_cost > $costing->trim_cost){
+        $message .= 'BOM trim cost is grater than costing trim cost. ';
+      }
+      if($packing_cost > $costing->packing_cost){
+        $message .= 'BOM packing cost is grater than costing packing cost. ';
+      }
+      if($elastic_cost > $costing->elastic_cost){
+        $message .= 'BOM elastic cost is grater than costing elastic cost. ';
+      }
+      if($other_cost > $costing->other_cost){
+        $message .= 'BOM other cost is grater than costing other cost. ';
+      }
+      return  $message;
+    }
 
 
     private function generate_item_data($item_data){
