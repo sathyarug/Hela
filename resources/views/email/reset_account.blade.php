@@ -60,7 +60,7 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td class="h2">
-                Password Reset 
+                Password Reset
               </td>
             </tr>
             <tr>
@@ -81,7 +81,7 @@
                   <tr>
                     <td class="bodycopy">
                        You have requested to reset your surface account password.<br>
-                       Please click the button below to reset your password. 
+                       Please click the button below to reset your password.
                     </td>
                   </tr>
                   <tr>
@@ -104,38 +104,32 @@
       </tr>
 
       <tr>
+       <td class="bodycopy">
+           <center> <label style="font-size:10px;">This is an automatically generated email message from Surface&trade;.</label></center>
+       </td>
+      </tr>
+      <tr>
         <td class="footer" bgcolor="#37474f">
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <!-- <tr>
+            <tr>
               <td align="center" class="footercopy">
-                &reg; Someone, somewhere 20XX<br/>
-                <a href="#" class="unsubscribe"><font color="#ffffff">Unsubscribe</font></a>
-                <span class="hide">from this newsletter instantly</span>
+                &reg; HELA CLOTHING PVT LTD, 2019<br/>
+
               </td>
             </tr>
             <tr>
               <td align="center" style="padding: 20px 0 0 0;">
                 <table border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.facebook.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/facebook.png" width="37" height="37" alt="Facebook" border="0" />
-                      </a>
-                    </td>
-                    <td width="37" style="text-align: center; padding: 0 10px 0 10px;">
-                      <a href="http://www.twitter.com/">
-                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/twitter.png" width="37" height="37" alt="Twitter" border="0" />
-                      </a>
-                    </td>
                   </tr>
                 </table>
               </td>
-            </tr> -->
+            </tr>
           </table>
         </td>
       </tr>
     </table>
-    
+
     </td>
   </tr>
 </table>
