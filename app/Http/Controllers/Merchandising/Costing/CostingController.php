@@ -427,56 +427,6 @@ class CostingController extends Controller {
       ];
     }*/
 
-//    private function getEmpNp($product_feature_id,$data) {
-//
-//        $blk=$data['blkNo'];
-//        $bom=$data['bom'];
-//        $season=$data['season'];
-//        $colType=$data['colType'];
-//
-//
-//        $getTotel=DB::select('SELECT
-//Sum((costing_bulk_details.unit_price*costing_bulk_details.gross_consumption)) AS total,
-//Sum(costing_bulk_feature_details.smv) AS smv,
-//costing_bulk.fob,
-//costing_bulk.plan_efficiency
-//FROM
-//costing_bulk_feature_details
-//INNER JOIN costing_bulk_details ON costing_bulk_details.bulkheader_id = costing_bulk_feature_details.blk_feature_id
-//INNER JOIN costing_bulk ON costing_bulk.bulk_costing_id = costing_bulk_feature_details.bulkheader_id
-//WHERE costing_bulk.bulk_costing_id='.$blk.' AND costing_bulk_feature_details.style_feature_id='.$product_feature_id.' AND costing_bulk_feature_details.season_id='.$season.' AND costing_bulk_feature_details.col_opt_id='.$colType.' AND costing_bulk_feature_details.bom_stage='.$bom.' AND costing_bulk_details.status=1');
-//
-//        $rmCost=0;$smv=0;$fob=0;$epm=0;$labourCost=0;$cpm=0;$totalManuf=0;$finCost=0;$copCost=0;$totalCost=0;$np=0;
-//        if($getTotel[0]->total!=''){
-//            $rmCost=$getTotel[0]->total;
-//        }
-//        if($getTotel[0]->smv!=''){
-//            $smv=$getTotel[0]->smv;
-//        }
-//        if($getTotel[0]->fob!=''){
-//            $fob=$getTotel[0]->fob;
-//        }
-//        if($smv !=0){
-//            $epm=($fob-$rmCost)/$smv;
-//        }
-//
-//        $financeCost=\App\Models\Finance\Cost\FinanceCost::first();
-//        $cpm=($getTotel[0]->plan_efficiency*$financeCost->cpum);
-//        $labourCost=$smv*$cpm;
-//        $totalManuf=$rmCost+$labourCost;
-//        $finCost=$financeCost->finance_cost;
-//        $copCost=$smv*$financeCost->cpmfront_end;
-//        $totalCost=$rmCost+$totalManuf+$finCost+$copCost;
-//
-//        if($totalCost !=0){
-//            $np=($totalCost-$fob)/$totalCost;
-//        }
-//
-//        return array('epm'=>$epm,'np'=>$np);
-//
-//    }
-
-
     public function send_to_approval(Request $request) {
         //check all finish goods have connected sales order deliveries
         $costing = Costing::find($request->costing_id);
@@ -752,19 +702,19 @@ class CostingController extends Controller {
 
             if($costing->edit_status == 1 && $costing->created_by == $user_id){//already in edit mode
               //chek costings boms has shop orders
-              $has_shop_orders = $this->has_shop_orders($costing_id);
-              if($has_shop_orders == true){ //already have shop orders, cannot edit costing
-                return response([
-                  'status' => 'error',
-                  'message' => "Cannot edit costing. Shop orders are already connected to this costing."
-                ]);
-              }
-              else {
+              //$has_shop_orders = $this->has_shop_orders($costing_id);
+              //if($has_shop_orders == true){ //already have shop orders, cannot edit costing
+              //  return response([
+              //    'status' => 'error',
+              //    'message' => "Cannot edit costing. Shop orders are already connected to this costing."
+              //  ]);
+              //  }
+              //else {
                 return response([
                   'status' => 'success',
                   'message' => "You can edit costing"
                 ]);
-              }
+              //}
             }
             else if($costing->edit_status == 1 && $costing->created_by != $user_id){
               return response([
@@ -775,14 +725,14 @@ class CostingController extends Controller {
             else {
               if($costing->created_by == $user_id) {//costing created user and can edit
                 //chek costings boms has shop orders
-                $has_shop_orders = $this->has_shop_orders($costing_id);
+                /*$has_shop_orders = $this->has_shop_orders($costing_id);
                 if($has_shop_orders == true){ //already have shop orders, cannot edit costing
                   return response([
                     'status' => 'error',
                     'message' => "Cannot edit costing. Shop orders are already connected to this costing."
                   ]);
                 }
-                else {
+                else {*/
                   $costing->edit_status = 1;
                   $costing->edit_user = $user_id;
                   $costing->save();
@@ -792,7 +742,7 @@ class CostingController extends Controller {
                     'status' => 'success',
                     'message' => "You can edit costing"
                   ]);
-                }
+                //}
               }
               else {
                 return response([
@@ -851,6 +801,7 @@ class CostingController extends Controller {
       DB::table('bom_header')->where('costing_id', $costing_id)
           ->update(['edit_status' => 1, 'edit_user' => $user_id]);
     }
+
 
     private function remove_boms_from_edit_mode($costing_id){
       $user_id = auth()->user()->user_id;
@@ -1015,6 +966,16 @@ class CostingController extends Controller {
         $user_id = auth()->user()->user_id;
 
         if($user_id == $costing->edit_user) {
+
+          //check for created shop orders
+          $has_shop_orders = $this->has_shop_orders_for_fng_color($costing->id, $fng_color->color_id);
+          if($has_shop_orders == true) {//has shop orders, cannot remove color
+            return response(['data' => [
+              'status' => 'error',
+              'message' => 'Cannot remove color. Shop orders were already created.'
+            ]]);
+          }
+
             $fng_items = CostingFngItem::where('costing_id', '=', $costing->id)->where('fng_color_id', '=', $fng_color->color_id)->get();
             //chek finish goods are created for this color
             if(sizeof($fng_items) > 0) {//has generated finisg goods
@@ -1066,6 +1027,19 @@ class CostingController extends Controller {
     }
 
 
+    private function has_shop_orders_for_fng_color($costing_id, $fng_color_id){
+      $fng_ids = CostingFngItem::where('costing_id', '=', $costing_id)->where('fng_color_id', '=', $fng_color_id)->pluck('fng_id');
+      $shop_order_count = DB::table('merc_shop_order_header')
+      ->join('costing_fng_item', 'costing_fng_item.fng_id', '=', 'merc_shop_order_header.fg_id')
+      ->whereNotIn('costing_fng_item.fng_id', $fng_ids)->count();
+
+      if($shop_order_count > 0){ //already have shop orders
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
 
     //********************** Costing Countries *********************************
 
@@ -1108,6 +1082,16 @@ class CostingController extends Controller {
         $user_id = auth()->user()->user_id;
 
         if($user_id == $costing->edit_user) {
+
+          //check for created shop orders
+          $has_shop_orders = $this->has_shop_orders_for_country($costing->id, $costing_country->country_id);
+          if($has_shop_orders == true) {//has shop orders, cannot remove color
+            return response(['data' => [
+              'status' => 'error',
+              'message' => 'Cannot remove country. Shop orders were already created.'
+            ]]);
+          }
+
           $fng_items = CostingFngItem::where('costing_id', '=', $costing->id)->where('country_id', '=', $costing_country->country_id)->get();
           //chek finish goods are created for this country
           if(sizeof($fng_items) > 0) {//has generated finisg goods
@@ -1172,14 +1156,22 @@ class CostingController extends Controller {
         return $list;
     }
 
+
+    private function has_shop_orders_for_country($costing_id, $country_id){
+      $fng_ids = CostingFngItem::where('costing_id', '=', $costing_id)->where('country_id', '=', $country_id)->pluck('fng_id');
+      $shop_order_count = DB::table('merc_shop_order_header')
+      ->join('costing_fng_item', 'costing_fng_item.fng_id', '=', 'merc_shop_order_header.fg_id')
+      ->whereNotIn('costing_fng_item.fng_id', $fng_ids)->count();
+
+      if($shop_order_count > 0){ //already have shop orders
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+
     //*********************** Costing finish goods and bom *********************
-
-
-
-
-
-
-
 
     private function get_costing_finish_goods($costing_id){
       $costing = Costing::with(['style'])->find($costing_id);
