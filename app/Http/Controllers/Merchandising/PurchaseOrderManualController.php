@@ -478,8 +478,8 @@ class PurchaseOrderManualController extends Controller
                     AND merc_customer_order_header.order_division = org_customer_divisions.division_id
                     INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
                     INNER JOIN bom_details ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
-                    INNER JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
-                    INNER JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
+                    left JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
+                    left JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
                     WHERE
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND
@@ -570,8 +570,8 @@ class PurchaseOrderManualController extends Controller
                     INNER JOIN org_customer_divisions ON merc_customer_order_header.order_customer = org_customer_divisions.customer_id AND merc_customer_order_header.order_division = org_customer_divisions.division_id
                     INNER JOIN item_subcategory ON MAT.subcategory_id = item_subcategory.subcategory_id
                     INNER JOIN bom_details ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
-                    INNER JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
-                    INNER JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
+                    left JOIN item_master AS SFG_IT ON bom_details.sfg_id = SFG_IT.master_id
+                    left JOIN org_color AS SFG_COLOR ON SFG_IT.color_id = SFG_COLOR.color_id
                     WHERE
                     merc_customer_order_header.order_stage LIKE '%$stage%' AND
                     cust_customer.customer_name LIKE '%$customer_name%' AND

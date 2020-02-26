@@ -20,6 +20,7 @@ class itemproperty extends BaseValidator
         ->join('item_property_assign','item_property_assign.property_id','=','item_property.property_id')
         ->select('item_property.property_id','item_property.property_name')
         ->where('item_property_assign.subcategory_id','=', $sub_category)
+        ->where('item_property_assign.status','<>', 0)
         ->orderBy('sequence_no')->get();
     }
 

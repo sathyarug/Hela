@@ -159,7 +159,7 @@
 				  </thead>
 				  <tbody>
 
-				  	@if($header->style_type=='N')
+				  	@if($header->comp_count==1)
 						<!-- Single Style  -->
 					  	@foreach($categories as $category)
 						  <tr>
