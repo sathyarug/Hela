@@ -150,6 +150,12 @@ class BomService
         return false;
       }
 
+      //delete items not in the bom and only exists in the shop order
+     $bom_deleted_item = ShopOrderDetail::leftjoin('bom_details', 'bom_details.bom_detail_id', '=', 'merc_shop_order_detail.bom_detail_id')
+     ->where('merc_shop_order_detail.bom_id', '=', $bom_id)
+     ->whereNull('bom_details.bom_detail_id')->delete();
+
+     //get items only in bom and insert items to shop order
       $items = DB::select("SELECT bom_details.* FROM bom_details
         LEFT JOIN merc_shop_order_detail ON merc_shop_order_detail.bom_detail_id = bom_details.bom_detail_id
         WHERE bom_details.bom_id = ? AND merc_shop_order_detail.shop_order_detail_id IS NULL", [$bom_id]);
@@ -188,7 +194,7 @@ class BomService
             $shoporder_detail->save();
         }
       }
-      echo true;
+      return true;
     }
     catch(Exception $e){
       echo $e;

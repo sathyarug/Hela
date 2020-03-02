@@ -24,7 +24,7 @@ class CostingItem extends BaseValidator {
   ];
 
     protected $rules = array(
-        'feature_component_id' => 'required',
+        //'feature_component_id' => 'required',
         'purchase_uom_id' => 'required',
         'unit_price' => 'required',
         'net_consumption' => 'required',

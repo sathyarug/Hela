@@ -51,6 +51,12 @@ class CostingItemController extends Controller
            'data' => $this->get_items($costing_id, $feature_component_id)
         ]);
        }
+       else if($type == 'costing_finish_good_items'){
+         $costing_id = $request->costing_id;
+         return response([
+           'data' => $this->get_finish_good_items($costing_id)
+        ]);
+       }
        /*else if($type == 'aa')    {
          $search = $request->search;
          return response($this->get_item(10));
@@ -383,17 +389,36 @@ class CostingItemController extends Controller
       ->select('costing_items.*',
         //'costing_items.inventory_part_id','costing_items.feature_component_id','costing_items.costing_id',
         'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
-        //'costing_items.feature_component_id','costing_items.unit_price','costing_items.purchase_price',
-        //'costing_items.net_consumption', 'costing_items.wastage',
-        //'costing_items.gross_consumption', /*'costing_items.meterial_type',*/ 'costing_items.freight_charges',
-        //'costing_items.mcq', 'costing_items.surcharge', 'costing_items.total_cost',
-        //'costing_items.ship_mode', 'costing_items.lead_time', 'costing_items.comments',
         'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
         'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
         'org_country.country_description')
         ->where('costing_items.costing_id', '=', $costing_id)
-        ->where('costing_items.feature_component_id', '=', $feature_component_id)->get();
+        ->where('costing_items.feature_component_id', '=', $feature_component_id)
+        ->orderBy('item_category.category_name', 'ASC')->get();
         //echo json_encode($item);die();
+        return $items;
+    }
+
+
+    private function get_finish_good_items($costing_id){
+      $items = CostingItem::leftjoin('item_master', 'item_master.master_id', '=', 'costing_items.inventory_part_id')
+      ->leftjoin('item_category', 'item_category.category_id', '=', 'item_master.category_id')
+      ->leftjoin('merc_position', 'merc_position.position_id', '=', 'costing_items.position_id')
+      ->leftjoin('org_uom', 'org_uom.uom_id', '=', 'costing_items.purchase_uom_id')
+      ->leftjoin('org_color', 'org_color.color_id', '=', 'item_master.color_id')
+      ->leftjoin('org_supplier', 'org_supplier.supplier_id', '=', 'costing_items.supplier_id')
+      ->leftjoin('org_origin_type', 'org_origin_type.origin_type_id', '=', 'costing_items.origin_type_id')
+      ->leftjoin('org_garment_options', 'org_garment_options.garment_options_id', '=', 'costing_items.garment_options_id')
+      ->leftjoin('fin_shipment_term', 'fin_shipment_term.ship_term_id', '=', 'costing_items.ship_term_id')
+      ->leftjoin('org_country', 'org_country.country_id', '=', 'costing_items.country_id')
+      ->select('costing_items.*',
+        'item_master.supplier_reference', 'item_master.master_code','item_master.master_description',
+        'item_category.category_name','item_category.category_code', 'merc_position.position', 'org_uom.uom_code', 'org_color.color_code','org_color.color_name',
+        'org_supplier.supplier_name', 'org_origin_type.origin_type', 'org_garment_options.garment_options_description', 'fin_shipment_term.ship_term_description',
+        'org_country.country_description')
+        ->where('costing_items.costing_id', '=', $costing_id)
+        ->whereNull('costing_items.feature_component_id')
+        ->orderBy('item_category.category_name', 'ASC')->get();
         return $items;
     }
 
