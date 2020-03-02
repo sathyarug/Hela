@@ -122,7 +122,6 @@ class ItemController extends Controller
           else{
             $item->fill($request->all());
             $item->master_description = strtoupper($item->master_description);
-
             $item->status=1;
             $item->save();
 
@@ -139,10 +138,6 @@ class ItemController extends Controller
 
             $uom_list = $request->uom;
             for($x = 0 ; $x < sizeof($uom_list) ; $x++){
-              /*$item->uoms()->create([
-                  'master_id' => $item->master_id,
-                  'uom_id' => $uom_list[$x]['uom_id']
-              ]);*/
               DB::table('item_uom')->insert([
                   'master_id' => $item->master_id,
                   'uom_id' => $uom_list[$x]['uom_id']
@@ -486,6 +481,16 @@ class ItemController extends Controller
       foreach($items as $item) {
         $exists_item = Item::where('master_description', '=', $item['master_description'])->first();
         if($exists_item == null) {//not a duplicate
+          if($request->item_data['Cuttable_uom']['uom_code'] == 'cm'){
+            $cuttable_width = $request->item_data['width'] + 5;
+            $for_calculation = 1;
+          }else if($request->item_data['Cuttable_uom']['uom_code'] == 'in'){
+            $cuttable_width = $request->item_data['width'] + 2;
+            $for_calculation = 2.5454;
+          }else{
+            $cuttable_width = $request->item_data['width'];
+            $for_calculation = 0;
+          }
           $i = new Item();
           $i->category_id = $parent_item->category_id;
           $i->subcategory_id = $parent_item->subcategory_id;
@@ -504,6 +509,10 @@ class ItemController extends Controller
           $i->article_no = '';
           $i->moq = $item['moq'];
           $i->mcq = $item['mcq'];
+          $i->gsm = $request->item_data['gsm'];
+          $i->width = $cuttable_width;
+          $i->cuttable_uom = $request->item_data['Cuttable_uom']['uom_id'];
+          $i->for_calculation = $for_calculation;
           $i->status = 1;
           $i->group_id = $group_id;
           $i->save();

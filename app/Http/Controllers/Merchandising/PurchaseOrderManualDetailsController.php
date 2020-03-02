@@ -386,6 +386,8 @@ class PurchaseOrderManualDetailsController extends Controller
         $po_details->po_status = 'PLANNED';
         $po_details->po_header_id = $formData['po_id'];
         $po_details->purchase_price = $lines[$x]['purchase_price'];
+        $po_details->purchase_uom = $lines[$x]['purchase_uom'];
+        $po_details->original_req_qty = $lines[$x]['original_req_qty'];
 
         $po_details->save();
 
@@ -394,7 +396,7 @@ class PurchaseOrderManualDetailsController extends Controller
             ->update(['status_user' => 'RELEASED']);
 
         $tot_po_qty = 0;
-        $find_po_qty = DB::select('SELECT Sum(POD.req_qty) AS req_qty FROM merc_po_order_details AS POD
+        $find_po_qty = DB::select('SELECT Sum(POD.original_req_qty) AS req_qty FROM merc_po_order_details AS POD
                        WHERE POD.shop_order_detail_id =  "'.$lines[$x]['shop_order_detail_id'].'"
                        AND POD.status = 1 ' );
 
@@ -439,6 +441,27 @@ class PurchaseOrderManualDetailsController extends Controller
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
 
+          $uom            = $lines[$x]['uom_code'];
+          $purchase_uom   = $lines[$x]['pur_uom_code'];
+          $fractions      = $lines[$x]['fractions'];
+          $present_factor = $lines[$x]['present_factor'];
+          $gsm            = $lines[$x]['gsm'];
+          $width          = $lines[$x]['width'];
+          $if_inch        = $lines[$x]['for_calculation'];
+          $category_name  = $lines[$x]['category_name'];
+
+          if($category_name == "FABRIC" && $uom != $purchase_uom){
+            if($fractions == "D"){
+              $convert =  floatval($present_factor)/(floatval($gsm)*floatval($width)*floatval($if_inch));
+            }else if($fractions == "N"){
+              $convert =  (floatval($gsm)*floatval($width)*floatval($if_inch))/floatval($present_factor);
+            }
+          }else{
+              $convert = 1;
+          }
+
+          //dd($convert);
+
           DB::table('merc_po_order_details')
             ->where('po_header_id', $formData['po_id'])
             ->where('bom_id', $lines[$x]['bom_id'])
@@ -447,10 +470,11 @@ class PurchaseOrderManualDetailsController extends Controller
             ->update(['req_qty' => $lines[$x]['tra_qty'],
                       'tot_qty' => $lines[$x]['value_sum'],
                       'base_unit_price' => $lines[$x]['base_unit_price_revise'],
+                      'original_req_qty' => $lines[$x]['tra_qty'] * $convert,
                       'po_status' => 'PLANNED']);
 
             $tot_po_qty = 0;
-            $find_po_qty = DB::select('SELECT Sum(POD.req_qty) AS req_qty FROM merc_po_order_details AS POD
+            $find_po_qty = DB::select('SELECT Sum(POD.original_req_qty) AS req_qty FROM merc_po_order_details AS POD
                                      WHERE POD.shop_order_detail_id =  "'.$lines[$x]['shop_order_detail_id'].'"
                                      AND POD.status = 1 ' );
 
@@ -708,8 +732,9 @@ class PurchaseOrderManualDetailsController extends Controller
       $PO_NUM= DB::select('SELECT MPOH.po_number,MPOH.po_id FROM merc_po_order_header AS MPOH
             WHERE MPOH.prl_id = "'.$order_id.'"');
 
-      $LOAD_STAGE= DB::select('SELECT MBS.bom_stage_id,MBS.bom_stage_description  FROM merc_purchase_req_lines AS MPRL
-            INNER JOIN merc_bom_stage AS MBS ON MPRL.bom_stage_id= MBS.bom_stage_id
+      $LOAD_STAGE= DB::select('SELECT MBS.bom_stage_id,MBS.bom_stage_description,item_master.category_id  FROM merc_purchase_req_lines AS MPRL
+        INNER JOIN merc_bom_stage AS MBS ON MPRL.bom_stage_id = MBS.bom_stage_id
+        INNER JOIN item_master ON MPRL.item_code = item_master.master_id
             WHERE MPRL.merge_no = "'.$order_id.'" GROUP BY MPRL.merge_no ');
 
       $LOAD_SHIP= DB::select('SELECT MPRL.ship_mode FROM merc_purchase_req_lines AS MPRL
@@ -819,11 +844,17 @@ class PurchaseOrderManualDetailsController extends Controller
        ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_po_order_details.colour')
        ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
        ->join('fin_currency', 'fin_currency.currency_id', '=', 'merc_po_order_header.po_def_cur')
-       ->select('fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*',
+       ->leftjoin('org_uom AS purchase_u', 'purchase_u.uom_id', '=', 'merc_po_order_header.purchase_uom')
+       ->leftjoin("conversion_factor",function($join){
+         $join->on("conversion_factor.unit_code","=","org_uom.uom_code")
+              ->on("conversion_factor.base_unit","=","purchase_u.uom_code");
+             })
+       ->select('purchase_u.uom_code as pur_uom_code','merc_po_order_header.purchase_uom','fin_currency.currency_code','merc_po_order_header.cur_value','item_category.*',
        'item_master.*','org_uom.*','org_color.*','org_size.*','merc_po_order_details.*',
        'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.tot_qty as value_sum',
        'merc_po_order_details.base_unit_price as base_unit_price_revise',
-       'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption',
+       'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption','merc_po_order_details.purchase_price',
+       'conversion_factor.present_factor','conversion_factor.fractions',
          DB::raw('(CASE WHEN merc_po_order_details.status = 1 THEN "ACTIVE" ELSE "INACTIVE" END) AS polineststus'))
        //->where('merc_po_order_details.status'  , '=', 1 )
        ->where('po_id'  , '=', $po_id )
@@ -890,11 +921,17 @@ class PurchaseOrderManualDetailsController extends Controller
         ->join('merc_po_order_header', 'merc_po_order_header.po_id', '=', 'merc_po_order_details.po_header_id')
         ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
         ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
-        ->select('merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*',
+        ->leftjoin('org_uom AS purchase_u', 'purchase_u.uom_id', '=', 'merc_po_order_header.purchase_uom')
+        ->leftjoin("conversion_factor",function($join){
+          $join->on("conversion_factor.unit_code","=","org_uom.uom_code")
+               ->on("conversion_factor.base_unit","=","purchase_u.uom_code");
+              })
+        ->select('purchase_u.uom_code as pur_uom_code','merc_po_order_header.purchase_uom','merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*',
         'org_color.*','org_size.*','merc_po_order_details.*',
         'merc_po_order_details.req_qty as tra_qty','merc_po_order_details.req_qty as bal_order',
         'merc_po_order_details.req_qty as sumunit_price','merc_po_order_details.base_unit_price as base_unit_price_revise',
-        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption','merc_po_order_details.purchase_price')
+        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption','merc_po_order_details.purchase_price',
+        'conversion_factor.present_factor','conversion_factor.fractions')
         ->where('prl_id'  , '=', $prl_id )
         ->Where('merc_po_order_details.created_by','=', $user->user_id)
         ->get();

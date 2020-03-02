@@ -333,7 +333,9 @@ class CustomerOrderDetailsController extends Controller
 
         $order_details_new = new CustomerOrderDetails();
         $order_details_new->order_id = $order_details->order_id;
+        $order_details_new->fng_id = $order_details->fng_id;
         $order_details_new->style_color = $order_details->style_color;
+        $order_details_new->colour_type = $order_details->colour_type;
         $order_details_new->style_description = $order_details->style_description;
         $order_details_new->pcd = $order_details->pcd;
         $order_details_new->rm_in_date = $order_details->rm_in_date;
@@ -352,7 +354,6 @@ class CustomerOrderDetailsController extends Controller
         $order_details_new->ac_date = $order_details->ac_date;
         $order_details_new->version_no = 0;
         $order_details_new->line_no = $this->get_next_line_no($order_details->order_id);
-
         $order_details_new->active_status = 'ACTIVE';
         $order_details_new->save();
 

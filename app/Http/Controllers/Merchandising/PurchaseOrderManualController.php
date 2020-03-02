@@ -16,6 +16,7 @@ use App\Models\Merchandising\PurchaseReqLines;
 use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
 use App\Models\Merchandising\ShopOrderDelivery;
+use App\Models\Merchandising\Item\Item;
 
 class PurchaseOrderManualController extends Controller
 {
@@ -44,6 +45,10 @@ class PurchaseOrderManualController extends Controller
         $search = $request->search;
         return response($this->autocomplete_search($search));
       }
+      else if($type == 'loadPurchaseUom')    {
+        $search = $request->search;
+        return response($this->autocomplete_PurchaseUom_search($search));
+      }
       else if($type == 'style')    {
         $search = $request->search;
         return response($this->style_search($search));
@@ -65,6 +70,7 @@ class PurchaseOrderManualController extends Controller
         $order->po_type = $request->po_type['bom_stage_id'];
         $order->ship_mode = $request->ship_mode['ship_mode'];
         $order->special_ins = strtoupper($request->special_ins);
+        $order->purchase_uom = $request->purchase_uom['uom_id'];
         $order->status = '1';
         $order->po_status = 'PLANNED';
         $order->save();
@@ -263,11 +269,17 @@ class PurchaseOrderManualController extends Controller
 
 
     //search customer for autocomplete
-    private function autocomplete_search($search)
+    private function autocomplete_PurchaseUom_search($search)
   	{
-  		/*$customer_lists = Customer::select('customer_id','customer_name')
-  		->where([['customer_name', 'like', '%' . $search . '%'],]) ->get();
-  		return $customer_lists;*/
+  		$customer_lists = Item::select('org_uom.uom_id','org_uom.uom_code')
+      ->join('item_category', 'item_master.category_id', '=', 'item_category.category_id')
+      ->join('item_uom', 'item_master.master_id', '=', 'item_uom.master_id')
+      ->join('org_uom', 'item_uom.uom_id', '=', 'org_uom.uom_id')
+  		->where([['item_category.category_name', '=', 'FABRIC'],['org_uom.uom_code', 'like', '%' . $search . '%']])
+      ->groupBy('org_uom.uom_code')
+      ->orderBy('org_uom.uom_id', 'ASC')
+      ->get();
+  		return $customer_lists;
   	}
 
 
@@ -682,30 +694,7 @@ class PurchaseOrderManualController extends Controller
       $prl_id = $request->prl_id;
       $user = auth()->user();
 
-      /*$load_list = PurchaseReqLines::join("bom_details",function($join){
-               $join->on("bom_details.bom_id","=","merc_purchase_req_lines.bom_id")
-                    ->on("bom_details.id","=","merc_purchase_req_lines.bom_detail_id");
-
-            })
-       ->join('bom_header', 'bom_header.bom_id', '=', 'bom_details.bom_id')
-       ->join('costing', 'costing.id', '=', 'bom_header.costing_id')
-       ->join('item_master', 'item_master.master_id', '=', 'bom_details.master_id')
-	     ->join('item_subcategory', 'item_subcategory.subcategory_id', '=', 'item_master.subcategory_id')
-       ->join('item_category', 'item_category.category_id', '=', 'item_subcategory.category_id')
-       ->leftjoin('mat_ratio', 'mat_ratio.id', '=', 'merc_purchase_req_lines.mat_id')
-       ->join('org_uom', 'org_uom.uom_id', '=', 'merc_purchase_req_lines.uom_id')
-       ->leftjoin('org_size', 'org_size.size_id', '=', 'merc_purchase_req_lines.item_size')
-       ->leftjoin('org_color', 'org_color.color_id', '=', 'merc_purchase_req_lines.item_color')
-       ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
-	     //->select((DB::raw('round((merc_purchase_req_lines.unit_price * merc_po_order_header.cur_value) * merc_purchase_req_lines.bal_order,2) AS value_sum')),(DB::raw('round(merc_purchase_req_lines.unit_price,2) * round(merc_po_order_header.cur_value,2) as sumunit_price')),'merc_po_order_header.cur_value','item_category.*','item_master.*','org_uom.*','bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->select('costing.*','item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*',
-       'bom_details.*','org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty')
-       ->where('merge_no'  , '=', $prl_id )
-       ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
-       ->get();*/
-
-
-       $load_list = PurchaseReqLines::join('merc_shop_order_detail', 'merc_purchase_req_lines.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
+      $load_list = PurchaseReqLines::join('merc_shop_order_detail', 'merc_purchase_req_lines.shop_order_detail_id', '=', 'merc_shop_order_detail.shop_order_detail_id')
         ->join('merc_shop_order_header', 'merc_shop_order_detail.shop_order_id', '=', 'merc_shop_order_header.shop_order_id')
         ->join('item_master', 'item_master.master_id', '=', 'merc_shop_order_detail.inventory_part_id')
         ->join('item_category', 'item_category.category_id', '=', 'item_master.category_id')
@@ -715,11 +704,17 @@ class PurchaseOrderManualController extends Controller
         ->join('merc_po_order_header', 'merc_po_order_header.prl_id', '=', 'merc_purchase_req_lines.merge_no')
         ->join('merc_customer_order_details', 'merc_customer_order_details.shop_order_id', '=', 'merc_shop_order_detail.shop_order_id')
         ->join('merc_customer_order_header', 'merc_customer_order_header.order_id', '=', 'merc_customer_order_details.order_id')
- 	      ->select('item_category.*','item_master.*','merc_po_order_header.cur_value','org_uom.*',
-        'org_color.*','org_size.*','merc_purchase_req_lines.*','merc_purchase_req_lines.bal_order as tra_qty',
-        'merc_shop_order_detail.unit_price as ori_unit_price','merc_shop_order_detail.shop_order_detail_id',
-        'merc_shop_order_detail.shop_order_id','merc_shop_order_detail.purchase_price','merc_customer_order_header.order_style AS style_id',
-        'merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption')
+        ->leftjoin('org_uom AS purchase_u', 'purchase_u.uom_id', '=', 'merc_po_order_header.purchase_uom')
+        ->leftjoin("conversion_factor",function($join){
+          $join->on("conversion_factor.unit_code","=","org_uom.uom_code")
+               ->on("conversion_factor.base_unit","=","purchase_u.uom_code");
+              })
+ 	      ->select('purchase_u.uom_code as pur_uom_code','merc_po_order_header.purchase_uom','item_category.*','item_master.*',
+        'merc_po_order_header.cur_value','org_uom.*','org_color.*','org_size.*','merc_purchase_req_lines.*',
+        'merc_purchase_req_lines.bal_order as tra_qty','merc_shop_order_detail.unit_price as ori_unit_price',
+        'merc_shop_order_detail.shop_order_detail_id','merc_shop_order_detail.shop_order_id','merc_shop_order_detail.purchase_price',
+        'merc_customer_order_header.order_style AS style_id','merc_shop_order_header.order_qty','merc_shop_order_detail.gross_consumption',
+        'conversion_factor.present_factor','conversion_factor.fractions','merc_purchase_req_lines.bal_order as original_req_qty')
         ->where('merge_no'  , '=', $prl_id )
         ->Where('merc_purchase_req_lines.created_by','=', $user->user_id)
         ->get();

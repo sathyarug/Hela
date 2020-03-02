@@ -44,6 +44,13 @@ class UomController extends Controller
         ]);
       }
 
+      else if($type == 'auto_3')    {
+        //$master_id = $request->master_id;
+        return response([
+          'data' => $this->Cuttable_uom_list()
+        ]);
+      }
+
       else {
         $active = $request->active;
         $fields = $request->fields;
@@ -220,6 +227,18 @@ class UomController extends Controller
 
       return $uom_lists;
     }
+
+    public function Cuttable_uom_list(){
+
+    $uom_lists =  DB::table('org_uom')
+                      ->select('org_uom.uom_id','org_uom.uom_code')
+                      ->where('org_uom.cuttable' , '=', 1 )
+                      ->where('org_uom.status' , '<>', 0 )
+                      ->get();
+
+      return $uom_lists;
+    }
+
 
 
     //get filtered fields only
