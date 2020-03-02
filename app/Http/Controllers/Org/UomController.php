@@ -39,8 +39,9 @@ class UomController extends Controller
 
       else if($type == 'auto_2')    {
         $master_id = $request->master_id;
+        $category = $request->category;
         return response([
-          'data' => $this->mat_uom_list($master_id)
+          'data' => $this->mat_uom_list($master_id,$category)
         ]);
       }
 
@@ -211,21 +212,22 @@ class UomController extends Controller
     }
 
 
-    public function mat_uom_list($master_id){
-      //$uom_lists = SubCategory::where('category_id', '=', $category_id)->where('status','=','1')->get();
-      //return $uom_lists;
-      //$uom_lists = UOM::select('uom_id','uom_code')
-      //->where('status', '=', 1)
-  		//->where([['uom_code', 'like', '%' . $search . '%'],]) ->get();
+    public function mat_uom_list($master_id,$category){
+      //dd($category);
 
     $uom_lists =  DB::table('item_uom')
                       ->select('org_uom.uom_id','org_uom.uom_code')
                       ->join('org_uom', 'item_uom.uom_id', '=', 'org_uom.uom_id')
                       ->where('item_uom.master_id' , '=', $master_id )
-                      ->where('org_uom.status' , '<>', 0 )
-                      ->get();
+                      ->where('org_uom.status' , '<>', 0 );
+    if ($category == "yd")
+    {
+        $uom_lists->where('org_uom.uom_code' , '=', "yd" );
+    }
 
-      return $uom_lists;
+      $load_list = $uom_lists->get();
+
+      return $load_list;
     }
 
     public function Cuttable_uom_list(){
