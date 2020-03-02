@@ -78,7 +78,11 @@ class BOMDetails extends BaseValidator
                          ->on('costing_bulk_details.main_item','=','bom_details.master_id');
                  })
                 ->leftJoin('merc_color_options','merc_color_options.col_opt_id','=','costing_bulk_details.color_type_id')
-                ->select('item_master.master_id','item_master.master_description','bom_details.artical_no','org_color.color_name','org_size.size_name','org_uom.uom_description','org_uom.uom_id','bom_details.conpc','bom_details.item_wastage','bom_details.unit_price','bom_details.total_qty','bom_details.total_value','org_color.color_id','costing_bulk_details.moq','costing_bulk_details.mcq','org_size.size_id','org_supplier.supplier_name','org_supplier.supplier_id','merc_color_options.color_option','item_category.category_code','product_component.product_component_description','product_component.product_component_id')
+                ->select('item_master.master_id','item_master.master_description','bom_details.artical_no','org_color.color_name','org_size.size_name',
+                'org_uom.uom_description','org_uom.uom_id','bom_details.conpc','bom_details.item_wastage','bom_details.unit_price',
+                'bom_details.total_qty','bom_details.total_value','org_color.color_id','costing_bulk_details.moq','costing_bulk_details.mcq',
+                'org_size.size_id','org_supplier.supplier_name','org_supplier.supplier_id','merc_color_options.color_option','item_category.category_code',
+                'product_component.product_component_description','product_component.product_component_id')
                 ->where('bom_header.bom_id',$bomId)
                 ->where('costing_bulk_details.status',1)
                 ->get();

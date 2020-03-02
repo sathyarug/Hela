@@ -1062,7 +1062,7 @@ private function get_items($bom_id){
     ->where('bom_details.bom_id', '=', $bom_id)->orderBy('bom_details.sfg_code', 'ASC')
     ->orderBy('bom_details.product_component_id', 'ASC')
     ->orderBy('bom_details.product_silhouette_id', 'ASC')
-    ->orderBy('bom_details.inventory_part_id', 'ASC')->get();
+    ->orderBy('item_category.category_name', 'ASC')->get();
     //echo json_encode($item);die();
     return $items;
 }
@@ -1130,7 +1130,7 @@ private function datatable_search($data){
   ->join('merc_color_options', 'merc_color_options.col_opt_id', '=', 'costing.color_type_id')
   ->join('item_master', 'item_master.master_id', '=', 'bom_header.fng_id')
   ->where('bom_header.bom_id'  , 'like', $search.'%' )
-  ->orWhere('bom_header.sc_no'  , 'like', $search.'%' )
+  ->orWhere('item_master.master_code'  , 'like', $search.'%' )
   ->orWhere('style_creation.style_no'  , 'like', $search.'%' )
   ->orWhere('merc_bom_stage.bom_stage_description','like',$search.'%')
   ->orWhere('org_season.season_name','like',$search.'%')
