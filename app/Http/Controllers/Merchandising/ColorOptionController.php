@@ -57,6 +57,7 @@ class ColorOptionController extends Controller
         {
           $colorOption->fill($request->all());
           $colorOption->color_option=strtoupper($colorOption->color_option);
+          $colorOption->color_type_code=strtoupper($colorOption->color_type_code);
           $colorOption->status = 1;
           $colorOption->save();
 
@@ -115,6 +116,7 @@ class ColorOptionController extends Controller
         {
           $colorOption->fill($request->all());
           $colorOption->color_option=strtoupper($colorOption->color_option);
+          $colorOption->color_type_code=strtoupper($colorOption->color_type_code);
           $colorOption->save();
 
           return response([ 'data' => [

@@ -21,7 +21,7 @@ class ColorOption extends BaseValidator {
     const UPDATED_AT = 'updated_date';
     const CREATED_AT = 'created_date';
 
-    protected $fillable = ['color_option'];
+    protected $fillable = ['color_option','color_type_code'];
 
     // protected $rules = array(
     //     'color_option' => 'required'
