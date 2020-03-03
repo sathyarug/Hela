@@ -24,7 +24,7 @@ PO Report
         <div>E-Mail: Web: www.fdnsl.com</div>
       </div>
     </div>
-    <div style="float:left; width:20%;"><img src="http://test-surface.helaclothing.com/test/surfacedev/resources/images/hela.jpg" /></div>
+    <div style="float:left; width:20%;"><img src="{{ URL::asset('assets\images\logo.jpg') }}" /></div>
   </div>
 
   <div class="row style-details-1" style="width:100%;">
