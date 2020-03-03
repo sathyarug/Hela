@@ -434,9 +434,6 @@ class PurchaseOrderManualDetailsController extends Controller
       //dd($lines);
       $po = $formData['po_id'];
 
-
-      //$ordId = $formData['ordId'];
-    //  print_r($lines[0]['bom_id']);
       if($lines != null && sizeof($lines) >= 1){
 
         for($x = 0 ; $x < sizeof($lines) ; $x++){
@@ -455,6 +452,8 @@ class PurchaseOrderManualDetailsController extends Controller
               $convert =  floatval($present_factor)/(floatval($gsm)*floatval($width)*floatval($if_inch));
             }else if($fractions == "N"){
               $convert =  (floatval($gsm)*floatval($width)*floatval($if_inch))/floatval($present_factor);
+            }else if($fractions == null){
+              $convert =  floatval($present_factor);
             }
           }else{
               $convert = 1;

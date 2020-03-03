@@ -17,6 +17,7 @@ use App\Models\Merchandising\ShopOrderHeader;
 use App\Models\Merchandising\ShopOrderDetail;
 use App\Models\Merchandising\ShopOrderDelivery;
 use App\Models\Merchandising\Item\Item;
+use App\Models\Org\UOM;
 
 class PurchaseOrderManualController extends Controller
 {
@@ -271,13 +272,17 @@ class PurchaseOrderManualController extends Controller
     //search customer for autocomplete
     private function autocomplete_PurchaseUom_search($search)
   	{
-  		$customer_lists = Item::select('org_uom.uom_id','org_uom.uom_code')
-      ->join('item_category', 'item_master.category_id', '=', 'item_category.category_id')
-      ->join('item_uom', 'item_master.master_id', '=', 'item_uom.master_id')
-      ->join('org_uom', 'item_uom.uom_id', '=', 'org_uom.uom_id')
-  		->where([['item_category.category_name', '=', 'FABRIC'],['org_uom.uom_code', 'like', '%' . $search . '%']])
-      ->groupBy('org_uom.uom_code')
-      ->orderBy('org_uom.uom_id', 'ASC')
+  		// $customer_lists = Item::select('org_uom.uom_id','org_uom.uom_code')
+      // ->join('item_category', 'item_master.category_id', '=', 'item_category.category_id')
+      // ->join('item_uom', 'item_master.master_id', '=', 'item_uom.master_id')
+      // ->join('org_uom', 'item_uom.uom_id', '=', 'org_uom.uom_id')
+  		// ->where([['item_category.category_name', '=', 'FABRIC'],['org_uom.uom_code', 'like', '%' . $search . '%']])
+      // ->groupBy('org_uom.uom_code')
+      // ->orderBy('org_uom.uom_id', 'ASC')
+      // ->get();
+
+      $customer_lists = UOM::select('org_uom.uom_id','org_uom.uom_code')
+  		->where([['org_uom.conversion_factor', '=', '1'],['org_uom.uom_code', 'like', '%' . $search . '%']])
       ->get();
   		return $customer_lists;
   	}
